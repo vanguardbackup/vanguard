@@ -1,0 +1,87 @@
+<div>
+    <x-form-wrapper>
+        <form wire:submit="submit">
+            <div class="mt-4">
+                <x-input-label for="label" :value="__('Label')"/>
+                <x-text-input id="label" class="block mt-1 w-full" type="text" wire:model="label" name="label"
+                              autofocus/>
+                <x-input-error :messages="$errors->get('label')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="type" :value="__('Type')"/>
+                <x-select id="type" class="block mt-1 w-full" wire:model="type" name="type">
+                    <option value="s3">{{ __('Amazon S3') }}</option>
+                    <option value="custom_s3">{{ __('Custom S3') }}</option>
+                </x-select>
+                <x-input-error :messages="$errors->get('type')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="s3AccessKey" :value="__('Access Key')"/>
+                <x-text-input id="s3AccessKey" class="block mt-1 w-full" type="text" wire:model="s3AccessKey"
+                              name="s3AccessKey"/>
+                <x-input-error :messages="$errors->get('s3AccessKey')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="s3SecretKey" :value="__('Secret Key')"/>
+                <x-text-input id="s3SecretKey" class="block mt-1 w-full" type="text" wire:model="s3SecretKey"
+                              name="s3SecretKey"/>
+                <x-input-error :messages="$errors->get('s3SecretKey')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="s3BucketName" :value="__('Bucket Name')"/>
+                <x-text-input id="s3BucketName" class="block mt-1 w-full" type="text" wire:model="s3BucketName"
+                              name="s3BucketName"/>
+                <x-input-error :messages="$errors->get('s3BucketName')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="customS3Region" :value="__('Region')"/>
+                <x-text-input id="customS3Region" class="block mt-1 w-full" type="text" wire:model="customS3Region"
+                              name="customS3Region"/>
+                <x-input-error :messages="$errors->get('customS3Region')" class="mt-2"/>
+                <x-input-explain>
+                    {{ __('The region where the bucket is located. This is optional for Custom S3s.') }}
+                </x-input-explain>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="customS3Endpoint" :value="__('Endpoint')"/>
+                <x-text-input id="customS3Endpoint" class="block mt-1 w-full" type="text" wire:model="customS3Endpoint"
+                              name="customS3Endpoint"/>
+                <x-input-error :messages="$errors->get('customS3Endpoint')" class="mt-2"/>
+            </div>
+            <div class="mt-4">
+                <x-input-label for="usePathStyleEndpoint" :value="__('Use Path Style Endpoint')"/>
+                <x-checkbox id="usePathStyleEndpoint" class="block mt-1 w-full" wire:model="usePathStyleEndpoint"
+                            name="usePathStyleEndpoint"/>
+                <x-input-error :messages="$errors->get('usePathStyleEndpoint')" class="mt-2"/>
+                <x-input-explain>
+                    {{ __('This will append the bucket name to the URL instead of adding it as a subdomain.') }}
+                </x-input-explain>
+            </div>
+            <div class="mt-6 max-w-3xl mx-auto">
+                <div class="flex space-x-5">
+                    <div class="w-4/6">
+                        <x-primary-button type="submit" class="mt-4" centered wire:loading.attr="disabled"
+                                          wire:loading.class="opacity-50 cursor-not-allowed">
+
+                            <div wire:loading wire:target="submit">
+                                <x-spinner class="mr-2 text-white dark:text-gray-900 h-4 w-4 inline"/>
+                                {{ __('Saving..') }}
+                            </div>
+
+                            <div wire:loading.remove wire:target="submit">
+                                {{ __('Save') }}
+                            </div>
+                        </x-primary-button>
+                    </div>
+                    <div class="w-2/6 ml-2">
+                        <a href="{{ route('backup-destinations.index') }}" wire:navigate>
+                            <x-secondary-button type="button" class="mt-4" centered>
+                                {{ __('Cancel') }}
+                            </x-secondary-button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </x-form-wrapper>
+</div>
