@@ -1,6 +1,8 @@
 <?php
 
 use App\Jobs\CheckRemoteServerConnectionJob;
+use App\Jobs\RemoteServers\RemoveServerJob;
+use App\Jobs\RemoteServers\RemoveSSHKeyJob;
 use App\Models\RemoteServer;
 
 it('sets the last connected at timestamp', function () {
@@ -240,4 +242,58 @@ it('returns false for isDatabasePasswordEncrypted if the server has a plain text
     $server = RemoteServer::factory()->create(['database_password' => 'secret']);
 
     expect($server->isDatabasePasswordEncrypted())->toBeFalse();
+});
+
+it('dispatches a job to remove the ssh key', function () {
+
+    Queue::fake();
+
+    $server = RemoteServer::factory()->create();
+
+    $server->removeSSHKey();
+
+    Queue::assertPushed(RemoveSSHKeyJob::class, function ($job) use ($server) {
+        return $job->remoteServer->id === $server->id;
+    });
+});
+
+it('dispatches a job to delete the remote server', function () {
+    Queue::fake();
+
+    $server = RemoteServer::factory()->create();
+
+    $server->removeServer();
+
+    $this->assertTrue($server->isMarkedForDeletion());
+
+    Queue::assertPushed(RemoveServerJob::class, function ($job) use ($server) {
+        return $job->remoteServer->id === $server->id;
+    });
+
+    Queue::assertPushed(RemoveSSHKeyJob::class, function ($job) use ($server) {
+        return $job->remoteServer->id === $server->id;
+    });
+});
+
+it('updates the marked for deletion column', function () {
+
+    $server = RemoteServer::factory()->create();
+
+    $server->setMarkedForDeletion();
+
+    $this->assertNotNull($server->marked_for_deletion_at);
+});
+
+it('returns true if marked for deletion', function () {
+
+    $server = RemoteServer::factory()->create(['marked_for_deletion_at' => now()]);
+
+    $this->assertTrue($server->isMarkedForDeletion());
+});
+
+it('returns false if not marked for deletion', function () {
+
+    $server = RemoteServer::factory()->create(['marked_for_deletion_at' => null]);
+
+    $this->assertFalse($server->isMarkedForDeletion());
 });

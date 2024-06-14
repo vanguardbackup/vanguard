@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Jobs\CheckRemoteServerConnectionJob;
+use App\Jobs\RemoteServers\RemoveServerJob;
+use App\Jobs\RemoteServers\RemoveSSHKeyJob;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -123,5 +125,32 @@ class RemoteServer extends Model
     public function isUnknown(): bool
     {
         return $this->connectivity_status === self::STATUS_UNKNOWN;
+    }
+
+    public function isMarkedForDeletion(): bool
+    {
+        return ! empty($this->marked_for_deletion_at);
+    }
+
+    public function setMarkedForDeletion(): void
+    {
+        $this->update(['marked_for_deletion_at' => now()]);
+        $this->save();
+        $this->refresh();
+    }
+
+    public function removeServer(): void
+    {
+        $this->setMarkedForDeletion();
+        $this->removeSSHKey();
+
+        // We delay so the key has time to be removed before the server is removed!
+        RemoveServerJob::dispatch($this)
+            ->delay(now()->addMinutes(2));
+    }
+
+    public function removeSSHKey(): void
+    {
+        RemoveSSHKeyJob::dispatch($this);
     }
 }
