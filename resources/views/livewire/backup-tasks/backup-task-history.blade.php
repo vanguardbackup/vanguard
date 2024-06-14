@@ -49,9 +49,15 @@
                                         @svg('heroicon-o-document-text', 'h-4 w-4')
                                         <span class="sr-only">{{ __('View Log') }}</span>
                                     </x-secondary-button>
+                                    <x-secondary-button x-data=""
+                                                        x-on:click.prevent="$dispatch('open-modal', 'backup-task-remove-historic-log-{{ $backupTaskLog->id }}')" iconOnly title="{{ __('Remove this log') }}">
+                                        @svg('heroicon-o-trash', 'h-4 w-4')
+                                        <span class="sr-only">{{ __('Remove Log') }}</span>
+                                    </x-secondary-button>
                                 </div>
                             </x-table.body-item>
                         </div>
+                    @include('livewire.backup-tasks.delete-backup-task-log-button', ['backupTaskLog' => $backupTaskLog])
                         <x-modal name="backup-task-historic-log-{{ $backupTaskLog->id }}">
                             <div class="p-6 text-center">
                                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
