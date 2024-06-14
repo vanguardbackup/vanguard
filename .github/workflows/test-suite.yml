@@ -1,6 +1,10 @@
 name: Tests
 
 on:
+  workflow_run:
+    workflows: ["Duster Fix"]
+    types:
+      - completed
   push:
     branches: [main]
   pull_request:
