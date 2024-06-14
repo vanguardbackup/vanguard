@@ -19,7 +19,12 @@ function createUserWithBackupTaskAndDependencies(): array
     ]);
     $backupDestination = BackupDestination::factory()->create(['user_id' => $user->id]);
 
-    return compact('user', 'remoteServer', 'backupTask', 'backupDestination');
+    return [
+        'user' => $user,
+        'remoteServer' => $remoteServer,
+        'backupTask' => $backupTask,
+        'backupDestination' => $backupDestination,
+    ];
 }
 
 beforeEach(function () {
