@@ -1,10 +1,11 @@
 @section('title', 'Overview')
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Overview') }}
-        </h2>
-    </x-slot>
+    @if (Auth::user()->backupTasks->isNotEmpty())
+        <x-slot name="header">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Overview') }}
+            </h2>
+        </x-slot>
     <div class="pt-7 pb-12 mx-auto max-w-6xl">
         <div class="mb-4">
             <div class="flex">
@@ -58,61 +59,64 @@
             @livewire('dashboard.upcoming-backup-tasks')
         </div>
     </div>
-    <script>
-        document.addEventListener('livewire:navigated', function () {
-            const ctx = document.getElementById('totalBackupsPerMonth').getContext('2d');
-            const totalBackupsPerMonth = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: {!! $months !!},
-                    datasets: [{
-                        label: 'Total Backups',
-                        data: {!! $counts !!},
-                        borderColor: 'rgb(0,0,0)',
-                        backgroundColor: 'rgba(0,0,0,0.24)',
-                        tension: 0.2
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+        <script>
+            document.addEventListener('livewire:navigated', function () {
+                const ctx = document.getElementById('totalBackupsPerMonth').getContext('2d');
+                const totalBackupsPerMonth = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! $months !!},
+                        datasets: [{
+                            label: 'Total Backups',
+                            data: {!! $counts !!},
+                            borderColor: 'rgb(0,0,0)',
+                            backgroundColor: 'rgba(0,0,0,0.24)',
+                            tension: 0.2
+                        }]
                     },
-                },
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('livewire:navigated', function () {
-            const ctx = document.getElementById('backupTasksByType').getContext('2d');
-            const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(label => label.charAt(0).toUpperCase() + label.slice(1));
-            const backupTasksByType = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Type',
-                        data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
-                        backgroundColor: [
-                            'rgb(237,254,255)',
-                            'rgb(250,245,255)',
-                        ],
-                        borderColor: [
-                            'rgb(189,220,223)',
-                            'rgb(192,180,204)',
-                        ],
-                        borderWidth: 0.8
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
                     },
-                },
+                });
             });
-        });
-    </script>
+        </script>
+        <script>
+            document.addEventListener('livewire:navigated', function () {
+                const ctx = document.getElementById('backupTasksByType').getContext('2d');
+                const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(label => label.charAt(0).toUpperCase() + label.slice(1));
+                const backupTasksByType = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Type',
+                            data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
+                            backgroundColor: [
+                                'rgb(237,254,255)',
+                                'rgb(250,245,255)',
+                            ],
+                            borderColor: [
+                                'rgb(189,220,223)',
+                                'rgb(192,180,204)',
+                            ],
+                            borderWidth: 0.8
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                    },
+                });
+            });
+        </script>
+        @else
+        @include('partials.steps-to-get-started.view')
+    @endif
 </x-app-layout>
