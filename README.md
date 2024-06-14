@@ -2,6 +2,10 @@
 
 [![Tests](https://github.com/lewislarsen/vanguard/actions/workflows/test-suite.yml/badge.svg?branch=main)](https://github.com/lewislarsen/vanguard/actions/workflows/test-suite.yml)
 [![Fix code style](https://github.com/lewislarsen/vanguard/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/lewislarsen/vanguard/actions/workflows/fix-code-style.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![GitHub Release](https://img.shields.io/github/v/release/vanguardsh/vanguard)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Livewire](https://img.shields.io/badge/livewire-4e56a6?style=for-the-badge&logo=livewire&logoColor=white)
 ## About Vanguard
 
 Vanguard is a Laravel project that aims to provide an easy way to back up your Linux server files or databases to a remote destination such as an S3 bucket. It is designed to be easy to use and to be able to run on a schedule, enhanced with notifications, so you know what's happening with your backups.
@@ -54,11 +58,6 @@ Vanguard has a few artisan commands that are specific to the project that can be
 | `vanguard:encrypt-database-passwords`               | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                            |
 
 **Note:** There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
-
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Vanguard, please send an e-mail to [lewis@larsens.dev](mailto:lewis@larsens.dev) within 24 hours of discovery. All security vulnerabilities will be promptly addressed. Thank you.
 
 ## Contributing
 
