@@ -51,11 +51,12 @@ Vanguard uses Duster by Tighten to ensure a consistent code style across the pro
 
 Vanguard has a few artisan commands that are specific to the project that can be run. Here is a list of the commands and what they do:
 
-| Command                                             | Description                                                                                                                            |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| `vanguard:generate-ssh-key`                         | Generates an SSH key required for backup operations.                                                                                   |
-| `vanguard:validate-s3-connection {id}`              | Able to check whether a backup destination that uses S3 can be reached. This takes the primary key of the backup destination as an id. |
-| `vanguard:encrypt-database-passwords`               | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                            |
+| Command                                | Description                                                                                                                            |
+|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `vanguard:generate-ssh-key`            | Generates an SSH key required for backup operations.                                                                                   |
+| `vanguard:version`                     | Checks the version of Vanguard.                                                                                                        |
+| `vanguard:validate-s3-connection {id}` | Able to check whether a backup destination that uses S3 can be reached. This takes the primary key of the backup destination as an id. |
+| `vanguard:encrypt-database-passwords`  | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                            |
 
 **Note:** There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
 

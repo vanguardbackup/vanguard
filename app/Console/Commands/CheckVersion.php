@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
+use File;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 
 class CheckVersion extends Command
 {
@@ -16,8 +16,8 @@ class CheckVersion extends Command
 
         $versionFile = base_path('VERSION');
 
-        if (! File::exists($versionFile)) {
-            $this->components->error('Unable to determine the current version. The version file is missing.');
+        if (!File::exists($versionFile)) {
+            $this->components->error("Unable to determine the current version. The version file is missing.");
 
             return;
         }

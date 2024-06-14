@@ -11,6 +11,7 @@ it('fails if it cannot find the version file', function () {
         ->assertExitCode(0);
 });
 
+
 it('returns the current version number from the file', function () {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(true);
     File::shouldReceive('get')->with(base_path('VERSION'))->andReturn('1.0.0');
