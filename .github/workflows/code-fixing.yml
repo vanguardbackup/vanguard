@@ -26,4 +26,4 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Ensured code style consistency.
+          commit_message: "chore: Ensure code style consistency across the codebase"
