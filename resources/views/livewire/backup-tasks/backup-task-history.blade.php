@@ -57,7 +57,7 @@
                                 </div>
                             </x-table.body-item>
                         </div>
-                    @include('livewire.backup-tasks.delete-backup-task-log-button', ['backupTaskLog' => $backupTaskLog])
+                    @livewire('backup-tasks.delete-backup-task-log-button', ['backupTaskLog' => $backupTaskLog])
                         <x-modal name="backup-task-historic-log-{{ $backupTaskLog->id }}">
                             <div class="p-6 text-center">
                                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
