@@ -15,6 +15,7 @@ class S3 implements BackupDestinationInterface
     use BackupHelpers;
 
     protected S3Client $client;
+
     protected string $bucketName;
 
     public function __construct(S3Client $client, string $bucketName)
@@ -59,7 +60,7 @@ class S3 implements BackupDestinationInterface
             $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);
             $stream = $this->openFileAsStream($tempFile);
 
-            $fullPath = $storagePath . '/' . $fileName;
+            $fullPath = $storagePath.'/'.$fileName;
             $filesystem->writeStream($fullPath, $stream);
             fclose($stream);
             Log::debug('Stream written to S3.', ['file_name' => $fullPath]);
