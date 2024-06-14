@@ -5,7 +5,6 @@ namespace App\Livewire\BackupTasks;
 use App\Models\BackupTaskLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -22,7 +21,7 @@ class DeleteBackupTaskLogButton extends Component
 
     public function delete(): RedirectResponse|Redirector
     {
-      $this->authorize('forceDelete', $this->backupTaskLog->backupTask);
+        $this->authorize('forceDelete', $this->backupTaskLog->backupTask);
 
         $this->backupTaskLog->forceDelete();
 

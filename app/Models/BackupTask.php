@@ -213,7 +213,7 @@ class BackupTask extends Model
         }
 
         if ($this->isAnotherTaskRunningOnSameRemoteServer()) {
-            Log::debug('Another task is running on the same remote server, skipping run for task ' . $this->id . ' for now.');
+            Log::debug('Another task is running on the same remote server, skipping run for task '.$this->id.' for now.');
 
             return;
         }
