@@ -15,6 +15,7 @@ class IndexTable extends Component
     public function render(): View
     {
         $remoteServers = RemoteServer::where('user_id', Auth::id())
+            ->whereNull('marked_for_deletion_at')
             ->orderBy('created_at', 'desc')
             ->paginate(30, pageName: 'remote-servers');
 

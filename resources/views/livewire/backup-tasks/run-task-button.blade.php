@@ -19,6 +19,14 @@
             </span>
             @svg('heroicon-o-play', 'w-4 h-4')
         </x-secondary-button>
+    @elseif ($backupTask->remoteServer->isMarkedForDeletion())
+        <x-secondary-button iconOnly type="button" class="cursor-not-allowed bg-opacity-50" disabled
+                            title=" {{ __('Remote server is marked for deletion') }}">
+            <span class="sr-only">
+                {{ __('Remote server is marked for deletion') }}
+            </span>
+            @svg('heroicon-o-play', 'w-4 h-4')
+        </x-secondary-button>
     @else
         <x-secondary-button iconOnly wire:click="runTask" type="button" title="{{ __('Click to run this task') }}">
             <span class="sr-only">Run Task</span>

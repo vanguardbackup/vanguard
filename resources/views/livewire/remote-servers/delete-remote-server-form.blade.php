@@ -17,6 +17,11 @@
             <p class="text-gray-800 dark:text-gray-200 my-3">
                 {{ __('This action cannot be undone. All your backups will still exist at the backup destination.') }}
             </p>
+
+            <p class="text-gray-800 dark:text-gray-200 my-3">
+                {{ __('Vanguard will attempt to remove its SSH keys from your remote server, however please double check your `~/.ssh/authorized_keys` file afterwards.') }}
+            </p>
+
             <div class="flex space-x-5">
                 <div class="w-4/6">
                     <x-danger-button type="button" wire:click="delete" class="mt-4" centered wire:loading.attr="disabled"

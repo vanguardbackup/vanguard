@@ -11,6 +11,10 @@ class EditController extends Controller
 {
     public function __invoke(Request $request, RemoteServer $remoteServer): View
     {
+        $remoteServer->query()
+            ->whereNull('marked_for_deletion_at')
+            ->findOrFail($remoteServer->id);
+
         return view('remote-servers.edit', [
             'remoteServer' => $remoteServer,
         ]);

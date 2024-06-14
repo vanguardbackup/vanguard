@@ -28,9 +28,9 @@ class DeleteRemoteServerForm extends Component
     {
         $this->authorize('forceDelete', $this->remoteServer);
 
-        $this->remoteServer->delete();
+        $this->remoteServer->removeServer();
 
-        Toaster::success('Remote server has been removed.');
+        Toaster::success('Remote server will be removed shortly.');
 
         return Redirect::route('remote-servers.index');
     }

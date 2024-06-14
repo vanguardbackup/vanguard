@@ -19,6 +19,26 @@ test('the page can be rendered by by the owner of the remote server', function (
 
     $this->assertAuthenticatedAs($user);
     $this->assertEquals($user->id, $remoteServer->user_id);
+    $this->assertFalse($remoteServer->isMarkedForDeletion());
+});
+
+test('the page cannot be rendered if the remote server has been marked for deletion', function () {
+
+    $user = User::factory()->create();
+
+    $remoteServer = RemoteServer::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $remoteServer->setMarkedForDeletion();
+
+    $response = $this->actingAs($user)->get(route('remote-servers.edit', $remoteServer));
+
+    $response->assertNotFound();
+
+    $this->assertAuthenticatedAs($user);
+    $this->assertEquals($user->id, $remoteServer->user_id);
+    $this->assertTrue($remoteServer->isMarkedForDeletion());
 });
 
 test('the page is not rendered by unauthorized users', function () {
