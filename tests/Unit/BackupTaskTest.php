@@ -358,8 +358,12 @@ it('does not run the database job if the task has been paused', function () {
 
 it('does not run the files job if a task is already running on the same remote server', function () {
     Queue::fake();
+
     $remoteServer = RemoteServer::factory()->create();
-    $task = BackupTask::factory()->create(['status' => 'running', 'type' => 'files', 'remote_server_id' => $remoteServer->id]);
+
+    $runningTask = BackupTask::factory()->create(['status' => 'running', 'type' => 'files', 'remote_server_id' => $remoteServer->id]);
+
+    $task = BackupTask::factory()->create(['status' => 'ready', 'type' => 'files', 'remote_server_id' => $remoteServer->id]);
 
     $task->run();
 
@@ -367,10 +371,13 @@ it('does not run the files job if a task is already running on the same remote s
 });
 
 it('does not run the database job if a task is already running on the same remote server', function () {
-
     Queue::fake();
+
     $remoteServer = RemoteServer::factory()->create();
-    $task = BackupTask::factory()->create(['status' => 'running', 'type' => 'database', 'remote_server_id' => $remoteServer->id]);
+
+    $runningTask = BackupTask::factory()->create(['status' => 'running', 'type' => 'database', 'remote_server_id' => $remoteServer->id]);
+
+    $task = BackupTask::factory()->create(['status' => 'ready', 'type' => 'database', 'remote_server_id' => $remoteServer->id]);
 
     $task->run();
 
@@ -721,18 +728,28 @@ it('returns false if there is no store path specified', function () {
     expect($task->hasCustomStorePath())->toBeFalse();
 });
 
-it('returns true if a remote server has a task that is running already', function () {
+it('returns true if a remote server has another task that is running already', function () {
+
+    $remoteServer = RemoteServer::factory()->create();
+    $task1 = BackupTask::factory()->create(['status' => 'running', 'remote_server_id' => $remoteServer->id]);
+    $task2 = BackupTask::factory()->create(['status' => 'ready', 'remote_server_id' => $remoteServer->id]);
+
+    expect($task2->isAnotherTaskRunningOnSameRemoteServer())->toBeTrue();
+});
+
+it('returns false if a remote server does not have another task that is running already', function () {
+
+    $remoteServer = RemoteServer::factory()->create();
+    $task1 = BackupTask::factory()->create(['status' => 'ready', 'remote_server_id' => $remoteServer->id]);
+    $task2 = BackupTask::factory()->create(['status' => 'ready', 'remote_server_id' => $remoteServer->id]);
+
+    expect($task2->isAnotherTaskRunningOnSameRemoteServer())->toBeFalse();
+});
+
+it('returns false if there is only one task on the remote server', function () {
 
     $remoteServer = RemoteServer::factory()->create();
     $task = BackupTask::factory()->create(['status' => 'running', 'remote_server_id' => $remoteServer->id]);
-
-    expect($task->isAnotherTaskRunningOnSameRemoteServer())->toBeTrue();
-});
-
-it('returns false if a remote server does not have a task that is running already', function () {
-
-    $remoteServer = RemoteServer::factory()->create();
-    $task = BackupTask::factory()->create(['status' => 'ready', 'remote_server_id' => $remoteServer->id]);
 
     expect($task->isAnotherTaskRunningOnSameRemoteServer())->toBeFalse();
 });
