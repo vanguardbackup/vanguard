@@ -65,4 +65,4 @@ Route::middleware(['auth'])
             ->middleware('can:update,backupTask');
     });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

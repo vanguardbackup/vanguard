@@ -21,7 +21,7 @@ it('can check s3 connection', function () {
 
     $component->call('checkConnection');
 
-    $component->assertDispatched('backup-destination-connection-check-initiated-'.$backupDestination->id);
+    $component->assertDispatched('backup-destination-connection-check-initiated-' . $backupDestination->id);
 
     Toaster::assertDispatched(__('Performing a connectivity check.'));
 });

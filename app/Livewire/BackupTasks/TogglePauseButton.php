@@ -33,7 +33,7 @@ class TogglePauseButton extends Component
             $this->backupTask->pause();
         }
 
-        $this->dispatch('pause-button-clicked-'.$this->backupTask->id);
+        $this->dispatch('pause-button-clicked-' . $this->backupTask->id);
     }
 
     public function render(): View

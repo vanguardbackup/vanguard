@@ -26,7 +26,7 @@ it('runs task and dispatches event', function () {
 
     Livewire::test(RunTaskButton::class, ['backupTask' => $backupTask])
         ->call('runTask')
-        ->assertDispatched('task-button-clicked-'.$backupTask->id);
+        ->assertDispatched('task-button-clicked-' . $backupTask->id);
 
     expect($backupTask->refresh()->status)->toBe(BackupTask::STATUS_RUNNING);
 

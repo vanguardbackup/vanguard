@@ -77,8 +77,8 @@ class BackupDestination extends Model
         try {
             return new S3Client($config);
         } catch (Exception $e) {
-            Log::error('Failed to create S3 client: '.$e->getMessage());
-            throw new RuntimeException('Failed to create S3 client: '.$e->getMessage());
+            Log::error('Failed to create S3 client: ' . $e->getMessage());
+            throw new RuntimeException('Failed to create S3 client: ' . $e->getMessage());
         }
     }
 

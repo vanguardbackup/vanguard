@@ -147,7 +147,7 @@ test('getRemoteDirectorySize returns correct size', function () {
         ->ordered();
 
     $sftp->shouldReceive('exec')->with('du --version')->andReturn('du version');
-    $sftp->shouldReceive('exec')->with('du -sb '.escapeshellarg($path).' | cut -f1')->andReturn('1024');
+    $sftp->shouldReceive('exec')->with('du -sb ' . escapeshellarg($path) . ' | cut -f1')->andReturn('1024');
     $sftp->shouldReceive('isConnected')->andReturn(true);
 
     $size = $this->backupService->getRemoteDirectorySize($sftp, $path);

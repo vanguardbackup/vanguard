@@ -27,7 +27,7 @@ class CheckS3Connection
 
             return true;
         } catch (Exception $e) {
-            Log::error('[S3] Failed to list buckets: '.$e->getMessage());
+            Log::error('[S3] Failed to list buckets: ' . $e->getMessage());
             BackupDestinationConnectionCheck::dispatch($backupDestination, BackupDestination::STATUS_UNREACHABLE);
             $backupDestination->markAsUnreachable();
 

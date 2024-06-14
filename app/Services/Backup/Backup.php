@@ -130,7 +130,7 @@ abstract class Backup
     {
         $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
 
-        $logOutput .= "\n".$errorMessage;
+        $logOutput .= "\n" . $errorMessage;
         $this->sendEmailNotificationOfTaskFailure($backupTask, $errorMessage);
     }
 
@@ -147,7 +147,7 @@ abstract class Backup
             throw new SFTPConnectionException('The du command is not available on the remote server.');
         }
 
-        $sizeCommand = 'du -sb '.escapeshellarg($path).' | cut -f1';
+        $sizeCommand = 'du -sb ' . escapeshellarg($path) . ' | cut -f1';
         $output = $sftp->exec($sizeCommand);
         $this->logDebug('Directory size command output.', ['output' => $output]);
 
@@ -179,7 +179,7 @@ abstract class Backup
         if (! $sftp->login($remoteServer->username, $key)) {
             $error = $sftp->getLastError();
             $this->logError('SSH login failed.', ['error' => $error]);
-            throw new SFTPConnectionException('SSH Login failed: '.$error);
+            throw new SFTPConnectionException('SSH Login failed: ' . $error);
         }
 
         $this->logInfo('SFTP connection established.', ['remote_server' => $remoteServer->ip_address]);
@@ -193,7 +193,7 @@ abstract class Backup
 
         $this->validateSFTP($sftp);
 
-        $dirSizeCommand = 'du -sb '.escapeshellarg($sourcePath).' | cut -f1';
+        $dirSizeCommand = 'du -sb ' . escapeshellarg($sourcePath) . ' | cut -f1';
         $dirSizeOutput = $sftp->exec($dirSizeCommand);
         $dirSize = trim($dirSizeOutput);
 
@@ -204,7 +204,7 @@ abstract class Backup
 
         $this->logInfo('Directory size calculated.', ['source_path' => $sourcePath, 'dir_size' => $dirSize]);
 
-        $diskSpaceCommand = 'df -P '.escapeshellarg(dirname($remoteZipPath)).' | tail -1 | awk \'{print $4}\'';
+        $diskSpaceCommand = 'df -P ' . escapeshellarg(dirname($remoteZipPath)) . ' | tail -1 | awk \'{print $4}\'';
         $diskSpaceOutput = $sftp->exec($diskSpaceCommand);
         $availableSpace = trim($diskSpaceOutput) * 1024; // Convert from KB to bytes
 
@@ -220,7 +220,7 @@ abstract class Backup
             throw new BackupTaskZipException('Not enough disk space to create the zip file.');
         }
 
-        $zipCommand = 'cd '.escapeshellarg($sourcePath).' && zip -rv '.escapeshellarg($remoteZipPath).' .';
+        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' .';
         $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
 
         $result = $this->retryCommand(function () use ($sftp, $zipCommand) {
@@ -230,17 +230,17 @@ abstract class Backup
         if ($result === false) {
             $error = $sftp->getLastError();
             $this->logError('Failed to execute zip command after retries.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'error' => $error]);
-            throw new BackupTaskZipException('Failed to zip the directory after multiple attempts: '.$error);
+            throw new BackupTaskZipException('Failed to zip the directory after multiple attempts: ' . $error);
         }
 
-        $checkFileCommand = 'test -f '.escapeshellarg($remoteZipPath).' && stat -c%s '.escapeshellarg($remoteZipPath);
+        $checkFileCommand = 'test -f ' . escapeshellarg($remoteZipPath) . ' && stat -c%s ' . escapeshellarg($remoteZipPath);
         $fileCheckOutput = $sftp->exec($checkFileCommand);
         $this->logDebug('File check command output.', ['output' => $fileCheckOutput]);
 
         if ($fileCheckOutput === false) {
             $error = $sftp->getLastError();
             $this->logError('Failed to check zip file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
-            throw new BackupTaskZipException('Failed to check zip file: '.$error);
+            throw new BackupTaskZipException('Failed to check zip file: ' . $error);
         }
 
         $fileSize = trim($fileCheckOutput);
@@ -258,7 +258,7 @@ abstract class Backup
         if (! $sftp->get($remoteZipPath, $tempFile)) {
             $error = $sftp->getLastError();
             $this->logError('Failed to download the remote file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
-            throw new Exception('Failed to download the remote file: '.$error);
+            throw new Exception('Failed to download the remote file: ' . $error);
         }
         $this->logDebug('Remote file downloaded.', ['temp_file' => $tempFile]);
 
@@ -271,7 +271,7 @@ abstract class Backup
         if (! $stream) {
             $error = error_get_last();
             $this->logError('Failed to open the temporary file as a stream.', ['temp_file' => $tempFile, 'error' => $error]);
-            throw new Exception('Failed to open the temporary file as a stream: '.json_encode($error));
+            throw new Exception('Failed to open the temporary file as a stream: ' . json_encode($error));
         }
         $this->logDebug('Temporary file opened as a stream.');
 
@@ -292,7 +292,7 @@ abstract class Backup
         $timestamp = $dt->format('d-m-Y H:i:s');
         $this->logInfo('Log with timestamp.', ['timestamp' => $timestamp, 'message' => $message]);
 
-        return '['.$timestamp.'] '.$message."\n";
+        return '[' . $timestamp . '] ' . $message . "\n";
     }
 
     protected function rotateOldBackups(BackupDestinationInterface $backupDestination, $backupTaskId, int $backupLimit, string $fileExtension = '.zip', string $pattern = 'backup_'): void
@@ -353,20 +353,20 @@ abstract class Backup
             $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
             if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
                 foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' --ignore-table='.$databaseName.'.'.$table;
+                    $excludeTablesOption .= ' --ignore-table=' . $databaseName . '.' . $table;
                 }
             } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
                 foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' -T '.$table;
+                    $excludeTablesOption .= ' -T ' . $table;
                 }
             }
             Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
         }
 
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-            $dumpCommand = 'mysqldump '.$databaseName.$excludeTablesOption.' --password='.escapeshellarg($databasePassword).' > '.escapeshellarg($remoteDumpPath).' 2>&1';
+            $dumpCommand = 'mysqldump ' . $databaseName . $excludeTablesOption . ' --password=' . escapeshellarg($databasePassword) . ' > ' . escapeshellarg($remoteDumpPath) . ' 2>&1';
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-            $dumpCommand = 'PGPASSWORD='.escapeshellarg($databasePassword).' pg_dump '.$databaseName.$excludeTablesOption.' > '.escapeshellarg($remoteDumpPath).' --format=custom 2>&1';
+            $dumpCommand = 'PGPASSWORD=' . escapeshellarg($databasePassword) . ' pg_dump ' . $databaseName . $excludeTablesOption . ' > ' . escapeshellarg($remoteDumpPath) . ' --format=custom 2>&1';
         } else {
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
             throw new DatabaseDumpException('Unsupported database type.');
@@ -377,10 +377,10 @@ abstract class Backup
 
         if (stripos($output, 'error') !== false || stripos($output, 'failed') !== false) {
             $this->logError('Failed to dump the database.', ['output' => $output]);
-            throw new DatabaseDumpException('Failed to dump the database: '.$output);
+            throw new DatabaseDumpException('Failed to dump the database: ' . $output);
         }
 
-        $checkFileCommand = 'test -s '.escapeshellarg($remoteDumpPath).' && echo "exists" || echo "not exists"';
+        $checkFileCommand = 'test -s ' . escapeshellarg($remoteDumpPath) . ' && echo "exists" || echo "not exists"';
         $fileCheckOutput = trim($sftp->exec($checkFileCommand));
 
         if ($fileCheckOutput !== 'exists') {
@@ -401,7 +401,7 @@ abstract class Backup
 
     protected function handleException(Exception $e, string $context): void
     {
-        $this->logError($context.': '.$e->getMessage(), ['exception' => $e]);
+        $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);
     }
 
     protected function retryCommand(callable $command, int $maxRetries, int $retryDelay)
@@ -446,7 +446,7 @@ abstract class Backup
     {
         $this->logInfo('Deleting folder.', ['folder_path' => $folderPath]);
 
-        $deleteCommand = 'rm -rf '.escapeshellarg($folderPath);
+        $deleteCommand = 'rm -rf ' . escapeshellarg($folderPath);
         $result = $sftp->exec($deleteCommand);
 
         if ($result === false) {

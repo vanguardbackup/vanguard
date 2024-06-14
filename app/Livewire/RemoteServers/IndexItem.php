@@ -37,7 +37,7 @@ class IndexItem extends Component
         $this->dispatch('$refresh');
 
         // This will refresh the "CheckConnectionButton" component via its listener.
-        $this->dispatch('update-check-button-'.$this->remoteServer->id);
+        $this->dispatch('update-check-button-' . $this->remoteServer->id);
     }
 
     public function mount(RemoteServer $remoteServer): void

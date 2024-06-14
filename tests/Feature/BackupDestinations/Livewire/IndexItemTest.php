@@ -46,5 +46,5 @@ it('can update the Livewire components', function () {
     $component->call('updateLivewireComponents');
 
     $component->assertDispatched('$refresh');
-    $component->assertDispatched('update-backup-destination-check-button-'.$backupDestination->id);
+    $component->assertDispatched('update-backup-destination-check-button-' . $backupDestination->id);
 });

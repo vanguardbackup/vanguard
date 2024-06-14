@@ -56,9 +56,9 @@ class DatabaseBackup extends Backup
             $backupTask->setScriptUpdateTime();
 
             if ($backupTask->hasFileNameAppended()) {
-                $dumpFileName = $backupTask->appended_file_name.'_backup_'.$backupTaskId.'_'.date('YmdHis').'.sql';
+                $dumpFileName = $backupTask->appended_file_name . '_backup_' . $backupTaskId . '_' . date('YmdHis') . '.sql';
             } else {
-                $dumpFileName = 'backup_'.$backupTaskId.'_'.date('YmdHis').'.sql';
+                $dumpFileName = 'backup_' . $backupTaskId . '_' . date('YmdHis') . '.sql';
             }
             $remoteDumpPath = "/tmp/{$dumpFileName}";
             Log::info('Dumping remote database.', ['backup_task_id' => $backupTaskId, 'dump_file_name' => $dumpFileName]);
@@ -96,7 +96,7 @@ class DatabaseBackup extends Backup
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
         } catch (Exception $exception) {
-            $logOutput .= 'Error in backup process: '.$exception->getMessage()."\n";
+            $logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
             Log::error('Error in backup process.', ['backup_task_id' => $backupTaskId, 'error' => $exception->getMessage(), 'exception' => $exception]);
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
         } finally {

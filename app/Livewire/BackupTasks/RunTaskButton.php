@@ -31,7 +31,7 @@ class RunTaskButton extends Component
 
         $this->backupTask->run();
 
-        $this->dispatch('task-button-clicked-'.$this->backupTask->id);
+        $this->dispatch('task-button-clicked-' . $this->backupTask->id);
 
         $this->dispatch('refresh-backup-tasks-table');
 

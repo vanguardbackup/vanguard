@@ -68,8 +68,8 @@ class FileBackup extends Backup
             }
 
             $zipFileName = $backupTask->hasFileNameAppended()
-                ? $backupTask->appended_file_name.'_backup_'.$backupTaskId.'_'.date('YmdHis').'.zip'
-                : 'backup_'.$backupTaskId.'_'.date('YmdHis').'.zip';
+                ? $backupTask->appended_file_name . '_backup_' . $backupTaskId . '_' . date('YmdHis') . '.zip'
+                : 'backup_' . $backupTaskId . '_' . date('YmdHis') . '.zip';
 
             $remoteZipPath = "/tmp/{$zipFileName}";
             Log::info("Zipping directory: {$sourcePath} to {$remoteZipPath} for backup task: {$backupTaskId}");
@@ -108,8 +108,8 @@ class FileBackup extends Backup
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
         } catch (Exception $exception) {
-            $logOutput .= 'Error in backup process: '.$exception->getMessage()."\n";
-            Log::error("Error in backup process for task {$backupTaskId}: ".$exception->getMessage(), ['exception' => $exception]);
+            $logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
+            Log::error("Error in backup process for task {$backupTaskId}: " . $exception->getMessage(), ['exception' => $exception]);
         } finally {
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
             $backupTaskLog->setFinishedTime();
@@ -117,7 +117,7 @@ class FileBackup extends Backup
             $backupTask->sendNotifications();
             $backupTask->updateLastRanAt();
             $backupTask->resetScriptUpdateTime();
-            Log::info('[BACKUP TASK] Completed backup task: '.$backupTask->label.' ('.$backupTask->id.').');
+            Log::info('[BACKUP TASK] Completed backup task: ' . $backupTask->label . ' (' . $backupTask->id . ').');
         }
     }
 }

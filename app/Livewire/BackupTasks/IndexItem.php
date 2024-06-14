@@ -33,7 +33,7 @@ class IndexItem extends Component
         $this->backupTaskLog = BackupTaskLog::findOrFail($event['logId']);
 
         // refresh the component and fetch the latest log.
-        $this->dispatch('backup-task-item-updated-'.$this->backupTask->id);
+        $this->dispatch('backup-task-item-updated-' . $this->backupTask->id);
     }
 
     public function echoBackupTaskStatusReceivedEvent(): void
@@ -41,7 +41,7 @@ class IndexItem extends Component
         Log::debug('Received the BackupTaskStatusChanged event. Refreshing the component.');
 
         $this->dispatch('$refresh');
-        $this->dispatch('update-run-button-'.$this->backupTask->id);
+        $this->dispatch('update-run-button-' . $this->backupTask->id);
 
         $this->dispatch('refreshBackupTaskHistory'); // Refresh the backup task history component as there's a new log.
     }

@@ -40,7 +40,7 @@ class UpdateRemoteServerForm extends Component
 
         $this->validate([
             'label' => ['required', 'string'],
-            'host' => ['required', 'string', 'ip', 'unique:remote_servers,ip_address,'.$this->remoteServer->id],
+            'host' => ['required', 'string', 'ip', 'unique:remote_servers,ip_address,' . $this->remoteServer->id],
             'username' => ['required', 'string'],
             'port' => ['required', 'integer', 'min:1', 'max:65535'],
             'databasePassword' => ['string', 'nullable'],

@@ -25,7 +25,7 @@ function formatTimezones(): array
         $region = explode('/', $timezone)[0];
         $city = explode('/', $timezone)[1] ?? '';
         $city = str_replace('_', ' ', $city);
-        $formattedTimezones[$timezone] = '(GMT '.$dateTime->format('P').') '.$city.' ('.$region.')';
+        $formattedTimezones[$timezone] = '(GMT ' . $dateTime->format('P') . ') ' . $city . ' (' . $region . ')';
     }
 
     return $formattedTimezones;

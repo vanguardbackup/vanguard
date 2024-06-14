@@ -64,7 +64,7 @@ class GenerateSSHKeyCommand extends Command
             throw new RuntimeException(sprintf('Directory "%s" was not created', $path));
         }
 
-        $comment = 'worker@'.str_replace(['http://', 'https://'], '', config('app.url'));
+        $comment = 'worker@' . str_replace(['http://', 'https://'], '', config('app.url'));
 
         $command = [
             'ssh-keygen',

@@ -20,7 +20,7 @@ it('can check connection', function () {
 
     $component->call('checkConnection');
 
-    $component->assertDispatched('connection-check-initiated-'.$remoteServer->id);
+    $component->assertDispatched('connection-check-initiated-' . $remoteServer->id);
 
     Toaster::assertDispatched(__('Performing a connectivity check.'));
 });
