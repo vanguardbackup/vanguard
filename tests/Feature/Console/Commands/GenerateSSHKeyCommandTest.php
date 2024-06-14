@@ -35,7 +35,7 @@ it('should generate ssh keys', function () {
 
     if (file_exists($pathToSSHKeys)) {
         Log::info('Backing up the existing SSH keys to perform the test.');
-        rename($pathToSSHKeys, $pathToSSHKeys.'_backup');
+        rename($pathToSSHKeys, $pathToSSHKeys . '_backup');
     }
 
     $this->artisan(GenerateSSHKeyCommand::class)
@@ -44,14 +44,14 @@ it('should generate ssh keys', function () {
 
     $this->assertDirectoryExists($pathToSSHKeys);
 
-    $this->assertFileExists($pathToSSHKeys.'/key');
-    $this->assertFileExists($pathToSSHKeys.'/key.pub');
+    $this->assertFileExists($pathToSSHKeys . '/key');
+    $this->assertFileExists($pathToSSHKeys . '/key.pub');
 
-    unlink($pathToSSHKeys.'/key');
-    unlink($pathToSSHKeys.'/key.pub');
+    unlink($pathToSSHKeys . '/key');
+    unlink($pathToSSHKeys . '/key.pub');
 
-    if (file_exists($pathToSSHKeys.'_backup')) {
+    if (file_exists($pathToSSHKeys . '_backup')) {
         Log::info('Restoring the SSH keys to their original location.');
-        rename($pathToSSHKeys.'_backup', $pathToSSHKeys);
+        rename($pathToSSHKeys . '_backup', $pathToSSHKeys);
     }
 });

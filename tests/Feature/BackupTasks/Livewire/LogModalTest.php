@@ -122,7 +122,7 @@ it('correctly outputs the latest log', function () {
     $component->assertDontSee($olderLog->output);
 
     $component->assertDispatched('$refresh');
-    $component->assertDispatched('log-modal-updated-'.$backupTask->id);
+    $component->assertDispatched('log-modal-updated-' . $backupTask->id);
 });
 
 it('handles log data to the logOutput variable if the task is running', function () {

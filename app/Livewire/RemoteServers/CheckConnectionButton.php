@@ -29,7 +29,7 @@ class CheckConnectionButton extends Component
         $this->remoteServer->runServerConnectionCheck();
 
         // This will call the "markAsChecking" method on the "IndexItem" component.
-        $this->dispatch('connection-check-initiated-'.$this->remoteServer->id);
+        $this->dispatch('connection-check-initiated-' . $this->remoteServer->id);
 
         Toaster::info(__('Performing a connectivity check.'));
     }

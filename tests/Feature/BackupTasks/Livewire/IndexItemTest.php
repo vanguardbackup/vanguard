@@ -14,7 +14,7 @@ it('dispatches refresh and update events on task status update', function () {
     $component->call('echoBackupTaskStatusReceivedEvent');
 
     $component->assertDispatched('$refresh');
-    $component->assertDispatched('update-run-button-'.$backupTask->id);
+    $component->assertDispatched('update-run-button-' . $backupTask->id);
 });
 
 it('updates log information on log creation event', function () {
@@ -34,7 +34,7 @@ it('updates log information on log creation event', function () {
         'logId' => $log->id,
     ]);
 
-    $component->assertDispatched('backup-task-item-updated-'.$backupTask->id);
+    $component->assertDispatched('backup-task-item-updated-' . $backupTask->id);
 
     $backupTask->refresh();
 
@@ -60,5 +60,5 @@ it('dispatches item updated event on log creation', function () {
         'logId' => $backupTaskLog->id,
     ]);
 
-    $component->assertDispatched('backup-task-item-updated-'.$backupTask->id);
+    $component->assertDispatched('backup-task-item-updated-' . $backupTask->id);
 });

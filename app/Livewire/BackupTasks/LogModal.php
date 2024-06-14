@@ -43,7 +43,7 @@ class LogModal extends Component
         // Avoid duplicate entries by checking if the new log output is already present in the current log output
         if (strpos($this->logOutput, $newLogOutput) === false) {
             // Append the new log output with a newline character if logOutput is not empty
-            $this->logOutput .= ($this->logOutput ? "\n" : '').$newLogOutput;
+            $this->logOutput .= ($this->logOutput ? "\n" : '') . $newLogOutput;
         }
 
         Log::debug('Updated streamed log output:', ['logOutput' => $this->logOutput]);
@@ -51,7 +51,7 @@ class LogModal extends Component
         $this->isWaiting = false;
 
         $this->dispatch('$refresh');
-        $this->dispatch('log-modal-updated-'.$this->backupTask->id);
+        $this->dispatch('log-modal-updated-' . $this->backupTask->id);
     }
 
     public function refreshSelf(): void

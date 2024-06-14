@@ -20,7 +20,7 @@ it('pauses task and dispatches event when not paused', function () {
 
     Livewire::test(TogglePauseButton::class, ['backupTask' => $backupTask])
         ->call('togglePauseState')
-        ->assertDispatched('pause-button-clicked-'.$backupTask->id);
+        ->assertDispatched('pause-button-clicked-' . $backupTask->id);
 
     expect($backupTask->refresh()->isPaused())->toBeTrue();
     Toaster::assertDispatched(__('Backup task has been paused.'));
@@ -32,7 +32,7 @@ it('resumes task and dispatches event when paused', function () {
 
     Livewire::test(TogglePauseButton::class, ['backupTask' => $backupTask])
         ->call('togglePauseState')
-        ->assertDispatched('pause-button-clicked-'.$backupTask->id);
+        ->assertDispatched('pause-button-clicked-' . $backupTask->id);
 
     expect($backupTask->refresh()->isPaused())->toBeFalse();
 

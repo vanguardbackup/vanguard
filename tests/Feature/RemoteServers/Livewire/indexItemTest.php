@@ -44,5 +44,5 @@ test('the listener updates the Livewire components', function () {
 
     $component->call('updateLivewireComponents');
     $component->assertDispatched('$refresh');
-    $component->assertDispatched('update-check-button-'.$remoteServer->id);
+    $component->assertDispatched('update-check-button-' . $remoteServer->id);
 });

@@ -24,7 +24,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'vanguard'), '_').'_session'
+        Str::slug(env('APP_NAME', 'vanguard'), '_') . '_session'
     ),
 
     'path' => env('SESSION_PATH', '/'),
