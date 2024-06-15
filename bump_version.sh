@@ -109,7 +109,7 @@ echo "$NEW_VERSION" > VERSION
 
 log "Committing version bump..."
 git add VERSION
-git commit -m "Bump version from $OLD_VERSION to $NEW_VERSION"
+git commit -m "chore: bumped version from $OLD_VERSION to $NEW_VERSION. 🎉"
 
 if git rev-parse -q --verify "refs/tags/$OLD_VERSION" >/dev/null; then
     log "Deleting old tag locally..."
