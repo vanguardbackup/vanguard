@@ -30,6 +30,7 @@ new #[Layout('layouts.guest')] class extends Component
     </x-slot>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-error class="mb-4" :loginError="session('loginError')" />
 
     <form wire:submit="login">
         <!-- Email Address -->
@@ -75,6 +76,17 @@ new #[Layout('layouts.guest')] class extends Component
             {{ __('Login') }}
             @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2')
         </x-primary-button>
+
+        @if (config('services.github.client_id') && config('services.github.client_secret'))
+       <div class="flex justify-evenly mt-2">
+           <a href="{{ route('github.redirect') }}">
+               <x-secondary-button>
+                   <x-icons.github class="w-5 h-5 mr-3" />
+                   {{ __('Login with GitHub') }}
+               </x-secondary-button>
+           </a>
+       </div>
+        @endif
 
         <div class="text-center mt-5 my-3">
             <div class="text-sm text-gray-600 dark:text-gray-400 my-3.5">
