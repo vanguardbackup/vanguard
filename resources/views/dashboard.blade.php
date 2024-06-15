@@ -1,4 +1,8 @@
-@section('title', 'Overview')
+@if (Auth::user()->backupTasks->isNotEmpty())
+    @section('title', 'Overview')
+@else
+    @section('title', 'Steps to Get Started')
+@endif
 <x-app-layout>
     @if (Auth::user()->backupTasks->isNotEmpty())
         <x-slot name="header">

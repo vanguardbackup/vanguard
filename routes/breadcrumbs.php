@@ -4,7 +4,12 @@ use Diglactic\Breadcrumbs\Breadcrumbs;
 use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 Breadcrumbs::for('overview', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Overview'), route('overview'));
+
+    if (Auth::user()?->backupTasks()->exists()) {
+        $trail->push(__('Overview'), route('overview'));
+    } else {
+        $trail->push(__('Steps to Get Started'), route('overview'));
+    }
 });
 
 Breadcrumbs::for('frequently-asked-questions', function (BreadcrumbTrail $trail) {
