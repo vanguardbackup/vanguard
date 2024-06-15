@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'password',
         'timezone',
+        'github_id',
     ];
 
     protected $hidden = [
