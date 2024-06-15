@@ -82,6 +82,11 @@ class User extends Authenticatable
         })->whereDate('created_at', today()->timezone($this->timezone ?? 'UTC'))->count();
     }
 
+    public function canLoginWithGithub(): bool
+    {
+        return $this->github_id !== null;
+    }
+
     protected function firstName(): Attribute
     {
         return new Attribute(function ($value) {

@@ -79,3 +79,17 @@ test('does not return the count of backup task logs that are associated with the
 
     $this->assertEquals(0, $user->backupTaskLogCountToday());
 });
+
+test('returns true if can login with github', function () {
+
+    $user = User::factory()->create(['github_id' => 1]);
+
+    $this->assertTrue($user->canLoginWithGithub());
+});
+
+test('returns false if can not login with github', function () {
+
+    $user = User::factory()->create();
+
+    $this->assertFalse($user->canLoginWithGithub());
+});

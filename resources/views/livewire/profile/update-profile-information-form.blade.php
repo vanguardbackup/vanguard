@@ -68,6 +68,20 @@ new class extends Component {
     </header>
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
+        @if (Auth::user()->canLoginWithGithub())
+            <div
+                class="my-4 bg-gray-100 dark:bg-gray-950/30 p-2 rounded-lg border border-gray-200 dark:border-gray-950/60 text-sm flex justify-between max-w-md">
+                <div>
+                    <x-icons.github class="w-6 h-6 inline mr-2 fill-current dark:text-white text-gray-900"/>
+                    <span class="font-medium dark:text-white text-gray-800">
+                    {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
+            </span>
+                </div>
+                <div>
+                    @svg('heroicon-o-check', 'w-6 h-6 text-green-600 dark:text-green-400 inline mr-2')
+                </div>
+            </div>
+        @endif
         <div class="mt-4">
             <x-input-label for="avatar" :value="__('Avatar')"/>
             <div class="flex items-center mt-2">
@@ -80,56 +94,56 @@ new class extends Component {
             </div>
         </div>
 
-            <div>
-                <x-input-label for="name" :value="__('Name')"/>
-                <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required
-                              autofocus autocomplete="name"/>
-                <x-input-error class="mt-2" :messages="$errors->get('name')"/>
-            </div>
+        <div>
+            <x-input-label for="name" :value="__('Name')"/>
+            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required
+                          autofocus autocomplete="name"/>
+            <x-input-error class="mt-2" :messages="$errors->get('name')"/>
+        </div>
 
-            <div>
-                <x-input-label for="email" :value="__('Email')"/>
-                <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required
-                              autocomplete="username"/>
-                <x-input-error class="mt-2" :messages="$errors->get('email')"/>
+        <div>
+            <x-input-label for="email" :value="__('Email')"/>
+            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required
+                          autocomplete="username"/>
+            <x-input-error class="mt-2" :messages="$errors->get('email')"/>
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                    <div>
-                        <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                            {{ __('Your email address is unverified.') }}
+            @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                <div>
+                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
+                        {{ __('Your email address is unverified.') }}
 
-                            <button wire:click.prevent="sendVerification"
-                                    class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                                {{ __('Click here to re-send the verification email.') }}
-                            </button>
+                        <button wire:click.prevent="sendVerification"
+                                class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                            {{ __('Click here to re-send the verification email.') }}
+                        </button>
+                    </p>
+
+                    @if (session('status') === 'verification-link-sent')
+                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
+                            {{ __('A new verification link has been sent to your email address.') }}
                         </p>
+                    @endif
+                </div>
+            @endif
+        </div>
 
-                        @if (session('status') === 'verification-link-sent')
-                            <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </p>
-                        @endif
-                    </div>
-                @endif
-            </div>
+        <div>
+            <x-input-label for="timezone" :value="__('Timezone')"/>
+            <x-select wire:model="timezone" id="timezone" name="timezone" class="mt-1 block w-full">
+                @foreach (formatTimezones() as $identifier => $timezone)
+                    <option value="{{ $identifier }}">{{ $timezone }}</option>
+                @endforeach
+            </x-select>
+            <x-input-explain>
+                {{ __('Your timezone is used to display dates and times to you in your local time.') }}
+            </x-input-explain>
+            <x-input-error class="mt-2" :messages="$errors->get('timezone')"/>
+        </div>
 
-            <div>
-                <x-input-label for="timezone" :value="__('Timezone')"/>
-                <x-select wire:model="timezone" id="timezone" name="timezone" class="mt-1 block w-full">
-                    @foreach (formatTimezones() as $identifier => $timezone)
-                        <option value="{{ $identifier }}">{{ $timezone }}</option>
-                    @endforeach
-                </x-select>
-                <x-input-explain>
-                    {{ __('Your timezone is used to display dates and times to you in your local time.') }}
-                </x-input-explain>
-                <x-input-error class="mt-2" :messages="$errors->get('timezone')"/>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <x-primary-button>
-                    {{ __('Save') }}
-                </x-primary-button>
-            </div>
+        <div class="flex items-center gap-4">
+            <x-primary-button>
+                {{ __('Save') }}
+            </x-primary-button>
+        </div>
     </form>
 </section>
