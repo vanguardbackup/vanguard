@@ -150,7 +150,7 @@ new class extends Component {
                           name="preferred_backup_destination_id" class="mt-1 block w-full">
                     <option value="">{{ __('None') }}</option>
                     @foreach (Auth::user()->backupDestinations as $backupDestination)
-                        <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }} - {{$backupDestination->type() }}</option>
+                        <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }} - {{ $backupDestination->type() }}</option>
                     @endforeach
                 </x-select>
                 <x-input-explain>
