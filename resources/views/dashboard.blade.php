@@ -17,7 +17,7 @@
                     <img class="h-14 w-14 rounded-full border border-gray-200 dark:border-gray-700" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}" />
                   <div>
                       <div class="font-semibold text-2xl ml-3 mt-0 dark:text-gray-100">
-                          {{ __('Hey, :name!', ['name' => Auth::user()->first_name]) }}
+                          {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
                       </div>
                       <p class="text-gray-700 dark:text-gray-300 mt-0.5 ml-3">
                           {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
