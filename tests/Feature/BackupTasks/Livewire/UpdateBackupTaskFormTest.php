@@ -264,3 +264,34 @@ test('a task cannot share the same time as another task on the same server', fun
         ->call('submit')
         ->assertHasErrors('timeToRun');
 });
+
+test('a task retains its set time without validation errors', function () {
+
+    $user = User::factory()->create();
+
+    $remoteServer = RemoteServer::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $backupTask = BackupTask::factory()->create([
+        'remote_server_id' => $remoteServer->id,
+        'time_to_run_at' => '12:00',
+        'user_id' => $user->id,
+    ]);
+
+    $this->assertDatabaseHas('backup_tasks', [
+        'time_to_run_at' => '12:00',
+    ]);
+
+    $this->actingAs($user);
+
+    Livewire::test(UpdateBackupTaskForm::class, [
+        'backupTask' => $backupTask,
+        'remoteServers' => RemoteServer::all(),
+    ])
+        ->set('timeToRun', '12:00')
+        ->set('sourcePath', '/var/www/html')
+        ->set('description', '')
+        ->call('submit')
+        ->assertHasNoErrors();
+});

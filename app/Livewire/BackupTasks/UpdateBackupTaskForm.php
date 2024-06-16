@@ -173,7 +173,7 @@ class UpdateBackupTaskForm extends Component
                 'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
                 'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
                 'frequency' => ['required', 'string', 'in:daily,weekly'],
-                'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId)],
+                'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
                 'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
                 'sourcePath' => ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
             ], $messages);
@@ -194,7 +194,7 @@ class UpdateBackupTaskForm extends Component
             'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
             'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
-            'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer($this->remoteServerId)],
+            'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
             'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
         ], $messages);
 
