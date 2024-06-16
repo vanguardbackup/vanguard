@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\BackupDestination;
 use App\Models\User;
 use Livewire\Volt\Volt;
 
@@ -20,6 +21,9 @@ test('profile page is displayed', function () {
 test('profile information can be updated', function () {
     Toaster::fake();
     $user = User::factory()->create();
+    $backupDestination = BackupDestination::factory()->create([
+        'user_id' => $user->id,
+    ]);
 
     $this->actingAs($user);
 
@@ -27,6 +31,7 @@ test('profile information can be updated', function () {
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('timezone', 'America/New_York')
+        ->set('preferred_backup_destination_id', $backupDestination->id)
         ->call('updateProfileInformation');
 
     $component
@@ -38,6 +43,7 @@ test('profile information can be updated', function () {
     $this->assertSame('Test User', $user->name);
     $this->assertSame('test@example.com', $user->email);
     $this->assertSame('America/New_York', $user->timezone);
+    $this->assertSame($backupDestination->id, $user->preferred_backup_destination_id);
     $this->assertNull($user->email_verified_at);
 
     Toaster::assertDispatched((__('Profile details saved.')));
@@ -108,4 +114,69 @@ test('the timezone must be valid', function () {
     $component
         ->assertHasErrors('timezone')
         ->assertNoRedirect();
+});
+
+test('the preferred backup destination can be nullable - not set', function () {
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.update-profile-information-form')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('timezone', 'America/New_York')
+        ->call('updateProfileInformation');
+
+    $component
+        ->assertHasNoErrors()
+        ->assertNoRedirect();
+
+    $user->refresh();
+
+    $this->assertNull($user->preferred_backup_destination_id);
+});
+
+test('the preferred backup destination must exist', function () {
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.update-profile-information-form')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('timezone', 'America/New_York')
+        ->set('preferred_backup_destination_id', 999)
+        ->call('updateProfileInformation');
+
+    $component
+        ->assertHasErrors('preferred_backup_destination_id')
+        ->assertNoRedirect();
+
+    $this->assertNull($user->refresh()->preferred_backup_destination_id);
+});
+
+test('the preferred backup destination must belong to the user', function () {
+
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $backupDestination = BackupDestination::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.update-profile-information-form')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('timezone', 'America/New_York')
+        ->set('preferred_backup_destination_id', $backupDestination->id)
+        ->call('updateProfileInformation');
+
+    $component
+        ->assertHasErrors('preferred_backup_destination_id')
+        ->assertNoRedirect();
+
+    $this->assertNull($user->refresh()->preferred_backup_destination_id);
 });

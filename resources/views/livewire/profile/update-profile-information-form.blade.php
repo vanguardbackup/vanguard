@@ -11,12 +11,14 @@ new class extends Component {
     public string $name = '';
     public string $email = '';
     public string $timezone = '';
+    public ?int $preferred_backup_destination_id = null;
 
     public function mount(): void
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
         $this->timezone = Auth::user()->timezone;
+        $this->preferred_backup_destination_id = Auth::user()->preferred_backup_destination_id ?? null;
     }
 
     public function updateProfileInformation(): void
@@ -27,6 +29,7 @@ new class extends Component {
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'timezone' => ['required', 'string', 'max:255', Rule::in(timezone_identifiers_list())],
+            'preferred_backup_destination_id' => ['nullable', 'integer', Rule::exists('backup_destinations', 'id')->where('user_id', $user->id)],
         ]);
 
         $user->fill($validated);
@@ -139,6 +142,23 @@ new class extends Component {
             </x-input-explain>
             <x-input-error class="mt-2" :messages="$errors->get('timezone')"/>
         </div>
+
+        @if (!Auth::user()->backupDestinations->isEmpty())
+            <div>
+                <x-input-label for="preferred_backup_destination_id" :value="__('Default Backup Destination')"/>
+                <x-select wire:model="preferred_backup_destination_id" id="preferred_backup_destination_id"
+                          name="preferred_backup_destination_id" class="mt-1 block w-full">
+                    <option value="">{{ __('None') }}</option>
+                    @foreach (Auth::user()->backupDestinations as $backupDestination)
+                        <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }} - {{$backupDestination->type() }}</option>
+                    @endforeach
+                </x-select>
+                <x-input-explain>
+                    {{ __('The backup destination you select here will be set as the default location for storing new backup tasks.') }}
+                </x-input-explain>
+                <x-input-error class="mt-2" :messages="$errors->get('preferred_backup_destination_id')"/>
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
             <x-primary-button>

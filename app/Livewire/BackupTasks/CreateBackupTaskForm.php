@@ -85,7 +85,12 @@ class CreateBackupTaskForm extends Component
 
         $this->remoteServers = Auth::user()->remoteServers->where('database_password', null);
         $this->remoteServerId = $this->remoteServers->first()?->id ?? '';
-        $this->backupDestinationId = Auth::user()->backupDestinations->first()?->id ?? '';
+
+        if (Auth::user()->preferred_backup_destination_id) {
+            $this->backupDestinationId = Auth::user()->preferred_backup_destination_id;
+        } else {
+            $this->backupDestinationId = Auth::user()->backupDestinations->first()?->id ?? '';
+        }
 
         // Initialize backup times in half-hour increments
         $this->backupTimes = collect(range(0, 47))->map(function ($halfHour) {
