@@ -349,24 +349,43 @@ class BackupTask extends Model
     public function sendDiscordWebhookNotification($latestLog): void
     {
         $status = $latestLog?->successful_at ? 'success' : 'failure';
-        $message = $latestLog?->successful_at ? 'Backup task successful' : 'Backup task failed';
+        $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
         $color = $latestLog?->successful_at ? 3066993 : 15158332; // Green for success, Red for failure
 
         $embed = [
-            'title' => $this->label,
+            'title' => $this->label . ' Backup Task',
             'description' => $message,
             'color' => $color,
             'fields' => [
                 [
-                    'name' => 'Status',
+                    'name' => __('Backup Type'),
+                    'value' => ucfirst($this->type),
+                    'inline' => true,
+                ],
+                [
+                    'name' => __('Remote Server'),
+                    'value' => $this->remoteServer?->label,
+                    'inline' => true,
+                ],
+                [
+                    'name' => __('Backup Destination'),
+                    'value' => $this->backupDestination?->label . ' (' . $this->backupDestination?->type() . ')',
+                    'inline' => true,
+                ],
+                [
+                    'name' => __('Result'),
                     'value' => ucfirst($status),
                     'inline' => true,
                 ],
                 [
-                    'name' => 'Timestamp',
-                    'value' => $latestLog?->created_at->toDateTimeString(),
+                    'name' => __('Ran at'),
+                    'value' => $latestLog?->created_at->format('jS F Y, H:i:s'),
                     'inline' => true,
                 ],
+            ],
+            'footer' => [
+                'icon_url' => asset('images/logo.png'),
+                'text' => __('This notification was sent by :app.', ['app' => config('app.name')]),
             ],
         ];
 
@@ -375,6 +394,8 @@ class BackupTask extends Model
         ]);
 
         $http->post($this->notify_discord_webhook, [
+            'username' => __('Vanguard'),
+            'avatar_url' => asset('images/logo-on-black.png'),
             'embeds' => [$embed],
         ]);
     }
@@ -382,27 +403,43 @@ class BackupTask extends Model
     public function sendSlackWebhookNotification($latestLog): void
     {
         $status = $latestLog?->successful_at ? 'success' : 'failure';
-        $message = $latestLog?->successful_at ? 'Backup task successful' : 'Backup task failed';
+        $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
         $color = $latestLog?->successful_at ? 'good' : 'danger'; // Green for success, Red for failure
 
         $payload = [
             'attachments' => [
                 [
-                    'title' => $this->label,
+                    'title' => $this->label . ' Backup Task',
                     'text' => $message,
                     'color' => $color,
                     'fields' => [
                         [
-                            'title' => 'Status',
+                            'title' => __('Backup Type'),
+                            'value' => ucfirst($this->type),
+                            'short' => true,
+                        ],
+                        [
+                            'title' => __('Remote Server'),
+                            'value' => $this->remoteServer?->label,
+                            'short' => true,
+                        ],
+                        [
+                            'title' => __('Backup Destination'),
+                            'value' => $this->backupDestination?->label . ' (' . $this->backupDestination?->type() . ')',
+                            'short' => true,
+                        ],
+                        [
+                            'title' => __('Result'),
                             'value' => ucfirst($status),
                             'short' => true,
                         ],
                         [
-                            'title' => 'Timestamp',
-                            'value' => $latestLog?->created_at->toDateTimeString(),
+                            'title' => __('Ran at'),
+                            'value' => $latestLog?->created_at->format('jS F Y, H:i:s'),
                             'short' => true,
                         ],
                     ],
+                    'footer' => __('This notification was sent by :app.', ['app' => config('app.name')]),
                 ],
             ],
         ];
