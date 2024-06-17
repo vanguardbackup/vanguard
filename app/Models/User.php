@@ -73,6 +73,7 @@ class User extends Authenticatable
     {
         return BackupTaskLog::whereHas('backupTask', function ($query) {
             $query->where('user_id', $this->id);
+            $query->whereNotNull('finished_at');
         })->count();
     }
 

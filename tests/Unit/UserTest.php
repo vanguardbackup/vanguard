@@ -55,9 +55,11 @@ test('returns the count of backup task logs that are associated with the user', 
     $user = User::factory()->create();
 
     $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
-    BackupTaskLog::factory()->create(['backup_task_id' => $backupTask->id]);
+    BackupTaskLog::factory()->create(['backup_task_id' => $backupTask->id, 'finished_at' => now()]);
+    BackupTaskLog::factory()->create(['backup_task_id' => $backupTask->id, 'finished_at' => null]);
 
     $this->assertEquals(1, $user->backupTaskLogCount());
+    $this->assertNotEquals(2, $user->backupTaskLogCount());
 });
 
 test('returns the count of backup task logs that are associated with the user today', function () {
