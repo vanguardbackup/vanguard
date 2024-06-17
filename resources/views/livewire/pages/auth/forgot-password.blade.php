@@ -54,7 +54,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-8">
             <x-primary-button centered fat>
                 {{ __('Request Password Reset Email') }}
-                @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2')
+                @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
             </x-primary-button>
         </div>
         <div class="flex items-center justify-evenly mt-5">

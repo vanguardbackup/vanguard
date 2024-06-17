@@ -83,7 +83,7 @@ new #[Layout('layouts.guest')] class extends Component {
         </div>
         <x-primary-button class="mt-8" centered fat>
             {{ __('Create Account') }}
-            @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2')
+            @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
         </x-primary-button>
         <div class="flex items-center justify-evenly mt-5">
             <a class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"

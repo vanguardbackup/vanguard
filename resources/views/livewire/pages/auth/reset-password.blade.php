@@ -99,7 +99,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-8">
             <x-primary-button fat centered>
                 {{ __('Change Password') }}
-                @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2')
+                @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
             </x-primary-button>
         </div>
     </form>
