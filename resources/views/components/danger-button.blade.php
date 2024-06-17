@@ -12,7 +12,7 @@
         'wire:target' => $action
     ]) }}
 >
-    @if($action)
+    @if ($action)
         <div wire:loading wire:target="{{ $action }}">
             <x-spinner class="mr-2 text-white h-4 w-4 inline"/>
             {{ __($loadingText) }}
