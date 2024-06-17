@@ -27,6 +27,7 @@ test('the log can be cleared', function () {
 
     BackupTaskLog::factory()->create([
         'backup_task_id' => $backupTask->id,
+        'finished_at' => now(),
     ]);
 
     $this->assertDatabaseCount('backup_task_logs', 1);
