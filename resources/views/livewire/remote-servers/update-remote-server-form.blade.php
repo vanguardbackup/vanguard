@@ -43,17 +43,8 @@
                 <div class="mt-6 max-w-3xl mx-auto">
                     <div class="flex space-x-5">
                         <div class="w-4/6">
-                            <x-primary-button type="submit" class="mt-4" centered wire:loading.attr="disabled"
-                                              wire:loading.class="opacity-50 cursor-not-allowed">
-
-                                <div wire:loading wire:target="submit">
-                                    <x-spinner class="mr-2 text-white dark:text-gray-900 h-4 w-4 inline"/>
-                                    {{ __('Saving changes...') }}
-                                </div>
-
-                                <div wire:loading.remove wire:target="submit">
-                                    {{ __('Save Changes') }}
-                                </div>
+                            <x-primary-button type="submit" class="mt-4" centered action="submit" loadingText="Saving changes...">
+                                {{ __('Save changes') }}
                             </x-primary-button>
                         </div>
                         <div class="w-2/6 ml-2">

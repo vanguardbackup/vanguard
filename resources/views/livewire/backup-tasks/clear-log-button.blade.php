@@ -21,18 +21,8 @@
                 </p>
                 <div class="flex space-x-5">
                     <div class="w-4/6">
-                        <x-danger-button type="button" wire:click="clearAllLogs" class="mt-4" centered
-                                         wire:loading.attr="disabled"
-                                         wire:loading.class="opacity-50 cursor-not-allowed">
-
-                            <div wire:loading wire:target="clearAllLogs">
-                                <x-spinner class="mr-2 text-white h-4 w-4 inline"/>
-                                {{ __('Clearing...') }}
-                            </div>
-
-                            <div wire:loading.remove wire:target="clearAllLogs">
-                                {{ __('Confirm') }}
-                            </div>
+                        <x-danger-button type="button" class="mt-4" centered wire:click="clearAllLogs" action="clearAllLogs" loadingText="Clearing...">
+                            {{ __('Confirm') }}
                         </x-danger-button>
                     </div>
                     <div class="w-2/6 ml-2">

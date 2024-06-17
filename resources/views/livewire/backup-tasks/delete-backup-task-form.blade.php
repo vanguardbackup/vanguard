@@ -19,17 +19,8 @@
             </p>
             <div class="flex space-x-5">
                 <div class="w-4/6">
-                    <x-danger-button type="button" wire:click="delete" class="mt-4" centered wire:loading.attr="disabled"
-                                     wire:loading.class="opacity-50 cursor-not-allowed">
-
-                        <div wire:loading wire:target="delete">
-                            <x-spinner class="mr-2 text-white h-4 w-4 inline"/>
-                            {{ __('Removing...') }}
-                        </div>
-
-                        <div wire:loading.remove wire:target="delete">
-                            {{ __('Confirm Removal') }}
-                        </div>
+                    <x-danger-button type="button" class="mt-4" centered wire:click="delete" action="delete" loadingText="Removing...">
+                        {{ __('Confirm Removal') }}
                     </x-danger-button>
                 </div>
                 <div class="w-2/6 ml-2">
