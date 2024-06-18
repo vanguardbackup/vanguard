@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Livewire\Tags;
+
+use App\Models\Tag;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
+use Masmerise\Toaster\Toaster;
+
+class UpdateForm extends Component
+{
+    public string $label;
+    public ?string $description;
+
+    public Tag $tag;
+
+    public function mount(Tag $tag): void
+    {
+        $this->tag = $tag;
+        $this->label = $tag->label;
+        $this->description = $tag->description ?? null;
+    }
+
+    public function submit(): RedirectResponse|Redirector
+    {
+        $this->authorize('update', $this->tag);
+
+        $this->validate([
+            'label' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+        ], [
+            'label.required' => __('Please enter a label.'),
+        ]);
+
+        $this->tag->update([
+            'label' => $this->label,
+            'description' => $this->description ?? null,
+        ]);
+
+        $this->tag->save();
+
+        Toaster::success(__('The tag :label has been updated.', ['label' => $this->tag->label]));
+
+        return Redirect::route('tags.index');
+    }
+
+    public function render(): View
+    {
+        return view('livewire.tags.update-form');
+    }
+}

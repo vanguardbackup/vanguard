@@ -89,6 +89,10 @@ new class extends Component {
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('tags.index')" wire:navigate>
+                            {{ __('Tags') }}
+                        </x-dropdown-link>
+
                         @if (Auth::user()->isAdmin())
                             <x-dropdown-link href="{{ url('/pulse') }}">
                                 {{ __('Laravel Pulse') }}
@@ -150,6 +154,10 @@ new class extends Component {
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('tags.index')" wire:navigate>
+                    {{ __('Tags') }}
                 </x-responsive-nav-link>
 
                 @if (Auth::user()->isAdmin())

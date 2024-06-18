@@ -3,6 +3,7 @@
 use App\Livewire\BackupTasks\CreateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\RemoteServer;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -23,6 +24,10 @@ test('form is rendered', function () {
 });
 
 test('users can create backup tasks', function () {
+
+    $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $this->user->id]);
+    $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->user->id]);
+
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('description', 'This is a test backup task.')
@@ -37,6 +42,7 @@ test('users can create backup tasks', function () {
         ->set('notifySlackWebhook', 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX')
         ->set('storePath', '/my-cool-backups')
         ->set('excludedDatabaseTables', 'table1,table2')
+        ->set('selectedTags', [$tag1->id, $tag2->id])
         ->call('submit');
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -56,6 +62,21 @@ test('users can create backup tasks', function () {
         'store_path' => '/my-cool-backups',
         'excluded_database_tables' => 'table1,table2',
     ]);
+
+    $backupTask = \App\Models\BackupTask::latest()->first();
+
+    $this->assertDatabaseHas('taggables', [
+        'tag_id' => $tag1->id,
+        'taggable_id' => $backupTask->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
+
+    $this->assertDatabaseHas('taggables', [
+        'tag_id' => $tag2->id,
+        'taggable_id' => $backupTask->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
+
 });
 
 test('users can create backup tasks with a custom cron expression', function () {
@@ -222,4 +243,30 @@ test('we get a validation error if another task occupies the same time with the 
         ->set('timeToRun', '00:00')
         ->call('submit')
         ->assertHasErrors('timeToRun');
+});
+
+test('users cannot add a tag that does not belong to them', function () {
+
+    $tag = Tag::factory()->create();
+
+    Livewire::test(CreateBackupTaskForm::class)
+        ->set('label', 'Test Backup Task')
+        ->set('sourcePath', '/var/www/html')
+        ->set('remoteServerId', $this->server->id)
+        ->set('backupDestinationId', $this->destination->id)
+        ->set('selectedTags', [$tag->id])
+        ->call('submit')
+        ->assertHasErrors('selectedTags');
+});
+
+test('users cannot add a tag that does not exist', function () {
+
+    Livewire::test(CreateBackupTaskForm::class)
+        ->set('label', 'Test Backup Task')
+        ->set('sourcePath', '/var/www/html')
+        ->set('remoteServerId', $this->server->id)
+        ->set('backupDestinationId', $this->destination->id)
+        ->set('selectedTags', [999])
+        ->call('submit')
+        ->assertHasErrors('selectedTags');
 });

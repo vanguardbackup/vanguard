@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -60,6 +61,9 @@ class UpdateBackupTaskForm extends Component
 
     public ?string $excludedDatabaseTables;
 
+    public ?Collection $availableTags;
+    public ?array $selectedTags;
+
     public function updatedUseCustomCron(): void
     {
         $this->useCustomCron = (bool) $this->useCustomCron;
@@ -83,6 +87,9 @@ class UpdateBackupTaskForm extends Component
 
     public function mount(): void
     {
+        $this->availableTags = Auth::user()->tags;
+        $this->selectedTags = $this->backupTask->tags->pluck('id')->toArray();
+
         $this->backupTimes = collect(range(0, 47))->map(function ($halfHour) {
             $hour = intdiv($halfHour, 2);
             $minute = ($halfHour % 2) * 30;
@@ -128,6 +135,7 @@ class UpdateBackupTaskForm extends Component
         $this->authorize('update', $this->backupTask);
 
         $messages = [
+            'selectedTags.*.exists' => __('One or more of the selected tags do not exist.'),
             'excludedDatabaseTables.regex' => __('Please enter a valid list of table names separated by commas.'),
             'storePath.regex' => __('The path must be a valid Unix path.'),
             'notifyEmail.email' => __('Please enter a valid email address.'),
@@ -159,6 +167,7 @@ class UpdateBackupTaskForm extends Component
 
         if ($this->backupType === 'files') {
             $this->validate([
+                'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
                 'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
                 'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
                 'notifyEmail' => ['nullable', 'email'],
@@ -180,6 +189,7 @@ class UpdateBackupTaskForm extends Component
         }
 
         $this->validate([
+            'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
             'notifyEmail' => ['nullable', 'email'],
@@ -231,6 +241,8 @@ class UpdateBackupTaskForm extends Component
             'notify_slack_webhook' => $this->notifySlackWebhook ?? null,
             'store_path' => $this->storePath ?? null,
         ]);
+
+        $this->backupTask->tags()->sync($this->selectedTags);
 
         Toaster::success(__('Backup task details saved.'));
 

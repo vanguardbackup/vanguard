@@ -4,6 +4,7 @@ use App\Livewire\BackupTasks\UpdateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\RemoteServer;
+use App\Models\Tag;
 use App\Models\User;
 use Livewire\Livewire;
 
@@ -40,9 +41,15 @@ test('form can be rendered', function () {
 });
 
 test('backup task can be updated by the owner', function () {
+
+    $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $this->data['user']->id]);
+    $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->data['user']->id]);
+    $tagIds = [$tag1->id, $tag2->id];
+
     $livewire = Livewire::test(UpdateBackupTaskForm::class, [
         'backupTask' => $this->data['backupTask'],
         'remoteServers' => $this->data['user']->remoteServers,
+        'availableTags' => $this->data['user']->tags,
     ]);
 
     $livewire->set('label', 'Updated Label')
@@ -61,6 +68,7 @@ test('backup task can be updated by the owner', function () {
         ->set('notifySlackWebhook', 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX')
         ->set('storePath', '/my-cool-backups')
         ->set('excludedDatabaseTables', 'table1,table2')
+        ->set('selectedTags', $tagIds)
         ->call('submit')
         ->assertHasNoErrors();
 
@@ -80,6 +88,18 @@ test('backup task can be updated by the owner', function () {
         'notify_slack_webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
         'store_path' => '/my-cool-backups',
         'excluded_database_tables' => 'table1,table2',
+    ]);
+
+    $this->assertDatabaseHas('taggables', [
+        'tag_id' => $tag1->id,
+        'taggable_id' => $this->data['backupTask']->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
+
+    $this->assertDatabaseHas('taggables', [
+        'tag_id' => $tag2->id,
+        'taggable_id' => $this->data['backupTask']->id,
+        'taggable_type' => 'App\Models\BackupTask',
     ]);
 });
 
@@ -294,4 +314,80 @@ test('a task retains its set time without validation errors', function () {
         ->set('description', '')
         ->call('submit')
         ->assertHasNoErrors();
+});
+
+test('users cannot set tags that do not belong them', function () {
+
+    $tag = Tag::factory()->create();
+
+    $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        'backupTask' => $this->data['backupTask'],
+        'remoteServers' => RemoteServer::all(),
+    ]);
+
+    $livewire->set('selectedTags', [$tag->id])
+        ->call('submit')
+        ->assertHasErrors([
+            'selectedTags' => 'exists',
+        ]);
+});
+
+test('users cannot set tags that do not exist', function () {
+
+    $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        'backupTask' => $this->data['backupTask'],
+        'remoteServers' => RemoteServer::all(),
+    ]);
+
+    $livewire->set('selectedTags', [999])
+        ->call('submit')
+        ->assertHasErrors([
+            'selectedTags' => 'exists',
+        ]);
+});
+
+test('a user can update their already existing tags', function () {
+
+    $user = User::factory()->create();
+
+    $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $user->id]);
+    $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $user->id]);
+    $tag3 = Tag::factory()->create(['label' => 'Tag 3', 'user_id' => $user->id]);
+
+    $backupTask = BackupTask::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $backupTask->tags()->attach([$tag1->id, $tag2->id]);
+
+    $this->actingAs($user);
+
+    Livewire::test(UpdateBackupTaskForm::class, [
+        'backupTask' => $backupTask,
+        'remoteServers' => RemoteServer::all(),
+        'availableTags' => $user->tags,
+    ])
+        ->set('selectedTags', [$tag3->id])
+        ->set('sourcePath', '/var/www/html')
+        ->set('description', '')
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('taggables', [
+        'tag_id' => $tag3->id,
+        'taggable_id' => $backupTask->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
+
+    $this->assertDatabaseMissing('taggables', [
+        'tag_id' => $tag1->id,
+        'taggable_id' => $backupTask->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
+
+    $this->assertDatabaseMissing('taggables', [
+        'tag_id' => $tag2->id,
+        'taggable_id' => $backupTask->id,
+        'taggable_type' => 'App\Models\BackupTask',
+    ]);
 });

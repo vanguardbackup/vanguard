@@ -3,6 +3,7 @@
 use App\Http\Controllers\BackupDestinations\EditController as BackupDestinationEditController;
 use App\Http\Controllers\BackupTasks\EditController as BackupTaskEditController;
 use App\Http\Controllers\RemoteServers\EditController as RemoteServerEditController;
+use App\Http\Controllers\Tags\EditController as TagEditControllerAlias;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
@@ -63,6 +64,22 @@ Route::middleware(['auth'])
         Route::get('edit/{backupTask}', [BackupTaskEditController::class, '__invoke'])
             ->name('backup-tasks.edit')
             ->middleware('can:update,backupTask');
+    });
+
+Route::middleware(['auth'])
+    ->prefix('tags')
+    ->group(function () {
+
+        Route::view('/', 'tags.index')
+            ->name('tags.index');
+
+        Route::view('create', 'tags.create')
+            ->name('tags.create');
+
+        Route::get('edit/{tag}', [TagEditControllerAlias::class, '__invoke'])
+            ->name('tags.edit')
+            ->middleware('can:update,tag');
+
     });
 
 require __DIR__ . '/auth.php';

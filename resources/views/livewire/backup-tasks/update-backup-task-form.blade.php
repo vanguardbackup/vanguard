@@ -198,10 +198,27 @@
                     {{ __('Input the Slack webhook to receive notifications on Slack.') }}
                 </x-input-explain>
             </div>
+            @if (Auth::user()->tags)
+                <x-form-section>
+                    {{ __('Tags') }}
+                </x-form-section>
+                <div class="mt-4">
+                    <x-input-label for="tags" :value="__('Tags')"/>
+                    @foreach ($availableTags as $tag)
+                        <x-checkbox id="tag-{{ $tag->id }}" wire:model="selectedTags" value="{{ $tag->id }}"
+                                    name="tags[]" label="{{ $tag->label }}"></x-checkbox>
+                    @endforeach
+                    <x-input-error :messages="$errors->get('selectedTags')" class="mt-2"/>
+                    <x-input-explain>
+                        {{ __('Tags are a way to categorize your backup tasks. You can use them to filter and search for tasks later.') }}
+                    </x-input-explain>
+                </div>
+            @endif
             <div class="mt-6 max-w-3xl mx-auto">
                 <div class="flex space-x-5">
                     <div class="w-4/6">
-                        <x-primary-button type="submit" class="mt-4" centered action="submit" loadingText="Saving changes...">
+                        <x-primary-button type="submit" class="mt-4" centered action="submit"
+                                          loadingText="Saving changes...">
                             {{ __('Save changes') }}
                         </x-primary-button>
                     </div>

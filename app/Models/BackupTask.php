@@ -7,6 +7,7 @@ use App\Jobs\BackupTasks\SendSlackNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
+use App\Traits\HasTags;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
 
 class BackupTask extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTags;
 
     const string STATUS_READY = 'ready';
 
