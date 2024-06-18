@@ -61,3 +61,17 @@ Breadcrumbs::for('remote-servers.edit', function (BreadcrumbTrail $trail, $remot
     $trail->parent('remote-servers.index');
     $trail->push(__('Update Remote Server'), route('remote-servers.edit', $remoteServer));
 });
+
+Breadcrumbs::for('tags.index', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Tags'), route('tags.index'));
+});
+
+Breadcrumbs::for('tags.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('tags.index');
+    $trail->push(__('Create Tag'), route('tags.create'));
+});
+
+Breadcrumbs::for('tags.edit', function (BreadcrumbTrail $trail, $tag) {
+    $trail->parent('tags.index');
+    $trail->push(__('Update Tag'), route('tags.edit', $tag));
+});

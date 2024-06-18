@@ -6,6 +6,7 @@ use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\RemoteServer;
+use App\Models\Tag;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,10 @@ class DatabaseSeeder extends Seeder
         $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        Tag::factory()->count(5)->create([
+            'user_id' => $user->id,
         ]);
 
         $remoteServer = RemoteServer::factory([

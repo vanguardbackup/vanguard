@@ -89,6 +89,11 @@ class User extends Authenticatable
         return $this->github_id !== null;
     }
 
+    public function tags(): HasMany
+    {
+        return $this->hasMany(Tag::class);
+    }
+
     protected function firstName(): Attribute
     {
         return new Attribute(function ($value) {

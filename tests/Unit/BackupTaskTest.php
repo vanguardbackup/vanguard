@@ -753,3 +753,21 @@ it('returns false if there is only one task on the remote server', function () {
 
     expect($task->isAnotherTaskRunningOnSameRemoteServer())->toBeFalse();
 });
+
+it('returns null if there are no attached tags', function () {
+
+    $task = BackupTask::factory()->create();
+
+    expect($task->listOfAttachedTagLabels())->toBeNull();
+});
+
+it('returns the attached tags as a string', function () {
+
+    $task = BackupTask::factory()->create();
+    $tag1 = \App\Models\Tag::factory()->create(['label' => 'Tag 1']);
+    $tag2 = \App\Models\Tag::factory()->create(['label' => 'Tag 2']);
+
+    $task->tags()->attach([$tag1->id, $tag2->id]);
+
+    expect($task->listOfAttachedTagLabels())->toBe('Tag 1, Tag 2');
+});
