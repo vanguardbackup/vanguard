@@ -466,6 +466,15 @@ class BackupTask extends Model
             ->exists();
     }
 
+    public function listOfAttachedTagLabels(): ?string
+    {
+        if ($this->tags->isEmpty()) {
+            return null;
+        }
+
+        return $this->tags->pluck('label')->implode(', ');
+    }
+
     private function cronExpression(): CronExpression
     {
         return new CronExpression($this->custom_cron_expression);
