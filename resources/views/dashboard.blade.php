@@ -34,7 +34,7 @@
                             <div class="flex items-center">
                                 @svg('heroicon-o-archive-box', 'h-7 w-7 text-gray-800 dark:text-gray-200 -mt-3
                                 mr-2.5')
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
                                     {{ __('Backup Tasks Ran Per Month') }}
                                 </h3>
                             </div>
@@ -49,7 +49,7 @@
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
                                 @svg('heroicon-o-swatch', 'h-7 w-7 text-gray-800 dark:text-gray-200 -mt-3 mr-2.5')
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
                                     {{ __('Backup Tasks by Type') }}
                                 </h3>
                             </div>
