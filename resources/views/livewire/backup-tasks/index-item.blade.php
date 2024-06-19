@@ -46,13 +46,15 @@
                 {{ __('Scheduled') }}:
             </span>
             <span class="text-xs text-gray-600 dark:text-gray-50">
-
-                @if ($backupTask->usingCustomCronExpression())
-                    ({{ $backupTask->custom_cron_expression }})
+                @if($backupTask->isPaused())
+                    {{ __('— N/A') }}
                     @else
-                    {{ ucfirst($backupTask->frequency) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                    @if ($backupTask->usingCustomCronExpression())
+                        ({{ $backupTask->custom_cron_expression }})
+                    @else
+                        {{ ucfirst($backupTask->frequency) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                    @endif
                 @endif
-
             </span>
         </div>
         <span>
