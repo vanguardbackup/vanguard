@@ -2,12 +2,12 @@
 
 use App\Livewire\BackupTasks\CreateBackupTaskForm;
 use App\Models\BackupDestination;
+use App\Models\BackupTask;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use App\Models\BackupTask;
 
 uses(RefreshDatabase::class);
 

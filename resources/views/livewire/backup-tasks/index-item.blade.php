@@ -47,7 +47,7 @@
             </span>
             <span class="text-xs text-gray-600 dark:text-gray-50">
 
-                @if($backupTask->usingCustomCronExpression())
+                @if ($backupTask->usingCustomCronExpression())
                     ({{ $backupTask->custom_cron_expression }})
                     @else
                     {{ ucfirst($backupTask->frequency) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
