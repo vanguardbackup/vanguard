@@ -35,7 +35,7 @@
                         {{ __('Status') }}
                     </x-table.header-item>
                     <x-table.header-item class="col-span-2">
-                        {{ __('Last Run') }}
+                        {{ __('Time') }}
                     </x-table.header-item>
                     <x-table.header-item class="col-span-3">
                         {{ __('Actions') }}
