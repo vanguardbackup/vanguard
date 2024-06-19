@@ -46,7 +46,7 @@
                 {{ __('Scheduled') }}:
             </span>
             <span class="text-xs text-gray-600 dark:text-gray-50">
-                @if($backupTask->isPaused())
+                @if ($backupTask->isPaused())
                     {{ __('— N/A') }}
                     @else
                     @if ($backupTask->usingCustomCronExpression())
