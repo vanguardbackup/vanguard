@@ -97,10 +97,10 @@ class CreateBackupTaskForm extends Component
             $this->backupDestinationId = Auth::user()->backupDestinations->first()?->id ?? '';
         }
 
-        // Initialize backup times in half-hour increments
-        $this->backupTimes = collect(range(0, 47))->map(function ($halfHour) {
-            $hour = intdiv($halfHour, 2);
-            $minute = ($halfHour % 2) * 30;
+        // Initialize backup times in 15min increments
+        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour) {
+            $hour = intdiv($quarterHour, 4);
+            $minute = ($quarterHour % 4) * 15;
 
             return sprintf('%02d:%02d', $hour, $minute);
         });

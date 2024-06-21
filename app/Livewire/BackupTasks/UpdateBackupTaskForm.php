@@ -90,9 +90,9 @@ class UpdateBackupTaskForm extends Component
         $this->availableTags = Auth::user()->tags;
         $this->selectedTags = $this->backupTask->tags->pluck('id')->toArray();
 
-        $this->backupTimes = collect(range(0, 47))->map(function ($halfHour) {
-            $hour = intdiv($halfHour, 2);
-            $minute = ($halfHour % 2) * 30;
+        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour) {
+            $hour = intdiv($quarterHour, 4);
+            $minute = ($quarterHour % 4) * 15;
 
             return sprintf('%02d:%02d', $hour, $minute);
         });
