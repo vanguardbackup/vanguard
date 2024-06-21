@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -63,6 +64,10 @@ class UpdateBackupTaskForm extends Component
 
     public ?Collection $availableTags;
     public ?array $selectedTags;
+
+    public bool $useIsolatedCredentials = false;
+    public ?string $isolatedUsername = null;
+    public ?string $isolatedPassword = null;
 
     public function updatedUseCustomCron(): void
     {
@@ -120,6 +125,8 @@ class UpdateBackupTaskForm extends Component
         $this->userTimezone = Auth::user()->timezone ?? 'UTC';
         $this->storePath = $this->backupTask->store_path;
         $this->excludedDatabaseTables = $this->backupTask->excluded_database_tables ?? null;
+        $this->isolatedUsername = $this->backupTask->isolated_username ?? null;
+        $this->isolatedPassword = null;
 
         if ($this->backupTask->time_to_run_at) {
             $this->timeToRun = Carbon::createFromFormat('H:i', $this->backupTask->time_to_run_at, 'UTC')?->setTimezone($this->userTimezone)->format('H:i');
@@ -128,6 +135,11 @@ class UpdateBackupTaskForm extends Component
         if ($this->cronExpression) {
             $this->useCustomCron = true;
         }
+
+        if ($this->backupTask->hasIsolatedCredentials()) {
+            $this->useIsolatedCredentials = true;
+        }
+
     }
 
     public function submit(): RedirectResponse|Redirector
@@ -167,6 +179,8 @@ class UpdateBackupTaskForm extends Component
 
         if ($this->backupType === 'files') {
             $this->validate([
+                'isolatedUsername' => ['nullable', 'string'],
+                'isolatedPassword' => ['nullable', 'string'],
                 'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
                 'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
                 'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
@@ -189,6 +203,8 @@ class UpdateBackupTaskForm extends Component
         }
 
         $this->validate([
+            'isolatedUsername' => ['nullable', 'string'],
+            'isolatedPassword' => ['nullable', 'string'],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
@@ -240,7 +256,15 @@ class UpdateBackupTaskForm extends Component
             'notify_discord_webhook' => $this->notifyDiscordWebhook ?? null,
             'notify_slack_webhook' => $this->notifySlackWebhook ?? null,
             'store_path' => $this->storePath ?? null,
+            'isolated_username' => $this->isolatedUsername ?? null,
         ]);
+
+        // We're only updating the isolated password if it has been entered!
+        if ($this->isolatedPassword) {
+            $this->backupTask->updateQuietly([
+                'isolated_password' => Crypt::encrypt($this->isolatedPassword),
+            ]);
+        }
 
         $this->backupTask->tags()->sync($this->selectedTags);
 

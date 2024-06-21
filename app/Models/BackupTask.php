@@ -475,6 +475,11 @@ class BackupTask extends Model
         return $this->tags->pluck('label')->implode(', ');
     }
 
+    public function hasIsolatedCredentials(): bool
+    {
+        return $this->getAttribute('isolated_username') !== null && $this->getAttribute('isolated_password') !== null;
+    }
+
     private function cronExpression(): CronExpression
     {
         return new CronExpression($this->custom_cron_expression);

@@ -44,7 +44,7 @@ class DatabaseBackup extends Backup
 
         try {
             Log::info('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
-            $sftp = $this->establishSFTPConnection($remoteServer);
+            $sftp = $this->establishSFTPConnection($remoteServer, $backupTask);
             $logOutput .= $this->logWithTimestamp('SSH Connection established to the server.', $userTimezone);
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 

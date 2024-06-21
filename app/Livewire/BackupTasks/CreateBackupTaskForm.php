@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -62,9 +63,18 @@ class CreateBackupTaskForm extends Component
     public ?Collection $availableTags;
     public ?array $selectedTags;
 
+    public bool $useIsolatedCredentials = false;
+    public ?string $isolatedUsername = null;
+    public ?string $isolatedPassword = null;
+
     public function updatedUseCustomCron(): void
     {
         $this->useCustomCron = (bool) $this->useCustomCron;
+    }
+
+    public function updatedUseIsolatedCredentials(): void
+    {
+        $this->useIsolatedCredentials = (bool) $this->useIsolatedCredentials;
     }
 
     public function updatedBackupType(): void
@@ -85,6 +95,7 @@ class CreateBackupTaskForm extends Component
 
     public function mount(): void
     {
+        $this->useIsolatedCredentials = false; // Set to false by default!
         $this->availableTags = Auth::user()->tags;
         $this->userTimezone = Auth::user()->timezone ?? 'UTC';
 
@@ -143,6 +154,8 @@ class CreateBackupTaskForm extends Component
 
         if ($this->backupType === 'files') {
             $this->validate([
+                'isolatedUsername' => ['nullable', 'string'],
+                'isolatedPassword' => ['nullable', 'string'],
                 'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
                 'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
                 'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
@@ -165,6 +178,8 @@ class CreateBackupTaskForm extends Component
         }
 
         $this->validate([
+            'isolatedUsername' => ['nullable', 'string'],
+            'isolatedPassword' => ['nullable', 'string'],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
@@ -217,6 +232,8 @@ class CreateBackupTaskForm extends Component
             'notify_slack_webhook' => $this->notifySlackWebhook ?? null,
             'store_path' => $this->storePath ?? null,
             'excluded_database_tables' => $this->excludedDatabaseTables,
+            'isolated_username' => $this->isolatedUsername ?? null,
+            'isolated_password' => Crypt::encryptString($this->isolatedPassword),
         ]);
 
         $backupTask->tags()->sync($this->selectedTags);

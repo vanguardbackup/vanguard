@@ -19,6 +19,7 @@ use App\Services\Backup\Traits\BackupHelpers;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -167,14 +168,27 @@ abstract class Backup
         return $exists;
     }
 
-    protected function establishSFTPConnection($remoteServer): SFTP
+    protected function establishSFTPConnection($remoteServer, $backupTask): SFTP
     {
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
-        $sftp = new SFTP($remoteServer->ip_address, $remoteServer->port, 120); // 2 minute timeout
 
-        $remoteServer->markAsOnlineIfStatusIsNotOnline();
+        $sftp = new SFTP($remoteServer->ip_address, $remoteServer->port, 120);
+
+        if ($backupTask->hasIsolatedCredentials()) {
+
+            if (! $sftp->login($backupTask->isolated_username, Crypt::decryptString($backupTask->isolated_password), $key)) {
+                $error = $sftp->getLastError();
+                $this->logError('SSH login failed.', ['error' => $error]);
+                throw new SFTPConnectionException('SSH Login failed: ' . $error);
+            }
+
+            $remoteServer->markAsOnlineIfStatusIsNotOnline();
+            $this->logInfo('SFTP connection established using isolated credentials.', ['remote_server' => $remoteServer->ip_address]);
+
+            return $sftp;
+        }
 
         if (! $sftp->login($remoteServer->username, $key)) {
             $error = $sftp->getLastError();
@@ -182,7 +196,8 @@ abstract class Backup
             throw new SFTPConnectionException('SSH Login failed: ' . $error);
         }
 
-        $this->logInfo('SFTP connection established.', ['remote_server' => $remoteServer->ip_address]);
+        $remoteServer->markAsOnlineIfStatusIsNotOnline();
+        $this->logInfo('SFTP connection established using default credentials.', ['remote_server' => $remoteServer->ip_address]);
 
         return $sftp;
     }

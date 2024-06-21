@@ -771,3 +771,23 @@ it('returns the attached tags as a string', function () {
 
     expect($task->listOfAttachedTagLabels())->toBe('Tag 1, Tag 2');
 });
+
+it('returns true if the isolated credentials are set', function () {
+
+    $task = BackupTask::factory()->create([
+        'isolated_username' => 'john_doe',
+        'isolated_password' => 'password123',
+    ]);
+
+    $this->assertTrue($task->hasIsolatedCredentials());
+});
+
+it('returns false if the isolated credentials are set', function () {
+
+    $task = BackupTask::factory()->create([
+        'isolated_username' => null,
+        'isolated_password' => null,
+    ]);
+
+    $this->assertFalse($task->hasIsolatedCredentials());
+});
