@@ -74,8 +74,8 @@ class CheckRemoteServerConnection
             Log::debug('[Server Connection Check] Successfully connected to remote server');
 
             if ($remoteServer) {
-                Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer?->connectivity_status . ')', ['remote_server' => $remoteServer]);
-                RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer?->connectivity_status);
+                Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
+                RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }
 
             return [
@@ -90,8 +90,8 @@ class CheckRemoteServerConnection
             ]);
 
             if ($remoteServer) {
-                Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer?->connectivity_status . ')', ['remote_server' => $remoteServer]);
-                RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer?->connectivity_status);
+                Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
+                RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }
 
             return [
