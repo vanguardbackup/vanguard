@@ -61,10 +61,10 @@ class FileBackup extends Backup
                 return;
             }
 
+            $excludeDirs = [];
             if ($this->isLaravelDirectory($sftp, $sourcePath)) {
-                Log::info("Laravel directory detected, deleting node_modules and vendor folders for path: {$sourcePath}");
-                $this->deleteFolder($sftp, "{$sourcePath}/node_modules");
-                $this->deleteFolder($sftp, "{$sourcePath}/vendor");
+                Log::info("Laravel directory detected, excluding node_modules and vendor folders for path: {$sourcePath}");
+                $excludeDirs = ['node_modules', 'vendor'];
             }
 
             $zipFileName = $backupTask->hasFileNameAppended()
@@ -73,7 +73,7 @@ class FileBackup extends Backup
 
             $remoteZipPath = "/tmp/{$zipFileName}";
             Log::info("Zipping directory: {$sourcePath} to {$remoteZipPath} for backup task: {$backupTaskId}");
-            $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath);
+            $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath, $excludeDirs);
             $logOutput .= $this->logWithTimestamp("Directory has been zipped: {$remoteZipPath}", $userTimezone);
             $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 

@@ -202,7 +202,7 @@ abstract class Backup
         return $sftp;
     }
 
-    protected function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath): void
+    protected function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
     {
         $this->logInfo('Zipping remote directory.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath]);
 
@@ -235,7 +235,10 @@ abstract class Backup
             throw new BackupTaskZipException('Not enough disk space to create the zip file.');
         }
 
-        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' .';
+        $excludeArgs = array_map(fn ($dir) => '--exclude=' . escapeshellarg($sourcePath . '/' . $dir), $excludeDirs);
+        $excludeArgsString = implode(' ', $excludeArgs);
+
+        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
         $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
 
         $result = $this->retryCommand(function () use ($sftp, $zipCommand) {
