@@ -10,9 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\GithubProvider;
 
 class GitHubSocialiteController extends Controller
 {
+    /**
+     * Redirect the user to the GitHub authentication page.
+     */
     public function redirectToProvider(): RedirectResponse|Redirect
     {
         if (! config('services.github.client_id') || ! config('services.github.client_secret')) {
@@ -21,7 +25,10 @@ class GitHubSocialiteController extends Controller
             return Redirect::route('login')->with('loginError', 'GitHub login is not enabled.');
         }
 
-        return Socialite::driver('github')
+        /** @var GitHubProvider $githubProvider */
+        $githubProvider = Socialite::driver('github');
+
+        return $githubProvider
             ->scopes(['read:user'])
             ->redirect();
     }

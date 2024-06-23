@@ -221,7 +221,7 @@ abstract class Backup
 
         $diskSpaceCommand = 'df -P ' . escapeshellarg(dirname($remoteZipPath)) . ' | tail -1 | awk \'{print $4}\'';
         $diskSpaceOutput = $sftp->exec($diskSpaceCommand);
-        $availableSpace = trim($diskSpaceOutput) * 1024; // Convert from KB to bytes
+        $availableSpace = (int) trim($diskSpaceOutput) * 1024; // Convert from KB to bytes
 
         if ($availableSpace === false || ! is_numeric($availableSpace)) {
             $this->logError('Failed to get available disk space.', ['remote_zip_path' => $remoteZipPath, 'disk_space_output' => $diskSpaceOutput]);
