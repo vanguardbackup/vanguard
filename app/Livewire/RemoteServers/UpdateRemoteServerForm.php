@@ -30,7 +30,7 @@ class UpdateRemoteServerForm extends Component
         $this->label = $this->remoteServer->label;
         $this->host = $this->remoteServer->ip_address;
         $this->username = $this->remoteServer->username;
-        $this->port = $this->remoteServer->port;
+        $this->port = (int) $this->remoteServer->port;
         $this->databasePassword = '';
     }
 

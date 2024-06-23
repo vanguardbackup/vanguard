@@ -111,8 +111,8 @@ class UpdateBackupTaskForm extends Component
         $this->label = $this->backupTask->label;
         $this->description = $this->backupTask->description;
         $this->sourcePath = $this->backupTask->source_path ?? null;
-        $this->remoteServerId = $this->backupTask->remote_server_id;
-        $this->backupDestinationId = $this->backupTask->backup_destination_id;
+        $this->remoteServerId = (string) ($this->backupTask->remote_server_id ?? '');
+        $this->backupDestinationId = (string) $this->backupTask->backup_destination_id;
         $this->frequency = $this->backupTask->frequency ?? null;
         $this->cronExpression = $this->backupTask->custom_cron_expression;
         $this->backupsToKeep = $this->backupTask->maximum_backups_to_keep;
