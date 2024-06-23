@@ -8,16 +8,6 @@ use Illuminate\Auth\Access\Response;
 
 class RemoteServerPolicy
 {
-    public function viewAny(User $user): bool
-    {
-        //
-    }
-
-    public function create(User $user): bool
-    {
-        //
-    }
-
     public function view(User $user, RemoteServer $remoteServer): Response
     {
         return $user->id === $remoteServer->user_id

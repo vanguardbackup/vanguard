@@ -8,16 +8,6 @@ use Illuminate\Auth\Access\Response;
 
 class TagPolicy
 {
-    public function viewAny(User $user): bool
-    {
-        //
-    }
-
-    public function create(User $user): bool
-    {
-        //
-    }
-
     public function view(User $user, Tag $tag): Response
     {
         return $user->id === $tag->user_id

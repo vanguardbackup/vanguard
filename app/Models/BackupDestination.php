@@ -62,7 +62,7 @@ class BackupDestination extends Model
 
         $config = [
             'version' => 'latest',
-            'use_path_style_endpoint' => $this->use_path_style_endpoint,
+            'use_path_style_endpoint' => $this->getAttributeValue('use_path_style_endpoint'),
             'region' => $this->determineS3Region(),
             'credentials' => [
                 'key' => $this->s3_access_key,
