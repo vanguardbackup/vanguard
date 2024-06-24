@@ -194,12 +194,13 @@ class BackupTask extends Model
         if ($this->isReady() && $this->usingCustomCronExpression()) {
             return $this->cronExpressionMatches();
         }
-
-        if ($this->isReady() && ! $this->usingCustomCronExpression()) {
-            return $this->isTheRightTimeToRun();
+        if (!$this->isReady()) {
+            return false;
         }
-
-        return false;
+        if ($this->usingCustomCronExpression()) {
+            return false;
+        }
+        return $this->isTheRightTimeToRun();
     }
 
     public function cronExpressionMatches(): bool
