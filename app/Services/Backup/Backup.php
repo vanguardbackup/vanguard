@@ -212,12 +212,12 @@ abstract class Backup
         $dirSizeOutput = $sftp->exec($dirSizeCommand);
         $dirSize = trim($dirSizeOutput);
 
-        if (!is_numeric($dirSize)) {
+        if (! is_numeric($dirSize)) {
             $this->logError('Failed to get directory size.', ['source_path' => $sourcePath, 'dir_size_output' => $dirSizeOutput]);
             throw new BackupTaskZipException('Failed to get directory size.');
         }
 
-        if (!is_numeric($dirSize)) {
+        if (! is_numeric($dirSize)) {
             $this->logError('Failed to get directory size.', ['source_path' => $sourcePath, 'dir_size_output' => $dirSizeOutput]);
             throw new BackupTaskZipException('Failed to get directory size.');
         }
@@ -228,11 +228,10 @@ abstract class Backup
         $diskSpaceOutput = $sftp->exec($diskSpaceCommand);
         $availableSpace = (int) trim($diskSpaceOutput) * 1024; // Convert from KB to bytes
 
-        if ($availableSpace === 0 || !is_numeric($availableSpace)) {
+        if ($availableSpace === 0 || ! is_numeric($availableSpace)) {
             $this->logError('Failed to get available disk space.', ['remote_zip_path' => $remoteZipPath, 'disk_space_output' => $diskSpaceOutput]);
             throw new BackupTaskZipException('Failed to get available disk space.');
         }
-
 
         $this->logInfo('Available disk space calculated.', ['remote_zip_path' => $remoteZipPath, 'available_space' => $availableSpace]);
 

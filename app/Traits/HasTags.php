@@ -14,10 +14,12 @@ trait HasTags
 
     public function tag($label): void
     {
-        $tag = Tag::firstOrCreate(['label' => $label])
-            ->where('user_id', auth()->id());
+        $tag = Tag::firstOrCreate(
+            ['label' => $label],
+            ['user_id' => auth()->id()]
+        );
 
-        $this->tags()->syncWithoutDetaching($tag);
+        $this->tags()->syncWithoutDetaching([$tag->id]);
     }
 
     public function untag($label): void
@@ -26,7 +28,7 @@ trait HasTags
             ->first();
 
         if ($tag) {
-            $this->tags()->detach($tag);
+            $this->tags()->detach([$tag->id]);
         }
     }
 }

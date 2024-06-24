@@ -20,7 +20,7 @@ class RemoveSSHKey
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
         try {
-            $ssh = new SSH2($remoteServer->ip_address, $remoteServer->port, 5);
+            $ssh = new SSH2($remoteServer->ip_address, (int) $remoteServer->port, 5);
 
             $ssh->login($remoteServer->username, $key);
 
