@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RemoteServer;
 
 use App\Events\RemoteServerConnectivityStatusChanged;
 use App\Models\RemoteServer;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SSH2;
 use RuntimeException;
@@ -56,7 +59,7 @@ class CheckRemoteServerConnection
         }
 
         try {
-            // Load the private key
+            /** @var PrivateKey $key */
             $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
             $ssh = new SSH2($data['host'], $data['port']);
@@ -81,7 +84,7 @@ class CheckRemoteServerConnection
 
             Log::debug('[Server Connection Check] Successfully connected to remote server');
 
-            if ($remoteServer) {
+            if ($remoteServer instanceof \App\Models\RemoteServer) {
                 Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
                 RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }
@@ -97,7 +100,7 @@ class CheckRemoteServerConnection
                 'connectivity_status' => RemoteServer::STATUS_OFFLINE,
             ]);
 
-            if ($remoteServer) {
+            if ($remoteServer instanceof \App\Models\RemoteServer) {
                 Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
                 RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }

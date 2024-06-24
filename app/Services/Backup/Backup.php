@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Backup;
 
 use App\Events\BackupTaskStatusChanged;
@@ -22,6 +24,7 @@ use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
 use RuntimeException;
@@ -178,6 +181,7 @@ abstract class Backup
     {
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
+        /** @var PrivateKey $key */
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
         $sftp = new SFTP($remoteServer->ip_address, $remoteServer->port, 120);

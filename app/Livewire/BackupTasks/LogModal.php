@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\BackupTasks;
 
 use App\Models\BackupTask;
@@ -51,7 +53,7 @@ class LogModal extends Component
         // Avoid duplicate entries by checking if the new log output is already present in the current log output
         if (strpos($this->logOutput, $newLogOutput) === false) {
             // Append the new log output with a newline character if logOutput is not empty
-            $this->logOutput .= ($this->logOutput ? "\n" : '') . $newLogOutput;
+            $this->logOutput .= ($this->logOutput !== '' && $this->logOutput !== '0' ? "\n" : '') . $newLogOutput;
         }
 
         Log::debug('Updated streamed log output:', ['logOutput' => $this->logOutput]);

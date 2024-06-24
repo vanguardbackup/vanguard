@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RemoteServer;
 
 use App\Mail\RemoteServers\FailedToRemoveKey;
@@ -7,6 +9,7 @@ use App\Mail\RemoteServers\SuccessfullyRemovedKey;
 use App\Models\RemoteServer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SSH2;
 use RuntimeException;
@@ -17,6 +20,7 @@ class RemoveSSHKey
     {
         Log::info('Removing SSH key from server.', ['server_id' => $remoteServer->id]);
 
+        /** @var PrivateKey $key */
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
         try {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Jobs\CheckBackupDestinationsS3ConnectionJob;
@@ -88,7 +90,7 @@ class BackupDestination extends Model
             return new S3Client($config);
         } catch (Exception $e) {
             Log::error('Failed to create S3 client: ' . $e->getMessage());
-            throw new RuntimeException('Failed to create S3 client: ' . $e->getMessage());
+            throw new RuntimeException('Failed to create S3 client: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 

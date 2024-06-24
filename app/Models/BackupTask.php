@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
@@ -348,7 +350,6 @@ class BackupTask extends Model
     public function sendNotifications(): void
     {
         $latestLog = $this->fresh()?->logs()->latest()->first();
-        $wasSuccessful = $latestLog?->successful_at;
         // if we want to only send notifications on failure in the future ^^
 
         if ($this->hasNotifyEmail()) {

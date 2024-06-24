@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function ssh_keys_exist(): bool
 {
     return file_exists(config('app.ssh.private_key')) && file_exists(config('app.ssh.public_key'));

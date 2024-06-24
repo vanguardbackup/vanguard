@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -39,11 +41,11 @@ class GitHubSocialiteController extends Controller
         try {
             $githubUser = Socialite::driver('github')->user();
 
-            if ($user = $this->findUserByGitHubId($githubUser->getId())) {
+            if (($user = $this->findUserByGitHubId($githubUser->getId())) instanceof \App\Models\User) {
                 return $this->loginAndRedirect($user, 'Found GH ID associated with this user, logging them in.');
             }
 
-            if ($user = $this->findUserByEmailAndUpdateGitHubId($githubUser)) {
+            if (($user = $this->findUserByEmailAndUpdateGitHubId($githubUser)) instanceof \App\Models\User) {
                 return $this->loginAndRedirect($user, 'Adding the user\'s GH ID to their account.');
             }
 

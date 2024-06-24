@@ -82,18 +82,14 @@ class CreateBackupTaskForm extends Component
 
     public function updatedUseCustomCron(): void
     {
-        $this->useCustomCron = (bool) $this->useCustomCron;
     }
 
     public function updatedUseIsolatedCredentials(): void
     {
-        $this->useIsolatedCredentials = (bool) $this->useIsolatedCredentials;
     }
 
     public function updatedBackupType(): void
     {
-        $this->backupType = (string) $this->backupType;
-
         if ($this->backupType === BackupTask::TYPE_FILES) {
             $this->remoteServers = Auth::user()->remoteServers;
         }

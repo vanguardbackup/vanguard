@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\RemoteServers;
 
 use App\Actions\RemoteServer\CheckRemoteServerConnection;
@@ -53,7 +55,7 @@ class CreateRemoteServerForm extends Component
 
         $this->showingConnectionView = true;
 
-        if ($this->testOverride === true && $this->connectionAttempt() === false) {
+        if ($this->testOverride && $this->connectionAttempt() === false) {
             $this->canConnectToRemoteServer = true;
         }
 
