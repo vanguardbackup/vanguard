@@ -76,6 +76,11 @@ class CheckVersion extends Command
         return str_replace("\n", '', File::get($versionFile));
     }
 
+    /**
+     * Get the latest version from the GitHub API.
+     *
+     * @return array<string, string|null>|null
+     */
     protected function getLatestVersion(): ?array
     {
         $url = 'https://api.github.com/repos/vanguardsh/vanguard/releases/latest';

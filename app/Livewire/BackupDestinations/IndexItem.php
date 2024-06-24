@@ -12,6 +12,11 @@ class IndexItem extends Component
 {
     public BackupDestination $backupDestination;
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     public function getListeners(): array
     {
         return [

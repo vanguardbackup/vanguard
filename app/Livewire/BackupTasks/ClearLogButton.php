@@ -27,6 +27,11 @@ class ClearLogButton extends Component
         return view('livewire.backup-tasks.clear-log-button');
     }
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     protected function getListeners(): array
     {
         return [

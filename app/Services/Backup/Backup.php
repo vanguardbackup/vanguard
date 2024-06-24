@@ -208,6 +208,14 @@ abstract class Backup
         return $sftp;
     }
 
+    /**
+     * Zip a remote directory, excluding specified directories.
+     *
+     * @param  array<string>  $excludeDirs
+     *
+     * @throws BackupTaskZipException
+     * @throws SFTPConnectionException
+     */
     protected function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
     {
         $this->logInfo('Zipping remote directory.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath]);
@@ -341,9 +349,11 @@ abstract class Backup
             while (count($files) > $backupLimit) {
                 $oldestFile = array_pop($files);
 
-                $this->logDebug('Deleting old backup.', ['file' => $oldestFile['Key'] ?? $oldestFile['name']]);
+                $file = $oldestFile['Key'] ?? $oldestFile['name']; // @phpstan-ignore-line
 
-                $backupDestination->deleteFile($oldestFile['Key'] ?? $oldestFile['name']);
+                $this->logDebug('Deleting old backup.', ['file' => $file]);
+
+                $backupDestination->deleteFile($file);
             }
 
             $this->logInfo('Old backups rotation completed.', ['remaining_files' => count($files)]);

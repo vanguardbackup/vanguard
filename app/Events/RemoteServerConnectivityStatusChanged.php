@@ -20,6 +20,11 @@ class RemoteServerConnectivityStatusChanged implements ShouldBroadcast
         $this->connectivityStatus = $connectivityStatus ?? $remoteServer->connectivity_status;
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<Channel>
+     */
     public function broadcastOn(): array
     {
         return [

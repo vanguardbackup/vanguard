@@ -6,6 +6,11 @@ use phpseclib3\Net\SFTP;
 
 interface BackupDestinationInterface
 {
+    /**
+     * List files matching the given pattern.
+     *
+     * @return array<string>
+     */
     public function listFiles(string $pattern): array;
 
     public function deleteFile(string $filePath): void;

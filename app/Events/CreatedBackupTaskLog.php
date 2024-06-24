@@ -24,6 +24,11 @@ class CreatedBackupTaskLog implements ShouldBroadcast
         $this->backupTask = $backupTaskLog->backupTask;
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, Channel>
+     */
     public function broadcastOn(): array
     {
         return [
@@ -31,6 +36,11 @@ class CreatedBackupTaskLog implements ShouldBroadcast
         ];
     }
 
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, int>
+     */
     public function broadcastWith(): array
     {
         return ['logId' => $this->backupTaskLog->id];

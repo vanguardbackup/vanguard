@@ -37,6 +37,11 @@ class BackupTask extends Model
         'last_scheduled_weekly_run_at' => 'datetime',
     ];
 
+    /**
+     * Get the count of logs per month for the last six months for a given user.
+     *
+     * @return array<string, int>
+     */
     public static function logsCountPerMonthForLastSixMonths(int $userId): array
     {
         $sixMonthsAgo = now()->subMonths(6);
@@ -54,6 +59,11 @@ class BackupTask extends Model
             ->toArray();
     }
 
+    /**
+     * Get the count of backup tasks by type for a given user.
+     *
+     * @return array<string, int>
+     */
     public static function backupTasksCountByType(int $userId): array
     {
         return self::query()

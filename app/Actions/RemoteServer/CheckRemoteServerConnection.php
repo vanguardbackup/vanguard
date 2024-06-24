@@ -13,6 +13,8 @@ use RuntimeException;
 class CheckRemoteServerConnection
 {
     /**
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
     public function byRemoteServerId(int $remoteServerId): array
@@ -29,6 +31,9 @@ class CheckRemoteServerConnection
     }
 
     /**
+     * @param  array<string, mixed>  $remoteServerConnectionDetails
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
     public function byRemoteServerConnectionDetails(array $remoteServerConnectionDetails): array
@@ -39,6 +44,9 @@ class CheckRemoteServerConnection
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
     private function checkServerConnection(array $data, ?RemoteServer $remoteServer = null): array

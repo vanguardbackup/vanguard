@@ -11,6 +11,11 @@ class CheckConnectionButton extends Component
 {
     public RemoteServer $remoteServer;
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     public function getListeners(): array
     {
         return [

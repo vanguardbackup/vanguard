@@ -21,6 +21,11 @@ class IndexTable extends Component
         return view('livewire.backup-tasks.index-table', ['backupTasks' => $backupTasks]);
     }
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     protected function getListeners(): array
     {
         return [

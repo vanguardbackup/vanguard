@@ -13,6 +13,9 @@ class IndexItem extends Component
     public BackupTask $backupTask;
     public ?BackupTaskLog $backupTaskLog;
 
+    /**
+     * @return array<string, string>
+     */
     public function getListeners(): array
     {
         return [
@@ -26,6 +29,9 @@ class IndexItem extends Component
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $event
+     */
     public function echoBackupTaskLogCreatedEvent(array $event): void
     {
         Log::debug('Received the CreatedBackupTaskLog event. Fetching the log.', ['new_log_id' => $event['logId']]);

@@ -15,6 +15,13 @@ function get_ssh_private_key(): string
     return file_get_contents(config('app.ssh.private_key'));
 }
 
+/**
+ * Format timezones into a user-friendly format.
+ *
+ * @return array<string, string> Formatted timezones with keys as timezone identifiers and values as formatted strings.
+ *
+ * @throws Exception
+ */
 function formatTimezones(): array
 {
     $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);

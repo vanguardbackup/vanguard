@@ -26,7 +26,7 @@ class S3 implements BackupDestinationInterface
 
     public function listFiles(string $pattern): array
     {
-        /** @var array{Contents: array<int, array{Key: string, LastModified: string}>} $result */
+        /** @var array{Contents: array<int, array{Key: string, LastModified: string, name: ?string}>} $result */
         $result = $this->client->listObjects([
             'Bucket' => $this->bucketName,
         ]);

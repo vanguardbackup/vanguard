@@ -37,6 +37,11 @@ class LogModal extends Component
         $this->resetLog();
     }
 
+    /**
+     * Update the log output with the new data from the event.
+     *
+     * @param  array<string, string>  $event
+     */
     public function updateLogOutput(array $event): void
     {
         Log::debug('Received the StreamBackupTaskLogEvent event. Updating log output.', ['event' => $event]);
@@ -72,6 +77,11 @@ class LogModal extends Component
         return view('livewire.backup-tasks.log-modal');
     }
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     protected function getListeners(): array
     {
         return [

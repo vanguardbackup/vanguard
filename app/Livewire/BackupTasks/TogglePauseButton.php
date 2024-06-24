@@ -11,6 +11,11 @@ class TogglePauseButton extends Component
 {
     public BackupTask $backupTask;
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     public function getListeners(): array
     {
         return [

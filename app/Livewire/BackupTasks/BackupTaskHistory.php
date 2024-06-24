@@ -29,6 +29,11 @@ class BackupTaskHistory extends Component
         ]);
     }
 
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
     protected function getListeners(): array
     {
         return [

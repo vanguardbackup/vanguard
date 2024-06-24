@@ -125,6 +125,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the casts array.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [

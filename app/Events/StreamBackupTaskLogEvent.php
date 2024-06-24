@@ -30,6 +30,11 @@ class StreamBackupTaskLogEvent implements ShouldBroadcast
 
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<Channel>
+     */
     public function broadcastOn(): array
     {
         return [

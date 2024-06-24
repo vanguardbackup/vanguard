@@ -70,6 +70,10 @@ class CreateBackupTaskForm extends Component
      * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag>|null
      */
     public ?Collection $availableTags;
+
+    /**
+     * @var array<string>|null
+     */
     public ?array $selectedTags;
 
     public bool $useIsolatedCredentials = false;

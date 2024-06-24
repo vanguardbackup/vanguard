@@ -61,26 +61,41 @@ trait BackupHelpers
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     protected function logInfo(string $message, array $context = []): void
     {
         Log::info($message, $context);
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     protected function logDebug(string $message, array $context = []): void
     {
         Log::debug($message, $context);
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     protected function logWarning(string $message, array $context = []): void
     {
         Log::warning($message, $context);
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     protected function logError(string $message, array $context = []): void
     {
         Log::error($message, $context);
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     protected function logCritical(string $message, array $context = []): void
     {
         Log::critical($message, $context);
