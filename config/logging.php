@@ -37,6 +37,11 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'flare' => [
+            'driver' => 'flare',
+            'level' => 'error',
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
