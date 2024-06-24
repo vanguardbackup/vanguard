@@ -26,13 +26,20 @@ class S3 implements BackupDestinationInterface
 
     public function listFiles(string $pattern): array
     {
+        /** @var array{Contents: array<int, array{Key: string, LastModified: string}>} $result */
         $result = $this->client->listObjects([
             'Bucket' => $this->bucketName,
         ]);
 
-        return collect($result['Contents'])
-            ->filter(fn ($file) => str_contains($file['Key'], $pattern))
-            ->sortByDesc('LastModified')
+        $contents = $result['Contents'];
+
+        return collect($contents)
+            ->filter(function (array $file) use ($pattern): bool {
+                return str_contains($file['Key'], $pattern);
+            })
+            ->sortByDesc(function (array $file): string {
+                return $file['LastModified'];
+            })
             ->toArray();
     }
 

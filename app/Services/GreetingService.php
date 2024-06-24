@@ -6,7 +6,7 @@ use Carbon\Carbon;
 
 class GreetingService
 {
-    public function auto($timezone = 'UTC'): string
+    public function auto(string $timezone = 'UTC'): string
     {
         $currentTime = Carbon::now($timezone);
         $hour = $currentTime->hour;

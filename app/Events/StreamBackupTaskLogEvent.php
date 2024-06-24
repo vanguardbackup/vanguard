@@ -21,7 +21,7 @@ class StreamBackupTaskLogEvent implements ShouldBroadcast
 
     public string $logOutput;
 
-    public function __construct(BackupTaskLog $backupTaskLog, $logOutput)
+    public function __construct(BackupTaskLog $backupTaskLog, string $logOutput)
     {
         Log::debug('StreamBackupTaskLogEvent constructor', ['backupTaskLog' => $backupTaskLog, 'logOutput' => $logOutput]);
         $this->backupTaskLog = $backupTaskLog;

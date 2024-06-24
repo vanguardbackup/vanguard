@@ -8,7 +8,7 @@ use phpseclib3\Net\SFTP;
 
 trait BackupHelpers
 {
-    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay)
+    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
         $result = false;
@@ -40,7 +40,7 @@ trait BackupHelpers
         return $tempFile;
     }
 
-    protected function openFileAsStream(string $tempFile)
+    protected function openFileAsStream(string $tempFile): mixed
     {
         $stream = fopen($tempFile, 'rb+');
         if (! $stream) {

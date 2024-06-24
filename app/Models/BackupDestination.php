@@ -30,11 +30,21 @@ class BackupDestination extends Model
 
     protected $guarded = [];
 
+    /**
+     * Get the user that owns the backup destination.
+     *
+     * @return BelongsTo<User, BackupDestination>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the backup tasks for the backup destination.
+     *
+     * @return HasMany<BackupTask>
+     */
     public function backupTasks(): HasMany
     {
         return $this->hasMany(BackupTask::class);
@@ -82,7 +92,10 @@ class BackupDestination extends Model
         }
     }
 
-    public function type()
+    /**
+     * Get the type of the backup destination.
+     */
+    public function type(): ?string
     {
         if ($this->type === self::TYPE_S3) {
             return 'S3';
@@ -91,6 +104,8 @@ class BackupDestination extends Model
         if ($this->type === self::TYPE_CUSTOM_S3) {
             return 'Custom S3';
         }
+
+        return null;
     }
 
     public function run(): void

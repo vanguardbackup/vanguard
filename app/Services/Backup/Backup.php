@@ -36,8 +36,14 @@ abstract class Backup
         $this->validateConfiguration();
     }
 
-    public function backupDestinationDriver($destinationDriver, SFTP $sftp, string $remotePath, $backupDestination, string $fileName, string $storagePath): bool
-    {
+    public function backupDestinationDriver(
+        string $destinationDriver,
+        SFTP $sftp,
+        string $remotePath,
+        BackupDestination $backupDestination,
+        string $fileName,
+        string $storagePath
+    ): bool {
         switch ($destinationDriver) {
             case BackupConstants::DRIVER_S3:
             case BackupConstants::DRIVER_CUSTOM_S3:
@@ -168,7 +174,7 @@ abstract class Backup
         return $exists;
     }
 
-    protected function establishSFTPConnection($remoteServer, $backupTask): SFTP
+    protected function establishSFTPConnection(object $remoteServer, object $backupTask): SFTP
     {
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
@@ -288,7 +294,7 @@ abstract class Backup
         return $tempFile;
     }
 
-    protected function openFileAsStream(string $tempFile)
+    protected function openFileAsStream(string $tempFile): mixed
     {
         $stream = fopen($tempFile, 'rb+');
         if (! $stream) {
@@ -318,8 +324,13 @@ abstract class Backup
         return '[' . $timestamp . '] ' . $message . "\n";
     }
 
-    protected function rotateOldBackups(BackupDestinationInterface $backupDestination, $backupTaskId, int $backupLimit, string $fileExtension = '.zip', string $pattern = 'backup_'): void
-    {
+    protected function rotateOldBackups(
+        BackupDestinationInterface $backupDestination,
+        int $backupTaskId,
+        int $backupLimit,
+        string $fileExtension = '.zip',
+        string $pattern = 'backup_'
+    ): void {
         $this->logInfo('Rotating old backups.', ['backup_task_id' => $backupTaskId, 'backup_limit' => $backupLimit]);
 
         try {
@@ -365,8 +376,14 @@ abstract class Backup
         throw new DatabaseDumpException('No supported database found on the remote server.');
     }
 
-    protected function dumpRemoteDatabase(SFTP $sftp, string $databaseType, string $remoteDumpPath, string $databasePassword, string $databaseName, ?string $databaseTablesToExcludeInTheBackup): void
-    {
+    protected function dumpRemoteDatabase(
+        SFTP $sftp,
+        string $databaseType,
+        string $remoteDumpPath,
+        string $databasePassword,
+        string $databaseName,
+        ?string $databaseTablesToExcludeInTheBackup
+    ): void {
         $this->logInfo('Dumping remote database.', ['database_type' => $databaseType, 'remote_dump_path' => $remoteDumpPath]);
 
         $this->validateSFTP($sftp);
@@ -427,7 +444,7 @@ abstract class Backup
         $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);
     }
 
-    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay)
+    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
         $result = false;

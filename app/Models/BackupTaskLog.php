@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,11 +13,18 @@ class BackupTaskLog extends Model
 
     protected $guarded = [];
 
-    public function scopeFinished($query)
+    /**
+     * @param  Builder<BackupTaskLog>  $query
+     * @return Builder<BackupTaskLog>
+     */
+    public function scopeFinished(Builder $query): Builder
     {
         return $query->whereNotNull('finished_at');
     }
 
+    /**
+     * @return BelongsTo<BackupTask, BackupTaskLog>
+     */
     public function backupTask(): BelongsTo
     {
         return $this->belongsTo(BackupTask::class);

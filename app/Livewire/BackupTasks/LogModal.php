@@ -18,6 +18,9 @@ class LogModal extends Component
 
     public bool $isWaiting = true;
 
+    /**
+     * @var array<string>
+     */
     protected $listeners = [
         'refreshSelf',
         'updateLogOutput',
@@ -34,7 +37,7 @@ class LogModal extends Component
         $this->resetLog();
     }
 
-    public function updateLogOutput($event): void
+    public function updateLogOutput(array $event): void
     {
         Log::debug('Received the StreamBackupTaskLogEvent event. Updating log output.', ['event' => $event]);
 

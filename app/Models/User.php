@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -49,16 +48,25 @@ class User extends Authenticatable
         return '';
     }
 
+    /**
+     * @return HasMany<RemoteServer>
+     */
     public function remoteServers(): HasMany
     {
         return $this->hasMany(RemoteServer::class);
     }
 
+    /**
+     * @return HasMany<BackupDestination>
+     */
     public function backupDestinations(): HasMany
     {
         return $this->hasMany(BackupDestination::class);
     }
 
+    /**
+     * @return HasMany<BackupTask>
+     */
     public function backupTasks(): HasMany
     {
         return $this->hasMany(BackupTask::class);
@@ -89,23 +97,32 @@ class User extends Authenticatable
         return $this->github_id !== null;
     }
 
+    /**
+     * @return HasMany<Tag>
+     */
     public function tags(): HasMany
     {
         return $this->hasMany(Tag::class);
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function firstName(): Attribute
     {
-        return new Attribute(function ($value) {
-            return $this->getFirstName();
-        });
+        return new Attribute(
+            get: fn () => $this->getFirstName(),
+        );
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function lastName(): Attribute
     {
-        return new Attribute(function ($value) {
-            return $this->getLastName();
-        });
+        return new Attribute(
+            get: fn () => $this->getLastName(),
+        );
     }
 
     protected function casts(): array

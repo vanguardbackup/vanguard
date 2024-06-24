@@ -7,12 +7,20 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait HasTags
 {
+    /**
+     * Get all the tags for the model.
+     *
+     * @return MorphToMany<Tag>
+     */
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable', 'taggables', 'taggable_id', 'tag_id');
     }
 
-    public function tag($label): void
+    /**
+     * Add a tag to the model.
+     */
+    public function tag(string $label): void
     {
         $tag = Tag::firstOrCreate(
             ['label' => $label],
@@ -22,10 +30,12 @@ trait HasTags
         $this->tags()->syncWithoutDetaching([$tag->id]);
     }
 
-    public function untag($label): void
+    /**
+     * Remove a tag from the model.
+     */
+    public function untag(string $label): void
     {
-        $tag = Tag::where('label', $label)
-            ->first();
+        $tag = Tag::where('label', $label)->first();
 
         if ($tag) {
             $this->tags()->detach([$tag->id]);

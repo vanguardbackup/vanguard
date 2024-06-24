@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GithubProvider;
 
@@ -60,7 +61,7 @@ class GitHubSocialiteController extends Controller
         return User::where('github_id', $githubId)->first();
     }
 
-    private function findUserByEmailAndUpdateGitHubId($githubUser): ?User
+    private function findUserByEmailAndUpdateGitHubId(SocialiteUser $githubUser): ?User
     {
         $user = User::where('email', $githubUser->getEmail())->first();
 
@@ -69,7 +70,7 @@ class GitHubSocialiteController extends Controller
         return $user;
     }
 
-    private function createUserAndLogin($githubUser): RedirectResponse
+    private function createUserAndLogin(SocialiteUser $githubUser): RedirectResponse
     {
         $user = User::create([
             'name' => $githubUser->getName(),

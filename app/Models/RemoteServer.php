@@ -27,11 +27,17 @@ class RemoteServer extends Model
 
     public $guarded = [];
 
+    /**
+     * @return BelongsTo<User, RemoteServer>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<BackupTask>
+     */
     public function backupTasks(): HasMany
     {
         return $this->hasMany(BackupTask::class);

@@ -40,6 +40,9 @@ class CreateBackupTaskForm extends Component
 
     public string $backupType = BackupTask::TYPE_FILES;
 
+    /**
+     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RemoteServer>|null
+     */
     public ?Collection $remoteServers;
 
     public ?string $databaseName = null;
@@ -52,6 +55,9 @@ class CreateBackupTaskForm extends Component
 
     public ?string $notifySlackWebhook = null;
 
+    /**
+     * @var \Illuminate\Support\Collection<int, string>
+     */
     public \Illuminate\Support\Collection $backupTimes;
 
     public string $userTimezone;
@@ -60,6 +66,9 @@ class CreateBackupTaskForm extends Component
 
     public ?string $excludedDatabaseTables = null;
 
+    /**
+     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag>|null
+     */
     public ?Collection $availableTags;
     public ?array $selectedTags;
 

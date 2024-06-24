@@ -24,15 +24,10 @@ class BackupTask extends Model
     use HasFactory, HasTags;
 
     const string STATUS_READY = 'ready';
-
     const string STATUS_RUNNING = 'running';
-
     const string FREQUENCY_DAILY = 'daily';
-
     const string FREQUENCY_WEEKLY = 'weekly';
-
     const string TYPE_FILES = 'files';
-
     const string TYPE_DATABASE = 'database';
 
     protected $guarded = [];
@@ -72,31 +67,51 @@ class BackupTask extends Model
             ->toArray();
     }
 
-    public function scopeNotPaused($query): Builder
+    /**
+     * @param  Builder<BackupTask>  $query
+     * @return Builder<BackupTask>
+     */
+    public function scopeNotPaused(Builder $query): Builder
     {
         return $query->whereNull('paused_at');
     }
 
-    public function scopeReady($query): Builder
+    /**
+     * @param  Builder<BackupTask>  $query
+     * @return Builder<BackupTask>
+     */
+    public function scopeReady(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_READY);
     }
 
+    /**
+     * @return BelongsTo<User, BackupTask>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<BackupDestination, BackupTask>
+     */
     public function backupDestination(): BelongsTo
     {
         return $this->belongsTo(BackupDestination::class);
     }
 
+    /**
+     * @return BelongsTo<RemoteServer, BackupTask>
+     */
     public function remoteServer(): BelongsTo
     {
         return $this->belongsTo(RemoteServer::class);
     }
 
+    /**
+     * @return HasMany<BackupTaskLog>
+     */
     public function logs(): HasMany
     {
         return $this->hasMany(BackupTaskLog::class);
@@ -341,13 +356,13 @@ class BackupTask extends Model
         }
     }
 
-    public function sendEmailNotification($latestLog): void
+    public function sendEmailNotification(?BackupTaskLog $latestLog): void
     {
         Mail::to($this->notify_email)
             ->queue(new OutputMail($latestLog));
     }
 
-    public function sendDiscordWebhookNotification($latestLog): void
+    public function sendDiscordWebhookNotification(?BackupTaskLog $latestLog): void
     {
         $status = $latestLog?->successful_at ? 'success' : 'failure';
         $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
@@ -401,7 +416,7 @@ class BackupTask extends Model
         ]);
     }
 
-    public function sendSlackWebhookNotification($latestLog): void
+    public function sendSlackWebhookNotification(?BackupTaskLog $latestLog): void
     {
         $status = $latestLog?->successful_at ? 'success' : 'failure';
         $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';

@@ -13,11 +13,17 @@ class Taggable extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<Tag, Taggable>
+     */
     public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class);
     }
 
+    /**
+     * @return MorphTo<Model, Taggable>
+     */
     public function taggable(): MorphTo
     {
         return $this->morphTo();

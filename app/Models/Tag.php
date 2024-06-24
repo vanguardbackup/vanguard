@@ -12,6 +12,9 @@ class Tag extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<User, Tag>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

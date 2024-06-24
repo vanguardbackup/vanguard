@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class UpcomingBackupTasks extends Component
 {
-    public Collection $scheduledBackupTasks;
+    public Collection $scheduledBackupTasks; // @phpstan-ignore-line
 
     public function render(): View
     {

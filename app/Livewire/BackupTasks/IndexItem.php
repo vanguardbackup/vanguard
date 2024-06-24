@@ -11,7 +11,6 @@ use Livewire\Component;
 class IndexItem extends Component
 {
     public BackupTask $backupTask;
-
     public ?BackupTaskLog $backupTaskLog;
 
     public function getListeners(): array
@@ -27,12 +26,12 @@ class IndexItem extends Component
         ];
     }
 
-    public function echoBackupTaskLogCreatedEvent($event): void
+    public function echoBackupTaskLogCreatedEvent(array $event): void
     {
         Log::debug('Received the CreatedBackupTaskLog event. Fetching the log.', ['new_log_id' => $event['logId']]);
         $this->backupTaskLog = BackupTaskLog::findOrFail($event['logId']);
 
-        // refresh the component and fetch the latest log.
+        // Refresh the component and fetch the latest log.
         $this->dispatch('backup-task-item-updated-' . $this->backupTask->id);
     }
 

@@ -1,0 +1,51 @@
+name: Static Analysis
+
+on:
+  workflow_run:
+    workflows: ["Duster Fix"]
+    types:
+      - completed
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:8.3
+
+    services:
+      postgres:
+        image: postgres:15.1
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: vanguard
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Install composer dependencies
+        run: |
+          composer install --no-scripts
+
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example.ci .env
+          php artisan key:generate
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Run Phpstan
+        run: vendor/bin/phpstan analyse

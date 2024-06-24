@@ -2,17 +2,16 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-
     paths:
         - app/
 
     # Level 9 is the highest level
-    level: 5
+    level: 6
 
-#    ignoreErrors:
-#        - '#PHPDoc tag @var#'
-#
-#    excludePaths:
-#        - ./*/*/FileToBeExcluded.php
-#
-#    checkMissingIterableValueType: false
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
+
+    # Uncomment and adjust the following lines if needed
+    # excludePaths:
+    #     - ./*/*/FileToBeExcluded.php
