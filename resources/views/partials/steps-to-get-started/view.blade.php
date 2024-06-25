@@ -27,7 +27,7 @@
                         <a href="{{ route('remote-servers.create') }}" wire:navigate>
                             <x-primary-button class="mt-4" centered fat>
                                 {{ __('Link Remote Server') }}
-                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2')
+                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
                             </x-primary-button>
                         </a>
                     </div>
@@ -57,13 +57,13 @@
                                 class="mt-4 cursor-not-allowed bg-opacity-50 hover:bg-opacity-50 focus:bg-opacity-50"
                                 centered fat disabled>
                                 {{ __('Add your Backup Destination') }}
-                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2')
+                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
                             </x-primary-button>
                         @else
                             <a href="{{ route('backup-destinations.create') }}" wire:navigate>
                                 <x-primary-button class="mt-4" centered fat>
                                     {{ __('Add another Backup Destination') }}
-                                    @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2')
+                                    @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
                                 </x-primary-button>
                         @endif
                     </div>
@@ -92,7 +92,7 @@
                                 class="mt-4 cursor-not-allowed bg-opacity-50 hover:bg-opacity-50 focus:bg-opacity-50"
                                 centered fat disabled>
                                 {{ __('Create your first Backup Task') }}
-                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2')
+                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
                             </x-primary-button>
                         @else
                             <a href="{{ route('backup-tasks.create') }}" wire:navigate>
