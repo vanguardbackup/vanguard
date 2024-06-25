@@ -50,6 +50,7 @@ class IndexItem extends Component
         $this->dispatch('$refresh');
         $this->dispatch('update-run-button-' . $this->backupTask->id);
 
+        $this->dispatch('refresh-backup-tasks-table'); // We want to refresh the index table since buttons will be disabled after task run.
         $this->dispatch('refreshBackupTaskHistory'); // Refresh the backup task history component as there's a new log.
     }
 
