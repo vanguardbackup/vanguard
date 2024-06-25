@@ -16,6 +16,10 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
+Route::view('profile/remove', 'account.remove-account')
+    ->middleware(['auth'])
+    ->name('account.remove-account');
+
 Route::view('frequently-asked-questions', 'frequently-asked-questions')
     ->middleware(['auth'])
     ->name('frequently-asked-questions');

@@ -14,7 +14,18 @@ test('profile page is displayed', function () {
     $response
         ->assertOk()
         ->assertSeeVolt('profile.update-profile-information-form')
-        ->assertSeeVolt('profile.update-password-form')
+        ->assertSeeVolt('profile.update-password-form');
+});
+
+test('delete page is displayed', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = $this->get('/profile/remove');
+
+    $response
+        ->assertOk()
         ->assertSeeVolt('profile.delete-user-form');
 });
 
