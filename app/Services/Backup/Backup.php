@@ -438,6 +438,8 @@ abstract class Backup
             throw new DatabaseDumpException('Unsupported database type.');
         }
 
+        $this->logDebug('Database dump command.', ['command' => $dumpCommand]);
+
         $output = $sftp->exec($dumpCommand);
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
@@ -453,6 +455,9 @@ abstract class Backup
             $this->logError('Database dump file was not created or is empty.');
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
         }
+
+        $fileContent = $sftp->exec('cat ' . escapeshellarg($remoteDumpPath));
+        $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
 
         $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
     }
