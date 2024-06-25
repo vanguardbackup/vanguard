@@ -407,20 +407,32 @@ abstract class Backup
             $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
             if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
                 foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' --ignore-table=' . $databaseName . '.' . $table;
+                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $table);
                 }
             } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
                 foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' -T ' . $table;
+                    $excludeTablesOption .= ' -T ' . escapeshellarg($table);
                 }
             }
             Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
         }
 
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-            $dumpCommand = 'mysqldump ' . $databaseName . $excludeTablesOption . ' --password=' . escapeshellarg($databasePassword) . ' > ' . escapeshellarg($remoteDumpPath) . ' 2>&1';
+            $dumpCommand = sprintf(
+                'mysqldump %s %s --password=%s > %s 2>&1',
+                escapeshellarg($databaseName),
+                $excludeTablesOption,
+                escapeshellarg($databasePassword),
+                escapeshellarg($remoteDumpPath)
+            );
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-            $dumpCommand = 'PGPASSWORD=' . escapeshellarg($databasePassword) . ' pg_dump ' . $databaseName . $excludeTablesOption . ' > ' . escapeshellarg($remoteDumpPath) . ' --format=custom 2>&1';
+            $dumpCommand = sprintf(
+                'PGPASSWORD=%s pg_dump %s %s > %s --format=custom 2>&1',
+                escapeshellarg($databasePassword),
+                escapeshellarg($databaseName),
+                $excludeTablesOption,
+                escapeshellarg($remoteDumpPath)
+            );
         } else {
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
             throw new DatabaseDumpException('Unsupported database type.');
@@ -434,7 +446,7 @@ abstract class Backup
             throw new DatabaseDumpException('Failed to dump the database: ' . $output);
         }
 
-        $checkFileCommand = 'test -s ' . escapeshellarg($remoteDumpPath) . ' && echo "exists" || echo "not exists"';
+        $checkFileCommand = sprintf('test -s %s && echo "exists" || echo "not exists"', escapeshellarg($remoteDumpPath));
         $fileCheckOutput = trim($sftp->exec($checkFileCommand));
 
         if ($fileCheckOutput !== 'exists') {
