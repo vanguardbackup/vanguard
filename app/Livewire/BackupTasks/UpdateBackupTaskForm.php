@@ -82,7 +82,9 @@ class UpdateBackupTaskForm extends Component
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void {}
+    public function updatedUseCustomCron(): void
+    {
+    }
 
     public function updatedBackupType(): void
     {
