@@ -427,7 +427,7 @@ abstract class Backup
             );
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
             $dumpCommand = sprintf(
-                'PGPASSWORD=%s pg_dump %s %s > %s --format=custom 2>&1',
+                'PGPASSWORD=%s pg_dump %s %s > %s 2>&1',
                 escapeshellarg($databasePassword),
                 escapeshellarg($databaseName),
                 $excludeTablesOption,
