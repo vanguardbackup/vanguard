@@ -41,7 +41,7 @@ class S3 implements BackupDestinationInterface
                 return str_contains($file['Key'], $pattern);
             })
             ->sortByDesc(function (array $file): DateTimeResult {
-                return $file['LastModified'];
+                return new DateTimeResult($file['LastModified']);
             })
             ->toArray();
     }
