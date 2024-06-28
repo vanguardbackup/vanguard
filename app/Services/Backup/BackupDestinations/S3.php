@@ -8,6 +8,8 @@ use App\Services\Backup\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
+use DateTime;
+use DateTimeInterface;
 use Illuminate\Support\Facades\Log;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Filesystem;
@@ -40,8 +42,11 @@ class S3 implements BackupDestinationInterface
             ->filter(function (array $file) use ($pattern): bool {
                 return str_contains($file['Key'], $pattern);
             })
-            ->sortByDesc(function (array $file): DateTimeResult {
-                return new DateTimeResult($file['LastModified']);
+            ->sortByDesc(function (array $file): DateTime {
+                /** @var DateTimeResult $lastModified */
+                $lastModified = $file['LastModified'];
+                $dateTimeString = $lastModified->format(DateTimeInterface::ATOM);
+                return new DateTime($dateTimeString);
             })
             ->toArray();
     }
