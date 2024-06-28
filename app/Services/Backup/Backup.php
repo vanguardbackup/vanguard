@@ -459,7 +459,44 @@ abstract class Backup
         $fileContent = $sftp->exec('cat ' . escapeshellarg($remoteDumpPath));
         $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
 
-        $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
+        $duplicateDumpPath = $remoteDumpPath . '_duplicate';
+        $duplicateDumpCommand = $dumpCommand;
+        $duplicateDumpCommand = str_replace($remoteDumpPath, $duplicateDumpPath, $duplicateDumpCommand);
+        $this->logDebug('Duplicate dump command.', ['command' => $duplicateDumpCommand]);
+
+        $duplicateOutput = $sftp->exec($duplicateDumpCommand);
+        $this->logDebug('Duplicate database dump command output.', ['output' => $duplicateOutput]);
+
+        if (stripos($duplicateOutput, 'error') !== false || stripos($duplicateOutput, 'failed') !== false) {
+            $this->logError('Failed to dump the database duplicate.', ['output' => $duplicateOutput]);
+            throw new DatabaseDumpException('Failed to dump the database duplicate: ' . $duplicateOutput);
+        }
+
+        $duplicateFileCheckOutput = trim($sftp->exec($checkFileCommand));
+        if ($duplicateFileCheckOutput !== 'exists') {
+            $this->logError('Duplicate database dump file was not created or is empty.');
+            throw new DatabaseDumpException('Duplicate database dump file was not created or is empty.');
+        }
+
+        $this->logInfo('Database dump and duplicate dump completed successfully.', ['remote_dump_path' => $remoteDumpPath, 'duplicate_dump_path' => $duplicateDumpPath]);
+
+        $diffCommand = sprintf('diff -q %s %s', escapeshellarg($remoteDumpPath), escapeshellarg($duplicateDumpPath));
+        $diffOutput = $sftp->exec($diffCommand);
+        if (trim($diffOutput) !== '') {
+            $this->logError('The database dump and its duplicate are not identical.', ['diff_output' => $diffOutput]);
+            throw new DatabaseDumpException('The database dump and its duplicate are not identical.');
+        }
+
+        $this->logInfo('Database dump and duplicate are identical. Proceeding to delete the duplicate.', ['duplicate_dump_path' => $duplicateDumpPath]);
+
+        $deleteCommand = sprintf('rm %s', escapeshellarg($duplicateDumpPath));
+        $deleteOutput = $sftp->exec($deleteCommand);
+        if (stripos($deleteOutput, 'error') !== false || stripos($deleteOutput, 'failed') !== false) {
+            $this->logError('Failed to delete the duplicate database dump file.', ['output' => $deleteOutput]);
+            throw new DatabaseDumpException('Failed to delete the duplicate database dump file: ' . $deleteOutput);
+        }
+
+        $this->logInfo('Duplicate database dump file deleted successfully.', ['duplicate_dump_path' => $duplicateDumpPath]);
     }
 
     protected function validateSFTP(SFTP $sftp): void
