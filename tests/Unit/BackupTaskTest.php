@@ -6,6 +6,7 @@ use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
 use App\Models\BackupTask;
+use App\Models\BackupTaskData;
 use App\Models\BackupTaskLog;
 use App\Models\RemoteServer;
 use App\Models\User;
@@ -466,8 +467,8 @@ it('returns the correct count of logs per month for the last six months', functi
     ]);
 
     for ($i = 0; $i < 6; $i++) {
-        BackupTaskLog::create([
-            'output' => 'Test output',
+        BackupTaskData::create([
+            'duration' => 25,
             'backup_task_id' => $backupTask->id,
             'created_at' => now()->subMonths($i),
         ]);

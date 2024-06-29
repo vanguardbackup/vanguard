@@ -40,7 +40,7 @@ class BackupTask extends Model
     ];
 
     /**
-     * Get the count of logs per month for the last six months for a given user.
+     * Get the count of tasks per month for the last six months for a given user.
      *
      * @return array<string, int>
      */
@@ -48,11 +48,11 @@ class BackupTask extends Model
     {
         $sixMonthsAgo = now()->subMonths(6);
 
-        return BackupTaskLog::query()
-            ->join('backup_tasks', 'backup_tasks.id', '=', 'backup_task_logs.backup_task_id')
+        return BackupTaskData::query()
+            ->join('backup_tasks', 'backup_tasks.id', '=', 'backup_task_data.backup_task_id')
             ->where('backup_tasks.user_id', $userId)
-            ->where('backup_task_logs.created_at', '>=', $sixMonthsAgo)
-            ->selectRaw('COUNT(*) as count, to_char(backup_task_logs.created_at, \'Mon YYYY\') as month')
+            ->where('backup_task_data.created_at', '>=', $sixMonthsAgo)
+            ->selectRaw('COUNT(*) as count, to_char(backup_task_data.created_at, \'Mon YYYY\') as month')
             ->groupBy('month')
             ->get()
             ->mapWithKeys(function ($item) {
