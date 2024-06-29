@@ -433,24 +433,26 @@ abstract class Backup
 
         $this->logDebug('Database dump command.', ['command' => $dumpCommand]);
 
-        $result = $sftp->exec($dumpCommand);
-        $exitStatus = $sftp->exec('echo $?');
+        $output = $sftp->exec($dumpCommand);
+        $this->logDebug('Database dump command output.', ['output' => $output]);
 
-        if ($exitStatus !== '0') {
-            $errorOutput = $sftp->exec('cat /tmp/mysql_dump_error.log');
-            $this->logError('Failed to dump the database.', ['exit_status' => $exitStatus, 'error' => $errorOutput]);
-            throw new DatabaseDumpException("Failed to dump the database. Exit status: {$exitStatus}. Error: {$errorOutput}");
+        if (stripos($output, 'error') !== false || stripos($output, 'failed') !== false) {
+            $this->logError('Failed to dump the database.', ['output' => $output]);
+            throw new DatabaseDumpException('Failed to dump the database: ' . $output);
         }
 
-        $stat = $sftp->stat($fullRemotePath);
-        if ($stat === false || ! isset($stat['size']) || $stat['size'] === 0) {
+        $checkFileCommand = sprintf('test -s %s && echo "exists" || echo "not exists"', escapeshellarg($remoteDumpPath));
+        $fileCheckOutput = trim($sftp->exec($checkFileCommand));
+
+        if ($fileCheckOutput !== 'exists') {
             $this->logError('Database dump file was not created or is empty.');
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
         }
 
-        $fileSize = $stat['size'];
+        $fileContent = $sftp->exec('cat ' . escapeshellarg($remoteDumpPath));
+        $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
 
-        $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $fullRemotePath, 'file_size' => $fileSize]);
+        $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
     }
 
     protected function validateSFTP(SFTP $sftp): void
