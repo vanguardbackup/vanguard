@@ -16,6 +16,8 @@ class FileBackup extends Backup
     {
         Log::info("Starting backup task: {$backupTaskId}");
 
+        $scriptRunTime = microtime(true);
+
         $backupTask = $this->obtainBackupTask($backupTaskId);
         $backupTask->setScriptUpdateTime();
         $remoteServer = $backupTask->remoteServer;
@@ -120,6 +122,12 @@ class FileBackup extends Backup
             $backupTask->updateLastRanAt();
             $backupTask->resetScriptUpdateTime();
             Log::info('[BACKUP TASK] Completed backup task: ' . $backupTask->label . ' (' . $backupTask->id . ').');
+
+            $elapsedTime = microtime(true) - $scriptRunTime;
+            $backupTask->data()->create([
+                'duration' => $elapsedTime,
+                'size' => $dirSize ?? null,
+            ]);
         }
     }
 }

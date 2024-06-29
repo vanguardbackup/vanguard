@@ -129,6 +129,14 @@ class BackupTask extends Model
         return $this->hasMany(BackupTaskLog::class);
     }
 
+    /**
+     * @return HasMany<BackupTaskData>
+     */
+    public function data(): HasMany
+    {
+        return $this->hasMany(BackupTaskData::class);
+    }
+
     public function updateLastRanAt(): void
     {
         $this->update(['last_run_at' => now()]);

@@ -15,6 +15,8 @@ class DatabaseBackup extends Backup
     {
         Log::info('Starting database backup task.', ['backup_task_id' => $backupTaskId]);
 
+        $scriptRunTime = microtime(true);
+
         $backupTask = $this->obtainBackupTask($backupTaskId);
         $backupTask->setScriptUpdateTime();
         $remoteServer = $backupTask->remoteServer;
@@ -109,6 +111,12 @@ class DatabaseBackup extends Backup
             $backupTask->updateLastRanAt();
             $backupTask->resetScriptUpdateTime();
             Log::info('Backup task completed.', ['backup_task_id' => $backupTaskId]);
+
+            $elapsedTime = microtime(true) - $scriptRunTime;
+            $backupTask->data()->create([
+                'duration' => $elapsedTime,
+            ]);
+            Log::info('Script execution time.', ['backup_task_id' => $backupTaskId, 'elapsed_time' => $elapsedTime]);
         }
     }
 }
