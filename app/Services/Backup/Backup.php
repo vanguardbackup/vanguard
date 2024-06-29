@@ -436,7 +436,7 @@ abstract class Backup
         $result = $sftp->exec($dumpCommand);
         $exitStatus = $sftp->exec('echo $?');
 
-        if ($exitStatus != '0') {
+        if ($exitStatus !== '0') {
             $errorOutput = $sftp->exec('cat /tmp/mysql_dump_error.log');
             $this->logError('Failed to dump the database.', ['exit_status' => $exitStatus, 'error' => $errorOutput]);
             throw new DatabaseDumpException("Failed to dump the database. Exit status: {$exitStatus}. Error: {$errorOutput}");
