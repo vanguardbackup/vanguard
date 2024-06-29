@@ -22,6 +22,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -395,36 +396,42 @@ abstract class Backup
         string $remoteDumpPath,
         string $databasePassword,
         string $databaseName,
-        ?string $databaseTablesToExcludeInTheBackup,
-        bool $useCompression = true
+        ?string $databaseTablesToExcludeInTheBackup
     ): void {
         $this->logInfo('Dumping remote database.', ['database_type' => $databaseType, 'remote_dump_path' => $remoteDumpPath]);
 
         $this->validateSFTP($sftp);
 
-        $excludeTablesOption = $this->getExcludeTablesOption($databaseType, $databaseName, $databaseTablesToExcludeInTheBackup);
-
-        $compressCommand = $useCompression ? '| gzip' : '';
-        $fileExtension = $useCompression ? '.gz' : '';
-        $fullRemotePath = $remoteDumpPath . $fileExtension;
+        $excludeTablesOption = '';
+        if ($databaseTablesToExcludeInTheBackup) {
+            $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
+            if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+                foreach ($tablesToExclude as $table) {
+                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $table);
+                }
+            } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
+                foreach ($tablesToExclude as $table) {
+                    $excludeTablesOption .= ' -T ' . escapeshellarg($table);
+                }
+            }
+            Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
+        }
 
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
             $dumpCommand = sprintf(
-                'mysqldump  --password=%s --single-transaction --quick --add-drop-table --set-charset %s %s %s > %s 2>/tmp/mysql_dump_error.log',
-                escapeshellarg($databasePassword),
+                'mysqldump %s %s --password=%s > %s 2>&1',
                 escapeshellarg($databaseName),
                 $excludeTablesOption,
-                $compressCommand,
-                escapeshellarg($fullRemotePath)
+                escapeshellarg($databasePassword),
+                escapeshellarg($remoteDumpPath)
             );
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
             $dumpCommand = sprintf(
-                'PGPASSWORD=%s pg_dump --clean --if-exists --no-owner %s %s %s > %s 2>/tmp/pg_dump_error.log',
+                'PGPASSWORD=%s pg_dump %s %s > %s --format=custom 2>&1',
                 escapeshellarg($databasePassword),
                 escapeshellarg($databaseName),
                 $excludeTablesOption,
-                $compressCommand,
-                escapeshellarg($fullRemotePath)
+                escapeshellarg($remoteDumpPath)
             );
         } else {
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
@@ -532,27 +539,5 @@ abstract class Backup
             default:
                 throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->type}");
         }
-    }
-
-    private function getExcludeTablesOption(string $databaseType, string $databaseName, ?string $databaseTablesToExcludeInTheBackup): string
-    {
-        if (! $databaseTablesToExcludeInTheBackup) {
-            return '';
-        }
-
-        $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
-        $excludeTablesOption = '';
-
-        if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-            foreach ($tablesToExclude as $table) {
-                $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $table);
-            }
-        } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-            foreach ($tablesToExclude as $table) {
-                $excludeTablesOption .= ' -T ' . escapeshellarg($table);
-            }
-        }
-
-        return $excludeTablesOption;
     }
 }
