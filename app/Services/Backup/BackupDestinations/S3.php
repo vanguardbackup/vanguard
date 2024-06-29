@@ -46,6 +46,7 @@ class S3 implements BackupDestinationInterface
                 /** @var DateTimeResult $lastModified */
                 $lastModified = $file['LastModified'];
                 $dateTimeString = $lastModified->format(DateTimeInterface::ATOM);
+
                 return new DateTime($dateTimeString);
             })
             ->toArray();
