@@ -50,7 +50,7 @@ new class extends Component
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
     >
-        {{ __('Remove Account') }}
+        {{ __('Proceed') }}
     </x-danger-button>
 
 <a href="{{ route('overview') }}" wire:navigate>
