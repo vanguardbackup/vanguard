@@ -63,8 +63,10 @@
             @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3)
                 <div class="mt-4">
                     <x-input-label for="usePathStyleEndpoint" :value="__('Use Path Style Endpoint')"/>
-                    <x-checkbox id="usePathStyleEndpoint" class="block mt-1 w-full" wire:model="usePathStyleEndpoint"
-                                name="usePathStyleEndpoint"/>
+                    <x-toggle
+                        name="usePathStyleEndpoint"
+                        model="usePathStyleEndpoint"
+                    />
                     <x-input-error :messages="$errors->get('usePathStyleEndpoint')" class="mt-2"/>
                     <x-input-explain>
                         {{ __('This will append the bucket name to the URL instead of adding it as a subdomain.') }}

@@ -117,7 +117,11 @@
             </div>
             <div class="mt-4">
                 <x-input-label for="useIsolatedCredentials" :value="__('Using Isolated Environment')"/>
-                <x-checkbox id="useIsolatedCredentials" wire:model.live="useIsolatedCredentials" name="useIsolatedCredentials"/>
+                <x-toggle
+                    name="useIsolatedCredentials"
+                    model="useIsolatedCredentials"
+                    :live="true"
+                />
                 <x-input-explain>{{ __('If you are using the isolated site functionality available on Ploi or Laravel Forge, you can provide your per site SSH details here to enable us to back it up.') }}</x-input-explain>
             </div>
             @if ($useIsolatedCredentials)
@@ -192,7 +196,11 @@
             @endif
             <div class="mt-4">
                 <x-input-label for="useCustomCron" :value="__('Use Custom Cron')"/>
-                <x-checkbox id="useCustomCron" wire:model.live="useCustomCron" name="useCustomCron"/>
+                <x-toggle
+                    name="useCustomCron"
+                    model="useCustomCron"
+                    :live="true"
+                />
                 <x-input-explain>{{ __('You can choose to define a cron expression for more detailed scheduling control.') }}</x-input-explain>
             </div>
             <x-form-section>
