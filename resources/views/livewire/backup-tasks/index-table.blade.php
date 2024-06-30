@@ -21,6 +21,12 @@
             </x-no-content>
         @else
             <x-table.wrapper title="{{ __('Backup Tasks') }}" class="grid-cols-12">
+                <x-slot name="icon">
+                    @svg('heroicon-o-archive-box', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                </x-slot>
+                <x-slot name="description">
+                    {{ __('An overview of all configured backup tasks along with their current statuses.') }}
+                </x-slot>
                 <x-slot name="header">
                     <x-table.header-item class="col-span-2">
                         {{ __('Label') }}

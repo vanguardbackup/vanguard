@@ -5,10 +5,13 @@
         <div class="px-4 sm:px-6">
             <div class="md:flex justify-between">
                 <div>
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                    @isset($icon)
+                        {{ $icon }}
+                    @endisset
+                    <h1 class="inline text-lg font-medium leading-6 text-gray-900 dark:text-white">
                         {{ $title }}
                     </h1>
-                    <p class="dark:text-gray-100 text-gray-500 font-medium text-base my-1 text-center sm:text-left sm:ml-6 -mt-0">
+                    <p class="dark:text-gray-200 text-gray-600 font-medium text-sm text-center sm:text-left sm:ml-8">
                         {{ $description ?? '' }}
                     </p>
                 </div>
@@ -21,7 +24,7 @@
     @endisset
     <div>
         @isset($header)
-            <div class="mt-4 border-t border-gray-200 dark:border-gray-700/30"></div>
+            <div class="mt-3 border-t border-gray-200 dark:border-gray-700/30"></div>
             <div {{ $attributes->merge(['class' => 'grid gap-0 text-center bg-gray-50 px-2 py-1.5 border-gray-200 dark:border-gray-700/30 font-medium text-gray-800 dark:text-gray-100 dark:bg-gray-900/30']) }} >
                 {{ $header }}
             </div>

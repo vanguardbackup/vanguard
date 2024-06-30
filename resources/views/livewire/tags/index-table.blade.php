@@ -20,6 +20,12 @@
         </x-no-content>
     @else
         <x-table.wrapper title="{{ __('Tags') }}" class="grid-cols-8">
+            <x-slot name="icon">
+                @svg('heroicon-o-tag', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+            </x-slot>
+            <x-slot name="description">
+                {{ __('All tags used to organize and identify your backup tasks.') }}
+            </x-slot>
             <x-slot name="header">
                 <x-table.header-item class="col-span-2">
                     {{ __('Label') }}

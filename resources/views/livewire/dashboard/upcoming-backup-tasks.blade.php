@@ -20,6 +20,12 @@
         </x-no-content>
     @else
         <x-table.wrapper title="{{ __('Upcoming Backup Tasks') }}" class="grid-cols-8">
+            <x-slot name="icon">
+                @svg('heroicon-o-calendar', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+            </x-slot>
+            <x-slot name="description">
+                {{ __('Scheduled backup tasks that are set to run soon.') }}
+            </x-slot>
             <x-slot name="header">
                 <x-table.header-item class="col-span-2">
                     {{ __('Task Label') }}

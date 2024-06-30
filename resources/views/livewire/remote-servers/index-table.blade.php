@@ -20,6 +20,12 @@
         </x-no-content>
     @else
         <x-table.wrapper title="{{ __('Remote Servers') }}" class="grid-cols-10">
+            <x-slot name="icon">
+                @svg('heroicon-o-server-stack', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+            </x-slot>
+            <x-slot name="description">
+                {{ __('A list of all linked remote servers, from which your data will be backed up.') }}
+            </x-slot>
             <x-slot name="header">
                 <x-table.header-item class="col-span-2">
                     {{ __('Server Label') }}
