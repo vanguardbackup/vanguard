@@ -61,5 +61,23 @@
     </main>
 </div>
 <x-toaster-hub/>
+<footer class="py-1.5 text-xs font-medium bg-primary-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between">
+            <div>
+                <x-application-logo class="w-6 h-6 fill-current text-gray-500 dark:text-gray-400 inline" />
+                {{ __(':app - v:version', ['app' => config('app.name'),'version' => obtain_vanguard_version()]) }}
+                @if(config('app.env') === 'local')
+                    <strong class="text-purple-500 uppercase ml-1">{{__('Local Environment')}}</strong>
+                @endif
+            </div>
+            <div>
+                <a href="https://github.com/vanguardsh/vanguard" title="{{ __('GitHub repository') }}" target="_blank">
+                    <x-icons.github class="h-4 w-4 fill-current ease-in-out hover:text-gray-700 dark:hover:text-gray-200 duration-150" />
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\File;
+
 function ssh_keys_exist(): bool
 {
     return file_exists(config('app.ssh.private_key')) && file_exists(config('app.ssh.public_key'));
@@ -38,4 +40,17 @@ function formatTimezones(): array
     }
 
     return $formattedTimezones;
+}
+
+function obtain_vanguard_version(): string
+{
+    $versionFile = base_path('VERSION');
+
+    return Cache::remember('vanguard_version', now()->addDay(), static function () use ($versionFile) {
+        if (! File::exists($versionFile)) {
+            return 'Unknown';
+        }
+
+        return trim(File::get($versionFile));
+    });
 }

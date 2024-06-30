@@ -6,7 +6,6 @@ namespace App\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
 class CheckVersion extends Command
@@ -27,13 +26,7 @@ class CheckVersion extends Command
 
     protected function showCurrentVersion(): void
     {
-        $version = $this->getCurrentVersion();
-
-        if ($version === null) {
-            $this->components->error('Unable to determine the current version. The version file is missing.');
-
-            return;
-        }
+        $version = obtain_vanguard_version();
 
         $this->components->info("The current version of Vanguard is: {$version}.");
     }
@@ -48,13 +41,7 @@ class CheckVersion extends Command
             return;
         }
 
-        $currentVersion = $this->getCurrentVersion();
-
-        if ($currentVersion === null) {
-            $this->components->error('Unable to determine the current version. The version file is missing.');
-
-            return;
-        }
+        $currentVersion = obtain_vanguard_version();
 
         $latestVersion = $latestVersionInfo['tag_name'];
         $publishedAt = $latestVersionInfo['published_at'];
@@ -65,17 +52,6 @@ class CheckVersion extends Command
             $this->components->warn('There is a new version of Vanguard available.');
             $this->components->info("You are using version {$currentVersion} and the latest version is {$latestVersion} (released on {$publishedAt}).");
         }
-    }
-
-    protected function getCurrentVersion(): ?string
-    {
-        $versionFile = base_path('VERSION');
-
-        if (! File::exists($versionFile)) {
-            return null;
-        }
-
-        return str_replace("\n", '', File::get($versionFile));
     }
 
     /**

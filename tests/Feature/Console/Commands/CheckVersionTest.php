@@ -3,11 +3,11 @@
 use App\Console\Commands\CheckVersion;
 use Illuminate\Support\Facades\File;
 
-it('fails if it cannot find the version file', function () {
+it('it returns unknown if it cannot find the version file', function () {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(false);
 
     $this->artisan(CheckVersion::class)
-        ->expectsOutputToContain('The version file is missing.')
+        ->expectsOutputToContain('Unknown.')
         ->assertExitCode(0);
 });
 
@@ -17,14 +17,6 @@ it('returns the current version number from the file', function () {
 
     $this->artisan(CheckVersion::class)
         ->expectsOutputToContain('The current version of Vanguard is: 1.0.0.')
-        ->assertExitCode(0);
-});
-
-it('fails if it cannot find the version file during --check', function () {
-    File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(false);
-
-    $this->artisan(CheckVersion::class, ['--check' => true])
-        ->expectsOutputToContain('Unable to determine the current version. The version file is missing.')
         ->assertExitCode(0);
 });
 
