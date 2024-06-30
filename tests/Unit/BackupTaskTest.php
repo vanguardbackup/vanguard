@@ -456,7 +456,6 @@ it('calculates next run from custom cron expression', function () {
 });
 
 it('returns the correct count of logs per month for the last six months', function () {
-
     $user = User::factory()->create();
 
     $backupTask = BackupTask::factory()->create([
@@ -466,19 +465,35 @@ it('returns the correct count of logs per month for the last six months', functi
         'user_id' => $user->id,
     ]);
 
-    for ($i = 0; $i < 6; $i++) {
+    $now = now()->startOfMonth();
+
+    $expectedDates = [];
+    for ($i = 1; $i <= 6; $i++) {
+        $date = $now->copy()->subMonths($i)->startOfMonth();
+
         BackupTaskData::create([
             'duration' => 25,
             'backup_task_id' => $backupTask->id,
-            'created_at' => now()->subMonths($i),
+            'created_at' => $date,
         ]);
+        $expectedDates[$date->format('M Y')] = 1;
     }
 
     $logsCountPerMonth = BackupTask::logsCountPerMonthForLastSixMonths($user->id);
 
-    foreach ($logsCountPerMonth as $month => $count) {
-        expect($count)->toBe(1);
+    $monthsCount = count($logsCountPerMonth);
+    expect($monthsCount)->toBe(6);
+
+    foreach ($expectedDates as $month => $expectedCount) {
+        expect($logsCountPerMonth)->toHaveKey($month)
+            ->and($logsCountPerMonth[$month])->toBe($expectedCount);
     }
+
+    $sortedMonths = array_keys($logsCountPerMonth);
+    $sortedExpectedMonths = array_keys($expectedDates);
+    sort($sortedMonths);
+    sort($sortedExpectedMonths);
+    expect($sortedMonths)->toBe($sortedExpectedMonths);
 });
 
 it('returns the backup tasks count per type', function () {
