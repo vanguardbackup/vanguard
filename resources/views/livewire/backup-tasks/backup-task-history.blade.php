@@ -1,7 +1,7 @@
 <div>
     @if (count($backupTaskLogs) !== 0)
         <div>
-            <x-table.wrapper title="{{ __('Previously Ran Backup Tasks') }}" class="grid-cols-11">
+            <x-table.wrapper title="{{ __('Previously Executed Backup Tasks') }}" class="grid-cols-11">
                 <x-slot name="header">
                     <x-table.header-item class="col-span-2">
                         {{ __('Label') }}
