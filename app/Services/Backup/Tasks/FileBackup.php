@@ -4,22 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
-use App\Exceptions\BackupTaskZipException;
-use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask;
 use App\Services\Backup\Backup;
 use App\Services\Backup\BackupConstants;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 
 class FileBackup extends Backup
 {
-    /**
-     * Handle the file backup process.
-     *
-     * @throws Exception
-     */
     public function handle(int $backupTaskId): void
     {
         Log::info("Starting backup task: {$backupTaskId}");
@@ -28,177 +20,114 @@ class FileBackup extends Backup
 
         $backupTask = $this->obtainBackupTask($backupTaskId);
         $backupTask->setScriptUpdateTime();
+        $remoteServer = $backupTask->remoteServer;
+        $backupDestinationModel = $backupTask->backupDestination;
+        $sourcePath = $backupTask->getAttributeValue('source_path');
+        $userTimezone = $backupTask->user->timezone;
+        $storagePath = $backupTask->getAttributeValue('store_path');
 
         $logOutput = '';
         $backupTaskLog = $this->recordBackupTaskLog($backupTaskId, $logOutput);
+        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
-        try {
-            $this->performBackup($backupTask, $backupTaskLog);
-        } catch (Exception $exception) {
-            $this->handleBackupException($exception, $backupTaskLog);
-        } finally {
-            $this->finalizeBackupTask($backupTask, $backupTaskLog, $scriptRunTime);
-        }
-    }
-
-    /**
-     * Perform the backup process.
-     *
-     * @param  mixed  $backupTaskLog
-     *
-     * @throws Exception
-     */
-    private function performBackup(BackupTask $backupTask, $backupTaskLog): void
-    {
         $this->updateBackupTaskStatus($backupTask, BackupTask::STATUS_RUNNING);
 
-        $sftp = $this->establishSFTPConnection($backupTask->remoteServer, $backupTask);
-        $logOutput = $this->logWithTimestamp('SSH Connection established to the server.', $backupTask->user->timezone);
+        $logOutput .= $this->logWithTimestamp('Backup task started.', $userTimezone);
         $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
-        $sourcePath = $backupTask->getAttributeValue('source_path');
-        $this->validateSourcePath($sftp, $sourcePath, $backupTask, $backupTaskLog);
+        try {
+            Log::info("Establishing SFTP connection for backup task: {$backupTaskId}");
+            $sftp = $this->establishSFTPConnection($remoteServer, $backupTask);
+            $logOutput .= $this->logWithTimestamp('SSH Connection established to the server.', $userTimezone);
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
-        $this->checkDirectorySize($sftp, $sourcePath, $backupTask, $backupTaskLog);
+            Log::info("Checking if source path exists: {$sourcePath} for backup task: {$backupTaskId}");
+            if (! $this->checkPathExists($sftp, $sourcePath)) {
+                $errorMessage = $this->logWithTimestamp('The path specified does not exist.', $userTimezone);
+                Log::error("Source path does not exist: {$sourcePath} for backup task: {$backupTaskId}");
+                $this->handleFailure($backupTask, $logOutput, $errorMessage);
 
-        $zipFileName = $this->createZipFile($sftp, $sourcePath, $backupTask);
-        $logOutput .= $this->logWithTimestamp("Directory has been zipped: {$zipFileName}", $backupTask->user->timezone);
-        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
+                return;
+            }
 
-        $this->uploadBackup($backupTask, $sftp, $zipFileName, $backupTaskLog);
+            $backupTask->setScriptUpdateTime();
 
-        $this->rotateBackupsIfNeeded($backupTask);
+            Log::info("Checking directory size for path: {$sourcePath} for backup task: {$backupTaskId}");
+            $dirSize = $this->getRemoteDirectorySize($sftp, $sourcePath);
+            $dirSizeInMB = number_format($dirSize / 1024 / 1024, 1);
+            $logOutput .= $this->logWithTimestamp("Directory size of {$sourcePath}: {$dirSizeInMB} MB.", $userTimezone);
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
 
-        $this->cleanupTemporaryFiles($sftp, $zipFileName);
-        $logOutput .= $this->logWithTimestamp('Cleaned up the temporary zip file on server.', $backupTask->user->timezone);
-        $logOutput .= $this->logWithTimestamp('Backup task has finished successfully!', $backupTask->user->timezone);
-        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
-    }
+            if ($dirSize > BackupConstants::FILE_SIZE_LIMIT) {
+                Log::error("Directory size exceeds limit: {$dirSize} bytes for path: {$sourcePath} for backup task: {$backupTaskId}");
+                $this->handleFailure($backupTask, $logOutput, $this->logWithTimestamp('Directory size exceeds the limit.', $userTimezone));
 
-    /**
-     * Validate the source path.
-     *
-     * @throws SFTPConnectionException
-     */
-    private function validateSourcePath($sftp, string $sourcePath, BackupTask $backupTask, $backupTaskLog): void
-    {
-        if (! $this->checkPathExists($sftp, $sourcePath)) {
-            $errorMessage = $this->logWithTimestamp('The path specified does not exist.', $backupTask->user->timezone);
-            $this->handleFailure($backupTask, $errorMessage, $errorMessage);
-            throw new SFTPConnectionException('The path specified does not exist.');
+                return;
+            }
+
+            $excludeDirs = [];
+            if ($this->isLaravelDirectory($sftp, $sourcePath)) {
+                Log::info("Laravel directory detected, excluding node_modules and vendor folders for path: {$sourcePath}");
+                $excludeDirs = ['node_modules', 'vendor'];
+            }
+
+            $zipFileName = $backupTask->hasFileNameAppended()
+                ? $backupTask->appended_file_name . '_backup_' . $backupTaskId . '_' . date('YmdHis') . '.zip'
+                : 'backup_' . $backupTaskId . '_' . date('YmdHis') . '.zip';
+
+            $remoteZipPath = "/tmp/{$zipFileName}";
+            Log::info("Zipping directory: {$sourcePath} to {$remoteZipPath} for backup task: {$backupTaskId}");
+            $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath, $excludeDirs);
+            $logOutput .= $this->logWithTimestamp("Directory has been zipped: {$remoteZipPath}", $userTimezone);
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
+
+            $backupTask->setScriptUpdateTime();
+
+            Log::info("Starting to stream zip file to backup destination for backup task: {$backupTaskId}");
+            if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteZipPath, $backupDestinationModel, $zipFileName, $storagePath)) {
+                $errorMessage = $this->logWithTimestamp('Failed to upload the zip file to destination.', $userTimezone);
+                Log::error("Failed to upload the zip file to destination for backup task: {$backupTaskId}. Remote zip path: {$remoteZipPath}, Backup destination: {$backupDestinationModel->label}, Filename: {$zipFileName}");
+                $this->handleFailure($backupTask, $logOutput, $errorMessage);
+
+                return;
+            }
+
+            if ($backupTask->isRotatingBackups()) {
+                Log::info("Rotating old backups for backup task: {$backupTaskId}");
+                $backupDestination = $this->createBackupDestinationInstance($backupDestinationModel);
+                $this->rotateOldBackups($backupDestination, $backupTaskId, $backupTask->maximum_backups_to_keep, '.zip', 'backup_');
+            }
+
+            $logOutput .= $this->logWithTimestamp("Backup has been uploaded to {$backupDestinationModel->label} - {$backupDestinationModel->type()}: {$zipFileName}", $userTimezone);
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
+
+            $sftp->delete($remoteZipPath);
+            Log::info("Remote zip file deleted for backup task: {$backupTaskId}");
+
+            $backupTask->setScriptUpdateTime();
+
+            $logOutput .= $this->logWithTimestamp('Cleaned up the temporary zip file on server.', $userTimezone);
+            $logOutput .= $this->logWithTimestamp('Backup task has finished successfully!', $userTimezone);
+            $backupTaskLog->setSuccessfulTime();
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
+
+        } catch (Exception $exception) {
+            $logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
+            Log::error("Error in backup process for task {$backupTaskId}: " . $exception->getMessage(), ['exception' => $exception]);
+        } finally {
+            $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
+            $backupTaskLog->setFinishedTime();
+            $this->updateBackupTaskStatus($backupTask, BackupTask::STATUS_READY);
+            $backupTask->sendNotifications();
+            $backupTask->updateLastRanAt();
+            $backupTask->resetScriptUpdateTime();
+            Log::info('[BACKUP TASK] Completed backup task: ' . $backupTask->label . ' (' . $backupTask->id . ').');
+
+            $elapsedTime = microtime(true) - $scriptRunTime;
+            $backupTask->data()->create([
+                'duration' => $elapsedTime,
+                'size' => $dirSize ?? null,
+            ]);
         }
-    }
-
-    /**
-     * Check the directory size.
-     *
-     * @throws BackupTaskZipException|SFTPConnectionException
-     */
-    private function checkDirectorySize($sftp, string $sourcePath, BackupTask $backupTask, $backupTaskLog): int
-    {
-        $dirSize = $this->getRemoteDirectorySize($sftp, $sourcePath);
-        $dirSizeInMB = number_format($dirSize / 1024 / 1024, 1);
-        $logOutput = $this->logWithTimestamp("Directory size of {$sourcePath}: {$dirSizeInMB} MB.", $backupTask->user->timezone);
-        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
-
-        if ($dirSize > BackupConstants::FILE_SIZE_LIMIT) {
-            $errorMessage = $this->logWithTimestamp('Directory size exceeds the limit.', $backupTask->user->timezone);
-            $this->handleFailure($backupTask, $logOutput, $errorMessage);
-            throw new BackupTaskZipException('Directory size exceeds the limit.');
-        }
-
-        return $dirSize;
-    }
-
-    /**
-     * Create zip file.
-     *
-     * @throws BackupTaskZipException|SFTPConnectionException
-     */
-    private function createZipFile($sftp, string $sourcePath, BackupTask $backupTask): string
-    {
-        $excludeDirs = [];
-        if ($this->isLaravelDirectory($sftp, $sourcePath)) {
-            $excludeDirs = ['node_modules', 'vendor'];
-        }
-
-        $zipFileName = $backupTask->hasFileNameAppended()
-            ? $backupTask->appended_file_name . '_backup_' . $backupTask->id . '_' . date('YmdHis') . '.zip'
-            : 'backup_' . $backupTask->id . '_' . date('YmdHis') . '.zip';
-
-        $remoteZipPath = "/tmp/{$zipFileName}";
-        $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath, $excludeDirs);
-
-        return $zipFileName;
-    }
-
-    /**
-     * Upload backup to destination.
-     *
-     * @throws Exception
-     */
-    private function uploadBackup(BackupTask $backupTask, $sftp, string $zipFileName, $backupTaskLog): void
-    {
-        $remoteZipPath = "/tmp/{$zipFileName}";
-        $backupDestinationModel = $backupTask->backupDestination;
-        $storagePath = $backupTask->getAttributeValue('store_path');
-
-        if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteZipPath, $backupDestinationModel, $zipFileName, $storagePath)) {
-            $errorMessage = $this->logWithTimestamp('Failed to upload the zip file to destination.', $backupTask->user->timezone);
-            $this->handleFailure($backupTask, $errorMessage, $errorMessage);
-            throw new RuntimeException('Failed to upload the zip file to destination.');
-        }
-
-        $logOutput = $this->logWithTimestamp("Backup has been uploaded to {$backupDestinationModel->label} - {$backupDestinationModel->type()}: {$zipFileName}", $backupTask->user->timezone);
-        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
-    }
-
-    /**
-     * Rotate old backups if needed.
-     */
-    private function rotateBackupsIfNeeded(BackupTask $backupTask): void
-    {
-        if ($backupTask->isRotatingBackups()) {
-            $backupDestination = $this->createBackupDestinationInstance($backupTask->backupDestination);
-            $this->rotateOldBackups($backupDestination, $backupTask->id, $backupTask->maximum_backups_to_keep);
-        }
-    }
-
-    /**
-     * Clean up temporary files.
-     */
-    private function cleanupTemporaryFiles($sftp, string $zipFileName): void
-    {
-        $remoteZipPath = "/tmp/{$zipFileName}";
-        $sftp->delete($remoteZipPath);
-    }
-
-    /**
-     * Handle exceptions during the backup process.
-     */
-    private function handleBackupException(Exception $exception, $backupTaskLog): void
-    {
-        $logOutput = 'Error in backup process: ' . $exception->getMessage() . "\n";
-        Log::error('Error in backup process: ' . $exception->getMessage(), ['exception' => $exception]);
-        $this->updateBackupTaskLogOutput($backupTaskLog, $logOutput);
-    }
-
-    /**
-     * Finalize the backup task.
-     */
-    private function finalizeBackupTask(BackupTask $backupTask, $backupTaskLog, float $scriptRunTime): void
-    {
-        $backupTaskLog->setFinishedTime();
-        $this->updateBackupTaskStatus($backupTask, BackupTask::STATUS_READY);
-        $backupTask->sendNotifications();
-        $backupTask->updateLastRanAt();
-        $backupTask->resetScriptUpdateTime();
-        Log::info('[BACKUP TASK] Completed backup task: ' . $backupTask->label . ' (' . $backupTask->id . ').');
-
-        $elapsedTime = microtime(true) - $scriptRunTime;
-        $backupTask->data()->create([
-            'duration' => $elapsedTime,
-            'size' => $backupTaskLog->size ?? null,
-        ]);
     }
 }
