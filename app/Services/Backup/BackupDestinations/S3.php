@@ -11,6 +11,7 @@ use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
@@ -25,7 +26,6 @@ class S3 implements BackupDestinationInterface
         protected S3Client $client,
         protected string $bucketName
     ) {}
-
 
     /**
      * @return array<string>
@@ -48,13 +48,6 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param SFTPInterface $sftp
-     * @param string $remoteZipPath
-     * @param string $fileName
-     * @param string|null $storagePath
-     * @param int $retries
-     * @param int $delay
-     * @return bool
      * @throws FilesystemException
      */
     public function streamFiles(
@@ -77,7 +70,7 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param array<int, array{Key: string, LastModified: DateTimeResult}> $contents
+     * @param  array<int, array{Key: string, LastModified: DateTimeResult}>  $contents
      * @return array<string>
      */
     private function filterAndSortFiles(array $contents, string $pattern): array
@@ -91,30 +84,23 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param array{LastModified: DateTimeResult} $file
-     * @throws \Exception
+     * @param  array{LastModified: DateTimeResult}  $file
+     *
+     * @throws Exception
      */
     private function getLastModifiedDateTime(array $file): DateTime
     {
         $dateTimeString = $file['LastModified']->format(DateTimeInterface::ATOM);
+
         return new DateTime($dateTimeString);
     }
 
-    /**
-     * @param string $fileName
-     * @param string|null $storagePath
-     * @return string
-     */
     private function getFullPath(string $fileName, ?string $storagePath): string
     {
         return $storagePath ? "{$storagePath}/{$fileName}" : $fileName;
     }
 
     /**
-     * @param SFTPInterface $sftp
-     * @param string $remoteZipPath
-     * @param string $fullPath
-     * @return bool
      * @throws FilesystemException
      */
     private function performFileStreaming(SFTPInterface $sftp, string $remoteZipPath, string $fullPath): bool
@@ -131,9 +117,6 @@ class S3 implements BackupDestinationInterface
         return true;
     }
 
-    /**
-     * @return Filesystem
-     */
     private function createS3Filesystem(): Filesystem
     {
         $adapter = new AwsS3V3Adapter($this->client, $this->bucketName);
@@ -144,7 +127,8 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param resource $stream
+     * @param  resource  $stream
+     *
      * @throws FilesystemException
      */
     private function writeStreamToS3(Filesystem $filesystem, string $fullPath, $stream): void
@@ -154,12 +138,6 @@ class S3 implements BackupDestinationInterface
         Log::debug('Stream written to S3.', ['file_name' => $fullPath]);
     }
 
-    /**
-     * @param string $remoteZipPath
-     * @param string $fileName
-     * @param string $fullPath
-     * @return void
-     */
     private function logStartStreaming(string $remoteZipPath, string $fileName, string $fullPath): void
     {
         Log::info('Starting to stream file to S3.', [
@@ -169,10 +147,6 @@ class S3 implements BackupDestinationInterface
         ]);
     }
 
-    /**
-     * @param string $fullPath
-     * @return void
-     */
     private function logSuccessfulStreaming(string $fullPath): void
     {
         Log::info('File successfully streamed to S3.', ['file_name' => $fullPath]);
