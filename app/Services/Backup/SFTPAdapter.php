@@ -2,7 +2,6 @@
 
 namespace App\Services\Backup;
 
-use App\Interfaces\SFTPInterface;
 use phpseclib3\Net\SFTP;
 
 class SFTPAdapter implements SFTPInterface
