@@ -266,7 +266,7 @@ abstract class Backup
         /** @var PrivateKey $key */
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
-        $sftp = $this->createSFTP($remoteServer->ip_address, $remoteServer->port, 120);
+        $sftp = $this->createSFTP($remoteServer->ip_address, (int) $remoteServer->port, 120);
 
         if ($backupTask->hasIsolatedCredentials()) {
             $loginSuccess = $sftp->login($backupTask->isolated_username, $key); // We're passing the isolated username + our SSH key here. Password is used for sudo.
