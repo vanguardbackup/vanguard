@@ -19,10 +19,10 @@ use App\Models\BackupTaskLog;
 use App\Services\Backup\BackupDestinations\S3;
 use App\Services\Backup\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
+use Closure;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use phpseclib3\Crypt\Common\PrivateKey;
@@ -35,11 +35,11 @@ abstract class Backup
     use BackupHelpers;
 
     /**
-     * @var callable|\Closure
+     * @var callable|Closure
      */
     private $sftpFactory;
 
-    public function __construct(callable $sftpFactory = null)
+    public function __construct(?callable $sftpFactory = null)
     {
         $this->logInfo('Initializing Backup class.');
         $this->validateConfiguration();
@@ -49,26 +49,6 @@ abstract class Backup
         };
     }
 
-    /**
-     * @param string $host
-     * @param int $port
-     * @param int $timeout
-     * @return SFTPInterface
-     */
-    protected function createSFTP(string $host, int $port, int $timeout = 120): SFTPInterface
-    {
-        return ($this->sftpFactory)($host, $port, $timeout);
-    }
-
-    /**
-     * @param string $destinationDriver
-     * @param SFTP $sftp
-     * @param string $remotePath
-     * @param BackupDestination $backupDestination
-     * @param string $fileName
-     * @param string $storagePath
-     * @return bool
-     */
     public function backupDestinationDriver(
         string $destinationDriver,
         SFTP $sftp,
@@ -91,7 +71,6 @@ abstract class Backup
     }
 
     /**
-     * @return void
      * @throws BackupTaskRuntimeException
      */
     public function validateConfiguration(): void
@@ -110,10 +89,6 @@ abstract class Backup
         $this->logInfo('Configuration validation passed.');
     }
 
-    /**
-     * @param int $backupTaskId
-     * @return BackupTask
-     */
     public function obtainBackupTask(int $backupTaskId): BackupTask
     {
         $this->logInfo('Obtaining backup task.', ['backup_task_id' => $backupTaskId]);
@@ -121,11 +96,6 @@ abstract class Backup
         return BackupTask::findOrFail($backupTaskId);
     }
 
-    /**
-     * @param int $backupTaskId
-     * @param string $logOutput
-     * @return BackupTaskLog
-     */
     public function recordBackupTaskLog(int $backupTaskId, string $logOutput): BackupTaskLog
     {
         $this->logInfo('Recording backup task log.', ['backup_task_id' => $backupTaskId]);
@@ -141,11 +111,6 @@ abstract class Backup
         return $backupTaskLog;
     }
 
-    /**
-     * @param BackupTaskLog $backupTaskLog
-     * @param string $logOutput
-     * @return void
-     */
     public function updateBackupTaskLogOutput(BackupTaskLog $backupTaskLog, string $logOutput): void
     {
         $this->logInfo('Updating backup task log output.', ['log_id' => $backupTaskLog->id]);
@@ -162,11 +127,6 @@ abstract class Backup
         $this->logDebug('Backup task log output updated.', ['log_id' => $backupTaskLog->id, 'output' => $logOutput]);
     }
 
-    /**
-     * @param BackupTask $backupTask
-     * @param string $status
-     * @return void
-     */
     public function updateBackupTaskStatus(BackupTask $backupTask, string $status): void
     {
         $this->logInfo('Updating backup task status.', ['backup_task_id' => $backupTask->id, 'status' => $status]);
@@ -177,11 +137,6 @@ abstract class Backup
         BackupTaskStatusChanged::dispatch($backupTask, $status);
     }
 
-    /**
-     * @param BackupTask $backupTask
-     * @param string $errorMessage
-     * @return void
-     */
     public function sendEmailNotificationOfTaskFailure(BackupTask $backupTask, string $errorMessage): void
     {
         $this->logInfo('Sending failure notification email.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
@@ -194,12 +149,6 @@ abstract class Backup
         }
     }
 
-    /**
-     * @param BackupTask $backupTask
-     * @param string $logOutput
-     * @param string $errorMessage
-     * @return void
-     */
     public function handleFailure(BackupTask $backupTask, string &$logOutput, string $errorMessage): void
     {
         $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
@@ -209,9 +158,6 @@ abstract class Backup
     }
 
     /**
-     * @param SFTP $sftp
-     * @param string $path
-     * @return int
      * @throws SFTPConnectionException
      */
     public function getRemoteDirectorySize(SFTP $sftp, string $path): int
@@ -235,9 +181,6 @@ abstract class Backup
     }
 
     /**
-     * @param SFTP $sftp
-     * @param string $path
-     * @return bool
      * @throws SFTPConnectionException
      */
     public function checkPathExists(SFTP $sftp, string $path): bool
@@ -254,9 +197,6 @@ abstract class Backup
     }
 
     /**
-     * @param object $remoteServer
-     * @param object $backupTask
-     * @return SFTPInterface
      * @throws SFTPConnectionException
      */
     public function establishSFTPConnection(object $remoteServer, object $backupTask): SFTPInterface
@@ -274,7 +214,7 @@ abstract class Backup
             $loginSuccess = $sftp->login($remoteServer->username, $key);
         }
 
-        if (!$loginSuccess) {
+        if (! $loginSuccess) {
             $error = $sftp->getLastError();
             $this->logError('SSH login failed.', ['error' => $error]);
             throw new SFTPConnectionException('SSH Login failed: ' . $error);
@@ -368,8 +308,6 @@ abstract class Backup
     }
 
     /**
-     * @param SFTP $sftp
-     * @return string
      * @throws DatabaseDumpException
      * @throws SFTPConnectionException
      */
@@ -398,13 +336,6 @@ abstract class Backup
     }
 
     /**
-     * @param SFTP $sftp
-     * @param string $databaseType
-     * @param string $remoteDumpPath
-     * @param string $databasePassword
-     * @param string $databaseName
-     * @param string|null $databaseTablesToExcludeInTheBackup
-     * @return void
      * @throws DatabaseDumpException
      * @throws SFTPConnectionException
      */
@@ -481,8 +412,6 @@ abstract class Backup
     }
 
     /**
-     * @param SFTP $sftp
-     * @return void
      * @throws SFTPConnectionException
      */
     public function validateSFTP(SFTP $sftp): void
@@ -493,12 +422,6 @@ abstract class Backup
         }
     }
 
-    /**
-     * @param callable $command
-     * @param int $maxRetries
-     * @param int $retryDelay
-     * @return mixed
-     */
     public function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
@@ -518,11 +441,6 @@ abstract class Backup
         return $result;
     }
 
-    /**
-     * @param SFTP $sftp
-     * @param string $sourcePath
-     * @return bool
-     */
     public function isLaravelDirectory(SFTP $sftp, string $sourcePath): bool
     {
         $this->logInfo('Checking if the directory is a Laravel project.', ['source_path' => $sourcePath]);
@@ -542,11 +460,6 @@ abstract class Backup
         return $isLaravel;
     }
 
-    /**
-     * @param SFTP $sftp
-     * @param string $folderPath
-     * @return void
-     */
     public function deleteFolder(SFTP $sftp, string $folderPath): void
     {
         $this->logInfo('Deleting folder.', ['folder_path' => $folderPath]);
@@ -561,10 +474,6 @@ abstract class Backup
         }
     }
 
-    /**
-     * @param BackupDestination $backupDestinationModel
-     * @return BackupDestinationInterface
-     */
     public function createBackupDestinationInstance(BackupDestination $backupDestinationModel): BackupDestinationInterface
     {
         switch ($backupDestinationModel->type) {
@@ -579,10 +488,12 @@ abstract class Backup
         }
     }
 
+    protected function createSFTP(string $host, int $port, int $timeout = 120): SFTPInterface
+    {
+        return ($this->sftpFactory)($host, $port, $timeout);
+    }
+
     /**
-     * @param SFTP $sftp
-     * @param string $remoteZipPath
-     * @return string
      * @throws Exception
      */
     protected function downloadFileViaSFTP(SFTP $sftp, string $remoteZipPath): string
@@ -599,8 +510,6 @@ abstract class Backup
     }
 
     /**
-     * @param string $tempFile
-     * @return mixed
      * @throws Exception
      */
     protected function openFileAsStream(string $tempFile): mixed
@@ -616,10 +525,6 @@ abstract class Backup
         return $stream;
     }
 
-    /**
-     * @param string $tempFile
-     * @return void
-     */
     protected function cleanUpTempFile(string $tempFile): void
     {
         if (file_exists($tempFile)) {
@@ -629,9 +534,6 @@ abstract class Backup
     }
 
     /**
-     * @param string $message
-     * @param string $timezone
-     * @return string
      * @throws Exception
      */
     protected function logWithTimestamp(string $message, string $timezone): string
@@ -643,14 +545,6 @@ abstract class Backup
         return '[' . $timestamp . '] ' . $message . "\n";
     }
 
-    /**
-     * @param BackupDestinationInterface $backupDestination
-     * @param int $backupTaskId
-     * @param int $backupLimit
-     * @param string $fileExtension
-     * @param string $pattern
-     * @return void
-     */
     protected function rotateOldBackups(
         BackupDestinationInterface $backupDestination,
         int $backupTaskId,
@@ -681,11 +575,6 @@ abstract class Backup
         }
     }
 
-    /**
-     * @param Exception $e
-     * @param string $context
-     * @return void
-     */
     protected function handleException(Exception $e, string $context): void
     {
         $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);

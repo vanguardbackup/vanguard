@@ -67,14 +67,17 @@ test('validateConfiguration throws exception if SSH passphrase is not set', func
     });
 
     // Create a concrete implementation of the abstract Backup class
-    $backupService = new class extends Backup {
+    $backupService = new class extends Backup
+    {
         public function __construct() {}  // Empty constructor to avoid calling parent constructor
-        public function publicValidateConfiguration() {
+
+        public function publicValidateConfiguration()
+        {
             $this->validateConfiguration();
         }
     };
 
-    expect(fn() => $backupService->publicValidateConfiguration())
+    expect(fn () => $backupService->publicValidateConfiguration())
         ->toThrow(BackupTaskRuntimeException::class, 'The SSH passphrase is not set in the configuration.')
         ->and($logMessages)->toContain(['level' => 'info', 'message' => 'Validating configuration.'])
         ->and($logMessages)->toContain(['level' => 'critical', 'message' => 'The SSH passphrase is not set in the configuration.']);

@@ -80,13 +80,9 @@ class CreateBackupTaskForm extends Component
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void
-    {
-    }
+    public function updatedUseCustomCron(): void {}
 
-    public function updatedUseIsolatedCredentials(): void
-    {
-    }
+    public function updatedUseIsolatedCredentials(): void {}
 
     public function updatedBackupType(): void
     {
