@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Contracts;
 
-use phpseclib3\Net\SFTP;
+use App\Services\Backup\SFTPInterface;
 
 interface BackupDestinationInterface
 {
@@ -17,5 +17,5 @@ interface BackupDestinationInterface
 
     public function deleteFile(string $filePath): void;
 
-    public function streamFiles(SFTP $sftp, string $remoteZipPath, string $fileName, string $storagePath, int $retries = 3, int $delay = 5): bool;
+    public function streamFiles(SFTPInterface $sftp, string $remoteZipPath, string $fileName, string $storagePath, int $retries = 3, int $delay = 5): bool;
 }

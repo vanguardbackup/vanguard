@@ -50,7 +50,7 @@ abstract class Backup
 
     public function backupDestinationDriver(
         string $destinationDriver,
-        SFTP $sftp,
+        SFTPInterface $sftp,
         string $remotePath,
         BackupDestination $backupDestination,
         string $fileName,
@@ -159,7 +159,7 @@ abstract class Backup
     /**
      * @throws SFTPConnectionException
      */
-    public function getRemoteDirectorySize(SFTP $sftp, string $path): int
+    public function getRemoteDirectorySize(SFTPInterface $sftp, string $path): int
     {
         $this->logInfo('Getting remote directory size.', ['path' => $path]);
 
@@ -182,7 +182,7 @@ abstract class Backup
     /**
      * @throws SFTPConnectionException
      */
-    public function checkPathExists(SFTP $sftp, string $path): bool
+    public function checkPathExists(SFTPInterface $sftp, string $path): bool
     {
         $this->logInfo('Checking if path exists.', ['path' => $path]);
 
@@ -233,7 +233,7 @@ abstract class Backup
      * @throws BackupTaskZipException
      * @throws SFTPConnectionException
      */
-    public function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
+    public function zipRemoteDirectory(SFTPInterface $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
     {
         $this->logInfo('Zipping remote directory.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath]);
 
@@ -310,7 +310,7 @@ abstract class Backup
      * @throws DatabaseDumpException
      * @throws SFTPConnectionException
      */
-    public function getDatabaseType(SFTP $sftp): string
+    public function getDatabaseType(SFTPInterface $sftp): string
     {
         $this->logInfo('Determining database type.');
 
@@ -339,7 +339,7 @@ abstract class Backup
      * @throws SFTPConnectionException
      */
     public function dumpRemoteDatabase(
-        SFTP $sftp,
+        SFTPInterface $sftp,
         string $databaseType,
         string $remoteDumpPath,
         string $databasePassword,
@@ -413,7 +413,7 @@ abstract class Backup
     /**
      * @throws SFTPConnectionException
      */
-    public function validateSFTP(SFTP $sftp): void
+    public function validateSFTP(SFTPInterface $sftp): void
     {
         if (! $sftp->isConnected()) {
             $this->logError('SFTP connection lost.');
@@ -440,7 +440,7 @@ abstract class Backup
         return $result;
     }
 
-    public function isLaravelDirectory(SFTP $sftp, string $sourcePath): bool
+    public function isLaravelDirectory(SFTPInterface $sftp, string $sourcePath): bool
     {
         $this->logInfo('Checking if the directory is a Laravel project.', ['source_path' => $sourcePath]);
 
@@ -459,7 +459,7 @@ abstract class Backup
         return $isLaravel;
     }
 
-    public function deleteFolder(SFTP $sftp, string $folderPath): void
+    public function deleteFolder(SFTPInterface $sftp, string $folderPath): void
     {
         $this->logInfo('Deleting folder.', ['folder_path' => $folderPath]);
 
@@ -495,7 +495,7 @@ abstract class Backup
     /**
      * @throws Exception
      */
-    protected function downloadFileViaSFTP(SFTP $sftp, string $remoteZipPath): string
+    protected function downloadFileViaSFTP(SFTPInterface $sftp, string $remoteZipPath): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'sftp');
         if (! $sftp->get($remoteZipPath, $tempFile)) {

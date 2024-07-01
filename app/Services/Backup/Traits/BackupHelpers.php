@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Traits;
 
+use App\Services\Backup\SFTPInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use phpseclib3\Net\SFTP;
 
 trait BackupHelpers
 {
@@ -29,7 +29,7 @@ trait BackupHelpers
         return $result;
     }
 
-    protected function downloadFileViaSFTP(SFTP $sftp, string $remoteZipPath): string
+    protected function downloadFileViaSFTP(SFTPInterface $sftp, string $remoteZipPath): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'sftp');
         if (! $sftp->get($remoteZipPath, $tempFile)) {

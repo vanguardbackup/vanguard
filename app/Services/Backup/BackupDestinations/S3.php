@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Backup\BackupDestinations;
 
 use App\Services\Backup\Contracts\BackupDestinationInterface;
+use App\Services\Backup\SFTPInterface;
 use App\Services\Backup\Traits\BackupHelpers;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
-use phpseclib3\Net\SFTP;
 
 class S3 implements BackupDestinationInterface
 {
@@ -48,7 +48,7 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param SFTP $sftp
+     * @param SFTPInterface $sftp
      * @param string $remoteZipPath
      * @param string $fileName
      * @param string|null $storagePath
@@ -58,7 +58,7 @@ class S3 implements BackupDestinationInterface
      * @throws FilesystemException
      */
     public function streamFiles(
-        SFTP $sftp,
+        SFTPInterface $sftp,
         string $remoteZipPath,
         string $fileName,
         ?string $storagePath = null,
@@ -111,13 +111,13 @@ class S3 implements BackupDestinationInterface
     }
 
     /**
-     * @param SFTP $sftp
+     * @param SFTPInterface $sftp
      * @param string $remoteZipPath
      * @param string $fullPath
      * @return bool
      * @throws FilesystemException
      */
-    private function performFileStreaming(SFTP $sftp, string $remoteZipPath, string $fullPath): bool
+    private function performFileStreaming(SFTPInterface $sftp, string $remoteZipPath, string $fullPath): bool
     {
         $filesystem = $this->createS3Filesystem();
         $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);

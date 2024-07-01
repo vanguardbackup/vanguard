@@ -13,19 +13,24 @@ interface SFTPInterface
      */
     public function login(string $username, ...$args): bool;
 
-    public function getLastError();
+    public function getLastError(): string;
 
-    public function exec($command);
+    public function exec(string $command): bool|string;
 
-    public function isConnected();
+    public function isConnected(): bool;
 
-    public function put($remote_file, $data, $mode = SFTP::SOURCE_STRING);
+    public function put(string $remote_file, string $data, int $mode = SFTP::SOURCE_STRING): bool;
 
-    public function get($remote_file, $local_file = false);
+    public function get(string $remote_file, string|false $local_file = false): bool|string;
 
-    public function delete($path, $recursive = true);
+    public function delete(string $path, bool $recursive = true): bool;
 
-    public function mkdir($dir, $mode = -1, $recursive = false);
+    public function mkdir(string $dir, int $mode = -1, bool $recursive = false): bool;
 
-    public function chmod($mode, $filename, $recursive = false);
+    public function chmod(int $mode, string $filename, bool $recursive = false): mixed;
+
+    /**
+     * @return array<string, mixed>|false
+     */
+    public function stat(string $filename): array|false;
 }
