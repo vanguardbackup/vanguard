@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Net\SFTP;
 use RuntimeException;
 
 abstract class Backup
