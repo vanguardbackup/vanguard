@@ -11,6 +11,7 @@ use App\Exceptions\BackupTaskRuntimeException;
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
+use App\Interfaces\SFTPInterface;
 use App\Mail\BackupTaskFailed;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
@@ -33,12 +34,41 @@ abstract class Backup
 {
     use BackupHelpers;
 
-    public function __construct()
+    /**
+     * @var callable|\Closure
+     */
+    private $sftpFactory;
+
+    public function __construct(callable $sftpFactory = null)
     {
         $this->logInfo('Initializing Backup class.');
         $this->validateConfiguration();
+
+        $this->sftpFactory = $sftpFactory ?? function (string $host, int $port, int $timeout): SFTPInterface {
+            return new SFTPAdapter($host, $port, $timeout);
+        };
     }
 
+    /**
+     * @param string $host
+     * @param int $port
+     * @param int $timeout
+     * @return SFTPInterface
+     */
+    protected function createSFTP(string $host, int $port, int $timeout = 120): SFTPInterface
+    {
+        return ($this->sftpFactory)($host, $port, $timeout);
+    }
+
+    /**
+     * @param string $destinationDriver
+     * @param SFTP $sftp
+     * @param string $remotePath
+     * @param BackupDestination $backupDestination
+     * @param string $fileName
+     * @param string $storagePath
+     * @return bool
+     */
     public function backupDestinationDriver(
         string $destinationDriver,
         SFTP $sftp,
@@ -60,6 +90,10 @@ abstract class Backup
         }
     }
 
+    /**
+     * @return void
+     * @throws BackupTaskRuntimeException
+     */
     public function validateConfiguration(): void
     {
         $this->logInfo('Validating configuration.');
@@ -76,6 +110,10 @@ abstract class Backup
         $this->logInfo('Configuration validation passed.');
     }
 
+    /**
+     * @param int $backupTaskId
+     * @return BackupTask
+     */
     public function obtainBackupTask(int $backupTaskId): BackupTask
     {
         $this->logInfo('Obtaining backup task.', ['backup_task_id' => $backupTaskId]);
@@ -83,6 +121,11 @@ abstract class Backup
         return BackupTask::findOrFail($backupTaskId);
     }
 
+    /**
+     * @param int $backupTaskId
+     * @param string $logOutput
+     * @return BackupTaskLog
+     */
     public function recordBackupTaskLog(int $backupTaskId, string $logOutput): BackupTaskLog
     {
         $this->logInfo('Recording backup task log.', ['backup_task_id' => $backupTaskId]);
@@ -98,6 +141,11 @@ abstract class Backup
         return $backupTaskLog;
     }
 
+    /**
+     * @param BackupTaskLog $backupTaskLog
+     * @param string $logOutput
+     * @return void
+     */
     public function updateBackupTaskLogOutput(BackupTaskLog $backupTaskLog, string $logOutput): void
     {
         $this->logInfo('Updating backup task log output.', ['log_id' => $backupTaskLog->id]);
@@ -114,6 +162,11 @@ abstract class Backup
         $this->logDebug('Backup task log output updated.', ['log_id' => $backupTaskLog->id, 'output' => $logOutput]);
     }
 
+    /**
+     * @param BackupTask $backupTask
+     * @param string $status
+     * @return void
+     */
     public function updateBackupTaskStatus(BackupTask $backupTask, string $status): void
     {
         $this->logInfo('Updating backup task status.', ['backup_task_id' => $backupTask->id, 'status' => $status]);
@@ -124,6 +177,11 @@ abstract class Backup
         BackupTaskStatusChanged::dispatch($backupTask, $status);
     }
 
+    /**
+     * @param BackupTask $backupTask
+     * @param string $errorMessage
+     * @return void
+     */
     public function sendEmailNotificationOfTaskFailure(BackupTask $backupTask, string $errorMessage): void
     {
         $this->logInfo('Sending failure notification email.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
@@ -136,6 +194,12 @@ abstract class Backup
         }
     }
 
+    /**
+     * @param BackupTask $backupTask
+     * @param string $logOutput
+     * @param string $errorMessage
+     * @return void
+     */
     public function handleFailure(BackupTask $backupTask, string &$logOutput, string $errorMessage): void
     {
         $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
@@ -144,6 +208,12 @@ abstract class Backup
         $this->sendEmailNotificationOfTaskFailure($backupTask, $errorMessage);
     }
 
+    /**
+     * @param SFTP $sftp
+     * @param string $path
+     * @return int
+     * @throws SFTPConnectionException
+     */
     public function getRemoteDirectorySize(SFTP $sftp, string $path): int
     {
         $this->logInfo('Getting remote directory size.', ['path' => $path]);
@@ -164,6 +234,12 @@ abstract class Backup
         return (int) trim($output);
     }
 
+    /**
+     * @param SFTP $sftp
+     * @param string $path
+     * @return bool
+     * @throws SFTPConnectionException
+     */
     public function checkPathExists(SFTP $sftp, string $path): bool
     {
         $this->logInfo('Checking if path exists.', ['path' => $path]);
@@ -177,37 +253,35 @@ abstract class Backup
         return $exists;
     }
 
-    protected function establishSFTPConnection(object $remoteServer, object $backupTask): SFTP
+    /**
+     * @param object $remoteServer
+     * @param object $backupTask
+     * @return SFTPInterface
+     * @throws SFTPConnectionException
+     */
+    public function establishSFTPConnection(object $remoteServer, object $backupTask): SFTPInterface
     {
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
         /** @var PrivateKey $key */
         $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
-        $sftp = new SFTP($remoteServer->ip_address, $remoteServer->port, 120);
+        $sftp = $this->createSFTP($remoteServer->ip_address, $remoteServer->port, 120);
 
         if ($backupTask->hasIsolatedCredentials()) {
-
-            if (! $sftp->login($backupTask->isolated_username, Crypt::decryptString($backupTask->isolated_password), $key)) {
-                $error = $sftp->getLastError();
-                $this->logError('SSH login failed.', ['error' => $error]);
-                throw new SFTPConnectionException('SSH Login failed: ' . $error);
-            }
-
-            $remoteServer->markAsOnlineIfStatusIsNotOnline();
-            $this->logInfo('SFTP connection established using isolated credentials.', ['remote_server' => $remoteServer->ip_address]);
-
-            return $sftp;
+            $loginSuccess = $sftp->login($backupTask->isolated_username, $key); // We're passing the isolated username + our SSH key here. Password is used for sudo.
+        } else {
+            $loginSuccess = $sftp->login($remoteServer->username, $key);
         }
 
-        if (! $sftp->login($remoteServer->username, $key)) {
+        if (!$loginSuccess) {
             $error = $sftp->getLastError();
             $this->logError('SSH login failed.', ['error' => $error]);
             throw new SFTPConnectionException('SSH Login failed: ' . $error);
         }
 
         $remoteServer->markAsOnlineIfStatusIsNotOnline();
-        $this->logInfo('SFTP connection established using default credentials.', ['remote_server' => $remoteServer->ip_address]);
+        $this->logInfo('SFTP connection established.', ['remote_server' => $remoteServer->ip_address]);
 
         return $sftp;
     }
@@ -220,7 +294,7 @@ abstract class Backup
      * @throws BackupTaskZipException
      * @throws SFTPConnectionException
      */
-    protected function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
+    public function zipRemoteDirectory(SFTP $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
     {
         $this->logInfo('Zipping remote directory.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath]);
 
@@ -293,80 +367,13 @@ abstract class Backup
         $this->logInfo('Remote directory successfully zipped.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'file_size' => $fileSize]);
     }
 
-    protected function downloadFileViaSFTP(SFTP $sftp, string $remoteZipPath): string
-    {
-        $tempFile = tempnam(sys_get_temp_dir(), 'sftp');
-        if (! $sftp->get($remoteZipPath, $tempFile)) {
-            $error = $sftp->getLastError();
-            $this->logError('Failed to download the remote file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
-            throw new Exception('Failed to download the remote file: ' . $error);
-        }
-        $this->logDebug('Remote file downloaded.', ['temp_file' => $tempFile]);
-
-        return $tempFile;
-    }
-
-    protected function openFileAsStream(string $tempFile): mixed
-    {
-        $stream = fopen($tempFile, 'rb+');
-        if (! $stream) {
-            $error = error_get_last();
-            $this->logError('Failed to open the temporary file as a stream.', ['temp_file' => $tempFile, 'error' => $error]);
-            throw new Exception('Failed to open the temporary file as a stream: ' . json_encode($error));
-        }
-        $this->logDebug('Temporary file opened as a stream.');
-
-        return $stream;
-    }
-
-    protected function cleanUpTempFile(string $tempFile): void
-    {
-        if (file_exists($tempFile)) {
-            unlink($tempFile);
-            $this->logDebug('Temporary file deleted.', ['temp_file' => $tempFile]);
-        }
-    }
-
-    protected function logWithTimestamp(string $message, string $timezone): string
-    {
-        $dt = new DateTime('now', new DateTimeZone($timezone));
-        $timestamp = $dt->format('d-m-Y H:i:s');
-        $this->logInfo('Log with timestamp.', ['timestamp' => $timestamp, 'message' => $message]);
-
-        return '[' . $timestamp . '] ' . $message . "\n";
-    }
-
-    protected function rotateOldBackups(
-        BackupDestinationInterface $backupDestination,
-        int $backupTaskId,
-        int $backupLimit,
-        string $fileExtension = '.zip',
-        string $pattern = 'backup_'
-    ): void {
-        $this->logInfo('Rotating old backups.', ['backup_task_id' => $backupTaskId, 'backup_limit' => $backupLimit]);
-
-        try {
-            $files = $backupDestination->listFiles("{$pattern}{$backupTaskId}_");
-
-            $this->logDebug('Files filtered and sorted.', ['file_count' => count($files)]);
-
-            while (count($files) > $backupLimit) {
-                $oldestFile = array_pop($files);
-
-                $file = $oldestFile['Key'] ?? $oldestFile['name']; // @phpstan-ignore-line
-
-                $this->logDebug('Deleting old backup.', ['file' => $file]);
-
-                $backupDestination->deleteFile($file);
-            }
-
-            $this->logInfo('Old backups rotation completed.', ['remaining_files' => count($files)]);
-        } catch (Exception $e) {
-            $this->logError('Error rotating old backups.', ['error' => $e->getMessage()]);
-        }
-    }
-
-    protected function getDatabaseType(SFTP $sftp): string
+    /**
+     * @param SFTP $sftp
+     * @return string
+     * @throws DatabaseDumpException
+     * @throws SFTPConnectionException
+     */
+    public function getDatabaseType(SFTP $sftp): string
     {
         $this->logInfo('Determining database type.');
 
@@ -390,7 +397,18 @@ abstract class Backup
         throw new DatabaseDumpException('No supported database found on the remote server.');
     }
 
-    protected function dumpRemoteDatabase(
+    /**
+     * @param SFTP $sftp
+     * @param string $databaseType
+     * @param string $remoteDumpPath
+     * @param string $databasePassword
+     * @param string $databaseName
+     * @param string|null $databaseTablesToExcludeInTheBackup
+     * @return void
+     * @throws DatabaseDumpException
+     * @throws SFTPConnectionException
+     */
+    public function dumpRemoteDatabase(
         SFTP $sftp,
         string $databaseType,
         string $remoteDumpPath,
@@ -462,7 +480,12 @@ abstract class Backup
         $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
     }
 
-    protected function validateSFTP(SFTP $sftp): void
+    /**
+     * @param SFTP $sftp
+     * @return void
+     * @throws SFTPConnectionException
+     */
+    public function validateSFTP(SFTP $sftp): void
     {
         if (! $sftp->isConnected()) {
             $this->logError('SFTP connection lost.');
@@ -470,12 +493,13 @@ abstract class Backup
         }
     }
 
-    protected function handleException(Exception $e, string $context): void
-    {
-        $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);
-    }
-
-    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
+    /**
+     * @param callable $command
+     * @param int $maxRetries
+     * @param int $retryDelay
+     * @return mixed
+     */
+    public function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
         $result = false;
@@ -494,7 +518,12 @@ abstract class Backup
         return $result;
     }
 
-    protected function isLaravelDirectory(SFTP $sftp, string $sourcePath): bool
+    /**
+     * @param SFTP $sftp
+     * @param string $sourcePath
+     * @return bool
+     */
+    public function isLaravelDirectory(SFTP $sftp, string $sourcePath): bool
     {
         $this->logInfo('Checking if the directory is a Laravel project.', ['source_path' => $sourcePath]);
 
@@ -513,7 +542,12 @@ abstract class Backup
         return $isLaravel;
     }
 
-    protected function deleteFolder(SFTP $sftp, string $folderPath): void
+    /**
+     * @param SFTP $sftp
+     * @param string $folderPath
+     * @return void
+     */
+    public function deleteFolder(SFTP $sftp, string $folderPath): void
     {
         $this->logInfo('Deleting folder.', ['folder_path' => $folderPath]);
 
@@ -527,7 +561,11 @@ abstract class Backup
         }
     }
 
-    protected function createBackupDestinationInstance(BackupDestination $backupDestinationModel): BackupDestinationInterface
+    /**
+     * @param BackupDestination $backupDestinationModel
+     * @return BackupDestinationInterface
+     */
+    public function createBackupDestinationInstance(BackupDestination $backupDestinationModel): BackupDestinationInterface
     {
         switch ($backupDestinationModel->type) {
             case BackupConstants::DRIVER_CUSTOM_S3:
@@ -539,5 +577,117 @@ abstract class Backup
             default:
                 throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->type}");
         }
+    }
+
+    /**
+     * @param SFTP $sftp
+     * @param string $remoteZipPath
+     * @return string
+     * @throws Exception
+     */
+    protected function downloadFileViaSFTP(SFTP $sftp, string $remoteZipPath): string
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'sftp');
+        if (! $sftp->get($remoteZipPath, $tempFile)) {
+            $error = $sftp->getLastError();
+            $this->logError('Failed to download the remote file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
+            throw new Exception('Failed to download the remote file: ' . $error);
+        }
+        $this->logDebug('Remote file downloaded.', ['temp_file' => $tempFile]);
+
+        return $tempFile;
+    }
+
+    /**
+     * @param string $tempFile
+     * @return mixed
+     * @throws Exception
+     */
+    protected function openFileAsStream(string $tempFile): mixed
+    {
+        $stream = fopen($tempFile, 'rb+');
+        if (! $stream) {
+            $error = error_get_last();
+            $this->logError('Failed to open the temporary file as a stream.', ['temp_file' => $tempFile, 'error' => $error]);
+            throw new Exception('Failed to open the temporary file as a stream: ' . json_encode($error));
+        }
+        $this->logDebug('Temporary file opened as a stream.');
+
+        return $stream;
+    }
+
+    /**
+     * @param string $tempFile
+     * @return void
+     */
+    protected function cleanUpTempFile(string $tempFile): void
+    {
+        if (file_exists($tempFile)) {
+            unlink($tempFile);
+            $this->logDebug('Temporary file deleted.', ['temp_file' => $tempFile]);
+        }
+    }
+
+    /**
+     * @param string $message
+     * @param string $timezone
+     * @return string
+     * @throws Exception
+     */
+    protected function logWithTimestamp(string $message, string $timezone): string
+    {
+        $dt = new DateTime('now', new DateTimeZone($timezone));
+        $timestamp = $dt->format('d-m-Y H:i:s');
+        $this->logInfo('Log with timestamp.', ['timestamp' => $timestamp, 'message' => $message]);
+
+        return '[' . $timestamp . '] ' . $message . "\n";
+    }
+
+    /**
+     * @param BackupDestinationInterface $backupDestination
+     * @param int $backupTaskId
+     * @param int $backupLimit
+     * @param string $fileExtension
+     * @param string $pattern
+     * @return void
+     */
+    protected function rotateOldBackups(
+        BackupDestinationInterface $backupDestination,
+        int $backupTaskId,
+        int $backupLimit,
+        string $fileExtension = '.zip',
+        string $pattern = 'backup_'
+    ): void {
+        $this->logInfo('Rotating old backups.', ['backup_task_id' => $backupTaskId, 'backup_limit' => $backupLimit]);
+
+        try {
+            $files = $backupDestination->listFiles("{$pattern}{$backupTaskId}_");
+
+            $this->logDebug('Files filtered and sorted.', ['file_count' => count($files)]);
+
+            while (count($files) > $backupLimit) {
+                $oldestFile = array_pop($files);
+
+                $file = $oldestFile['Key'] ?? $oldestFile['name']; // @phpstan-ignore-line
+
+                $this->logDebug('Deleting old backup.', ['file' => $file]);
+
+                $backupDestination->deleteFile($file);
+            }
+
+            $this->logInfo('Old backups rotation completed.', ['remaining_files' => count($files)]);
+        } catch (Exception $e) {
+            $this->logError('Error rotating old backups.', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @param Exception $e
+     * @param string $context
+     * @return void
+     */
+    protected function handleException(Exception $e, string $context): void
+    {
+        $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);
     }
 }

@@ -10,7 +10,7 @@ use phpseclib3\Net\SFTP;
 
 trait BackupHelpers
 {
-    protected function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
+    public function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
         $result = false;

@@ -52,11 +52,23 @@ function something()
 function test_create_keys(): void
 {
     $pathToSSHKeys = storage_path('app/ssh');
+    $backupPath = $pathToSSHKeys . '_backup';
 
-    if (file_exists($pathToSSHKeys)) {
+    // If the SSH directory exists, back it up
+    if (File::isDirectory($pathToSSHKeys)) {
         Log::info('Backing up the existing SSH keys to perform the test.');
-        rename($pathToSSHKeys, $pathToSSHKeys.'_backup');
+
+        // If a backup already exists, delete it
+        if (File::isDirectory($backupPath)) {
+            File::deleteDirectory($backupPath);
+        }
+
+        // Move the current SSH directory to the backup location
+        File::moveDirectory($pathToSSHKeys, $backupPath);
     }
+
+    // Ensure the SSH directory exists
+    File::makeDirectory($pathToSSHKeys, 0755, true, true);
 
     Artisan::call(GenerateSSHKeyCommand::class);
 }
@@ -64,12 +76,17 @@ function test_create_keys(): void
 function test_restore_keys(): void
 {
     $pathToSSHKeys = storage_path('app/ssh');
+    $backupPath = $pathToSSHKeys . '_backup';
 
-    unlink($pathToSSHKeys.'/key');
-    unlink($pathToSSHKeys.'/key.pub');
+    // Delete the current SSH directory
+    if (File::isDirectory($pathToSSHKeys)) {
+        File::deleteDirectory($pathToSSHKeys);
+    }
 
-    if (file_exists($pathToSSHKeys.'_backup')) {
+    // If a backup exists, restore it
+    if (File::isDirectory($backupPath)) {
         Log::info('Restoring the SSH keys to their original location.');
-        rename($pathToSSHKeys.'_backup', $pathToSSHKeys);
+        File::moveDirectory($backupPath, $pathToSSHKeys);
     }
 }
+
