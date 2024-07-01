@@ -11,7 +11,6 @@ use App\Exceptions\BackupTaskRuntimeException;
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
-use App\Interfaces\SFTPInterface;
 use App\Mail\BackupTaskFailed;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
