@@ -10,46 +10,33 @@ use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
 use DateTime;
 use DateTimeInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use phpseclib3\Net\SFTP;
 
 class S3 implements BackupDestinationInterface
 {
     use BackupHelpers;
 
-    protected S3Client $client;
+    public function __construct(
+        protected S3Client $client,
+        protected string $bucketName
+    ) {}
 
-    protected string $bucketName;
 
-    public function __construct(S3Client $client, string $bucketName)
-    {
-        $this->client = $client;
-        $this->bucketName = $bucketName;
-    }
-
+    /**
+     * @return array<string>
+     */
     public function listFiles(string $pattern): array
     {
-        /** @var array{Contents: array<int, array{Key: string, LastModified: string, name: ?string}>} $result */
         $result = $this->client->listObjects([
             'Bucket' => $this->bucketName,
         ]);
 
-        $contents = $result['Contents'];
-
-        return collect($contents)
-            ->filter(function (array $file) use ($pattern): bool {
-                return str_contains($file['Key'], $pattern);
-            })
-            ->sortByDesc(function (array $file): DateTime {
-                /** @var DateTimeResult $lastModified */
-                $lastModified = $file['LastModified'];
-                $dateTimeString = $lastModified->format(DateTimeInterface::ATOM);
-
-                return new DateTime($dateTimeString);
-            })
-            ->toArray();
+        return $this->filterAndSortFiles($result['Contents'] ?? [], $pattern);
     }
 
     public function deleteFile(string $filePath): void
@@ -60,32 +47,134 @@ class S3 implements BackupDestinationInterface
         ]);
     }
 
-    public function streamFiles(SFTP $sftp, string $remoteZipPath, string $fileName, string $storagePath, int $retries = 3, int $delay = 5): bool
+    /**
+     * @param SFTP $sftp
+     * @param string $remoteZipPath
+     * @param string $fileName
+     * @param string|null $storagePath
+     * @param int $retries
+     * @param int $delay
+     * @return bool
+     * @throws FilesystemException
+     */
+    public function streamFiles(
+        SFTP $sftp,
+        string $remoteZipPath,
+        string $fileName,
+        ?string $storagePath = null,
+        int $retries = 3,
+        int $delay = 5
+    ): bool {
+        $fullPath = $this->getFullPath($fileName, $storagePath);
+
+        $this->logStartStreaming($remoteZipPath, $fileName, $fullPath);
+
+        return $this->retryCommand(
+            fn () => $this->performFileStreaming($sftp, $remoteZipPath, $fullPath),
+            $retries,
+            $delay
+        );
+    }
+
+    /**
+     * @param array<int, array{Key: string, LastModified: DateTimeResult}> $contents
+     * @return array<string>
+     */
+    private function filterAndSortFiles(array $contents, string $pattern): array
+    {
+        return Collection::make($contents)
+            ->filter(fn (array $file): bool => str_contains($file['Key'], $pattern))
+            ->sortByDesc(fn (array $file): DateTime => $this->getLastModifiedDateTime($file))
+            ->map(fn (array $file): string => $file['Key'])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param array{LastModified: DateTimeResult} $file
+     * @throws \Exception
+     */
+    private function getLastModifiedDateTime(array $file): DateTime
+    {
+        $dateTimeString = $file['LastModified']->format(DateTimeInterface::ATOM);
+        return new DateTime($dateTimeString);
+    }
+
+    /**
+     * @param string $fileName
+     * @param string|null $storagePath
+     * @return string
+     */
+    private function getFullPath(string $fileName, ?string $storagePath): string
+    {
+        return $storagePath ? "{$storagePath}/{$fileName}" : $fileName;
+    }
+
+    /**
+     * @param SFTP $sftp
+     * @param string $remoteZipPath
+     * @param string $fullPath
+     * @return bool
+     * @throws FilesystemException
+     */
+    private function performFileStreaming(SFTP $sftp, string $remoteZipPath, string $fullPath): bool
+    {
+        $filesystem = $this->createS3Filesystem();
+        $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);
+        $stream = $this->openFileAsStream($tempFile);
+
+        $this->writeStreamToS3($filesystem, $fullPath, $stream);
+        $this->cleanUpTempFile($tempFile);
+
+        $this->logSuccessfulStreaming($fullPath);
+
+        return true;
+    }
+
+    /**
+     * @return Filesystem
+     */
+    private function createS3Filesystem(): Filesystem
+    {
+        $adapter = new AwsS3V3Adapter($this->client, $this->bucketName);
+        $filesystem = new Filesystem($adapter);
+        Log::debug('S3 filesystem created.');
+
+        return $filesystem;
+    }
+
+    /**
+     * @param resource $stream
+     * @throws FilesystemException
+     */
+    private function writeStreamToS3(Filesystem $filesystem, string $fullPath, $stream): void
+    {
+        $filesystem->writeStream($fullPath, $stream);
+        fclose($stream);
+        Log::debug('Stream written to S3.', ['file_name' => $fullPath]);
+    }
+
+    /**
+     * @param string $remoteZipPath
+     * @param string $fileName
+     * @param string $fullPath
+     * @return void
+     */
+    private function logStartStreaming(string $remoteZipPath, string $fileName, string $fullPath): void
     {
         Log::info('Starting to stream file to S3.', [
             'remote_zip_path' => $remoteZipPath,
             'file_name' => $fileName,
-            'storage_path' => $storagePath,
+            'full_path' => $fullPath,
         ]);
+    }
 
-        return $this->retryCommand(function () use ($sftp, $remoteZipPath, $fileName, $storagePath) {
-            $adapter = new AwsS3V3Adapter($this->client, $this->bucketName);
-            $filesystem = new Filesystem($adapter);
-            Log::debug('S3 filesystem created.');
-
-            $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);
-            $stream = $this->openFileAsStream($tempFile);
-
-            $fullPath = $storagePath . '/' . $fileName;
-            $filesystem->writeStream($fullPath, $stream);
-            fclose($stream);
-            Log::debug('Stream written to S3.', ['file_name' => $fullPath]);
-
-            $this->cleanUpTempFile($tempFile);
-
-            Log::info('File successfully streamed to S3.', ['file_name' => $fullPath]);
-
-            return true;
-        }, $retries, $delay);
+    /**
+     * @param string $fullPath
+     * @return void
+     */
+    private function logSuccessfulStreaming(string $fullPath): void
+    {
+        Log::info('File successfully streamed to S3.', ['file_name' => $fullPath]);
     }
 }
