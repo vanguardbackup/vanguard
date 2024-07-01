@@ -92,10 +92,8 @@ it('handles a failed database connection gracefully', function () {
     Mail::fake();
     Event::fake();
 
-    Log::shouldReceive('info')->andReturnUsing(function ($message) {
-    });
-    Log::shouldReceive('error')->andReturnUsing(function ($message) {
-    });
+    Log::shouldReceive('info')->andReturnUsing(function ($message) {});
+    Log::shouldReceive('error')->andReturnUsing(function ($message) {});
 
     $user = User::factory()->create(['timezone' => 'UTC']);
     $remoteServer = RemoteServer::factory()->create([
@@ -118,8 +116,7 @@ it('handles a failed database connection gracefully', function () {
             ->shouldReceive('obtainBackupTask')->andReturn($backupTask)
             ->shouldReceive('recordBackupTaskLog')->andReturn($backupTaskLog)
             ->shouldReceive('updateBackupTaskLogOutput')->andReturnNull()
-            ->shouldReceive('updateBackupTaskStatus')->andReturnUsing(function ($task, $status) use (&$debugLog) {
-            })
+            ->shouldReceive('updateBackupTaskStatus')->andReturnUsing(function ($task, $status) use (&$debugLog) {})
             ->shouldReceive('establishSFTPConnection')->andThrow(new \Exception('Connection failed'))
             ->shouldReceive('logWithTimestamp')->andReturn('[timestamp] message')
             ->shouldReceive('handleFailure')->andReturnUsing(function ($task, &$logOutput, $errorMessage) use ($mock, &$debugLog) {
