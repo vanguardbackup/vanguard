@@ -24,6 +24,7 @@ use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use RuntimeException;
@@ -543,6 +544,14 @@ abstract class Backup
         return '[' . $timestamp . '] ' . $message . "\n";
     }
 
+    /**
+     * @param BackupDestinationInterface $backupDestination
+     * @param int $backupTaskId
+     * @param int $backupLimit
+     * @param string $fileExtension
+     * @param string $pattern
+     * @return void
+     */
     protected function rotateOldBackups(
         BackupDestinationInterface $backupDestination,
         int $backupTaskId,
@@ -553,14 +562,25 @@ abstract class Backup
         $this->logInfo('Rotating old backups.', ['backup_task_id' => $backupTaskId, 'backup_limit' => $backupLimit]);
 
         try {
-            $files = $backupDestination->listFiles("{$pattern}{$backupTaskId}_");
+            /** @var array<array<string, mixed>> $files */
+            $files = $backupDestination->listFiles("{$pattern}{$backupTaskId}_*{$fileExtension}");
 
             $this->logDebug('Files filtered and sorted.', ['file_count' => count($files)]);
 
             while (count($files) > $backupLimit) {
                 $oldestFile = array_pop($files);
 
-                $file = $oldestFile['Key'] ?? $oldestFile['name']; // @phpstan-ignore-line
+                if (!is_array($oldestFile)) {
+                    $this->logError('Invalid file structure encountered.', ['file' => $oldestFile]);
+                    continue;
+                }
+
+                $file = $oldestFile['Key'] ?? $oldestFile['name'] ?? null;
+
+                if (!is_string($file)) {
+                    $this->logError('Invalid file name or key.', ['file' => $oldestFile]);
+                    continue;
+                }
 
                 $this->logDebug('Deleting old backup.', ['file' => $file]);
 
@@ -570,6 +590,7 @@ abstract class Backup
             $this->logInfo('Old backups rotation completed.', ['remaining_files' => count($files)]);
         } catch (Exception $e) {
             $this->logError('Error rotating old backups.', ['error' => $e->getMessage()]);
+            // Consider re-throwing the exception or handling it according to your error management strategy
         }
     }
 
