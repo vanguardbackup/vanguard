@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\BackupDestinations;
 
-use App\Services\Backup\Contracts\BackupDestinationInterface;
-use App\Services\Backup\SFTPInterface;
+use App\Services\Backup\BackupDestinations\Contracts\BackupDestinationInterface;
+use app\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Traits\BackupHelpers;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;

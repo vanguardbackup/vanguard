@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Traits;
 
-use App\Services\Backup\SFTPInterface;
+use app\Services\Backup\Contracts\SFTPInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Services\Backup\Tasks\FileBackup;
+use App\Services\Backup\Tasks\FileBackupTask;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,7 +24,7 @@ class RunFileBackupTaskJob implements ShouldQueue
 
     public function handle(): void
     {
-        $action = new FileBackup;
+        $action = new FileBackupTask;
         $action->handle($this->backupTaskId);
     }
 }

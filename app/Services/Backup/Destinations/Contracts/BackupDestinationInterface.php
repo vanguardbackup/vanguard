@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Backup\Contracts;
+namespace App\Services\Backup\BackupDestinations\Contracts;
 
-use App\Services\Backup\SFTPInterface;
+use app\Services\Backup\Contracts\SFTPInterface;
 
 interface BackupDestinationInterface
 {

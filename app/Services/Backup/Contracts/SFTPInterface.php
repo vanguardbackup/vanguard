@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Backup;
+namespace app\Services\Backup\Contracts;
 
 use phpseclib3\Net\SFTP;
 
