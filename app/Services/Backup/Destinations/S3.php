@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Destinations;
 
-use app\Services\Backup\Contracts\SFTPInterface;
+use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
 use Aws\Api\DateTimeResult;

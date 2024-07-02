@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Destinations\Contracts;
 
-use app\Services\Backup\Contracts\SFTPInterface;
+use App\Services\Backup\Contracts\SFTPInterface;
 
 interface BackupDestinationInterface
 {
