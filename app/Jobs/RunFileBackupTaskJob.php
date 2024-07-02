@@ -24,7 +24,6 @@ class RunFileBackupTaskJob implements ShouldQueue
 
     public function handle(): void
     {
-        $action = new FileBackupTask;
-        $action->handle($this->backupTaskId);
+        new FileBackupTask($this->backupTaskId);
     }
 }

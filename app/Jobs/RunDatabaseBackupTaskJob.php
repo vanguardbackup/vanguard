@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Services\Backup\Tasks\DatabaseBackup;
+use App\Services\Backup\Tasks\DatabaseBackupTask;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,7 +25,6 @@ class RunDatabaseBackupTaskJob implements ShouldQueue
 
     public function handle(): void
     {
-        $action = new DatabaseBackup;
-        $action->handle($this->backupTaskId);
+        new DatabaseBackupTask($this->backupTaskId);
     }
 }
