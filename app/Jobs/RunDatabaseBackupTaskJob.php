@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Services\Backup\Tasks\DatabaseBackup;
 use App\Services\Backup\Tasks\DatabaseBackupTask;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
