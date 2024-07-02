@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Backup\BackupDestinations;
+namespace App\Services\Backup\Destinations;
 
-use App\Services\Backup\BackupDestinations\Contracts\BackupDestinationInterface;
 use app\Services\Backup\Contracts\SFTPInterface;
+use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;

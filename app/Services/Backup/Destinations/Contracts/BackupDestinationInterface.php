@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Backup\BackupDestinations\Contracts;
+namespace App\Services\Backup\Destinations\Contracts;
 
 use app\Services\Backup\Contracts\SFTPInterface;
 
