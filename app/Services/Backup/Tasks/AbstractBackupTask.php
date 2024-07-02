@@ -10,30 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 abstract class AbstractBackupTask extends Backup
 {
-    /**
-     * @var BackupTaskModel
-     */
     protected BackupTaskModel $backupTask;
-    /**
-     * @var BackupTaskLog
-     */
     protected BackupTaskLog $backupTaskLog;
-    /**
-     * @var string
-     */
     protected string $logOutput = '';
-    /**
-     * @var float
-     */
     protected float $scriptRunTime;
-    /**
-     * @var int|null
-     */
     protected ?int $backupSize = null;
 
-    /**
-     * @param int $backupTaskId
-     */
     public function __construct(int $backupTaskId)
     {
         parent::__construct();
@@ -42,12 +24,6 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @return void
-     */
-    abstract protected function performBackup(): void;
-
-    /**
-     * @return void
      * @throws Exception
      */
     public function handle(): void
@@ -66,8 +42,9 @@ abstract class AbstractBackupTask extends Backup
         }
     }
 
+    abstract protected function performBackup(): void;
+
     /**
-     * @return void
      * @throws Exception
      */
     protected function initializeBackup(): void
@@ -80,7 +57,6 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @return void
      * @throws Exception
      */
     protected function finalizeSuccessfulBackup(): void
@@ -90,19 +66,12 @@ abstract class AbstractBackupTask extends Backup
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
     }
 
-    /**
-     * @param Exception $exception
-     * @return void
-     */
     protected function handleBackupFailure(Exception $exception): void
     {
         $this->logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
         Log::error("Error in backup process for task {$this->backupTask->id}: " . $exception->getMessage(), ['exception' => $exception]);
     }
 
-    /**
-     * @return void
-     */
     protected function cleanupBackup(): void
     {
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
@@ -122,21 +91,17 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @param string $message
-     * @param string $timezone
-     * @return string
      * @throws Exception
      */
     protected function logWithTimestamp(string $message, string $timezone): string
     {
         $timestampedMessage = parent::logWithTimestamp($message, $timezone);
         $this->logOutput .= $timestampedMessage;
+
         return $timestampedMessage;
     }
 
     /**
-     * @param string $message
-     * @return void
      * @throws Exception
      */
     protected function logMessage(string $message): void
@@ -144,13 +109,10 @@ abstract class AbstractBackupTask extends Backup
         $this->logWithTimestamp($message, $this->backupTask->user->timezone);
     }
 
-    /**
-     * @param string $extension
-     * @return string
-     */
     protected function generateBackupFileName(string $extension): string
     {
         $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
+
         return "{$prefix}backup_{$this->backupTask->id}_" . date('YmdHis') . ".{$extension}";
     }
 }

@@ -9,7 +9,6 @@ use RuntimeException;
 class DatabaseBackupTask extends AbstractBackupTask
 {
     /**
-     * @return void
      * @throws DatabaseDumpException
      * @throws SFTPConnectionException
      */
@@ -21,7 +20,7 @@ class DatabaseBackupTask extends AbstractBackupTask
         $databasePassword = $remoteServer->getDecryptedDatabasePassword();
         $storagePath = $this->backupTask->getAttributeValue('store_path');
 
-        if (!$remoteServer->hasDatabasePassword()) {
+        if (! $remoteServer->hasDatabasePassword()) {
             throw new RuntimeException('Please provide a database password for the remote server.');
         }
 
@@ -38,7 +37,7 @@ class DatabaseBackupTask extends AbstractBackupTask
 
         $this->dumpRemoteDatabase($sftp, $databaseType, $remoteDumpPath, $databasePassword, $databaseName, $this->backupTask->excluded_database_tables);
 
-        if (!$this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteDumpPath, $backupDestinationModel, $dumpFileName, $storagePath)) {
+        if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteDumpPath, $backupDestinationModel, $dumpFileName, $storagePath)) {
             throw new RuntimeException('Failed to upload the dump file to destination.');
         }
 

@@ -4,13 +4,12 @@ namespace App\Services\Backup\Tasks;
 
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\SFTPConnectionException;
-use RuntimeException;
 use App\Services\Backup\BackupConstants;
+use RuntimeException;
 
 class FileBackupTask extends AbstractBackupTask
 {
     /**
-     * @return void
      * @throws BackupTaskZipException
      * @throws SFTPConnectionException
      */
@@ -24,7 +23,7 @@ class FileBackupTask extends AbstractBackupTask
         $sftp = $this->establishSFTPConnection($remoteServer, $this->backupTask);
         $this->logMessage('SSH Connection established to the server.');
 
-        if (!$this->checkPathExists($sftp, $sourcePath)) {
+        if (! $this->checkPathExists($sftp, $sourcePath)) {
             throw new RuntimeException('The path specified does not exist.');
         }
 
@@ -49,7 +48,7 @@ class FileBackupTask extends AbstractBackupTask
 
         $this->backupTask->setScriptUpdateTime();
 
-        if (!$this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteZipPath, $backupDestinationModel, $zipFileName, $storagePath)) {
+        if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteZipPath, $backupDestinationModel, $zipFileName, $storagePath)) {
             throw new RuntimeException('Failed to upload the zip file to destination.');
         }
 
