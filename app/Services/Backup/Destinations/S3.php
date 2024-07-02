@@ -95,7 +95,7 @@ class S3 implements BackupDestinationInterface
         return new DateTime($dateTimeString);
     }
 
-    private function getFullPath(string $fileName, ?string $storagePath): string
+    public function getFullPath(string $fileName, ?string $storagePath): string
     {
         return $storagePath ? "{$storagePath}/{$fileName}" : $fileName;
     }
@@ -117,7 +117,7 @@ class S3 implements BackupDestinationInterface
         return true;
     }
 
-    private function createS3Filesystem(): Filesystem
+    public function createS3Filesystem(): Filesystem
     {
         $adapter = new AwsS3V3Adapter($this->client, $this->bucketName);
         $filesystem = new Filesystem($adapter);
@@ -131,14 +131,14 @@ class S3 implements BackupDestinationInterface
      *
      * @throws FilesystemException
      */
-    private function writeStreamToS3(Filesystem $filesystem, string $fullPath, $stream): void
+    public function writeStreamToS3(Filesystem $filesystem, string $fullPath, $stream): void
     {
         $filesystem->writeStream($fullPath, $stream);
         fclose($stream);
         Log::debug('Stream written to S3.', ['file_name' => $fullPath]);
     }
 
-    private function logStartStreaming(string $remoteZipPath, string $fileName, string $fullPath): void
+    public function logStartStreaming(string $remoteZipPath, string $fileName, string $fullPath): void
     {
         Log::info('Starting to stream file to S3.', [
             'remote_zip_path' => $remoteZipPath,
@@ -147,7 +147,7 @@ class S3 implements BackupDestinationInterface
         ]);
     }
 
-    private function logSuccessfulStreaming(string $fullPath): void
+    public function logSuccessfulStreaming(string $fullPath): void
     {
         Log::info('File successfully streamed to S3.', ['file_name' => $fullPath]);
     }
