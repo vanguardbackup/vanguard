@@ -545,14 +545,6 @@ abstract class Backup
         return '[' . $timestamp . '] ' . $message . "\n";
     }
 
-    /**
-     * @param BackupDestinationInterface $backupDestination
-     * @param int $backupTaskId
-     * @param int $backupLimit
-     * @param string $fileExtension
-     * @param string $pattern
-     * @return void
-     */
     protected function rotateOldBackups(
         BackupDestinationInterface $backupDestination,
         int $backupTaskId,
@@ -571,15 +563,17 @@ abstract class Backup
             while (count($files) > $backupLimit) {
                 $oldestFile = array_pop($files);
 
-                if (!is_array($oldestFile)) {
+                if (! is_array($oldestFile)) {
                     $this->logError('Invalid file structure encountered.', ['file' => $oldestFile]);
+
                     continue;
                 }
 
                 $file = $oldestFile['Key'] ?? $oldestFile['name'] ?? null;
 
-                if (!is_string($file)) {
+                if (! is_string($file)) {
                     $this->logError('Invalid file name or key.', ['file' => $oldestFile]);
+
                     continue;
                 }
 
