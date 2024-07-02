@@ -2,8 +2,8 @@
 
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\S3;
-use Aws\S3\S3Client;
 use Aws\Api\DateTimeResult;
+use Aws\S3\S3Client;
 use League\Flysystem\Filesystem;
 use League\Flysystem\UnableToCreateDirectory;
 

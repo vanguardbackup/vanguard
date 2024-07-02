@@ -69,52 +69,9 @@ class S3 implements BackupDestinationInterface
         );
     }
 
-    /**
-     * @param  array<int, array{Key: string, LastModified: DateTimeResult}>  $contents
-     * @return array<string>
-     */
-    private function filterAndSortFiles(array $contents, string $pattern): array
-    {
-        return Collection::make($contents)
-            ->filter(fn (array $file): bool => str_contains($file['Key'], $pattern))
-            ->sortByDesc(fn (array $file): DateTime => $this->getLastModifiedDateTime($file))
-            ->map(fn (array $file): string => $file['Key'])
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @param  array{LastModified: DateTimeResult}  $file
-     *
-     * @throws Exception
-     */
-    private function getLastModifiedDateTime(array $file): DateTime
-    {
-        $dateTimeString = $file['LastModified']->format(DateTimeInterface::ATOM);
-
-        return new DateTime($dateTimeString);
-    }
-
     public function getFullPath(string $fileName, ?string $storagePath): string
     {
         return $storagePath ? "{$storagePath}/{$fileName}" : $fileName;
-    }
-
-    /**
-     * @throws FilesystemException
-     */
-    private function performFileStreaming(SFTPInterface $sftp, string $remoteZipPath, string $fullPath): bool
-    {
-        $filesystem = $this->createS3Filesystem();
-        $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);
-        $stream = $this->openFileAsStream($tempFile);
-
-        $this->writeStreamToS3($filesystem, $fullPath, $stream);
-        $this->cleanUpTempFile($tempFile);
-
-        $this->logSuccessfulStreaming($fullPath);
-
-        return true;
     }
 
     public function createS3Filesystem(): Filesystem
@@ -150,5 +107,48 @@ class S3 implements BackupDestinationInterface
     public function logSuccessfulStreaming(string $fullPath): void
     {
         Log::info('File successfully streamed to S3.', ['file_name' => $fullPath]);
+    }
+
+    /**
+     * @param  array<int, array{Key: string, LastModified: DateTimeResult}>  $contents
+     * @return array<string>
+     */
+    private function filterAndSortFiles(array $contents, string $pattern): array
+    {
+        return Collection::make($contents)
+            ->filter(fn (array $file): bool => str_contains($file['Key'], $pattern))
+            ->sortByDesc(fn (array $file): DateTime => $this->getLastModifiedDateTime($file))
+            ->map(fn (array $file): string => $file['Key'])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array{LastModified: DateTimeResult}  $file
+     *
+     * @throws Exception
+     */
+    private function getLastModifiedDateTime(array $file): DateTime
+    {
+        $dateTimeString = $file['LastModified']->format(DateTimeInterface::ATOM);
+
+        return new DateTime($dateTimeString);
+    }
+
+    /**
+     * @throws FilesystemException
+     */
+    private function performFileStreaming(SFTPInterface $sftp, string $remoteZipPath, string $fullPath): bool
+    {
+        $filesystem = $this->createS3Filesystem();
+        $tempFile = $this->downloadFileViaSFTP($sftp, $remoteZipPath);
+        $stream = $this->openFileAsStream($tempFile);
+
+        $this->writeStreamToS3($filesystem, $fullPath, $stream);
+        $this->cleanUpTempFile($tempFile);
+
+        $this->logSuccessfulStreaming($fullPath);
+
+        return true;
     }
 }

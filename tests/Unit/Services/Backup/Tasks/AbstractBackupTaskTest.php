@@ -6,6 +6,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Tasks\AbstractBackupTask;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use ReflectionClass;
@@ -15,15 +16,16 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->backupTask = BackupTask::factory()->create();
 
-    $this->abstractBackupTask = new class($this->backupTask->id) extends AbstractBackupTask {
-        protected function performBackup(): void
-        {
-            $this->logMessage('Performing backup');
-        }
-
+    $this->abstractBackupTask = new class($this->backupTask->id) extends AbstractBackupTask
+    {
         public function getLogOutput(): string
         {
             return $this->logOutput;
+        }
+
+        protected function performBackup(): void
+        {
+            $this->logMessage('Performing backup');
         }
     };
 
@@ -98,7 +100,7 @@ it('zips remote directory', function () {
 it('handles backup failure', function () {
     $method = $this->reflection->getMethod('handleBackupFailure');
 
-    $exception = new \Exception('Test exception');
+    $exception = new Exception('Test exception');
     $method->invoke($this->abstractBackupTask, $exception);
 
     expect($this->abstractBackupTask->getLogOutput())

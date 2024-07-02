@@ -50,13 +50,14 @@ class BackupHelpersTest
 }
 
 beforeEach(function () {
-    $this->helperClass = new BackupHelpersTest();
+    $this->helperClass = new BackupHelpersTest;
 });
 
 it('retries command until success', function () {
     $attempts = 0;
     $command = function () use (&$attempts) {
         $attempts++;
+
         return $attempts === 3;
     };
 
@@ -70,6 +71,7 @@ it('retries command until max attempts', function () {
     $attempts = 0;
     $command = function () use (&$attempts) {
         $attempts++;
+
         return false;
     };
 

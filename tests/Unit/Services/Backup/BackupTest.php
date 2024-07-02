@@ -1,13 +1,13 @@
 <?php
 
+use App\Exceptions\BackupTaskRuntimeException;
+use App\Exceptions\BackupTaskZipException;
+use App\Models\BackupDestination;
+use App\Models\BackupTask;
+use App\Models\BackupTaskLog;
 use App\Models\RemoteServer;
 use App\Services\Backup\Backup;
 use App\Services\Backup\Contracts\SFTPInterface;
-use App\Exceptions\BackupTaskRuntimeException;
-use App\Exceptions\BackupTaskZipException;
-use App\Models\BackupTask;
-use App\Models\BackupDestination;
-use App\Models\BackupTaskLog;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Destinations\S3;
 use Illuminate\Support\Facades\Config;
@@ -117,7 +117,7 @@ it('establishes SFTP connection', function () {
         'ip_address' => '192.168.1.1',
         'port' => 22,
         'username' => 'testuser',
-        'connectivity_status' => 'offline'
+        'connectivity_status' => 'offline',
     ]);
 
     $backupTask = BackupTask::factory()->create([
