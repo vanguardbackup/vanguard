@@ -24,6 +24,7 @@ class RunDatabaseBackupTaskJob implements ShouldQueue
 
     public function handle(): void
     {
-        new DatabaseBackupTask($this->backupTaskId);
+        $backupTask = new DatabaseBackupTask($this->backupTaskId);
+        $backupTask->handle();
     }
 }
