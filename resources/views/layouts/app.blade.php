@@ -28,13 +28,13 @@
 <body class="font-sans antialiased">
 @if (!ssh_keys_exist())
     <div>
-        <div class="mx-auto text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        <div class="mx-auto text-center bg-red-700/85 border-none text-white px-3 py-5 rounded relative"
              role="alert">
-            @svg('heroicon-o-exclamation-triangle', 'h-6 w-6 text-red-700 inline mr-1')
+            @svg('heroicon-o-exclamation-triangle', 'h-6 w-6 text-inherit inline mr-1')
             <strong class="font-bold">{{ __('Warning!') }}</strong>
             <span class="block sm:inline">
                     {{ __('Please run') }}
-                    <code class="text-sm bg-red-200 p-0.5 mx-1 font-medium">
+                    <code class="text-sm bg-red-800/60 p-1 mx-1.5 font-medium rounded-lg">
                         php artisan vanguard:generate-ssh-key
                     </code>
                     {{ __('to create your SSH key.') }}
