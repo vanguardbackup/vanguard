@@ -2,11 +2,14 @@
 
 namespace App\Services\Backup\Tasks;
 
+use App\Exceptions\DatabaseDumpException;
+use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Backup;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 abstract class AbstractBackupTask extends Backup
 {
@@ -35,8 +38,11 @@ abstract class AbstractBackupTask extends Backup
         try {
             $this->performBackup();
             $this->finalizeSuccessfulBackup();
+        } catch (DatabaseDumpException | SFTPConnectionException | RuntimeException $exception) {
+            $this->handleBackupFailure($exception);
         } catch (Exception $exception) {
             $this->handleBackupFailure($exception);
+            throw new RuntimeException('Unexpected error during backup: ' . $exception->getMessage(), 0, $exception);
         } finally {
             $this->cleanupBackup();
         }
