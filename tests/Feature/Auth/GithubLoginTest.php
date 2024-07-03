@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\User\WelcomeMail;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -55,6 +56,8 @@ it('updates existing user with GitHub ID when found by email', function () {
 });
 
 it('creates a new user if none exists with GitHub ID or email', function () {
+    Toaster::fake();
+    Mail::fake();
     $mockGithubUser = Mockery::mock(\Laravel\Socialite\Contracts\User::class);
     $mockGithubUser->shouldReceive('getId')->andReturn('12345');
     $mockGithubUser->shouldReceive('getEmail')->andReturn('newuser@example.com');
@@ -65,8 +68,11 @@ it('creates a new user if none exists with GitHub ID or email', function () {
     $this->get(route('github.callback'))
         ->assertRedirect(route('overview'));
 
+    Toaster::assertDispatched(__('Successfully logged in via GitHub!'));
+
     $user = User::where('email', 'newuser@example.com')->first();
     $this->assertAuthenticatedAs($user);
+    Mail::assertQueued(WelcomeMail::class);
     $this->assertDatabaseHas('users', [
         'name' => 'New User',
         'email' => 'newuser@example.com',

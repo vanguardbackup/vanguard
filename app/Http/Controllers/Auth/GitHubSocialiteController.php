@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\User\WelcomeMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GithubProvider;
+use Toaster;
 
 class GitHubSocialiteController extends Controller
 {
@@ -41,7 +44,7 @@ class GitHubSocialiteController extends Controller
         try {
             $githubUser = Socialite::driver('github')->user();
 
-            if (($user = $this->findUserByGitHubId($githubUser->getId())) instanceof \App\Models\User) {
+            if (($user = $this->findUserByGitHubId((int) $githubUser->getId())) instanceof \App\Models\User) {
                 return $this->loginAndRedirect($user, 'Found GH ID associated with this user, logging them in.');
             }
 
@@ -58,7 +61,7 @@ class GitHubSocialiteController extends Controller
         }
     }
 
-    private function findUserByGitHubId(string $githubId): ?User
+    private function findUserByGitHubId(int $githubId): ?User
     {
         return User::where('github_id', $githubId)->first();
     }
@@ -80,8 +83,12 @@ class GitHubSocialiteController extends Controller
             'github_id' => $githubUser->getId(),
         ]);
 
+        Mail::to($user->email)->queue(new WelcomeMail($user));
+
         Log::debug('Creating new user with their GitHub ID and logging them in.', ['id' => $githubUser->getId()]);
         Auth::login($user);
+
+        Toaster::success(__('Successfully logged in via GitHub!'));
 
         return Redirect::route('overview');
     }
