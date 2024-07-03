@@ -341,5 +341,6 @@
     "Are you sure you want to remove the tag \":label\"?": "Er du sikker på, at du vil fjerne tagget \":label\"?",
     "This action cannot be undone, this tag will be unlinked from associated tasks.": "Denne handling kan ikke fortrydes. Dette tag vil blive fjernet fra tilknyttede opgaver.",
     "Update Tag": "Opdater Tag",
-    "All your backups will still exist at their backup destination but there will be no record of them within :app. Please confirm your request.": "Alle dine backups vil stadig eksistere på deres backup destination, men der vil ikke være nogen registrering af dem i :app. Bekræft venligst din anmodning."
+    "All your backups will still exist at their backup destination but there will be no record of them within :app. Please confirm your request.": "Alle dine backups vil stadig eksistere på deres backup destination, men der vil ikke være nogen registrering af dem i :app. Bekræft venligst din anmodning.",
+    "View your log of previously executed backup tasks.": "Se din log over tidligere udførte backup-opgaver."
 }

@@ -2,6 +2,12 @@
     @if (count($backupTaskLogs) !== 0)
         <div>
             <x-table.wrapper title="{{ __('Previously Executed Backup Tasks') }}" class="grid-cols-11">
+                <x-slot name="icon">
+                    @svg('heroicon-o-document-text', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                </x-slot>
+                <x-slot name="description">
+                    {{ __('View your log of previously executed backup tasks.') }}
+                </x-slot>
                 <x-slot name="header">
                     <x-table.header-item class="col-span-2">
                         {{ __('Label') }}
