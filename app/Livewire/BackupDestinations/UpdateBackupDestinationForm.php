@@ -45,6 +45,15 @@ class UpdateBackupDestinationForm extends Component
             'customS3Region' => ['nullable', 'required_if:type,s3'], // Not required for custom S3 connections
             'customS3Endpoint' => ['nullable', 'required_if:type,custom_s3'],
             'usePathStyleEndpoint' => ['boolean', 'required_if:type,s3,custom_s3'],
+        ], [
+            'label.required' => __('Please enter a label.'),
+            'type.required' => __('Please select a type.'),
+            'type.in' => __('Please select a valid type.'),
+            's3AccessKey.required_if' => __('Please enter a valid S3 access key.'),
+            's3SecretKey.required_if' => __('Please enter a valid S3 secret key.'),
+            's3BucketName.required_if' => __('Please enter a valid S3 bucket name.'),
+            'customS3Region.required_if' => __('Please enter a valid S3 region.'),
+            'customS3Endpoint.required_if' => __('Please enter a valid S3 endpoint URL.'),
         ]);
 
         $this->backupDestination->update([

@@ -38,7 +38,7 @@ abstract class AbstractBackupTask extends Backup
         try {
             $this->performBackup();
             $this->finalizeSuccessfulBackup();
-        } catch (DatabaseDumpException | SFTPConnectionException | RuntimeException $exception) {
+        } catch (DatabaseDumpException|SFTPConnectionException|RuntimeException $exception) {
             $this->handleBackupFailure($exception);
         } catch (Exception $exception) {
             $this->handleBackupFailure($exception);

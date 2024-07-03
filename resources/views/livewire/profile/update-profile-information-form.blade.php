@@ -12,6 +12,7 @@ new class extends Component {
     public string $email = '';
     public string $timezone = '';
     public ?int $preferred_backup_destination_id = null;
+    public string $language = 'en'; // Default language is english.
 
     public function mount(): void
     {
@@ -19,6 +20,7 @@ new class extends Component {
         $this->email = Auth::user()->email;
         $this->timezone = Auth::user()->timezone;
         $this->preferred_backup_destination_id = Auth::user()->preferred_backup_destination_id ?? null;
+        $this->language = Auth::user()->language;
     }
 
     public function updateProfileInformation(): void
@@ -30,7 +32,9 @@ new class extends Component {
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'timezone' => ['required', 'string', 'max:255', Rule::in(timezone_identifiers_list())],
             'preferred_backup_destination_id' => ['nullable', 'integer', Rule::exists('backup_destinations', 'id')->where('user_id', $user->id)],
-        ]);
+            'language' => ['required', 'string', 'min:2', 'max:3', 'lowercase', 'alpha', Rule::in(array_keys(config('app.available_languages'))),
+            ],
+        ], $this->messages());
 
         $user->fill($validated);
 
@@ -41,6 +45,18 @@ new class extends Component {
         $user->save();
 
         Toaster::success(__('Profile details saved.'));
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => __('Please enter a name.'),
+            'name.max' => __('Your name is too long. Please try a shorter name.'),
+            'email.required' => __('Please enter an email address.'),
+            'email.email' => __('Please enter an email address.'),
+            'timezone.required' => __('Please specify a timezone.'),
+            'language.required' => __('Please specify a language for your account.')
+        ];
     }
 
     public function sendVerification(): void
@@ -150,7 +166,8 @@ new class extends Component {
                           name="preferred_backup_destination_id" class="mt-1 block w-full">
                     <option value="">{{ __('None') }}</option>
                     @foreach (Auth::user()->backupDestinations as $backupDestination)
-                        <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }} - {{ $backupDestination->type() }}</option>
+                        <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }}
+                            - {{ $backupDestination->type() }}</option>
                     @endforeach
                 </x-select>
                 <x-input-explain>
@@ -159,6 +176,30 @@ new class extends Component {
                 <x-input-error class="mt-2" :messages="$errors->get('preferred_backup_destination_id')"/>
             </div>
         @endif
+
+            <div>
+                <x-input-label for="language" :value="__('Language')"/>
+                <x-select wire:model.live="language" id="language" name="language" class="mt-1 block w-full">
+                    @foreach (config('app.available_languages') as $code => $language)
+                        <option value="{{ $code }}">{{ $language }}</option>
+                    @endforeach
+                </x-select>
+                <x-input-explain>
+                    {{ __('Please select your preferred language from the dropdown list. This will change the language used throughout the application.') }}
+                </x-input-explain>
+                <x-input-error class="mt-2" :messages="$errors->get('language')"/>
+                @if ($language !== Auth::user()->language)
+                    <div
+                        x-data="{ show: false }"
+                        x-show="show"
+                        x-transition.opacity.duration.500ms
+                        x-init="$nextTick(() => show = true)"
+                        class="my-2 text-sm text-blue-600 dark:text-blue-400"
+                    >
+                        {{ __('Please refresh the page after saving to view your new language.') }}
+                    </div>
+                @endif
+            </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>

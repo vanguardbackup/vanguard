@@ -3,7 +3,7 @@
         <div class="container mx-auto px-4 py-16">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="col-span-1">
-                    <h2 class="text-4xl font-bold mb-8">Steps to Get Started</h2>
+                    <h2 class="text-4xl font-bold mb-8">{{ __('Steps to Get Started') }}</h2>
                     <hr class="border-2 border-white w-20 mb-12"/>
                 </div>
             </div>

@@ -11,10 +11,10 @@ use App\Services\Backup\Adapters\SFTPAdapter;
 use App\Services\Backup\BackupConstants;
 use App\Services\Backup\Destinations\S3;
 use App\Services\Backup\Tasks\FileBackupTask;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use RuntimeException;
-use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -138,7 +138,7 @@ test('backup fails when zipping throws an exception', function () {
     $this->fileBackupTask->shouldReceive('zipRemoteDirectory')->andThrow(new BackupTaskZipException('Failed to zip directory'));
     $this->fileBackupTask->shouldReceive('handleBackupFailure')->once();
 
-    expect(fn() => $this->fileBackupTask->handle())
+    expect(fn () => $this->fileBackupTask->handle())
         ->toThrow(RuntimeException::class, 'Unexpected error during backup: Failed to zip directory');
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -146,7 +146,6 @@ test('backup fails when zipping throws an exception', function () {
         'status' => BackupTask::STATUS_READY,
     ]);
 });
-
 
 test('backup fails when upload to destination fails', function () {
     $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
@@ -188,10 +187,10 @@ test('backup with rotation', function () {
 });
 
 test('handle unexpected exception', function () {
-    $this->fileBackupTask->shouldReceive('performBackup')->andThrow(new \Exception('Unexpected error'));
+    $this->fileBackupTask->shouldReceive('performBackup')->andThrow(new Exception('Unexpected error'));
     $this->fileBackupTask->shouldReceive('handleBackupFailure')->once();
 
-    expect(fn() => $this->fileBackupTask->handle())
+    expect(fn () => $this->fileBackupTask->handle())
         ->toThrow(RuntimeException::class, 'Unexpected error during backup: Unexpected error');
 
     $this->assertDatabaseHas('backup_tasks', [

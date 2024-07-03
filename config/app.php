@@ -39,4 +39,8 @@ return [
         'passphrase' => env('SSH_PASSPHRASE', ''),
     ],
 
+    'available_languages' => [
+        'en' => 'English',
+        'da' => 'Danish',
+    ],
 ];

@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -517,6 +518,24 @@ class BackupTask extends Model
     public function hasIsolatedCredentials(): bool
     {
         return $this->getAttribute('isolated_username') !== null && $this->getAttribute('isolated_password') !== null;
+    }
+
+    public function lastRunFormatted(?User $user = null): string
+    {
+        if (is_null($this->last_run_at)) {
+            return __('Never');
+        }
+
+        $user = $user ?? Auth::user() ?? new User(['language' => config('app.locale'), 'timezone' => config('app.timezone')]);
+
+        $locale = $user->language === 'dk' ? 'da' : $user->language;
+
+        Carbon::setLocale($locale);
+
+        return Carbon::parse($this->last_run_at)
+            ->timezone($user->timezone ?? config('app.timezone'))
+            ->locale($locale)
+            ->isoFormat('D MMMM YYYY HH:mm');
     }
 
     private function cronExpression(): CronExpression

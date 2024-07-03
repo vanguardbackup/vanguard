@@ -11,8 +11,8 @@ use App\Models\Tag;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Crypt;
 
 class DatabaseSeeder extends Seeder
 {
@@ -60,6 +60,7 @@ class DatabaseSeeder extends Seeder
                 'database_password' => random_int(1, 2) === 1 ? Crypt::encryptString('password') : null,
             ]);
         }
+
         return $servers;
     }
 
@@ -97,6 +98,7 @@ class DatabaseSeeder extends Seeder
                 'type' => random_int(1, 5) === 1 ? BackupTask::TYPE_DATABASE : BackupTask::TYPE_FILES,
             ]);
         }
+
         return $tasks;
     }
 
@@ -140,13 +142,13 @@ class DatabaseSeeder extends Seeder
             random_int(1, 255),
             random_int(0, 255),
             random_int(0, 255),
-            random_int(0, 255)
+            random_int(0, 255),
         ]);
     }
 
     private function generateRandomString(int $length): string
     {
-        return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+        return substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);
     }
 
     private function generateRandomPath(): string
@@ -157,12 +159,13 @@ class DatabaseSeeder extends Seeder
         for ($i = 0; $i < $depth; $i++) {
             $path .= Arr::random($dirs) . '/';
         }
+
         return rtrim($path, '/');
     }
 
     private function generateRandomTime(): string
     {
-        return sprintf("%02d:%02d", random_int(0, 23), random_int(0, 59));
+        return sprintf('%02d:%02d', random_int(0, 23), random_int(0, 59));
     }
 
     private function generateRandomCron(): string
@@ -172,7 +175,7 @@ class DatabaseSeeder extends Seeder
             random_int(0, 23), // hour
             '*', // day of month
             '*', // month
-            random_int(0, 6)  // day of week
+            random_int(0, 6),  // day of week
         ]);
     }
 

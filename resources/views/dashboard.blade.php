@@ -1,7 +1,7 @@
 @if (Auth::user()->backupTasks->isNotEmpty())
-    @section('title', 'Overview')
+    @section('title', __('Overview'))
 @else
-    @section('title', 'Steps to Get Started')
+    @section('title', __('Steps to Get Started'))
 @endif
 <x-app-layout>
     @if (Auth::user()->backupTasks->isNotEmpty())
@@ -65,13 +65,14 @@
     </div>
         <script>
             document.addEventListener('livewire:navigated', function () {
+                const label = '{!! __('Backup Tasks') !!}';
                 const ctx = document.getElementById('totalBackupsPerMonth').getContext('2d');
                 const totalBackupsPerMonth = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: {!! $months !!},
                         datasets: [{
-                            label: 'Total Backups',
+                            label: label,
                             data: {!! $counts !!},
                             borderColor: 'rgb(0,0,0)',
                             backgroundColor: 'rgba(0,0,0,0.24)',
@@ -90,6 +91,7 @@
         </script>
         <script>
             document.addEventListener('livewire:navigated', function () {
+                const type = '{!! __('Type') !!}';
                 const ctx = document.getElementById('backupTasksByType').getContext('2d');
                 const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(label => label.charAt(0).toUpperCase() + label.slice(1));
                 const backupTasksByType = new Chart(ctx, {
@@ -97,7 +99,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Type',
+                            label: type,
                             data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
                             backgroundColor: [
                                 'rgb(237,254,255)',

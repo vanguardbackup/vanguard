@@ -1,4 +1,4 @@
-@section('title', 'Update Remote Server')
+@section('title', __('Update Remote Server'))
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">

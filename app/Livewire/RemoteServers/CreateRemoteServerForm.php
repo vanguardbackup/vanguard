@@ -44,6 +44,7 @@ class CreateRemoteServerForm extends Component
             'port' => ['required', 'integer', 'min:1', 'max:65535'],
             'databasePassword' => ['string', 'nullable'],
         ], [
+            'host.required' => __('Please enter the IP address of your remote server.'),
             'host.unique' => __('This remote server has already been added.'),
             'host.ip' => __('The IP address must be a valid IP address.'),
             'label.required' => __('Please enter a label for this remote server.'),

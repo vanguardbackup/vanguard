@@ -18,7 +18,7 @@ class ClearLogButton extends Component
             $query->where('user_id', Auth::id());
         })->delete();
 
-        Toaster::success('All your backup task logs have been removed.');
+        Toaster::success(__('All your backup task logs have been removed.'));
 
         $this->dispatch('refreshBackupTaskHistory');
         $this->dispatch('close-modal', 'clear-all-backup-task-logs');

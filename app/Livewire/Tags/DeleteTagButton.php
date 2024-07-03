@@ -25,7 +25,7 @@ class DeleteTagButton extends Component
     {
         $this->authorize('forceDelete', $this->tag);
 
-        Toaster::success("The tag {$this->tag->label} has been removed.");
+        Toaster::success(__('The tag has been removed.'));
 
         $this->tag->forceDelete();
 

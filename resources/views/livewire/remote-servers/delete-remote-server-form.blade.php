@@ -19,7 +19,7 @@
             </p>
 
             <p class="text-gray-800 dark:text-gray-200 my-3">
-                {{ __('Vanguard will attempt to remove its SSH keys from your remote server, however please double check your `~/.ssh/authorized_keys` file afterwards.') }}
+                {{ __(':app will attempt to remove its SSH keys from your remote server, however please double check your `~/.ssh/authorized_keys` file afterwards.', ['app' => config('app.name')]) }}
             </p>
 
             <div class="flex space-x-5">

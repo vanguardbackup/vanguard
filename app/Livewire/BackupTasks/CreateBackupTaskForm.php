@@ -80,9 +80,13 @@ class CreateBackupTaskForm extends Component
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void {}
+    public function updatedUseCustomCron(): void
+    {
+    }
 
-    public function updatedUseIsolatedCredentials(): void {}
+    public function updatedUseIsolatedCredentials(): void
+    {
+    }
 
     public function updatedBackupType(): void
     {
@@ -146,7 +150,7 @@ class CreateBackupTaskForm extends Component
             'backupsToKeep.max' => __('You cannot store more than 50 backups.'),
             'label.required' => __('Please enter a label for the backup task.'),
             'description.max' => __('Your description must be less than 100 characters.'),
-            'sourcePath.required_unless' => __('Please enter the source path for the backup task.'),
+            'sourcePath.required' => __('Please enter the source path for the backup task.'),
             'remoteServerId.required' => __('Please choose a remote server.'),
             'backupDestinationId.required' => __('Please choose a backup destination.'),
             'frequency.required' => __('Please choose a frequency for the backup task.'),

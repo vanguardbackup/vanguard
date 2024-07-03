@@ -8,12 +8,15 @@
     <x-table.body-item class="col-span-2 block">
         @if ($remoteServer->isOnline())
             <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-green-600"></div>
+            {{ __('Online') }}
         @elseif ($remoteServer->isOffline())
             <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-red-700"></div>
+            {{ __('Offline') }}
         @else
             <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-purple-600"></div>
+            {{ __('Checking') }}
         @endif
-        {{ ucfirst($remoteServer->connectivity_status) }}
+
     </x-table.body-item>
     <x-table.body-item class="col-span-2">
         {{ $remoteServer->backupTasks->count() }}

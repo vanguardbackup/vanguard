@@ -32,7 +32,7 @@ class DeleteRemoteServerForm extends Component
 
         $this->remoteServer->removeServer();
 
-        Toaster::success('Remote server will be removed shortly.');
+        Toaster::success(__('Remote server will be removed shortly.'));
 
         return Redirect::route('remote-servers.index');
     }

@@ -31,7 +31,13 @@ test('delete page is displayed', function () {
 
 test('profile information can be updated', function () {
     Toaster::fake();
+
+    Config::set('app.available_languages', [
+        'en' => 'English',
+        'ar' => 'Arabic',
+    ]);
     $user = User::factory()->create();
+
     $backupDestination = BackupDestination::factory()->create([
         'user_id' => $user->id,
     ]);
@@ -43,6 +49,7 @@ test('profile information can be updated', function () {
         ->set('email', 'test@example.com')
         ->set('timezone', 'America/New_York')
         ->set('preferred_backup_destination_id', $backupDestination->id)
+        ->set('language', 'ar')
         ->call('updateProfileInformation');
 
     $component
@@ -55,6 +62,7 @@ test('profile information can be updated', function () {
     $this->assertSame('test@example.com', $user->email);
     $this->assertSame('America/New_York', $user->timezone);
     $this->assertSame($backupDestination->id, $user->preferred_backup_destination_id);
+    $this->assertSame('ar', $user->language);
     $this->assertNull($user->email_verified_at);
 
     Toaster::assertDispatched((__('Profile details saved.')));
@@ -190,4 +198,34 @@ test('the preferred backup destination must belong to the user', function () {
         ->assertNoRedirect();
 
     $this->assertNull($user->refresh()->preferred_backup_destination_id);
+});
+
+test('the language must exist', function () {
+
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $backupDestination = BackupDestination::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    Config::set('app.available_languages', [
+        'en' => 'English',
+        'ar' => 'Arabic',
+    ]);
+
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.update-profile-information-form')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('timezone', 'America/New_York')
+        ->set('preferred_backup_destination_id', $backupDestination->id)
+        ->set('language', 'invalid_language') // Set an invalid language code
+        ->call('updateProfileInformation');
+
+    $component
+        ->assertHasErrors(['language' => 'in'])
+        ->assertNoRedirect();
+
+    $this->assertEquals('en', $user->language);
 });

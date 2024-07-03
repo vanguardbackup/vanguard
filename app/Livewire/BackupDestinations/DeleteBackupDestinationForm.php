@@ -27,7 +27,7 @@ class DeleteBackupDestinationForm extends Component
 
         $this->backupDestination->forceDelete();
 
-        Toaster::success('Backup destination has been removed.');
+        Toaster::success(__('Backup destination has been removed.'));
 
         return Redirect::route('backup-destinations.index');
     }

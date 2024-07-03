@@ -27,7 +27,7 @@ class DeleteBackupTaskLogButton extends Component
 
         $this->backupTaskLog->forceDelete();
 
-        Toaster::success('Backup task log has been removed.');
+        Toaster::success(__('Backup task log has been removed.'));
 
         $this->dispatch('refreshBackupTaskHistory');
 

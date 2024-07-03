@@ -266,12 +266,11 @@ test('generate backup file name', function () {
     expect($fileNameWithAppend)->toMatch('/^custom_backup_\d+_\d{14}\.sql$/');
 });
 
-
 test('handle unexpected exception', function () {
     $this->databaseBackupTask->shouldReceive('performBackup')->andThrow(new \Exception('Unexpected error'));
     $this->databaseBackupTask->shouldReceive('handleBackupFailure')->once();
 
-    expect(fn() => $this->databaseBackupTask->handle())
+    expect(fn () => $this->databaseBackupTask->handle())
         ->toThrow(RuntimeException::class, 'Unexpected error during backup: Unexpected error');
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -279,4 +278,3 @@ test('handle unexpected exception', function () {
         'status' => BackupTask::STATUS_READY,
     ]);
 });
-

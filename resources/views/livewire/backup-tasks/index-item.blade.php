@@ -37,7 +37,11 @@
             @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-red-600 dark:text-red-400 inline mr-2')
             <span class="text-red-600 dark:text-red-400">{{ __('Paused') }}</span>
         @else
-            {{ ucfirst($backupTask->status) }}
+           @if ($backupTask->status === 'ready')
+               {{ __('Ready') }}
+            @else
+               {{ __('Running') }}
+           @endif
         @endif
     </x-table.body-item>
     <x-table.body-item class="col-span-2">
@@ -52,7 +56,11 @@
                     @if ($backupTask->usingCustomCronExpression())
                         ({{ $backupTask->custom_cron_expression }})
                     @else
-                        {{ ucfirst($backupTask->frequency) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                        @if ($backupTask->frequency === 'weekly')
+                            {{ __('Weekly') }}
+                        @elseif ($backupTask->frequency === 'daily')
+                            {{ __('Daily') }}
+                        @endif {{ __('at') }} {{ $backupTask->time_to_run_at }}
                     @endif
                 @endif
             </span>
@@ -61,9 +69,8 @@
             {{ __('Last ran') }}:
         </span>
         <span class="text-xs text-gray-600 dark:text-gray-50">
-            {{ $backupTask->last_run_at ? $backupTask->last_run_at->timezone(Auth::user()->timezone ?? config('app.timezone'))->format('d F Y H:i') : __('Never') }}
+            {{ $backupTask->lastRunFormatted(Auth::user()) }}
         </span>
-
     </x-table.body-item>
     <x-table.body-item class="col-span-3">
         <div class="flex justify-start space-x-2">

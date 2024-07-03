@@ -1,4 +1,4 @@
-@section('title', 'Update Backup Task')
+@section('title', __('Update Backup Task'))
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">

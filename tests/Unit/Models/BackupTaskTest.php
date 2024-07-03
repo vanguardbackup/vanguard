@@ -807,3 +807,49 @@ it('returns false if the isolated credentials are set', function () {
 
     $this->assertFalse($task->hasIsolatedCredentials());
 });
+
+beforeEach(function () {
+    Carbon::setTestNow(Carbon::create(2024, 6, 12, 18, 57));
+});
+
+it('formats last run correctly for Danish locale', function () {
+    $user = User::factory()->create(['language' => 'da', 'timezone' => 'UTC']);
+    $backupTask = BackupTask::factory()->create(['last_run_at' => now()]);
+
+    $result = $backupTask->lastRunFormatted($user);
+
+    expect($result)->toBe('12 juni 2024 18:57');
+});
+
+it('formats last run correctly for English locale', function () {
+    $user = User::factory()->create(['language' => 'en', 'timezone' => 'UTC']);
+    $backupTask = BackupTask::factory()->create(['last_run_at' => now()]);
+
+    $result = $backupTask->lastRunFormatted($user);
+
+    expect($result)->toBe('12 June 2024 18:57');
+});
+
+it('returns "Never" when last run is null', function () {
+    $user = User::factory()->create();
+    $backupTask = BackupTask::factory()->create(['last_run_at' => null]);
+
+    $result = $backupTask->lastRunFormatted($user);
+
+    expect($result)->toBe('Never');
+});
+
+it('formats last run correctly for authenticated user', function () {
+    $user = User::factory()->create(['language' => 'da', 'timezone' => 'Europe/Copenhagen']);
+    Auth::login($user);
+
+    $backupTask = BackupTask::factory()->create(['last_run_at' => now()]);
+
+    $result = $backupTask->lastRunFormatted();
+
+    expect($result)->toBe('12 juni 2024 20:57');
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
+});

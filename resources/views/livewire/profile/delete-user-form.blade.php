@@ -12,6 +12,9 @@ new class extends Component
     {
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
+        ], [
+            'password.required' => __('Please enter your password.'),
+            'password.current_password' => __('The password you have entered is incorrect. Please try again.')
         ]);
 
         tap(Auth::user(), $logout(...))->delete();

@@ -18,6 +18,11 @@ new class extends Component
             $validated = $this->validate([
                 'current_password' => ['required', 'string', 'current_password'],
                 'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+            ], [
+                'current_password.required' => __('Please enter your password.'),
+                'current_password.current_password' => __('The password you have entered is incorrect. Please try again.'),
+                'password.required' => __('Please enter your password.'),
+                'password.confirmed' => __('Please confirm your password.'),
             ]);
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
