@@ -24,8 +24,14 @@ Pull requests will be reviewed by the project maintainers, and we may request ch
 
 ## Coding Standards
 
-Please ensure you write tests for any new functionality you add to the project.
-
-Generally we don't like PHP Doc Blocks so please avoid using them unless necessary.
+Please ensure you write tests for any new functionality you add to the project. Additionally, use Laravel's translation helpers for any text so that the base language strings are in English and can be localized.
 
 We use Duster by Tighten to ensure a consistent code style across the project. You can run the code style fixer by running `./vendor/bin/duster fix` to resolve any issues. We do have a GitHub action that will automatically fix any code style issues on a pull requests and commits.
+
+## Adding Languages
+
+Vanguard defines its languages in `config/app.php` under the `available_languages` array. The array key must be an [ISO 639 language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes).
+
+To add a new language you simply need to define the language in the array mentioned above, and create the related .json file under the `/lang` path. We welcome all language contributions.
+
+For example, if you wanted to add Swedish, you would add `'sv' => 'Swedish'` to the config and create an `sv.json` file in the lang directory. Vanguard will automatically detect this new language and will let users choose it.

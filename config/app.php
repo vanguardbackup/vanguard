@@ -39,6 +39,8 @@ return [
         'passphrase' => env('SSH_PASSPHRASE', ''),
     ],
 
+    // You can use the below array to add additional languages.
+    // Make sure the key is a valid ISO language code - https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
     'available_languages' => [
         'en' => 'English',
         'da' => 'Danish',
