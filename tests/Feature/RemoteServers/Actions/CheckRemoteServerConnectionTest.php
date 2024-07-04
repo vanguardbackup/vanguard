@@ -6,7 +6,7 @@ use App\Actions\RemoteServer\CheckRemoteServerConnection;
 use App\Events\RemoteServerConnectivityStatusChanged;
 use App\Models\RemoteServer;
 
-it('dispatches events when the script runs if the model id is passed', closure: function () {
+it('dispatches events when the script runs if the model id is passed', closure: function (): void {
     Event::fake();
 
     $remoteServer = RemoteServer::factory()->create([
@@ -16,7 +16,7 @@ it('dispatches events when the script runs if the model id is passed', closure: 
     $check = new CheckRemoteServerConnection;
     $check->byRemoteServerId($remoteServer->id);
 
-    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($e) use ($remoteServer) {
+    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($e) use ($remoteServer): bool {
         return $e->remoteServer->id === $remoteServer->id;
     });
 });

@@ -78,7 +78,7 @@ class CheckVersion extends Command
             }
 
             return null;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }

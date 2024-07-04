@@ -8,13 +8,13 @@ use App\Livewire\RemoteServers\DeleteRemoteServerForm;
 use App\Models\RemoteServer;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     Livewire::test(DeleteRemoteServerForm::class, ['remoteServer' => RemoteServer::factory()->create()])
         ->assertStatus(200);
 });
 
-test('a remote server can be deleted by its creator', function () {
+test('a remote server can be deleted by its creator', function (): void {
     Queue::fake();
 
     $user = User::factory()->create();
@@ -34,7 +34,7 @@ test('a remote server can be deleted by its creator', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('a remote server cannot be deleted by another user', function () {
+test('a remote server cannot be deleted by another user', function (): void {
     Queue::fake();
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create();

@@ -82,7 +82,7 @@ class User extends Authenticatable
 
     public function backupTaskLogCount(): int
     {
-        return BackupTaskLog::whereHas('backupTask', function ($query) {
+        return BackupTaskLog::whereHas('backupTask', function ($query): void {
             $query->where('user_id', $this->id);
             $query->whereNotNull('finished_at');
         })->count();
@@ -90,7 +90,7 @@ class User extends Authenticatable
 
     public function backupTasklogCountToday(): int
     {
-        return BackupTaskLog::whereHas('backupTask', function ($query) {
+        return BackupTaskLog::whereHas('backupTask', function ($query): void {
             $query->where('user_id', $this->id);
         })->whereDate('created_at', today()->timezone($this->timezone ?? 'UTC'))->count();
     }
@@ -114,7 +114,7 @@ class User extends Authenticatable
     protected function firstName(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->getFirstName(),
+            get: fn (): string => $this->getFirstName(),
         );
     }
 
@@ -124,7 +124,7 @@ class User extends Authenticatable
     protected function lastName(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->getLastName(),
+            get: fn (): string => $this->getLastName(),
         );
     }
 

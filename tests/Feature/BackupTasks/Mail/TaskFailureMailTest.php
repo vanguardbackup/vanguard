@@ -6,7 +6,7 @@ use App\Mail\BackupTaskFailed;
 use App\Models\BackupTask;
 use App\Models\User;
 
-test('the contents are correct', function () {
+test('the contents are correct', function (): void {
     $user = User::factory()->create();
     $taskLabel = BackupTask::factory()->create()->label;
     $errorMessage = 'error-message';

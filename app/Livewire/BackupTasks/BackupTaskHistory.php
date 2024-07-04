@@ -20,7 +20,7 @@ class BackupTaskHistory extends Component
     {
         $backupTaskLogs = BackupTaskLog::finished()
             ->with(['backupTask', 'backupTask.backupDestination', 'backupTask.RemoteServer'])
-            ->whereHas('backupTask', function ($query) {
+            ->whereHas('backupTask', function ($query): void {
                 $query->where('user_id', Auth::id());
             })
             ->orderBy('created_at', 'desc')

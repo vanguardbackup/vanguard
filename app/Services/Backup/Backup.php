@@ -272,13 +272,13 @@ abstract class Backup
             throw new BackupTaskZipException('Not enough disk space to create the zip file.');
         }
 
-        $excludeArgs = array_map(fn ($dir) => '--exclude=' . escapeshellarg($sourcePath . '/' . $dir), $excludeDirs);
+        $excludeArgs = array_map(fn ($dir): string => '--exclude=' . escapeshellarg($sourcePath . '/' . $dir), $excludeDirs);
         $excludeArgsString = implode(' ', $excludeArgs);
 
         $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
         $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
 
-        $result = $this->retryCommand(function () use ($sftp, $zipCommand) {
+        $result = $this->retryCommand(function () use ($sftp, $zipCommand): bool|string {
             return $sftp->exec($zipCommand);
         }, BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
 

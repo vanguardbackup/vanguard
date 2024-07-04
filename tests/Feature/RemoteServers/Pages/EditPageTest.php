@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\RemoteServer;
 use App\Models\User;
 
-test('the page can be rendered by by the owner of the remote server', function () {
+test('the page can be rendered by by the owner of the remote server', function (): void {
 
     $user = User::factory()->create();
 
@@ -24,7 +24,7 @@ test('the page can be rendered by by the owner of the remote server', function (
     $this->assertFalse($remoteServer->isMarkedForDeletion());
 });
 
-test('the page cannot be rendered if the remote server has been marked for deletion', function () {
+test('the page cannot be rendered if the remote server has been marked for deletion', function (): void {
 
     $user = User::factory()->create();
 
@@ -43,7 +43,7 @@ test('the page cannot be rendered if the remote server has been marked for delet
     $this->assertTrue($remoteServer->isMarkedForDeletion());
 });
 
-test('the page is not rendered by unauthorized users', function () {
+test('the page is not rendered by unauthorized users', function (): void {
 
     $user = User::factory()->create();
 
@@ -58,7 +58,7 @@ test('the page is not rendered by unauthorized users', function () {
     $this->assertNotEquals($user->id, $remoteServer->user_id);
 });
 
-test('the page is not rendered by guests', function () {
+test('the page is not rendered by guests', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
 

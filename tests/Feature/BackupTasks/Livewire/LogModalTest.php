@@ -7,7 +7,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use Livewire\Livewire;
 
-test('the listener responds to the event correctly', function () {
+test('the listener responds to the event correctly', function (): void {
     $task = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
     ]);
@@ -27,7 +27,7 @@ test('the listener responds to the event correctly', function () {
     $this->assertEquals($component->get('logOutput'), $logOutput);
 });
 
-it('refreshes itself when the method is called', function () {
+it('refreshes itself when the method is called', function (): void {
     $task = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_READY,
     ]);
@@ -44,7 +44,7 @@ it('refreshes itself when the method is called', function () {
     $this->assertEquals('Some log output', $task->refresh()->getAttribute('logs')->first()->output);
 });
 
-it('renders the component correctly when live log output has been given', function () {
+it('renders the component correctly when live log output has been given', function (): void {
     $task = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
     ]);
@@ -60,7 +60,7 @@ it('renders the component correctly when live log output has been given', functi
     $component->assertSee('Some log output');
 });
 
-it('renders the spinner when the task is running before log output is given', function () {
+it('renders the spinner when the task is running before log output is given', function (): void {
 
     $task = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
@@ -79,7 +79,7 @@ it('renders the spinner when the task is running before log output is given', fu
     $component->assertDontSee('Some log output');
 });
 
-it('renders the component correctly when viewing past log history', function () {
+it('renders the component correctly when viewing past log history', function (): void {
 
     $task = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_READY,
@@ -97,7 +97,7 @@ it('renders the component correctly when viewing past log history', function () 
     $component->assertSee('Some log output');
 });
 
-it('correctly outputs the latest log', function () {
+it('correctly outputs the latest log', function (): void {
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
     ]);
@@ -127,7 +127,7 @@ it('correctly outputs the latest log', function () {
     $component->assertDispatched('log-modal-updated-' . $backupTask->id);
 });
 
-it('handles log data to the logOutput variable if the task is running', function () {
+it('handles log data to the logOutput variable if the task is running', function (): void {
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
     ]);

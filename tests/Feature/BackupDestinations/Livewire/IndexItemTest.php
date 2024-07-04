@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Livewire\BackupDestinations\IndexItem;
 use App\Models\BackupDestination;
 
-it('can be rendered', function () {
+it('can be rendered', function (): void {
 
     $backupDestination = BackupDestination::factory()->create();
 
@@ -14,7 +14,7 @@ it('can be rendered', function () {
     $component->assertOk();
 });
 
-it('can receive the BackupDestinationConnectionCheck event', function () {
+it('can receive the BackupDestinationConnectionCheck event', function (): void {
     Toaster::fake();
 
     $backupDestination = BackupDestination::factory()->reachable()->create();
@@ -27,7 +27,7 @@ it('can receive the BackupDestinationConnectionCheck event', function () {
     $component->assertDispatched('$refresh');
 });
 
-it('can receive the BackupDestinationConnectionCheck event when the connection is not reachable', function () {
+it('can receive the BackupDestinationConnectionCheck event when the connection is not reachable', function (): void {
     Toaster::fake();
 
     $backupDestination = BackupDestination::factory()->unreachable()->create();
@@ -40,7 +40,7 @@ it('can receive the BackupDestinationConnectionCheck event when the connection i
     $component->assertDispatched('$refresh');
 });
 
-it('can update the Livewire components', function () {
+it('can update the Livewire components', function (): void {
     $backupDestination = BackupDestination::factory()->create();
 
     $component = Livewire::test(IndexItem::class, ['backupDestination' => $backupDestination]);

@@ -7,7 +7,7 @@ use App\Models\BackupDestination;
 use Aws\S3\S3Client;
 use Illuminate\Support\Facades\Log;
 
-it('returns false and logs a message if the backup destination is not an S3 connection', function () {
+it('returns false and logs a message if the backup destination is not an S3 connection', function (): void {
     Event::fake();
     $backupDestination = Mockery::mock(BackupDestination::class);
     $backupDestination->shouldReceive('isS3Connection')->andReturn(false);
@@ -20,7 +20,7 @@ it('returns false and logs a message if the backup destination is not an S3 conn
     expect($result)->toBeFalse();
 });
 
-it('returns true if the S3 connection is successful', function () {
+it('returns true if the S3 connection is successful', function (): void {
     Event::fake();
     $backupDestination = Mockery::mock(BackupDestination::class);
     $backupDestination->shouldReceive('isS3Connection')->once()->andReturnTrue();
@@ -36,7 +36,7 @@ it('returns true if the S3 connection is successful', function () {
     expect($result)->toBeTrue();
 });
 
-it('returns false and logs an error if listing S3 buckets fails', function () {
+it('returns false and logs an error if listing S3 buckets fails', function (): void {
     Event::fake();
     $backupDestination = Mockery::mock(BackupDestination::class);
     $backupDestination->shouldReceive('isS3Connection')->andReturn(true);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-test('guests cannot access Laravel Pulse', function () {
+test('guests cannot access Laravel Pulse', function (): void {
 
     $response = $this->get('/pulse');
 
@@ -13,7 +13,7 @@ test('guests cannot access Laravel Pulse', function () {
     $this->assertGuest();
 });
 
-test('users cannot access Laravel Pulse', function () {
+test('users cannot access Laravel Pulse', function (): void {
 
     $user = User::factory()->create();
 
@@ -24,7 +24,7 @@ test('users cannot access Laravel Pulse', function () {
     $this->assertAuthenticated();
 });
 
-test('admins can access Laravel Pulse', function () {
+test('admins can access Laravel Pulse', function (): void {
 
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
 
@@ -39,7 +39,7 @@ test('admins can access Laravel Pulse', function () {
     $this->assertTrue($user->isAdmin());
 });
 
-test('guests cannot access Laravel Horizon', function () {
+test('guests cannot access Laravel Horizon', function (): void {
 
     $response = $this->get('/horizon');
 
@@ -48,7 +48,7 @@ test('guests cannot access Laravel Horizon', function () {
     $this->assertGuest();
 });
 
-test('users cannot access Laravel Horizon', function () {
+test('users cannot access Laravel Horizon', function (): void {
 
     $user = User::factory()->create();
 
@@ -59,7 +59,7 @@ test('users cannot access Laravel Horizon', function () {
     $this->assertAuthenticated();
 });
 
-test('admins can access Laravel Horizon', function () {
+test('admins can access Laravel Horizon', function (): void {
 
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
 

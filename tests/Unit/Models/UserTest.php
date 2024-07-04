@@ -6,7 +6,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
 
-it('can generate a gravatar default image', function () {
+it('can generate a gravatar default image', function (): void {
     $user = User::factory()->create([
         'email' => 'john.doe@email.com',
     ]);
@@ -14,7 +14,7 @@ it('can generate a gravatar default image', function () {
     expect($user->gravatar())->toBe('https://www.gravatar.com/avatar/8f6e96274c2abf617a3987e74e9e757e');
 });
 
-it('returns the first name', function () {
+it('returns the first name', function (): void {
 
     $user = User::factory()->create([
         'name' => 'John Doe',
@@ -24,7 +24,7 @@ it('returns the first name', function () {
         ->and($user->first_name)->toBe('John');
 });
 
-it('returns the last name', function () {
+it('returns the last name', function (): void {
 
     $user = User::factory()->create([
         'name' => 'John Doe',
@@ -34,7 +34,7 @@ it('returns the last name', function () {
         ->and($user->last_name)->toBe('Doe');
 });
 
-test('returns true if the user has admin rights', function () {
+test('returns true if the user has admin rights', function (): void {
 
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
 
@@ -44,7 +44,7 @@ test('returns true if the user has admin rights', function () {
     $this->assertTrue($user->isAdmin());
 });
 
-test('returns false if the user does not have admin rights', function () {
+test('returns false if the user does not have admin rights', function (): void {
 
     $user = User::factory()->create();
 
@@ -52,7 +52,7 @@ test('returns false if the user does not have admin rights', function () {
     $this->assertNotContains($user->email, config('auth.admin_email_addresses'));
 });
 
-test('returns the count of backup task logs that are associated with the user', function () {
+test('returns the count of backup task logs that are associated with the user', function (): void {
 
     $user = User::factory()->create();
 
@@ -64,7 +64,7 @@ test('returns the count of backup task logs that are associated with the user', 
     $this->assertNotEquals(2, $user->backupTaskLogCount());
 });
 
-test('returns the count of backup task logs that are associated with the user today', function () {
+test('returns the count of backup task logs that are associated with the user today', function (): void {
 
     $user = User::factory()->create();
 
@@ -74,7 +74,7 @@ test('returns the count of backup task logs that are associated with the user to
     $this->assertEquals(1, $user->backupTasklogCountToday());
 });
 
-test('does not return the count of backup task logs that are associated with the user yesterday', function () {
+test('does not return the count of backup task logs that are associated with the user yesterday', function (): void {
 
     $user = User::factory()->create();
 
@@ -84,14 +84,14 @@ test('does not return the count of backup task logs that are associated with the
     $this->assertEquals(0, $user->backupTaskLogCountToday());
 });
 
-test('returns true if can login with github', function () {
+test('returns true if can login with github', function (): void {
 
     $user = User::factory()->create(['github_id' => 1]);
 
     $this->assertTrue($user->canLoginWithGithub());
 });
 
-test('returns false if can not login with github', function () {
+test('returns false if can not login with github', function (): void {
 
     $user = User::factory()->create();
 

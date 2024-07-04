@@ -6,7 +6,7 @@ use App\Console\Commands\VerifyConnectionToRemoteServersCommand;
 use App\Jobs\CheckRemoteServerConnectionJob;
 use App\Models\RemoteServer;
 
-it('dispatches batch job to check remote server connection', function () {
+it('dispatches batch job to check remote server connection', function (): void {
     Bus::fake();
 
     $remoteServerOne = RemoteServer::factory()->create();
@@ -17,21 +17,21 @@ it('dispatches batch job to check remote server connection', function () {
         ->expectsOutputToContain('Batch job dispatched to check remote server connection')
         ->assertExitCode(0);
 
-    Bus::assertBatched(function ($batch) use ($remoteServerOne, $remoteServerTwo, $remoteServerThree) {
-        return $batch->jobs->contains(function ($job) use ($remoteServerOne) {
+    Bus::assertBatched(function ($batch) use ($remoteServerOne, $remoteServerTwo, $remoteServerThree): bool {
+        return $batch->jobs->contains(function ($job) use ($remoteServerOne): bool {
             return $job instanceof CheckRemoteServerConnectionJob
                 && $job->remoteServerId === $remoteServerOne->id;
-        }) && $batch->jobs->contains(function ($job) use ($remoteServerTwo) {
+        }) && $batch->jobs->contains(function ($job) use ($remoteServerTwo): bool {
             return $job instanceof CheckRemoteServerConnectionJob
                 && $job->remoteServerId === $remoteServerTwo->id;
-        }) && $batch->jobs->contains(function ($job) use ($remoteServerThree) {
+        }) && $batch->jobs->contains(function ($job) use ($remoteServerThree): bool {
             return $job instanceof CheckRemoteServerConnectionJob
                 && $job->remoteServerId === $remoteServerThree->id;
         });
     });
 });
 
-it('exits if no remote servers found', function () {
+it('exits if no remote servers found', function (): void {
     Bus::fake();
     $this->artisan(VerifyConnectionToRemoteServersCommand::class)
         ->expectsOutputToContain('No remote servers found. Exiting...')

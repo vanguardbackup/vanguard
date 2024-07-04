@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-test('the page is rendered by users', function () {
+test('the page is rendered by users', function (): void {
 
     $user = User::factory()->create();
 
@@ -15,7 +15,7 @@ test('the page is rendered by users', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('the page is not rendered by guests', function () {
+test('the page is not rendered by guests', function (): void {
 
     $response = $this->get(route('remote-servers.index'));
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Livewire\RemoteServers\CheckConnectionButton;
 use App\Models\RemoteServer;
 
-it('can be rendered', function () {
+it('can be rendered', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
     $component = Livewire::test(CheckConnectionButton::class, ['remoteServer' => $remoteServer]);
@@ -13,7 +13,7 @@ it('can be rendered', function () {
     $component->assertOk();
 });
 
-it('can check connection', function () {
+it('can check connection', function (): void {
     Event::fake();
     Toaster::fake();
 
@@ -27,7 +27,7 @@ it('can check connection', function () {
     Toaster::assertDispatched(__('Performing a connectivity check.'));
 });
 
-it('can refresh self', function () {
+it('can refresh self', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
     $component = Livewire::test(CheckConnectionButton::class, ['remoteServer' => $remoteServer]);

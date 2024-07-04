@@ -6,13 +6,13 @@ use App\Livewire\RemoteServers\CreateRemoteServerForm;
 use App\Models\RemoteServer;
 use App\Models\User;
 
-test('create remote server form is rendered', function () {
+test('create remote server form is rendered', function (): void {
 
     Livewire::test(CreateRemoteServerForm::class)
         ->assertStatus(200);
 });
 
-test('a user can create a remote server that we cannot connect to', function () {
+test('a user can create a remote server that we cannot connect to', function (): void {
 
     $component = Livewire::test(CreateRemoteServerForm::class)
         ->set('label', 'Test Server')
@@ -32,7 +32,7 @@ test('a user can create a remote server that we cannot connect to', function () 
     ]);
 });
 
-test('a user can create a remote server that we can connect to', function () {
+test('a user can create a remote server that we can connect to', function (): void {
 
     $user = User::factory()->create();
 
@@ -66,14 +66,14 @@ test('a user can create a remote server that we can connect to', function () {
     $this->assertEquals('password', $remoteServer->getDecryptedDatabasePassword());
 });
 
-test('required fields are required', function () {
+test('required fields are required', function (): void {
 
     Livewire::test(CreateRemoteServerForm::class)
         ->call('submit')
         ->assertHasErrors(['label', 'host', 'username']);
 });
 
-test('the ip address must be an ip address', function () {
+test('the ip address must be an ip address', function (): void {
 
     Livewire::test(CreateRemoteServerForm::class)
         ->set('host', 'not an ip address')
@@ -81,7 +81,7 @@ test('the ip address must be an ip address', function () {
         ->assertHasErrors(['host']);
 });
 
-test('ip addresses must be unique', function () {
+test('ip addresses must be unique', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
 
@@ -91,7 +91,7 @@ test('ip addresses must be unique', function () {
         ->assertHasErrors(['host']);
 });
 
-test('port must be in valid range', function () {
+test('port must be in valid range', function (): void {
 
     Livewire::test(CreateRemoteServerForm::class)
         ->set('port', 0)

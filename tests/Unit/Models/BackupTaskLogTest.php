@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\BackupTaskLog;
 
-it('scopes finished task logs', function () {
+it('scopes finished task logs', function (): void {
 
     BackupTaskLog::factory()->create([
         'finished_at' => null,
@@ -20,7 +20,7 @@ it('scopes finished task logs', function () {
         ->and($finishedBackupTaskLogs->first()->id)->toBe($finishedBackupTaskLog->id);
 });
 
-it('sets finished time', function () {
+it('sets finished time', function (): void {
 
     $backupTaskLog = BackupTaskLog::factory()->create([
         'finished_at' => null,
@@ -31,7 +31,7 @@ it('sets finished time', function () {
     expect($backupTaskLog->finished_at)->not->toBeNull();
 });
 
-it('sets successful time', function () {
+it('sets successful time', function (): void {
 
     $backupTaskLog = BackupTaskLog::factory()->create([
         'successful_at' => null,

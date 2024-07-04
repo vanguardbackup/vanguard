@@ -36,11 +36,6 @@ class BackupTask extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'last_run_at' => 'datetime',
-        'last_scheduled_weekly_run_at' => 'datetime',
-    ];
-
     /**
      * Get the count of tasks per month for the last six months for a given user.
      *
@@ -66,7 +61,7 @@ class BackupTask extends Model
             ->orderBy('month_date')
             ->get();
 
-        return $results->mapWithKeys(function ($item) use ($locale) {
+        return $results->mapWithKeys(function ($item) use ($locale): array {
             $carbonDate = Carbon::parse($item->getAttribute('month_date'))->locale($locale);
             $localizedMonth = ucfirst($carbonDate->isoFormat('MMM YYYY'));
 
@@ -88,7 +83,7 @@ class BackupTask extends Model
             ->groupBy('type')
             ->get();
 
-        return $results->mapWithKeys(function ($item) {
+        return $results->mapWithKeys(function ($item): array {
             $localizedType = __($item->getAttribute('type'));
 
             return [$localizedType => $item->getAttribute('count')];
@@ -115,7 +110,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<User, BackupTask>
+     * @return BelongsTo<User, \App\Models\BackupTask>
      */
     public function user(): BelongsTo
     {
@@ -123,7 +118,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<BackupDestination, BackupTask>
+     * @return BelongsTo<BackupDestination, \App\Models\BackupTask>
      */
     public function backupDestination(): BelongsTo
     {
@@ -131,7 +126,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<RemoteServer, BackupTask>
+     * @return BelongsTo<RemoteServer, \App\Models\BackupTask>
      */
     public function remoteServer(): BelongsTo
     {
@@ -194,11 +189,11 @@ class BackupTask extends Model
         }
 
         if ($this->isWeekly()) {
-            if ($this->time_to_run_at === now()->format('H:i') && $this->last_scheduled_weekly_run_at === null) {
+            if ($this->time_to_run_at === now()->format('H:i') && $this->getAttribute('last_scheduled_weekly_run_at') === null) {
                 return true;
             }
 
-            if ($this->time_to_run_at === now()->format('H:i') && $this->last_scheduled_weekly_run_at?->isLastWeek()) {
+            if ($this->time_to_run_at === now()->format('H:i') && $this->getAttribute('last_scheduled_weekly_run_at')?->isLastWeek()) {
                 return true;
             }
         }
@@ -549,6 +544,17 @@ class BackupTask extends Model
             ->timezone($user->timezone ?? config('app.timezone'))
             ->locale($locale)
             ->isoFormat('D MMMM YYYY HH:mm');
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function casts(): array
+    {
+        return [
+            'last_run_at' => 'datetime',
+            'last_scheduled_weekly_run_at' => 'datetime',
+        ];
     }
 
     private function cronExpression(): CronExpression

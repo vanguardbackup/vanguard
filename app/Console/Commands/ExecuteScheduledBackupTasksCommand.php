@@ -19,7 +19,7 @@ class ExecuteScheduledBackupTasksCommand extends Command
 
         $tasks = BackupTask::ready()->get();
 
-        $tasks->each(function ($task) {
+        $tasks->each(function ($task): void {
 
             if (! $task->eligibleToRunNow()) {
                 $this->components->info("Task {$task->label} is not eligible to run now.");

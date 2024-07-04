@@ -7,7 +7,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     $user = User::factory()->create();
 
@@ -17,7 +17,7 @@ test('the component can be rendered', function () {
     $component->assertOk();
 });
 
-test('the log can be cleared', function () {
+test('the log can be cleared', function (): void {
 
     $user = User::factory()->create();
 

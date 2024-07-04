@@ -6,7 +6,7 @@ use App\Livewire\BackupTasks\IndexItem;
 use App\Models\BackupTask;
 use Livewire\Livewire;
 
-it('dispatches refresh and update events on task status update', function () {
+it('dispatches refresh and update events on task status update', function (): void {
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
     ]);
@@ -19,7 +19,7 @@ it('dispatches refresh and update events on task status update', function () {
     $component->assertDispatched('update-run-button-' . $backupTask->id);
 });
 
-it('updates log information on log creation event', function () {
+it('updates log information on log creation event', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     $oldLog = $backupTask->logs()->create([
@@ -49,7 +49,7 @@ it('updates log information on log creation event', function () {
         ->and($component->backupTaskLog->id)->toBe($log->id);
 });
 
-it('dispatches item updated event on log creation', function () {
+it('dispatches item updated event on log creation', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     $component = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\BackupTask;
 use App\Models\User;
 
-test('the page can be rendered by by the owner of the remote server', function () {
+test('the page can be rendered by by the owner of the remote server', function (): void {
 
     $user = User::factory()->create();
 
@@ -23,7 +23,7 @@ test('the page can be rendered by by the owner of the remote server', function (
     $this->assertEquals($user->id, $backupTask->user_id);
 });
 
-test('the page is not rendered by unauthorized users', function () {
+test('the page is not rendered by unauthorized users', function (): void {
 
     $user = User::factory()->create();
 
@@ -38,7 +38,7 @@ test('the page is not rendered by unauthorized users', function () {
     $this->assertNotEquals($user->id, $backupTask->user_id);
 });
 
-test('the page is not rendered by guests', function () {
+test('the page is not rendered by guests', function (): void {
 
     $backupTask = BackupTask::factory()->create();
 

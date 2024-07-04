@@ -13,18 +13,18 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->server = RemoteServer::factory()->create();
     $this->destination = BackupDestination::factory()->create();
     $this->actingAs($this->user);
 });
 
-test('form is rendered', function () {
+test('form is rendered', function (): void {
     Livewire::test(CreateBackupTaskForm::class)->assertStatus(200);
 });
 
-test('users can create backup tasks', function () {
+test('users can create backup tasks', function (): void {
     $tags = Tag::factory()->count(2)->sequence(
         ['label' => 'Tag 1', 'user_id' => $this->user->id],
         ['label' => 'Tag 2', 'user_id' => $this->user->id]
@@ -67,7 +67,7 @@ test('users can create backup tasks', function () {
 
     $backupTask = BackupTask::latest()->first();
 
-    $tags->each(function ($tag) use ($backupTask) {
+    $tags->each(function ($tag) use ($backupTask): void {
         $this->assertDatabaseHas('taggables', [
             'tag_id' => $tag->getAttribute('id'),
             'taggable_id' => $backupTask->id,
@@ -76,7 +76,7 @@ test('users can create backup tasks', function () {
     });
 });
 
-test('users can create backup tasks with a custom cron expression', function () {
+test('users can create backup tasks with a custom cron expression', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('description', 'This is a test backup task.')
@@ -100,14 +100,14 @@ test('users can create backup tasks with a custom cron expression', function () 
     ]);
 });
 
-test('validation is required', function () {
+test('validation is required', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('remoteServerId', $this->server->id)
         ->call('submit')
         ->assertHasErrors(['label' => 'required', 'backupDestinationId' => 'required']);
 });
 
-test('validation is required unless custom cron expression is set', function () {
+test('validation is required unless custom cron expression is set', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('cronExpression', '0 0 * * *')
         ->set('remoteServerId', $this->server->id)
@@ -115,7 +115,7 @@ test('validation is required unless custom cron expression is set', function () 
         ->assertHasErrors(['label' => 'required', 'backupDestinationId' => 'required']);
 });
 
-test('validation is required unless frequency is set', function () {
+test('validation is required unless frequency is set', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('frequency', 'daily')
         ->set('remoteServerId', $this->server->id)
@@ -123,7 +123,7 @@ test('validation is required unless frequency is set', function () {
         ->assertHasErrors(['label' => 'required', 'backupDestinationId' => 'required']);
 });
 
-test('validation is required unless time to run is set', function () {
+test('validation is required unless time to run is set', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('timeToRun', '00:00')
         ->set('remoteServerId', $this->server->id)
@@ -131,7 +131,7 @@ test('validation is required unless time to run is set', function () {
         ->assertHasErrors(['label' => 'required', 'backupDestinationId' => 'required']);
 });
 
-test('the appended file name cannot contain spaces', function () {
+test('the appended file name cannot contain spaces', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('remoteServerId', $this->server->id)
         ->set('appendedFileName', 'test backup')
@@ -139,7 +139,7 @@ test('the appended file name cannot contain spaces', function () {
         ->assertHasErrors(['appendedFileName' => 'alpha_dash']);
 });
 
-test('the discord webhook url must be a valid discord url', function () {
+test('the discord webhook url must be a valid discord url', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('sourcePath', '/var/www/html')
@@ -150,7 +150,7 @@ test('the discord webhook url must be a valid discord url', function () {
         ->assertHasErrors('notifyDiscordWebhook');
 });
 
-test('the slack webhook url must be a valid slack url', function () {
+test('the slack webhook url must be a valid slack url', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('sourcePath', '/var/www/html')
@@ -161,7 +161,7 @@ test('the slack webhook url must be a valid slack url', function () {
         ->assertHasErrors('notifySlackWebhook');
 });
 
-test('the time to run at is converted to the user\'s timezone', function () {
+test('the time to run at is converted to the user\'s timezone', function (): void {
     $this->user->update(['timezone' => 'America/New_York']);
 
     Livewire::test(CreateBackupTaskForm::class)
@@ -178,7 +178,7 @@ test('the time to run at is converted to the user\'s timezone', function () {
     ]);
 });
 
-test('the store path needs to be a valid unix path', function () {
+test('the store path needs to be a valid unix path', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('sourcePath', '/var/www/html')
@@ -189,7 +189,7 @@ test('the store path needs to be a valid unix path', function () {
         ->assertHasErrors('storePath');
 });
 
-test('excluded database tables must be a comma separated list', function () {
+test('excluded database tables must be a comma separated list', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('sourcePath', '/var/www/html')
@@ -200,7 +200,7 @@ test('excluded database tables must be a comma separated list', function () {
         ->assertHasErrors('excludedDatabaseTables');
 });
 
-test('we get a validation error if another task occupies the same time with the same server', function () {
+test('we get a validation error if another task occupies the same time with the same server', function (): void {
     $this->user->backupTasks()->create([
         'label' => 'Test Backup Task',
         'remote_server_id' => $this->server->id,
@@ -219,7 +219,7 @@ test('we get a validation error if another task occupies the same time with the 
         ->assertHasErrors('timeToRun');
 });
 
-test('users cannot add a tag that does not belong to them', function () {
+test('users cannot add a tag that does not belong to them', function (): void {
     $tag = Tag::factory()->create();
 
     Livewire::test(CreateBackupTaskForm::class)
@@ -232,7 +232,7 @@ test('users cannot add a tag that does not belong to them', function () {
         ->assertHasErrors('selectedTags');
 });
 
-test('users cannot add a tag that does not exist', function () {
+test('users cannot add a tag that does not exist', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('sourcePath', '/var/www/html')

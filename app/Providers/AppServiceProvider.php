@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             return str_replace("\n", '', File::get($versionFile));
         });
 
-        $this->app->singleton(GreetingService::class, function ($app) {
+        $this->app->singleton(GreetingService::class, function ($app): GreetingService {
             return new GreetingService;
         });
 
@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Gate::define('viewPulse', function (User $user) {
+        Gate::define('viewPulse', function (User $user): bool {
             return $user->isAdmin();
         });
     }

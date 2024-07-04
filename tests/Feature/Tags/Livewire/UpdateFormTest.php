@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\Tag;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     $tag = Tag::factory()->create();
 
@@ -14,7 +14,7 @@ test('the component can be rendered', function () {
     $livewire->assertOk();
 });
 
-test('A user can update their own tag', function () {
+test('A user can update their own tag', function (): void {
 
     $user = User::factory()->create();
 
@@ -35,7 +35,7 @@ test('A user can update their own tag', function () {
     $livewire->assertRedirect(route('tags.index'));
 });
 
-test('Another user cannot update a users tag', function () {
+test('Another user cannot update a users tag', function (): void {
 
     $userOne = User::factory()->create();
     $userTwo = User::factory()->create();
@@ -56,7 +56,7 @@ test('Another user cannot update a users tag', function () {
     ]);
 });
 
-test('a label is required', function () {
+test('a label is required', function (): void {
 
     $user = User::factory()->create();
 

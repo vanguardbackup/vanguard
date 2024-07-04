@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Console\Commands\CheckVersion;
 use Illuminate\Support\Facades\File;
 
-it('it returns unknown if it cannot find the version file', function () {
+it('it returns unknown if it cannot find the version file', function (): void {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(false);
 
     $this->artisan(CheckVersion::class)
@@ -13,7 +13,7 @@ it('it returns unknown if it cannot find the version file', function () {
         ->assertExitCode(0);
 });
 
-it('returns the current version number from the file', function () {
+it('returns the current version number from the file', function (): void {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(true);
     File::shouldReceive('get')->with(base_path('VERSION'))->andReturn('1.0.0');
 
@@ -22,7 +22,7 @@ it('returns the current version number from the file', function () {
         ->assertExitCode(0);
 });
 
-it('informs the user that they are using the latest version', function () {
+it('informs the user that they are using the latest version', function (): void {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(true);
     File::shouldReceive('get')->with(base_path('VERSION'))->andReturn('1.0.0');
 
@@ -38,7 +38,7 @@ it('informs the user that they are using the latest version', function () {
         ->assertExitCode(0);
 });
 
-it('warns the user that a new version is available', function () {
+it('warns the user that a new version is available', function (): void {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(true);
     File::shouldReceive('get')->with(base_path('VERSION'))->andReturn('1.0.0');
 
@@ -55,7 +55,7 @@ it('warns the user that a new version is available', function () {
         ->assertExitCode(0);
 });
 
-it('fails to check the latest version due to an API error', function () {
+it('fails to check the latest version due to an API error', function (): void {
     File::shouldReceive('exists')->with(base_path('VERSION'))->andReturn(true);
     File::shouldReceive('get')->with(base_path('VERSION'))->andReturn('1.0.0');
 

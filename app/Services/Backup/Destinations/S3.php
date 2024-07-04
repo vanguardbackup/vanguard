@@ -25,7 +25,8 @@ class S3 implements BackupDestinationInterface
     public function __construct(
         protected S3Client $client,
         protected string $bucketName
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string>
@@ -63,7 +64,7 @@ class S3 implements BackupDestinationInterface
         $this->logStartStreaming($remoteZipPath, $fileName, $fullPath);
 
         return $this->retryCommand(
-            fn () => $this->performFileStreaming($sftp, $remoteZipPath, $fullPath),
+            fn (): bool => $this->performFileStreaming($sftp, $remoteZipPath, $fullPath),
             $retries,
             $delay
         );

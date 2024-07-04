@@ -8,7 +8,7 @@ use App\Mail\User\WelcomeMail;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Volt\Volt;
 
-test('registration screen can be rendered', function () {
+test('registration screen can be rendered', function (): void {
     $response = $this->get('/register');
 
     $response
@@ -16,7 +16,7 @@ test('registration screen can be rendered', function () {
         ->assertSeeVolt('pages.auth.register');
 });
 
-test('new users can register', function () {
+test('new users can register', function (): void {
     Mail::fake();
 
     $component = Volt::test('pages.auth.register')

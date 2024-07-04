@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Facades\Greeting;
 use Carbon\Carbon;
 
-it('returns Good morning', function () {
+it('returns Good morning', function (): void {
     Carbon::setTestNow(Carbon::createFromTime(8, 0, 0, 'UTC'));
 
     expect(Greeting::auto('UTC'))->toBe('Good morning');
@@ -13,7 +13,7 @@ it('returns Good morning', function () {
     Carbon::setTestNow();
 });
 
-it('returns Good afternoon', function () {
+it('returns Good afternoon', function (): void {
     Carbon::setTestNow(Carbon::createFromTime(14, 0, 0, 'UTC'));
 
     expect(Greeting::auto('UTC'))->toBe('Good afternoon');
@@ -21,7 +21,7 @@ it('returns Good afternoon', function () {
     Carbon::setTestNow();
 });
 
-it('returns Good evening', function () {
+it('returns Good evening', function (): void {
     Carbon::setTestNow(Carbon::createFromTime(20, 0, 0, 'UTC'));
 
     expect(Greeting::auto('UTC'))->toBe('Good evening');
@@ -29,7 +29,7 @@ it('returns Good evening', function () {
     Carbon::setTestNow();
 });
 
-it('handles different timezones correctly', function () {
+it('handles different timezones correctly', function (): void {
     Carbon::setTestNow(Carbon::createFromTime(8, 0, 0, 'UTC'));
 
     expect(Greeting::auto('Europe/Berlin'))->toBe('Good morning')

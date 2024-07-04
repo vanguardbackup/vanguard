@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     $livewire = Livewire::test('tags.create-form');
 
     $livewire->assertOk();
 });
 
-test('a user can create a new tag', function () {
+test('a user can create a new tag', function (): void {
 
     $user = User::factory()->create();
 
@@ -30,7 +30,7 @@ test('a user can create a new tag', function () {
     $livewire->assertRedirect(route('tags.index'));
 });
 
-test('a label is required', function () {
+test('a label is required', function (): void {
 
     $user = User::factory()->create();
 

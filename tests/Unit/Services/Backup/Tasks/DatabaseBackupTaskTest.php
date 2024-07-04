@@ -16,7 +16,7 @@ use Tests\Unit\Services\Backup\Tasks\Helpers\DBBackupTaskTestClass;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     Event::fake();
     $this->remoteServer = RemoteServer::factory()->create([
         'database_password' => encrypt('testpassword'),
@@ -50,11 +50,11 @@ beforeEach(function () {
     $this->databaseBackupTask->shouldReceive('logMessage')->andReturnNull();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 
-test('perform backup successfully', function () {
+test('perform backup successfully', function (): void {
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
     $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/mysqldump/'))->andReturn('');
     $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/test -s/'))->andReturn('exists');
@@ -77,7 +77,7 @@ test('perform backup successfully', function () {
     ]);
 });
 
-test('perform backup fails due to missing database password', function () {
+test('perform backup fails due to missing database password', function (): void {
     $this->remoteServer->update(['database_password' => null]);
     $this->databaseBackupTask->shouldReceive('handleBackupFailure')->once();
 
@@ -89,7 +89,7 @@ test('perform backup fails due to missing database password', function () {
     ]);
 });
 
-test('perform backup fails due to database dump exception', function () {
+test('perform backup fails due to database dump exception', function (): void {
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
     $this->databaseBackupTask->shouldReceive('getDatabaseType')->andReturn(BackupConstants::DATABASE_TYPE_MYSQL);
     $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andThrow(new DatabaseDumpException('Failed to dump the database'));
@@ -103,7 +103,7 @@ test('perform backup fails due to database dump exception', function () {
     ]);
 });
 
-test('perform backup fails due to SFTP connection exception', function () {
+test('perform backup fails due to SFTP connection exception', function (): void {
     $this->databaseBackupTask->shouldReceive('establishSFTPConnection')
         ->andThrow(new SFTPConnectionException('Failed to establish SFTP connection'));
     $this->databaseBackupTask->shouldReceive('handleBackupFailure')->once();
@@ -116,7 +116,7 @@ test('perform backup fails due to SFTP connection exception', function () {
     ]);
 });
 
-test('perform backup fails due to backup destination driver failure', function () {
+test('perform backup fails due to backup destination driver failure', function (): void {
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
     $this->databaseBackupTask->shouldReceive('getDatabaseType')->andReturn(BackupConstants::DATABASE_TYPE_MYSQL);
     $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andReturnNull();
@@ -131,7 +131,7 @@ test('perform backup fails due to backup destination driver failure', function (
     ]);
 });
 
-test('perform backup with backup rotation', function () {
+test('perform backup with backup rotation', function (): void {
     $this->backupTask->update(['maximum_backups_to_keep' => 5]);
 
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
@@ -156,7 +156,7 @@ test('perform backup with backup rotation', function () {
     ]);
 });
 
-test('perform backup with PostgreSQL database', function () {
+test('perform backup with PostgreSQL database', function (): void {
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql: command not found');
     $this->sftpMock->shouldReceive('exec')->with('psql --version 2>&1')->andReturn('psql (PostgreSQL) 13.4');
     $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/PGPASSWORD=.*pg_dump/'))->andReturn('');
@@ -176,7 +176,7 @@ test('perform backup with PostgreSQL database', function () {
     ]);
 });
 
-test('perform backup with excluded tables', function () {
+test('perform backup with excluded tables', function (): void {
     $this->backupTask->update(['excluded_database_tables' => 'table1,table2']);
 
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
@@ -197,7 +197,7 @@ test('perform backup with excluded tables', function () {
     ]);
 });
 
-test('perform backup fails when dump file is empty', function () {
+test('perform backup fails when dump file is empty', function (): void {
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
     $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/mysqldump/'))->andReturn('');
     $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/test -s/'))->andReturn('not exists');
@@ -213,7 +213,7 @@ test('perform backup fails when dump file is empty', function () {
     ]);
 });
 
-test('perform backup with isolated credentials', function () {
+test('perform backup with isolated credentials', function (): void {
     $this->backupTask->update(['isolated_username' => 'isolated_user']);
 
     $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
@@ -235,7 +235,7 @@ test('perform backup with isolated credentials', function () {
     ]);
 });
 
-test('generate backup file name', function () {
+test('generate backup file name', function (): void {
     // Test without appended file name
     $fileName = $this->databaseBackupTask->generateBackupFileName('sql');
     expect($fileName)->toMatch('/^backup_\d+_\d{14}\.sql$/');
@@ -254,7 +254,7 @@ test('generate backup file name', function () {
     expect($fileNameWithAppend)->toMatch('/^custom_backup_\d+_\d{14}\.sql$/');
 });
 
-test('handle unexpected exception', function () {
+test('handle unexpected exception', function (): void {
     $this->databaseBackupTask->shouldReceive('performBackup')->andThrow(new Exception('Unexpected error'));
     $this->databaseBackupTask->shouldReceive('handleBackupFailure')->once();
 

@@ -51,7 +51,7 @@ class LogModal extends Component
         $newLogOutput = $event['logOutput'];
 
         // Avoid duplicate entries by checking if the new log output is already present in the current log output
-        if (strpos($this->logOutput, $newLogOutput) === false) {
+        if (! str_contains($this->logOutput, $newLogOutput)) {
             // Append the new log output with a newline character if logOutput is not empty
             $this->logOutput .= ($this->logOutput !== '' && $this->logOutput !== '0' ? "\n" : '') . $newLogOutput;
         }

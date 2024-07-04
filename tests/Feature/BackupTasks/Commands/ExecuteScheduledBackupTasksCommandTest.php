@@ -8,7 +8,7 @@ use App\Models\BackupTask;
 
 use function Pest\Laravel\freezeTime;
 
-it('queues tasks that are eligible to be ran', function () {
+it('queues tasks that are eligible to be ran', function (): void {
     Queue::fake();
 
     $taskOne = BackupTask::factory()->create([
@@ -42,24 +42,24 @@ it('queues tasks that are eligible to be ran', function () {
         ->expectsOutputToContain('Running scheduled backup tasks...')
         ->run();
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskOne) {
+    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskOne): bool {
         return $job->backupTaskId === $taskOne->id;
     });
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskTwo) {
+    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskTwo): bool {
         return $job->backupTaskId === $taskTwo->id;
     });
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskThree) {
+    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskThree): bool {
         return $job->backupTaskId === $taskThree->id;
     });
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskFour) {
+    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskFour): bool {
         return $job->backupTaskId === $taskFour->id;
     });
 });
 
-it('updates the weekly run at time for weekly jobs', function () {
+it('updates the weekly run at time for weekly jobs', function (): void {
     Queue::fake();
 
     freezeTime(function () {
@@ -82,7 +82,7 @@ it('updates the weekly run at time for weekly jobs', function () {
     $this->assertEquals(now()->format('Y-m-d H:i'), $task->last_scheduled_weekly_run_at->format('Y-m-d H:i'));
 });
 
-it('does not queue tasks that are not eligible to be ran', function () {
+it('does not queue tasks that are not eligible to be ran', function (): void {
     Queue::fake();
 
     BackupTask::factory()->create(['status' => 'running']);
@@ -94,10 +94,10 @@ it('does not queue tasks that are not eligible to be ran', function () {
     queue::assertNotPushed(RunFileBackupTaskJob::class);
 });
 
-it('does not queue tasks that are ineligible to be ran', function () {
+it('does not queue tasks that are ineligible to be ran', function (): void {
     Queue::fake();
 
-    freezeTime(function () {
+    freezeTime(function (): string {
         return now()->format('12:00');
     });
 

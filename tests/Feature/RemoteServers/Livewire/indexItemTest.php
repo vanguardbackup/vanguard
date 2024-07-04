@@ -8,7 +8,7 @@ use App\Models\RemoteServer;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
 
@@ -17,7 +17,7 @@ test('the component can be rendered', function () {
     $component->assertOk();
 });
 
-test('the listener listens to event updates', function () {
+test('the listener listens to event updates', function (): void {
     Toaster::fake();
     Event::fake([RemoteServerConnectivityStatusChanged::class]);
 
@@ -29,7 +29,7 @@ test('the listener listens to event updates', function () {
 
     RemoteServerConnectivityStatusChanged::dispatch($remoteServer, 'checking');
 
-    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($event) use ($remoteServer) {
+    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($event) use ($remoteServer): bool {
         return $event->remoteServer->is($remoteServer) && $event->connectivityStatus === 'checking';
     });
 
@@ -39,7 +39,7 @@ test('the listener listens to event updates', function () {
     Toaster::assertDispatched(__('The connection to the remote server has been successfully established.'));
 });
 
-test('the listener updates the Livewire components', function () {
+test('the listener updates the Livewire components', function (): void {
     $remoteServer = RemoteServer::factory()->create();
 
     $component = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);

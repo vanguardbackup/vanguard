@@ -16,7 +16,7 @@ class SFTPAdapter implements SFTPInterface
         $this->sftp = new SFTP($host, $port, $timeout);
     }
 
-    public function login(string $username, ...$args): bool
+    public function login(string $username, mixed ...$args): bool
     {
         return $this->sftp->login($username, ...$args);
     }

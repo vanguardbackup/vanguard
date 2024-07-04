@@ -6,13 +6,13 @@ use App\Services\Backup\Contracts\SFTPInterface;
 use Illuminate\Support\Facades\Log;
 use Tests\Unit\Services\Backup\Traits\BackupHelpersTestClass;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->helperClass = new BackupHelpersTestClass;
 });
 
-it('retries command until success', function () {
+it('retries command until success', function (): void {
     $attempts = 0;
-    $command = function () use (&$attempts) {
+    $command = function () use (&$attempts): bool {
         $attempts++;
 
         return $attempts === 3;
@@ -24,9 +24,9 @@ it('retries command until success', function () {
         ->and($attempts)->toBe(3);
 });
 
-it('retries command until max attempts', function () {
+it('retries command until max attempts', function (): void {
     $attempts = 0;
-    $command = function () use (&$attempts) {
+    $command = function () use (&$attempts): bool {
         $attempts++;
 
         return false;
@@ -38,7 +38,7 @@ it('retries command until max attempts', function () {
         ->and($attempts)->toBe(5);
 });
 
-it('downloads file via SFTP', function () {
+it('downloads file via SFTP', function (): void {
     $mockSftp = Mockery::mock(SFTPInterface::class);
     $mockSftp->shouldReceive('get')->andReturn(true);
     $mockSftp->shouldReceive('getLastError')->andReturn('');
@@ -50,7 +50,7 @@ it('downloads file via SFTP', function () {
     unlink($result);
 });
 
-it('throws exception when SFTP download fails', function () {
+it('throws exception when SFTP download fails', function (): void {
     $mockSftp = Mockery::mock(SFTPInterface::class);
     $mockSftp->shouldReceive('get')->andReturn(false);
     $mockSftp->shouldReceive('getLastError')->andReturn('SFTP error');
@@ -58,7 +58,7 @@ it('throws exception when SFTP download fails', function () {
     $this->helperClass->publicDownloadFileViaSFTP($mockSftp, '/remote/path');
 })->throws(Exception::class, 'Failed to download the remote file: SFTP error');
 
-it('opens file as stream', function () {
+it('opens file as stream', function (): void {
     $tempFile = tempnam(sys_get_temp_dir(), 'test');
     file_put_contents($tempFile, 'test content');
 
@@ -69,11 +69,11 @@ it('opens file as stream', function () {
     unlink($tempFile);
 });
 
-it('throws exception when file cannot be opened as stream', function () {
+it('throws exception when file cannot be opened as stream', function (): void {
     $this->helperClass->publicOpenFileAsStream('/non/existent/file');
 })->throws(Exception::class);
 
-it('cleans up temp file', function () {
+it('cleans up temp file', function (): void {
     $tempFile = tempnam(sys_get_temp_dir(), 'test');
 
     $this->helperClass->publicCleanUpTempFile($tempFile);
@@ -81,7 +81,7 @@ it('cleans up temp file', function () {
     expect(file_exists($tempFile))->toBeFalse();
 });
 
-it('logs messages at different levels', function () {
+it('logs messages at different levels', function (): void {
     Log::shouldReceive('info')->once()->with('Info message', ['context' => 'test']);
     Log::shouldReceive('debug')->once()->with('Debug message', ['context' => 'test']);
     Log::shouldReceive('warning')->once()->with('Warning message', ['context' => 'test']);

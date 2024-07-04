@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Console\Commands\ResetInoperativeBackupTasksCommand;
 use App\Models\BackupTask;
 
-it('should not reset tasks that are below the threshold', function () {
+it('should not reset tasks that are below the threshold', function (): void {
 
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
@@ -31,7 +31,7 @@ it('should not reset tasks that are below the threshold', function () {
     ]);
 });
 
-it('should reset tasks that exceed the threshold', function () {
+it('should reset tasks that exceed the threshold', function (): void {
 
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
@@ -87,7 +87,7 @@ it('should reset tasks that exceed the threshold', function () {
     ]);
 });
 
-it('should not reset tasks that have a null value in the last_script_update_at column', function () {
+it('should not reset tasks that have a null value in the last_script_update_at column', function (): void {
 
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
@@ -103,12 +103,12 @@ it('should not reset tasks that have a null value in the last_script_update_at c
     ]);
 });
 
-it('should not perform any action when no tasks exist', function () {
+it('should not perform any action when no tasks exist', function (): void {
     $this->artisan(ResetInoperativeBackupTasksCommand::class)
         ->assertExitCode(0);
 });
 
-it('should not perform any action when all tasks are already in the ready state', function () {
+it('should not perform any action when all tasks are already in the ready state', function (): void {
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_READY,
         'last_script_update_at' => now()->subSeconds(16 * 60),
@@ -123,7 +123,7 @@ it('should not perform any action when all tasks are already in the ready state'
     ]);
 });
 
-it('should only reset tasks that are in the running state and exceed the threshold', function () {
+it('should only reset tasks that are in the running state and exceed the threshold', function (): void {
     $backupTaskRunning = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
         'last_script_update_at' => now()->subSeconds(35 * 60),

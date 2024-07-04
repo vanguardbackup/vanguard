@@ -14,7 +14,7 @@ class BackupTestClass extends Backup
         $this->validateConfiguration();
     }
 
-    public function publicCreateSFTP($host, $port, $timeout): SFTPInterface
+    public function publicCreateSFTP(string $host, int $port, int $timeout): SFTPInterface
     {
         return $this->createSFTP($host, $port, $timeout);
     }

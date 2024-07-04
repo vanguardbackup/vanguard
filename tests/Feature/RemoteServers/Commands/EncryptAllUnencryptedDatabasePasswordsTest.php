@@ -5,14 +5,14 @@ declare(strict_types=1);
 use App\Console\Commands\EncryptDatabasePasswordsCommand;
 use App\Models\RemoteServer;
 
-it('exits if there are no remote servers', function () {
+it('exits if there are no remote servers', function (): void {
 
     $this->artisan(EncryptDatabasePasswordsCommand::class)
         ->expectsOutputToContain('No remote servers found.')
         ->assertExitCode(0);
 });
 
-it('skips encryption if the database password is empty', function () {
+it('skips encryption if the database password is empty', function (): void {
 
     $remoteServer = RemoteServer::factory()->create([
         'database_password' => '',
@@ -23,7 +23,7 @@ it('skips encryption if the database password is empty', function () {
         ->assertExitCode(0);
 });
 
-it('encrypts the database password', function () {
+it('encrypts the database password', function (): void {
 
     $remoteServer = RemoteServer::factory()->create([
         'database_password' => 'password',
@@ -37,7 +37,7 @@ it('encrypts the database password', function () {
     $this->assertSame('password', Crypt::decryptString($remoteServer->fresh()->database_password));
 });
 
-it('does not encrypt the database password if it is already encrypted', function () {
+it('does not encrypt the database password if it is already encrypted', function (): void {
 
     $remoteServer = RemoteServer::factory()->create([
         'database_password' => Crypt::encryptString('password'),

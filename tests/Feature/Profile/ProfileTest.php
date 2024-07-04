@@ -6,7 +6,7 @@ use App\Models\BackupDestination;
 use App\Models\User;
 use Livewire\Volt\Volt;
 
-test('profile page is displayed', function () {
+test('profile page is displayed', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -19,7 +19,7 @@ test('profile page is displayed', function () {
         ->assertSeeVolt('profile.update-password-form');
 });
 
-test('delete page is displayed', function () {
+test('delete page is displayed', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -31,7 +31,7 @@ test('delete page is displayed', function () {
         ->assertSeeVolt('profile.delete-user-form');
 });
 
-test('profile information can be updated', function () {
+test('profile information can be updated', function (): void {
     Toaster::fake();
 
     Config::set('app.available_languages', [
@@ -70,7 +70,7 @@ test('profile information can be updated', function () {
     Toaster::assertDispatched((__('Profile details saved.')));
 });
 
-test('email verification status is unchanged when the email address is unchanged', function () {
+test('email verification status is unchanged when the email address is unchanged', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -87,7 +87,7 @@ test('email verification status is unchanged when the email address is unchanged
     $this->assertNotNull($user->refresh()->getAttribute('email_verified_at'));
 });
 
-test('user can delete their account', function () {
+test('user can delete their account', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -104,7 +104,7 @@ test('user can delete their account', function () {
     $this->assertNull($user->fresh());
 });
 
-test('correct password must be provided to delete account', function () {
+test('correct password must be provided to delete account', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -120,7 +120,7 @@ test('correct password must be provided to delete account', function () {
     $this->assertNotNull($user->fresh());
 });
 
-test('the timezone must be valid', function () {
+test('the timezone must be valid', function (): void {
 
     $user = User::factory()->create();
 
@@ -137,7 +137,7 @@ test('the timezone must be valid', function () {
         ->assertNoRedirect();
 });
 
-test('the preferred backup destination can be nullable - not set', function () {
+test('the preferred backup destination can be nullable - not set', function (): void {
 
     $user = User::factory()->create();
 
@@ -158,7 +158,7 @@ test('the preferred backup destination can be nullable - not set', function () {
     $this->assertNull($user->preferred_backup_destination_id);
 });
 
-test('the preferred backup destination must exist', function () {
+test('the preferred backup destination must exist', function (): void {
 
     $user = User::factory()->create();
 
@@ -178,7 +178,7 @@ test('the preferred backup destination must exist', function () {
     $this->assertNull($user->refresh()->getAttribute('preferred_backup_destination_id'));
 });
 
-test('the preferred backup destination must belong to the user', function () {
+test('the preferred backup destination must belong to the user', function (): void {
 
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
@@ -202,7 +202,7 @@ test('the preferred backup destination must belong to the user', function () {
     $this->assertNull($user->refresh()->getAttribute('preferred_backup_destination_id'));
 });
 
-test('the language must exist', function () {
+test('the language must exist', function (): void {
 
     $user = User::factory()->create();
     $otherUser = User::factory()->create();

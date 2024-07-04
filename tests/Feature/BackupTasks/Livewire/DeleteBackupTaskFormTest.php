@@ -6,13 +6,13 @@ use App\Livewire\BackupTasks\DeleteBackupTaskForm;
 use App\Models\BackupTask;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     Livewire::test(DeleteBackupTaskForm::class, ['backupTask' => BackupTask::factory()->create()])
         ->assertStatus(200);
 });
 
-test('a backup task can be deleted by its creator', function () {
+test('a backup task can be deleted by its creator', function (): void {
 
     $user = User::factory()->create();
     $backupTask = BackupTask::factory()->create([
@@ -28,7 +28,7 @@ test('a backup task can be deleted by its creator', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('a backup task cannot be deleted by another user', function () {
+test('a backup task cannot be deleted by another user', function (): void {
 
     $user = User::factory()->create();
     $backupTask = BackupTask::factory()->create();

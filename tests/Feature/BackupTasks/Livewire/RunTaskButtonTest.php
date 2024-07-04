@@ -5,14 +5,14 @@ declare(strict_types=1);
 use App\Livewire\BackupTasks\RunTaskButton;
 use App\Models\BackupTask;
 
-it('renders the component view', function () {
+it('renders the component view', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(RunTaskButton::class, ['backupTask' => $backupTask])
         ->assertViewIs('livewire.backup-tasks.run-task-button');
 });
 
-it('refreshes component when listener is called', function () {
+it('refreshes component when listener is called', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(RunTaskButton::class, ['backupTask' => $backupTask])
@@ -20,7 +20,7 @@ it('refreshes component when listener is called', function () {
         ->assertDispatched('$refresh');
 });
 
-it('runs task and dispatches event', function () {
+it('runs task and dispatches event', function (): void {
     Queue::fake();
     Toaster::fake();
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Console\Commands\GenerateSSHKeyCommand;
 
-it('should not generate SSH keys if they already exist', function () {
+it('should not generate SSH keys if they already exist', function (): void {
     $privateKeyPath = storage_path('app/ssh/key');
     $publicKeyPath = storage_path('app/ssh/key.pub');
 
@@ -23,15 +23,15 @@ it('should not generate SSH keys if they already exist', function () {
     unlink($publicKeyPath);
 });
 
-it('should not generate SSH keys in a production environment', function () {
-    app()->detectEnvironment(fn () => 'production'); // Set the environment to production
+it('should not generate SSH keys in a production environment', function (): void {
+    app()->detectEnvironment(fn (): string => 'production'); // Set the environment to production
 
     $this->artisan(GenerateSSHKeyCommand::class)
         ->expectsOutputToContain('Cannot generate SSH keys in a production environment.')
         ->assertExitCode(0);
 });
 
-it('should generate ssh keys', function () {
+it('should generate ssh keys', function (): void {
 
     $pathToSSHKeys = storage_path('app/ssh');
 

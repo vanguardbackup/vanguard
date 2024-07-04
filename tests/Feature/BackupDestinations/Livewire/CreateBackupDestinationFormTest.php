@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Livewire\BackupDestinations\CreateBackupDestinationForm;
 use App\Models\User;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
 
     Livewire::test(CreateBackupDestinationForm::class)
         ->assertStatus(200);
 });
 
-it('submits s3 successfully', function () {
+it('submits s3 successfully', function (): void {
 
     $user = User::factory()->create();
 
@@ -41,7 +41,7 @@ it('submits s3 successfully', function () {
     $this->assertAuthenticated();
 });
 
-it('validates required fields', function () {
+it('validates required fields', function (): void {
 
     $user = User::factory()->create();
 
@@ -56,7 +56,7 @@ it('validates required fields', function () {
     ]);
 });
 
-it('validates custom S3 fields', function () {
+it('validates custom S3 fields', function (): void {
 
     $user = User::factory()->create();
 

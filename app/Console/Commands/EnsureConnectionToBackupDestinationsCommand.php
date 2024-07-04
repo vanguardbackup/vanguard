@@ -17,7 +17,7 @@ class EnsureConnectionToBackupDestinationsCommand extends Command
 
     public function handle(): void
     {
-        $this->info('Checking connection to eligible backup destinations...');
+        $this->components->info('Checking connection to eligible backup destinations...');
 
         $backupDestinations = BackupDestination::all();
 
@@ -27,7 +27,7 @@ class EnsureConnectionToBackupDestinationsCommand extends Command
             return;
         }
 
-        $jobs = $backupDestinations->map(function (BackupDestination $backupDestination) {
+        $jobs = $backupDestinations->map(function (BackupDestination $backupDestination): ?CheckBackupDestinationsS3ConnectionJob {
             if ($backupDestination->isS3Connection()) {
                 $this->info("Dispatching job for backup destination ID: {$backupDestination->getAttribute('id')}");
 

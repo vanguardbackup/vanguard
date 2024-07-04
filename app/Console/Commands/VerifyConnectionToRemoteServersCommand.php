@@ -17,7 +17,7 @@ class VerifyConnectionToRemoteServersCommand extends Command
 
     public function handle(): void
     {
-        $this->info('Batch job dispatched to check remote server connection');
+        $this->components->info('Batch job dispatched to check remote server connection');
 
         $remoteServers = RemoteServer::all();
 
@@ -28,7 +28,7 @@ class VerifyConnectionToRemoteServersCommand extends Command
         }
 
         Bus::batch(
-            $remoteServers->map(function (RemoteServer $remoteServer) {
+            $remoteServers->map(function (RemoteServer $remoteServer): CheckRemoteServerConnectionJob {
                 return new CheckRemoteServerConnectionJob($remoteServer->getAttribute('id'));
             })->toArray()
         )->name('Check connection to remote servers')

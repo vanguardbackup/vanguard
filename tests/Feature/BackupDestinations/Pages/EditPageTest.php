@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\BackupDestination;
 use App\Models\User;
 
-test('the page can be rendered by by the owner of the backup destination', function () {
+test('the page can be rendered by by the owner of the backup destination', function (): void {
 
     $user = User::factory()->create();
 
@@ -23,7 +23,7 @@ test('the page can be rendered by by the owner of the backup destination', funct
     $this->assertEquals($user->id, $backupDestination->user_id);
 });
 
-test('the page is not rendered by unauthorized users', function () {
+test('the page is not rendered by unauthorized users', function (): void {
 
     $user = User::factory()->create();
 
@@ -38,7 +38,7 @@ test('the page is not rendered by unauthorized users', function () {
     $this->assertNotEquals($user->id, $backupDestination->user_id);
 });
 
-test('the page is not rendered by guests', function () {
+test('the page is not rendered by guests', function (): void {
 
     $backupDestination = BackupDestination::factory()->create();
 

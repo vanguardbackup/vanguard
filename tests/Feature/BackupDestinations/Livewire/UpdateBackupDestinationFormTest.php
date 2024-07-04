@@ -6,13 +6,13 @@ use App\Livewire\BackupDestinations\UpdateBackupDestinationForm;
 use App\Models\BackupDestination;
 use App\Models\User;
 
-test('it renders the component successfully', function () {
+test('it renders the component successfully', function (): void {
 
     Livewire::test(UpdateBackupDestinationForm::class, ['backupDestination' => BackupDestination::factory()->create()])
         ->assertStatus(200);
 });
 
-test('the creator of the backup destination can update the backup destination', function () {
+test('the creator of the backup destination can update the backup destination', function (): void {
 
     $user = User::factory()->create();
     $backupDestination = BackupDestination::factory()->create([
@@ -50,7 +50,7 @@ test('the creator of the backup destination can update the backup destination', 
     $this->assertAuthenticatedAs($user);
 });
 
-test('another user cannot update the backup destination', function () {
+test('another user cannot update the backup destination', function (): void {
 
     $user = User::factory()->create();
     $anotherUser = User::factory()->create();
@@ -86,7 +86,7 @@ test('another user cannot update the backup destination', function () {
     $this->assertAuthenticatedAs($anotherUser);
 });
 
-test('the type must be valid', function () {
+test('the type must be valid', function (): void {
 
     $user = User::factory()->create();
     $backupDestination = BackupDestination::factory()->create([

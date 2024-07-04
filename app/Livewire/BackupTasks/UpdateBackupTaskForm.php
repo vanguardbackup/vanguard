@@ -85,7 +85,9 @@ class UpdateBackupTaskForm extends Component
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void {}
+    public function updatedUseCustomCron(): void
+    {
+    }
 
     public function updatedBackupType(): void
     {
@@ -105,7 +107,7 @@ class UpdateBackupTaskForm extends Component
         $this->availableTags = Auth::user()->tags;
         $this->selectedTags = $this->backupTask->getAttribute('tags')->pluck('id')->toArray();
 
-        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour) {
+        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour): string {
             $hour = intdiv($quarterHour, 4);
             $minute = ($quarterHour % 4) * 15;
 

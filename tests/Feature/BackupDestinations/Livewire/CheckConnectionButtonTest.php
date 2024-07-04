@@ -5,14 +5,14 @@ declare(strict_types=1);
 use App\Livewire\BackupDestinations\CheckConnectionButton;
 use App\Models\BackupDestination;
 
-it('can be rendered', function () {
+it('can be rendered', function (): void {
 
     $component = Livewire::test(CheckConnectionButton::class, ['backupDestination' => BackupDestination::factory()->create()]);
 
     $component->assertOk();
 });
 
-it('can check s3 connection', function () {
+it('can check s3 connection', function (): void {
     Queue::fake();
     Event::fake();
     Toaster::fake();
@@ -28,7 +28,7 @@ it('can check s3 connection', function () {
     Toaster::assertDispatched(__('Performing a connectivity check.'));
 });
 
-it('can refresh self', function () {
+it('can refresh self', function (): void {
     $component = Livewire::test(CheckConnectionButton::class, ['backupDestination' => BackupDestination::factory()->create()]);
 
     $component->call('refreshSelf');

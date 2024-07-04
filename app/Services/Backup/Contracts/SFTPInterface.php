@@ -10,10 +10,7 @@ interface SFTPInterface
 {
     public function __construct(string $host, int $port = 22, int $timeout = 120);
 
-    /**
-     * @param  mixed  ...$args
-     */
-    public function login(string $username, ...$args): bool;
+    public function login(string $username, mixed ...$args): bool;
 
     public function getLastError(): string;
 

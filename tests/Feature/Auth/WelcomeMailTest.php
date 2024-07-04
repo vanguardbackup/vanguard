@@ -6,7 +6,7 @@ use App\Mail\User\WelcomeMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
-test('the contents of the welcome mail are correct', function () {
+test('the contents of the welcome mail are correct', function (): void {
 
     $user = User::factory()->create([
         'name' => 'John Doe',

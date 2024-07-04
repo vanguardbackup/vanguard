@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Carbon\Carbon;
 
-it('can see another language', function () {
+it('can see another language', function (): void {
 
     $danishUser = User::factory()->create([
         'language' => 'da',

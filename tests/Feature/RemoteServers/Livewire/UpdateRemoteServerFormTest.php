@@ -6,13 +6,13 @@ use App\Livewire\RemoteServers\UpdateRemoteServerForm;
 use App\Models\RemoteServer;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     Livewire::test(UpdateRemoteServerForm::class, ['remoteServer' => RemoteServer::factory()->create()])
         ->assertStatus(200);
 });
 
-test('the component can be updated by the owner', function () {
+test('the component can be updated by the owner', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([
@@ -47,7 +47,7 @@ test('the component can be updated by the owner', function () {
     $this->assertEquals($user->id, $remoteServer->user_id);
 });
 
-test('the component cannot be updated by another user', function () {
+test('the component cannot be updated by another user', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create();
@@ -73,7 +73,7 @@ test('the component cannot be updated by another user', function () {
     $this->assertNotEquals($user->id, $remoteServer->user_id);
 });
 
-test('required is required', function () {
+test('required is required', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([
@@ -95,7 +95,7 @@ test('required is required', function () {
         ]);
 });
 
-test('ip addresses must be unique', function () {
+test('ip addresses must be unique', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([
@@ -114,7 +114,7 @@ test('ip addresses must be unique', function () {
         ]);
 });
 
-test('ip address must be an ip address', function () {
+test('ip address must be an ip address', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([
@@ -131,7 +131,7 @@ test('ip address must be an ip address', function () {
         ]);
 });
 
-test('port value cannot fall outside of allowed range', function () {
+test('port value cannot fall outside of allowed range', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([
@@ -155,7 +155,7 @@ test('port value cannot fall outside of allowed range', function () {
         ]);
 });
 
-test('it does not update the database password unless set', function () {
+test('it does not update the database password unless set', function (): void {
 
     $user = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create([

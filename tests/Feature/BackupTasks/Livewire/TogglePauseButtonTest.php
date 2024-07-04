@@ -6,7 +6,7 @@ use App\Livewire\BackupTasks\TogglePauseButton;
 use App\Models\BackupTask;
 use Livewire\Livewire;
 
-it('refreshes component when listener method is called', function () {
+it('refreshes component when listener method is called', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(TogglePauseButton::class, ['backupTask' => $backupTask])
@@ -14,7 +14,7 @@ it('refreshes component when listener method is called', function () {
         ->assertDispatched('$refresh');
 });
 
-it('pauses task and dispatches event when not paused', function () {
+it('pauses task and dispatches event when not paused', function (): void {
     Toaster::fake();
     $backupTask = BackupTask::factory()->create([
         'status' => BackupTask::STATUS_RUNNING,
@@ -28,7 +28,7 @@ it('pauses task and dispatches event when not paused', function () {
     Toaster::assertDispatched(__('Backup task has been paused.'));
 });
 
-it('resumes task and dispatches event when paused', function () {
+it('resumes task and dispatches event when paused', function (): void {
     Toaster::fake();
     $backupTask = BackupTask::factory()->paused()->create();
 
@@ -41,7 +41,7 @@ it('resumes task and dispatches event when paused', function () {
     Toaster::assertDispatched(__('Backup task has been resumed.'));
 });
 
-it('renders the component view', function () {
+it('renders the component view', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(TogglePauseButton::class, ['backupTask' => $backupTask])

@@ -10,20 +10,20 @@ use App\Models\Tag;
 use App\Models\User;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->data = createUserWithBackupTaskAndDependencies();
     $this->actingAs($this->data['user']);
 });
 
-test('form can be rendered', function () {
+test('form can be rendered', function (): void {
     Livewire::test(UpdateBackupTaskForm::class, [
         'backupTask' => $this->data['backupTask'],
         'remoteServers' => $this->data['user']->remoteServers,
     ])->assertOk();
 });
 
-describe('backup task update', function () {
-    test('can be updated by the owner', function () {
+describe('backup task update', function (): void {
+    test('can be updated by the owner', function (): void {
         $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $this->data['user']->id]);
         $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->data['user']->id]);
         $tagIds = [$tag1->id, $tag2->id];
@@ -85,7 +85,7 @@ describe('backup task update', function () {
         ]);
     });
 
-    test('can be updated by the owner with custom cron', function () {
+    test('can be updated by the owner with custom cron', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $this->data['user']->remoteServers,
@@ -116,7 +116,7 @@ describe('backup task update', function () {
         ]);
     });
 
-    test('cannot be updated by another user', function () {
+    test('cannot be updated by another user', function (): void {
         $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser);
@@ -141,8 +141,8 @@ describe('backup task update', function () {
     });
 });
 
-describe('validation rules', function () {
-    test('backup task has required validation rules', function () {
+describe('validation rules', function (): void {
+    test('backup task has required validation rules', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -159,7 +159,7 @@ describe('validation rules', function () {
             ]);
     });
 
-    test('discord webhook url must be valid', function () {
+    test('discord webhook url must be valid', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -172,7 +172,7 @@ describe('validation rules', function () {
             ]);
     });
 
-    test('slack webhook url must be valid', function () {
+    test('slack webhook url must be valid', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -185,7 +185,7 @@ describe('validation rules', function () {
             ]);
     });
 
-    test('the store path needs to be a valid unix path', function () {
+    test('the store path needs to be a valid unix path', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -198,7 +198,7 @@ describe('validation rules', function () {
             ]);
     });
 
-    test('the excluded database tables must be a valid comma separated list', function () {
+    test('the excluded database tables must be a valid comma separated list', function (): void {
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -214,8 +214,8 @@ describe('validation rules', function () {
     });
 });
 
-describe('time and timezone handling', function () {
-    test('the time to run at is converted from the users timezone to UTC', function () {
+describe('time and timezone handling', function (): void {
+    test('the time to run at is converted from the users timezone to UTC', function (): void {
         $this->data['user']->update(['timezone' => 'America/New_York']);
 
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
@@ -234,7 +234,7 @@ describe('time and timezone handling', function () {
         ]);
     });
 
-    test('a task cannot share the same time as another task on the same server', function () {
+    test('a task cannot share the same time as another task on the same server', function (): void {
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
 
@@ -269,7 +269,7 @@ describe('time and timezone handling', function () {
             ->assertHasErrors('timeToRun');
     });
 
-    test('a task retains its set time without validation errors', function () {
+    test('a task retains its set time without validation errors', function (): void {
         $user = User::factory()->create();
 
         $remoteServer = RemoteServer::factory()->create([
@@ -300,8 +300,8 @@ describe('time and timezone handling', function () {
     });
 });
 
-describe('tag handling', function () {
-    test('users cannot set tags that do not belong them', function () {
+describe('tag handling', function (): void {
+    test('users cannot set tags that do not belong them', function (): void {
         $tag = Tag::factory()->create();
 
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
@@ -316,7 +316,7 @@ describe('tag handling', function () {
             ]);
     });
 
-    test('users cannot set tags that do not exist', function () {
+    test('users cannot set tags that do not exist', function (): void {
 
         $livewire = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
@@ -330,7 +330,7 @@ describe('tag handling', function () {
             ]);
     });
 
-    test('a user can update their already existing tags', function () {
+    test('a user can update their already existing tags', function (): void {
 
         $user = User::factory()->create();
 

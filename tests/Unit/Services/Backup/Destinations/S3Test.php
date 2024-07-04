@@ -9,17 +9,17 @@ use Aws\S3\S3Client;
 use League\Flysystem\Filesystem;
 use League\Flysystem\UnableToCreateDirectory;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->s3Client = Mockery::mock(S3Client::class);
     $this->bucketName = 'test-bucket';
     $this->s3 = new S3($this->s3Client, $this->bucketName);
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 
-it('lists files', function () {
+it('lists files', function (): void {
     $mockContents = [
         ['Key' => 'file1.txt', 'LastModified' => new DateTimeResult('2023-01-01T00:00:00Z')],
         ['Key' => 'file2.txt', 'LastModified' => new DateTimeResult('2023-01-02T00:00:00Z')],
@@ -34,7 +34,7 @@ it('lists files', function () {
     expect($result)->toBe(['file2.txt', 'file1.txt']);
 });
 
-it('deletes a file', function () {
+it('deletes a file', function (): void {
     $this->s3Client->shouldReceive('deleteObject')
         ->with([
             'Bucket' => $this->bucketName,
@@ -45,7 +45,7 @@ it('deletes a file', function () {
     $this->s3->deleteFile('file1.txt');
 });
 
-it('streams files successfully', function () {
+it('streams files successfully', function (): void {
     $mockSftp = Mockery::mock(SFTPInterface::class);
     $mockFilesystem = Mockery::mock(Filesystem::class);
 
@@ -63,7 +63,7 @@ it('streams files successfully', function () {
     expect($result)->toBeTrue();
 });
 
-it('handles file streaming failure', function () {
+it('handles file streaming failure', function (): void {
     $mockSftp = Mockery::mock(SFTPInterface::class);
 
     // Mock the S3 instance
@@ -75,7 +75,7 @@ it('handles file streaming failure', function () {
     expect($result)->toBeFalse();
 })->throws(UnableToCreateDirectory::class, 'Failed to create filesystem');
 
-it('gets full path', function () {
+it('gets full path', function (): void {
     $result1 = $this->s3->getFullPath('file.txt', null);
     $result2 = $this->s3->getFullPath('file.txt', 'storage/path');
 
@@ -86,7 +86,7 @@ it('gets full path', function () {
 // For the following tests, we need to make these methods public in the S3 class
 // or use reflection to test them. Here's an example using reflection:
 
-it('creates S3 filesystem', function () {
+it('creates S3 filesystem', function (): void {
     $method = new ReflectionMethod(S3::class, 'createS3Filesystem');
 
     $filesystem = $method->invoke($this->s3);
@@ -94,7 +94,7 @@ it('creates S3 filesystem', function () {
     expect($filesystem)->toBeInstanceOf(Filesystem::class);
 });
 
-it('writes stream to S3', function () {
+it('writes stream to S3', function (): void {
     $mockFilesystem = Mockery::mock(Filesystem::class);
     $mockStream = fopen('php://memory', 'r+');
 
@@ -109,7 +109,7 @@ it('writes stream to S3', function () {
     expect(true)->toBeTrue(); // If we get here without exceptions, the test passes
 });
 
-it('logs start of streaming', function () {
+it('logs start of streaming', function (): void {
     $method = new ReflectionMethod(S3::class, 'logStartStreaming');
 
     $method->invokeArgs($this->s3, ['/remote/path', 'file.txt', 'storage/path/file.txt']);
@@ -118,7 +118,7 @@ it('logs start of streaming', function () {
     expect(true)->toBeTrue();
 });
 
-it('logs successful streaming', function () {
+it('logs successful streaming', function (): void {
     $method = new ReflectionMethod(S3::class, 'logSuccessfulStreaming');
 
     $method->invokeArgs($this->s3, ['storage/path/file.txt']);

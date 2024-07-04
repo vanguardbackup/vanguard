@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
 use Illuminate\Validation\ValidationException;
 
-it('rejects the same scheduled time for two tasks on the same remote server', function () {
+it('rejects the same scheduled time for two tasks on the same remote server', function (): void {
     $user = User::factory()->create();
 
     $remoteServer = RemoteServer::factory()->create();

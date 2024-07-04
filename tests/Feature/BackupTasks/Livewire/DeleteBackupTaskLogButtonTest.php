@@ -7,7 +7,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
 
-test('the component can be rendered', function () {
+test('the component can be rendered', function (): void {
 
     $backupTask = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $backupTask->id]);
@@ -15,7 +15,7 @@ test('the component can be rendered', function () {
         ->assertOk();
 });
 
-test('the authorized user can delete a task log', function () {
+test('the authorized user can delete a task log', function (): void {
     Toaster::fake();
 
     $user = User::factory()->create();
@@ -35,7 +35,7 @@ test('the authorized user can delete a task log', function () {
     $component->assertDispatched('refreshBackupTaskHistory');
 });
 
-test('an unauthorized user cannot delete a task log', function () {
+test('an unauthorized user cannot delete a task log', function (): void {
 
     $user = User::factory()->create();
     $anotherUser = User::factory()->create();

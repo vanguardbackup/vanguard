@@ -3,27 +3,16 @@
 declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
-use Rector\Carbon\Rector\FuncCall\DateFuncCallToCarbonRector;
-use Rector\CodeQuality\Rector\FuncCall\CompactToVariablesRector;
-use Rector\CodeQuality\Rector\If_\CombineIfRector;
 use Rector\Config\RectorConfig;
 use Rector\CustomRules\ReplaceModelAttributesRector;
-use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector;
-use Rector\DeadCode\Rector\If_\SimplifyIfElseWithSameContentRector;
-use Rector\DeadCode\Rector\PropertyProperty\RemoveNullPropertyInitializationRector;
-use Rector\EarlyReturn\Rector\Foreach_\ChangeNestedForeachIfsToEarlyContinueRector;
-use Rector\EarlyReturn\Rector\If_\ChangeIfElseValueAssignToEarlyReturnRector;
-use Rector\EarlyReturn\Rector\If_\ChangeNestedIfsToEarlyReturnRector;
-use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
-use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
-use Rector\EarlyReturn\Rector\Return_\PreparedValueToEarlyReturnRector;
-use Rector\EarlyReturn\Rector\Return_\ReturnBinaryOrToEarlyReturnRector;
-use Rector\EarlyReturn\Rector\StmtsAwareInterface\ReturnEarlyIfVariableRector;
-use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
-use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
-use Rector\Php84\Rector\Param\ExplicitNullableParamTypeRector;
 use Rector\Set\ValueObject\SetList;
-use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
+use RectorLaravel\Rector\ClassMethod\AddGenericReturnTypeToRelationsRector;
+use RectorLaravel\Rector\ClassMethod\MigrateToSimplifiedAttributeRector;
+use RectorLaravel\Rector\Expr\AppEnvironmentComparisonToParameterRector;
+use RectorLaravel\Rector\MethodCall\EloquentWhereTypeHintClosureParameterRector;
+use RectorLaravel\Rector\MethodCall\UseComponentPropertyWithinCommandsRector;
+use RectorLaravel\Rector\MethodCall\ValidationRuleArrayStringValueToArrayRector;
+use RectorLaravel\Set\LaravelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
@@ -32,39 +21,31 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     $rectorConfig->rules([
-        // Early Return Rules
-        ChangeIfElseValueAssignToEarlyReturnRector::class,
-        ChangeNestedForeachIfsToEarlyContinueRector::class,
-        ChangeNestedIfsToEarlyReturnRector::class,
-        ChangeOrIfContinueToMultiContinueRector::class,
-        PreparedValueToEarlyReturnRector::class,
-        RemoveAlwaysElseRector::class,
-        ReturnBinaryOrToEarlyReturnRector::class,
-        ReturnEarlyIfVariableRector::class,
-
-        // Properties
-        DeclareStrictTypesRector::class,
-        RemoveNullPropertyInitializationRector::class,
-        RemoveUnusedConstructorParamRector::class,
-        ClassPropertyAssignToConstructorPromotionRector::class,
-        AddTypeToConstRector::class,
-        ExplicitNullableParamTypeRector::class,
-
-        // Carbon
-        DateFuncCallToCarbonRector::class,
-
-        // Misc
-        CombineIfRector::class,
-        CompactToVariablesRector::class,
-        SimplifyIfElseWithSameContentRector::class,
-
         // Custom
         ReplaceModelAttributesRector::class,
+
+        // Laravel Rules
+        AddGenericReturnTypeToRelationsRector::class,
+        AppEnvironmentComparisonToParameterRector::class,
+        EloquentWhereTypeHintClosureParameterRector::class,
+        MigrateToSimplifiedAttributeRector::class,
+        UseComponentPropertyWithinCommandsRector::class,
+        ValidationRuleArrayStringValueToArrayRector::class,
     ]);
 
     $rectorConfig->sets([
+        SetList::CARBON,
         SetList::DEAD_CODE,
         SetList::CODE_QUALITY,
+        SetList::EARLY_RETURN,
+        SetList::PHP_80,
+        SetList::PHP_82,
+        SetList::PHP_83,
+        SetList::PHP_84,
+        SetList::TYPE_DECLARATION,
+        LaravelSetList::LARAVEL_100,
+        LaravelSetList::LARAVEL_110,
+        LaravelSetList::LARAVEL_CODE_QUALITY,
     ]);
 
     $rectorConfig->importNames();

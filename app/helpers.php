@@ -46,7 +46,7 @@ function obtain_vanguard_version(): string
 {
     $versionFile = base_path('VERSION');
 
-    return Cache::remember('vanguard_version', now()->addDay(), static function () use ($versionFile) {
+    return Cache::remember('vanguard_version', now()->addDay(), static function () use ($versionFile): string {
         if (! File::exists($versionFile)) {
             return 'Unknown';
         }

@@ -16,7 +16,7 @@ use ReflectionClass;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     Event::fake();
     $this->backupTask = BackupTask::factory()->create();
 
@@ -36,14 +36,14 @@ beforeEach(function () {
     $this->reflection = new ReflectionClass($this->abstractBackupTask);
 });
 
-it('initializes backup task', function () {
+it('initializes backup task', function (): void {
     $this->abstractBackupTask->handle();
 
     expect(BackupTaskLog::where('backup_task_id', $this->backupTask->id)->exists())->toBeTrue()
         ->and($this->backupTask->fresh()->status)->toBe(BackupTask::STATUS_READY);
 });
 
-it('logs messages with timestamp', function () {
+it('logs messages with timestamp', function (): void {
     $method = $this->reflection->getMethod('logMessage');
 
     $message = 'Test log message';
@@ -54,7 +54,7 @@ it('logs messages with timestamp', function () {
         ->toMatch('/\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\] ' . preg_quote($message, '/') . '/');
 });
 
-it('generates backup file name', function () {
+it('generates backup file name', function (): void {
     $method = $this->reflection->getMethod('generateBackupFileName');
 
     $fileName = $method->invoke($this->abstractBackupTask, 'zip');
@@ -62,7 +62,7 @@ it('generates backup file name', function () {
     expect($fileName)->toMatch('/^backup_\d+_\d{14}\.zip$/');
 });
 
-it('checks if path exists', function () {
+it('checks if path exists', function (): void {
     $sftp = Mockery::mock(SFTPInterface::class);
     $sftp->shouldReceive('isConnected')->andReturn(true);
     $sftp->shouldReceive('stat')->with('/path/to/source')->andReturn(['type' => 2]); // 2 for directory
@@ -72,7 +72,7 @@ it('checks if path exists', function () {
     expect($method->invoke($this->abstractBackupTask, $sftp, '/path/to/source'))->toBeTrue();
 });
 
-it('gets remote directory size', function () {
+it('gets remote directory size', function (): void {
     $sftp = Mockery::mock(SFTPInterface::class);
     $sftp->shouldReceive('isConnected')->andReturn(true);
     $sftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
@@ -83,7 +83,7 @@ it('gets remote directory size', function () {
     expect($method->invoke($this->abstractBackupTask, $sftp, '/path/to/source'))->toBe(1024);
 });
 
-it('zips remote directory', function () {
+it('zips remote directory', function (): void {
     $sftp = Mockery::mock(SFTPInterface::class);
     $sftp->shouldReceive('isConnected')->andReturn(true);
     $sftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
@@ -101,7 +101,7 @@ it('zips remote directory', function () {
     expect(true)->toBeTrue();
 });
 
-it('handles backup failure', function () {
+it('handles backup failure', function (): void {
     $method = $this->reflection->getMethod('handleBackupFailure');
 
     $exception = new Exception('Test exception');
@@ -111,6 +111,6 @@ it('handles backup failure', function () {
         ->toContain('Error in backup process: Test exception');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });

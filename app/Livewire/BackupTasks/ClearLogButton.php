@@ -14,7 +14,7 @@ class ClearLogButton extends Component
 {
     public function clearAllLogs(): void
     {
-        BackupTaskLog::whereHas('backupTask', function ($query) {
+        BackupTaskLog::whereHas('backupTask', function ($query): void {
             $query->where('user_id', Auth::id());
         })->delete();
 

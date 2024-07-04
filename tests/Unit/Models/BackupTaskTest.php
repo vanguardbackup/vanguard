@@ -15,7 +15,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
-it('sets the last run at timestamp', function () {
+it('sets the last run at timestamp', function (): void {
 
     $task = BackupTask::factory()->create();
 
@@ -27,49 +27,49 @@ it('sets the last run at timestamp', function () {
     $this->assertGreaterThan(now()->subMinute(), $task->last_run_at);
 });
 
-it('returns true if using custom cron expression', function () {
+it('returns true if using custom cron expression', function (): void {
 
     $task = BackupTask::factory()->create(['custom_cron_expression' => '* * * * *']);
 
     $this->assertTrue($task->usingCustomCronExpression());
 });
 
-it('returns false if not using custom cron expression', function () {
+it('returns false if not using custom cron expression', function (): void {
 
     $task = BackupTask::factory()->create(['custom_cron_expression' => null]);
 
     $this->assertFalse($task->usingCustomCronExpression());
 });
 
-it('returns true if the backup task is ready', function () {
+it('returns true if the backup task is ready', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready']);
 
     $this->assertTrue($task->isReady());
 });
 
-it('returns false if the backup task is not ready', function () {
+it('returns false if the backup task is not ready', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running']);
 
     $this->assertFalse($task->isReady());
 });
 
-it('returns true if the backup task is running', function () {
+it('returns true if the backup task is running', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running']);
 
     $this->assertTrue($task->isRunning());
 });
 
-it('returns false if the backup task is not running', function () {
+it('returns false if the backup task is not running', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready']);
 
     $this->assertFalse($task->isRunning());
 });
 
-it('sets the backup task to running', function () {
+it('sets the backup task to running', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready']);
 
@@ -78,7 +78,7 @@ it('sets the backup task to running', function () {
     $this->assertTrue($task->isRunning());
 });
 
-it('sets the backup task to ready', function () {
+it('sets the backup task to ready', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running']);
 
@@ -87,77 +87,77 @@ it('sets the backup task to ready', function () {
     $this->assertTrue($task->isReady());
 });
 
-it('returns true if the backup task is eligible to run now', function () {
+it('returns true if the backup task is eligible to run now', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready', 'custom_cron_expression' => '* * * * *']);
 
     $this->assertTrue($task->eligibleToRunNow());
 });
 
-it('returns false if the backup task is not eligible to run now', function () {
+it('returns false if the backup task is not eligible to run now', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running', 'custom_cron_expression' => '* * * * *']);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns true if the custom cron expression matches', function () {
+it('returns true if the custom cron expression matches', function (): void {
 
     $task = BackupTask::factory()->create(['custom_cron_expression' => '* * * * *']);
 
     $this->assertTrue($task->cronExpressionMatches());
 });
 
-it('returns false if the custom cron expression does not match', function () {
+it('returns false if the custom cron expression does not match', function (): void {
 
     $task = BackupTask::factory()->create(['custom_cron_expression' => '0 0 1 1 *']);
 
     $this->assertFalse($task->cronExpressionMatches());
 });
 
-it('returns true if the backup task is ready to run now', function () {
+it('returns true if the backup task is ready to run now', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready', 'time_to_run_at' => now()->format('H:i')]);
 
     $this->assertTrue($task->eligibleToRunNow());
 });
 
-it('returns false if the backup task is not ready to run now', function () {
+it('returns false if the backup task is not ready to run now', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running', 'time_to_run_at' => now()->format('H:i')]);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns true if daily frequency is set', function () {
+it('returns true if daily frequency is set', function (): void {
 
     $task = BackupTask::factory()->create(['frequency' => 'daily']);
 
     $this->assertTrue($task->isDaily());
 });
 
-it('returns false if daily frequency is not set', function () {
+it('returns false if daily frequency is not set', function (): void {
 
     $task = BackupTask::factory()->create(['frequency' => 'weekly']);
 
     $this->assertFalse($task->isDaily());
 });
 
-it('returns true if weekly frequency is set', function () {
+it('returns true if weekly frequency is set', function (): void {
 
     $task = BackupTask::factory()->create(['frequency' => 'weekly']);
 
     $this->assertTrue($task->isWeekly());
 });
 
-it('returns false if weekly frequency is not set', function () {
+it('returns false if weekly frequency is not set', function (): void {
 
     $task = BackupTask::factory()->create(['frequency' => 'daily']);
 
     $this->assertFalse($task->isWeekly());
 });
 
-it('returns true if it is the right time to run a daily task', function () {
+it('returns true if it is the right time to run a daily task', function (): void {
 
     $task = BackupTask::factory()->create(['time_to_run_at' => now()->format('H:i')]);
 
@@ -165,7 +165,7 @@ it('returns true if it is the right time to run a daily task', function () {
     $this->assertTrue($task->isDaily());
 });
 
-it('returns false if it is not the right time to run a daily task', function () {
+it('returns false if it is not the right time to run a daily task', function (): void {
 
     $task = BackupTask::factory()->create(['time_to_run_at' => now()->subHour()->format('H:i')]);
 
@@ -173,7 +173,7 @@ it('returns false if it is not the right time to run a daily task', function () 
     $this->assertTrue($task->isDaily());
 });
 
-it('returns true if it is the right time to run a weekly task and last scheduled weekly run is null', function () {
+it('returns true if it is the right time to run a weekly task and last scheduled weekly run is null', function (): void {
 
     $task = BackupTask::factory()->create([
         'time_to_run_at' => now()->format('H:i'),
@@ -185,7 +185,7 @@ it('returns true if it is the right time to run a weekly task and last scheduled
     $this->assertTrue($task->isWeekly());
 });
 
-it('returns true if it is the right time to run a weekly task and last scheduled weekly run is a week ago', function () {
+it('returns true if it is the right time to run a weekly task and last scheduled weekly run is a week ago', function (): void {
 
     $task = BackupTask::factory()->create([
         'time_to_run_at' => now()->format('H:i'),
@@ -197,7 +197,7 @@ it('returns true if it is the right time to run a weekly task and last scheduled
     $this->assertTrue($task->isWeekly());
 });
 
-it('returns false if it is not the right time to run a weekly task', function () {
+it('returns false if it is not the right time to run a weekly task', function (): void {
 
     $task = BackupTask::factory()->create([
         'time_to_run_at' => now()->subHour()->format('H:i'),
@@ -209,28 +209,28 @@ it('returns false if it is not the right time to run a weekly task', function ()
     $this->assertTrue($task->isWeekly());
 });
 
-it('returns false if the time to run is in the past', function () {
+it('returns false if the time to run is in the past', function (): void {
 
     $task = BackupTask::factory()->create(['time_to_run_at' => now()->subHour()->format('H:i')]);
 
     $this->assertFalse($task->isTheRightTimeToRun());
 });
 
-it('returns false if the time to run is in the past in eligibleToRunNow', function () {
+it('returns false if the time to run is in the past in eligibleToRunNow', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready', 'time_to_run_at' => now()->subHour()->format('H:i')]);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns false for eligibleToRun if the task is paused', function () {
+it('returns false for eligibleToRun if the task is paused', function (): void {
 
     $task = BackupTask::factory()->paused()->create();
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('updates the last scheduled weekly run for a weekly task', function () {
+it('updates the last scheduled weekly run for a weekly task', function (): void {
 
     $task = BackupTask::factory()->create([
         'time_to_run_at' => now()->format('H:i'),
@@ -244,7 +244,7 @@ it('updates the last scheduled weekly run for a weekly task', function () {
     $this->assertTrue($task->last_scheduled_weekly_run_at->isToday());
 });
 
-it('does not update the last scheduled weekly run for a daily task', function () {
+it('does not update the last scheduled weekly run for a daily task', function (): void {
 
     $task = BackupTask::factory()->create([
         'time_to_run_at' => now()->format('H:i'),
@@ -257,28 +257,28 @@ it('does not update the last scheduled weekly run for a daily task', function ()
     $this->assertNull($task->last_scheduled_weekly_run_at);
 });
 
-it('returns false if the custom cron expression does not match in eligibleToRunNow', function () {
+it('returns false if the custom cron expression does not match in eligibleToRunNow', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'ready', 'custom_cron_expression' => '0 0 1 1 *']);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns false if the backup task is not ready in eligibleToRunNow', function () {
+it('returns false if the backup task is not ready in eligibleToRunNow', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'not_ready', 'time_to_run_at' => now()->format('H:i')]);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns false if the backup task is running in eligibleToRunNow', function () {
+it('returns false if the backup task is running in eligibleToRunNow', function (): void {
 
     $task = BackupTask::factory()->create(['status' => 'running', 'time_to_run_at' => now()->format('H:i')]);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('does not update the last scheduled weekly run for a non-weekly task', function () {
+it('does not update the last scheduled weekly run for a non-weekly task', function (): void {
 
     $task = BackupTask::factory()->create(['frequency' => 'daily']);
 
@@ -286,28 +286,28 @@ it('does not update the last scheduled weekly run for a non-weekly task', functi
     $this->assertNull($task->last_scheduled_weekly_run_at);
 });
 
-it('does not run if the run time is in the past', function () {
+it('does not run if the run time is in the past', function (): void {
 
     $task = BackupTask::factory()->create(['time_to_run_at' => now()->subHour()->format('H:i')]);
 
     $this->assertFalse($task->eligibleToRunNow());
 });
 
-it('returns true if the user is rotating backups', function () {
+it('returns true if the user is rotating backups', function (): void {
 
     $task = BackupTask::factory()->create(['maximum_backups_to_keep' => 5]);
 
     $this->assertTrue($task->isRotatingBackups());
 });
 
-it('returns false if the user is not rotating backups', function () {
+it('returns false if the user is not rotating backups', function (): void {
 
     $task = BackupTask::factory()->create(['maximum_backups_to_keep' => 0]);
 
     $this->assertFalse($task->isRotatingBackups());
 });
 
-it('scopes all ready tasks', function () {
+it('scopes all ready tasks', function (): void {
 
     BackupTask::factory()->create(['status' => 'ready']);
     BackupTask::factory()->create(['status' => 'running']);
@@ -318,7 +318,7 @@ it('scopes all ready tasks', function () {
     $this->assertEquals('ready', $tasks->first()->status);
 });
 
-it('runs the files job', function () {
+it('runs the files job', function (): void {
     Queue::fake();
 
     $remoteServer = RemoteServer::factory()->create();
@@ -329,7 +329,7 @@ it('runs the files job', function () {
     Queue::assertPushed(RunFileBackupTaskJob::class);
 });
 
-it('runs the database job', function () {
+it('runs the database job', function (): void {
     Queue::fake();
 
     $remoteServer = RemoteServer::factory()->create();
@@ -340,7 +340,7 @@ it('runs the database job', function () {
     Queue::assertPushed(RunDatabaseBackupTaskJob::class);
 });
 
-it('does not run the files job if the task has been paused', function () {
+it('does not run the files job if the task has been paused', function (): void {
     Queue::fake();
     $remoteServer = RemoteServer::factory()->create();
     $task = BackupTask::factory()->paused()->create(['status' => 'ready', 'type' => 'files', 'remote_server_id' => $remoteServer->id]);
@@ -350,7 +350,7 @@ it('does not run the files job if the task has been paused', function () {
     Queue::assertNotPushed(RunFileBackupTaskJob::class);
 });
 
-it('does not run the database job if the task has been paused', function () {
+it('does not run the database job if the task has been paused', function (): void {
     Queue::fake();
     $remoteServer = RemoteServer::factory()->create();
     $task = BackupTask::factory()->paused()->create(['status' => 'ready', 'type' => 'database', 'remote_server_id' => $remoteServer->id]);
@@ -360,7 +360,7 @@ it('does not run the database job if the task has been paused', function () {
     Queue::assertNotPushed(RunDatabaseBackupTaskJob::class);
 });
 
-it('does not run the files job if a task is already running on the same remote server', function () {
+it('does not run the files job if a task is already running on the same remote server', function (): void {
     Queue::fake();
 
     $remoteServer = RemoteServer::factory()->create();
@@ -374,7 +374,7 @@ it('does not run the files job if a task is already running on the same remote s
     Queue::assertNotPushed(RunFileBackupTaskJob::class);
 });
 
-it('does not run the database job if a task is already running on the same remote server', function () {
+it('does not run the database job if a task is already running on the same remote server', function (): void {
     Queue::fake();
 
     $remoteServer = RemoteServer::factory()->create();
@@ -388,35 +388,35 @@ it('does not run the database job if a task is already running on the same remot
     Queue::assertNotPushed(RunDatabaseBackupTaskJob::class);
 });
 
-it('returns true if the type is files', function () {
+it('returns true if the type is files', function (): void {
 
     $task = BackupTask::factory()->create(['type' => 'files']);
 
     $this->assertTrue($task->isFilesType());
 });
 
-it('returns false if the type is not files', function () {
+it('returns false if the type is not files', function (): void {
 
     $task = BackupTask::factory()->create(['type' => 'database']);
 
     $this->assertFalse($task->isFilesType());
 });
 
-it('returns true if the type is database', function () {
+it('returns true if the type is database', function (): void {
 
     $task = BackupTask::factory()->create(['type' => 'database']);
 
     $this->assertTrue($task->isDatabaseType());
 });
 
-it('returns false if the type is not database', function () {
+it('returns false if the type is not database', function (): void {
 
     $task = BackupTask::factory()->create(['type' => 'files']);
 
     $this->assertFalse($task->isDatabaseType());
 });
 
-it('calculates the next run correctly', function () {
+it('calculates the next run correctly', function (): void {
     $backupTask = BackupTask::factory()->create([
         'frequency' => 'daily',
         'time_to_run_at' => '05:30',
@@ -432,7 +432,7 @@ it('calculates the next run correctly', function () {
         ->and($nextRun->toDateString())->toBe(now()->addDay()->toDateString());
 });
 
-it('returns null if frequency is null and custom cron expression is null', function () {
+it('returns null if frequency is null and custom cron expression is null', function (): void {
     $backupTask = BackupTask::factory()->create([
         'frequency' => null,
         'time_to_run_at' => null,
@@ -444,7 +444,7 @@ it('returns null if frequency is null and custom cron expression is null', funct
     expect($nextRun)->toBeNull();
 });
 
-it('calculates next run from custom cron expression', function () {
+it('calculates next run from custom cron expression', function (): void {
     $backupTask = BackupTask::factory()->create([
         'custom_cron_expression' => '5 0 * 8 *',
         'frequency' => null,
@@ -458,7 +458,7 @@ it('calculates next run from custom cron expression', function () {
         ->and($nextRun->month)->toBe(8);
 });
 
-it('returns the correct count of logs per month for the last six months', function () {
+it('returns the correct count of logs per month for the last six months', function (): void {
     $user = User::factory()->create();
 
     $backupTask = BackupTask::factory()->create([
@@ -499,7 +499,7 @@ it('returns the correct count of logs per month for the last six months', functi
     expect($sortedMonths)->toBe($sortedExpectedMonths);
 });
 
-it('returns the backup tasks count per type', function () {
+it('returns the backup tasks count per type', function (): void {
     $user = User::factory()->create();
 
     BackupTask::factory()->create([
@@ -520,19 +520,19 @@ it('returns the backup tasks count per type', function () {
     ]);
 });
 
-it('returns true if the backup task is paused', function () {
+it('returns true if the backup task is paused', function (): void {
     $task = BackupTask::factory()->paused()->create();
 
     expect($task->isPaused())->toBeTrue();
 });
 
-it('returns false if the backup task is not paused', function () {
+it('returns false if the backup task is not paused', function (): void {
     $task = BackupTask::factory()->create();
 
     expect($task->isPaused())->toBeFalse();
 });
 
-it('pauses the backup task', function () {
+it('pauses the backup task', function (): void {
     $task = BackupTask::factory()->create();
 
     $task->pause();
@@ -540,7 +540,7 @@ it('pauses the backup task', function () {
     expect($task->isPaused())->toBeTrue();
 });
 
-it('unpauses the backup task', function () {
+it('unpauses the backup task', function (): void {
     $task = BackupTask::factory()->paused()->create();
 
     $task->resume();
@@ -548,7 +548,7 @@ it('unpauses the backup task', function () {
     expect($task->isPaused())->toBeFalse();
 });
 
-it('scopes all the unpaused backup tasks', function () {
+it('scopes all the unpaused backup tasks', function (): void {
 
     $backupTaskOne = BackupTask::factory()->create();
     $backupTaskTwo = BackupTask::factory()->paused()->create();
@@ -560,19 +560,19 @@ it('scopes all the unpaused backup tasks', function () {
 
 });
 
-it('returns true if there is an appended file name', function () {
+it('returns true if there is an appended file name', function (): void {
     $task = BackupTask::factory()->create(['appended_file_name' => 'test']);
 
     expect($task->hasFileNameAppended())->toBeTrue();
 });
 
-it('returns false if there is no appended file name', function () {
+it('returns false if there is no appended file name', function (): void {
     $task = BackupTask::factory()->create(['appended_file_name' => null]);
 
     expect($task->hasFileNameAppended())->toBeFalse();
 });
 
-it('sets the last script update time', function () {
+it('sets the last script update time', function (): void {
     $task = BackupTask::factory()->create();
 
     $task->setScriptUpdateTime();
@@ -580,7 +580,7 @@ it('sets the last script update time', function () {
     expect($task->last_script_update_at)->toBeInstanceOf(Carbon::class);
 });
 
-it('resets the last script update time', function () {
+it('resets the last script update time', function (): void {
     $task = BackupTask::factory()->create(['last_script_update_at' => now()]);
 
     $task->resetScriptUpdateTime();
@@ -588,35 +588,35 @@ it('resets the last script update time', function () {
     expect($task->last_script_update_at)->toBeNull();
 });
 
-it('returns true if there is a notification email set', function () {
+it('returns true if there is a notification email set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_email' => 'alerts@email.com']);
 
     expect($task->hasNotifyEmail())->toBeTrue();
 });
 
-it('returns false if there is no notification email set', function () {
+it('returns false if there is no notification email set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_email' => null]);
 
     expect($task->hasNotifyEmail())->toBeFalse();
 });
 
-it('returns true if there is a notification discord webhook set', function () {
+it('returns true if there is a notification discord webhook set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_discord_webhook' => 'https://discord.com/webhook']);
 
     expect($task->hasNotifyDiscordWebhook())->toBeTrue();
 });
 
-it('returns false if there is no notification discord webhook set', function () {
+it('returns false if there is no notification discord webhook set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_discord_webhook' => null]);
 
     expect($task->hasNotifyDiscordWebhook())->toBeFalse();
 });
 
-it('queues up a discord notification job if a discord notification has been set', function () {
+it('queues up a discord notification job if a discord notification has been set', function (): void {
 
     Queue::fake();
 
@@ -628,7 +628,7 @@ it('queues up a discord notification job if a discord notification has been set'
     Queue::assertPushed(SendDiscordNotificationJob::class);
 });
 
-it('does not queue up a discord notification job if a discord notification has not been set', function () {
+it('does not queue up a discord notification job if a discord notification has not been set', function (): void {
 
     Queue::fake();
 
@@ -639,21 +639,21 @@ it('does not queue up a discord notification job if a discord notification has n
     Queue::assertNotPushed(SendDiscordNotificationJob::class);
 });
 
-it('returns true if there is a notification slack webhook set', function () {
+it('returns true if there is a notification slack webhook set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
 
     expect($task->hasNotifySlackWebhook())->toBeTrue();
 });
 
-it('returns false if there is no notification slack webhook set', function () {
+it('returns false if there is no notification slack webhook set', function (): void {
 
     $task = BackupTask::factory()->create(['notify_slack_webhook' => null]);
 
     expect($task->hasNotifySlackWebhook())->toBeFalse();
 });
 
-it('does not queue up a slack notification job if a slack notification has not been set', function () {
+it('does not queue up a slack notification job if a slack notification has not been set', function (): void {
     Queue::fake();
 
     $task = BackupTask::factory()->create(['notify_slack_webhook' => null]);
@@ -663,7 +663,7 @@ it('does not queue up a slack notification job if a slack notification has not b
     Queue::assertNotPushed(SendSlackNotificationJob::class);
 });
 
-it('queues up a slack notification job if a slack notification has been set', function () {
+it('queues up a slack notification job if a slack notification has been set', function (): void {
     Queue::fake();
 
     $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
@@ -674,7 +674,7 @@ it('queues up a slack notification job if a slack notification has been set', fu
     Queue::assertPushed(SendSlackNotificationJob::class);
 });
 
-it('queues up an email notification job if an email notification has been set', function () {
+it('queues up an email notification job if an email notification has been set', function (): void {
 
     Mail::fake();
 
@@ -686,7 +686,7 @@ it('queues up an email notification job if an email notification has been set', 
     Mail::assertQueued(OutputMail::class);
 });
 
-it('does not queue up an email notification job if an email notification has not been set', function () {
+it('does not queue up an email notification job if an email notification has not been set', function (): void {
 
     Mail::fake();
 
@@ -697,7 +697,7 @@ it('does not queue up an email notification job if an email notification has not
     Mail::assertNotQueued(OutputMail::class);
 });
 
-it('queues up an email notification', function () {
+it('queues up an email notification', function (): void {
     Mail::fake();
     $user = User::factory()->create();
     $task = BackupTask::factory()->create(['notify_email' => $user->email]);
@@ -707,7 +707,7 @@ it('queues up an email notification', function () {
     Mail::assertQueued(OutputMail::class);
 });
 
-it('sends a discord webhook', function () {
+it('sends a discord webhook', function (): void {
     Http::fake();
 
     $task = BackupTask::factory()->create(['notify_discord_webhook' => 'https://discord.com/webhook']);
@@ -715,12 +715,12 @@ it('sends a discord webhook', function () {
 
     $task->sendDiscordWebhookNotification($log);
 
-    Http::assertSent(function ($request) {
+    Http::assertSent(function ($request): bool {
         return $request->url() === 'https://discord.com/webhook';
     });
 });
 
-it('sends a slack webhook', function () {
+it('sends a slack webhook', function (): void {
     Http::fake();
 
     $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
@@ -728,26 +728,26 @@ it('sends a slack webhook', function () {
 
     $task->sendSlackWebhookNotification($log);
 
-    Http::assertSent(function ($request) {
+    Http::assertSent(function ($request): bool {
         return $request->url() === 'https://slack.com/webhook';
     });
 });
 
-it('returns true if there is a store path specified', function () {
+it('returns true if there is a store path specified', function (): void {
 
     $task = BackupTask::factory()->create(['store_path' => 'path/to/store']);
 
     expect($task->hasCustomStorePath())->toBeTrue();
 });
 
-it('returns false if there is no store path specified', function () {
+it('returns false if there is no store path specified', function (): void {
 
     $task = BackupTask::factory()->create(['store_path' => null]);
 
     expect($task->hasCustomStorePath())->toBeFalse();
 });
 
-it('returns true if a remote server has another task that is running already', function () {
+it('returns true if a remote server has another task that is running already', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
     $task1 = BackupTask::factory()->create(['status' => 'running', 'remote_server_id' => $remoteServer->id]);
@@ -756,7 +756,7 @@ it('returns true if a remote server has another task that is running already', f
     expect($task2->isAnotherTaskRunningOnSameRemoteServer())->toBeTrue();
 });
 
-it('returns false if a remote server does not have another task that is running already', function () {
+it('returns false if a remote server does not have another task that is running already', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
     $task1 = BackupTask::factory()->create(['status' => 'ready', 'remote_server_id' => $remoteServer->id]);
@@ -765,7 +765,7 @@ it('returns false if a remote server does not have another task that is running 
     expect($task2->isAnotherTaskRunningOnSameRemoteServer())->toBeFalse();
 });
 
-it('returns false if there is only one task on the remote server', function () {
+it('returns false if there is only one task on the remote server', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
     $task = BackupTask::factory()->create(['status' => 'running', 'remote_server_id' => $remoteServer->id]);
@@ -773,14 +773,14 @@ it('returns false if there is only one task on the remote server', function () {
     expect($task->isAnotherTaskRunningOnSameRemoteServer())->toBeFalse();
 });
 
-it('returns null if there are no attached tags', function () {
+it('returns null if there are no attached tags', function (): void {
 
     $task = BackupTask::factory()->create();
 
     expect($task->listOfAttachedTagLabels())->toBeNull();
 });
 
-it('returns the attached tags as a string', function () {
+it('returns the attached tags as a string', function (): void {
 
     $task = BackupTask::factory()->create();
     $tag1 = Tag::factory()->create(['label' => 'Tag 1']);
@@ -791,7 +791,7 @@ it('returns the attached tags as a string', function () {
     expect($task->listOfAttachedTagLabels())->toBe('Tag 1, Tag 2');
 });
 
-it('returns true if the isolated credentials are set', function () {
+it('returns true if the isolated credentials are set', function (): void {
 
     $task = BackupTask::factory()->create([
         'isolated_username' => 'john_doe',
@@ -801,7 +801,7 @@ it('returns true if the isolated credentials are set', function () {
     $this->assertTrue($task->hasIsolatedCredentials());
 });
 
-it('returns false if the isolated credentials are set', function () {
+it('returns false if the isolated credentials are set', function (): void {
 
     $task = BackupTask::factory()->create([
         'isolated_username' => null,
@@ -811,11 +811,11 @@ it('returns false if the isolated credentials are set', function () {
     $this->assertFalse($task->hasIsolatedCredentials());
 });
 
-beforeEach(function () {
+beforeEach(function (): void {
     Carbon::setTestNow(Carbon::create(2024, 6, 12, 18, 57));
 });
 
-it('formats last run correctly for Danish locale', function () {
+it('formats last run correctly for Danish locale', function (): void {
     $user = User::factory()->create(['language' => 'da', 'timezone' => 'UTC']);
     $backupTask = BackupTask::factory()->create(['last_run_at' => now()]);
 
@@ -824,7 +824,7 @@ it('formats last run correctly for Danish locale', function () {
     expect($result)->toBe('12 juni 2024 18:57');
 });
 
-it('formats last run correctly for English locale', function () {
+it('formats last run correctly for English locale', function (): void {
     $user = User::factory()->create(['language' => 'en', 'timezone' => 'UTC']);
     $backupTask = BackupTask::factory()->create(['last_run_at' => now()]);
 
@@ -833,7 +833,7 @@ it('formats last run correctly for English locale', function () {
     expect($result)->toBe('12 June 2024 18:57');
 });
 
-it('returns "Never" when last run is null', function () {
+it('returns "Never" when last run is null', function (): void {
     $user = User::factory()->create();
     $backupTask = BackupTask::factory()->create(['last_run_at' => null]);
 
@@ -842,7 +842,7 @@ it('returns "Never" when last run is null', function () {
     expect($result)->toBe('Never');
 });
 
-it('formats last run correctly for authenticated user', function () {
+it('formats last run correctly for authenticated user', function (): void {
     $user = User::factory()->create(['language' => 'da', 'timezone' => 'Europe/Copenhagen']);
     Auth::login($user);
 
@@ -853,6 +853,6 @@ it('formats last run correctly for authenticated user', function () {
     expect($result)->toBe('12 juni 2024 20:57');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
 });

@@ -6,7 +6,7 @@ use App\Console\Commands\EnsureConnectionToBackupDestinationsCommand;
 use App\Jobs\CheckBackupDestinationsS3ConnectionJob;
 use App\Models\BackupDestination;
 
-it('dispatches a batch to check the connection of eligible backup destinations', function () {
+it('dispatches a batch to check the connection of eligible backup destinations', function (): void {
     Bus::fake();
 
     $S3BackupDestination = BackupDestination::factory()->create([
@@ -22,41 +22,41 @@ it('dispatches a batch to check the connection of eligible backup destinations',
     ]);
 
     $this->artisan(EnsureConnectionToBackupDestinationsCommand::class)
-        ->expectsOutput('Checking connection to eligible backup destinations...')
+        ->expectsOutputToContain('Checking connection to eligible backup destinations...')
         ->assertExitCode(0);
 
-    Bus::assertBatched(function ($batch) use ($S3BackupDestination, $CustomS3BackupDestination, $localBackupDestination) {
+    Bus::assertBatched(function ($batch) use ($S3BackupDestination, $CustomS3BackupDestination, $localBackupDestination): bool {
         $jobs = $batch->jobs;
 
         return $batch->name === 'Check connection to eligible backup destinations'
             && $jobs->count() === 2
-            && $jobs->contains(function ($job) use ($S3BackupDestination) {
+            && $jobs->contains(function ($job) use ($S3BackupDestination): bool {
                 return $job instanceof CheckBackupDestinationsS3ConnectionJob
                     && $job->backupDestination->is($S3BackupDestination);
             })
-            && $jobs->contains(function ($job) use ($CustomS3BackupDestination) {
+            && $jobs->contains(function ($job) use ($CustomS3BackupDestination): bool {
                 return $job instanceof CheckBackupDestinationsS3ConnectionJob
                     && $job->backupDestination->is($CustomS3BackupDestination);
             })
-            && ! $jobs->contains(function ($job) use ($localBackupDestination) {
+            && ! $jobs->contains(function ($job) use ($localBackupDestination): bool {
                 return $job instanceof CheckBackupDestinationsS3ConnectionJob
                     && $job->backupDestination->is($localBackupDestination);
             });
     });
 });
 
-it('does not dispatch a batch if no backup destinations are found', function () {
+it('does not dispatch a batch if no backup destinations are found', function (): void {
     Bus::fake();
 
     $this->artisan(EnsureConnectionToBackupDestinationsCommand::class)
-        ->expectsOutput('Checking connection to eligible backup destinations...')
-        ->expectsOutput('No backup destinations found.')
+        ->expectsOutputToContain('Checking connection to eligible backup destinations...')
+        ->expectsOutputToContain('No backup destinations found.')
         ->assertExitCode(0);
 
     Bus::assertNotDispatched(CheckBackupDestinationsS3ConnectionJob::class);
 });
 
-it('does not dispatch a batch if no eligible backup destinations are found', function () {
+it('does not dispatch a batch if no eligible backup destinations are found', function (): void {
     Bus::fake();
 
     BackupDestination::factory()->create([
@@ -64,8 +64,8 @@ it('does not dispatch a batch if no eligible backup destinations are found', fun
     ]);
 
     $this->artisan(EnsureConnectionToBackupDestinationsCommand::class)
-        ->expectsOutput('Checking connection to eligible backup destinations...')
-        ->expectsOutput('No eligible backup destinations found.')
+        ->expectsOutputToContain('Checking connection to eligible backup destinations...')
+        ->expectsOutputToContain('No eligible backup destinations found.')
         ->assertExitCode(0);
 
     Bus::assertNotDispatched(CheckBackupDestinationsS3ConnectionJob::class);

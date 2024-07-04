@@ -84,9 +84,13 @@ class CreateBackupTaskForm extends Component
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void {}
+    public function updatedUseCustomCron(): void
+    {
+    }
 
-    public function updatedUseIsolatedCredentials(): void {}
+    public function updatedUseIsolatedCredentials(): void
+    {
+    }
 
     public function updatedBackupType(): void
     {
@@ -118,7 +122,7 @@ class CreateBackupTaskForm extends Component
         }
 
         // Initialize backup times in 15min increments
-        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour) {
+        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour): string {
             $hour = intdiv($quarterHour, 4);
             $minute = ($quarterHour % 4) * 15;
 

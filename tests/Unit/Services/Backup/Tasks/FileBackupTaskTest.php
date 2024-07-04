@@ -21,7 +21,7 @@ use Tests\Unit\Services\Backup\Tasks\Helpers\FileBackupTaskTestClass;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     Event::fake();
     $this->remoteServer = RemoteServer::factory()->create();
     $this->backupDestination = BackupDestination::factory()->create([
@@ -52,11 +52,11 @@ beforeEach(function () {
     $this->fileBackupTask->shouldReceive('logMessage')->andReturnNull();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 
-test('perform backup successfully', function () {
+test('perform backup successfully', function (): void {
     $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
@@ -76,7 +76,7 @@ test('perform backup successfully', function () {
     ]);
 });
 
-test('backup fails when source path does not exist', function () {
+test('backup fails when source path does not exist', function (): void {
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(false);
     $this->fileBackupTask->shouldReceive('handleBackupFailure')->once();
 
@@ -88,7 +88,7 @@ test('backup fails when source path does not exist', function () {
     ]);
 });
 
-test('backup fails when directory size exceeds limit', function () {
+test('backup fails when directory size exceeds limit', function (): void {
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(BackupConstants::FILE_SIZE_LIMIT + 1);
     $this->fileBackupTask->shouldReceive('handleBackupFailure')->once();
@@ -101,7 +101,7 @@ test('backup fails when directory size exceeds limit', function () {
     ]);
 });
 
-test('backup excludes node_modules and vendor for Laravel directories', function () {
+test('backup excludes node_modules and vendor for Laravel directories', function (): void {
     $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
@@ -120,7 +120,7 @@ test('backup excludes node_modules and vendor for Laravel directories', function
     ]);
 });
 
-test('backup fails when zipping throws an exception', function () {
+test('backup fails when zipping throws an exception', function (): void {
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
     $this->fileBackupTask->shouldReceive('isLaravelDirectory')->andReturn(false);
@@ -136,7 +136,7 @@ test('backup fails when zipping throws an exception', function () {
     ]);
 });
 
-test('backup fails when upload to destination fails', function () {
+test('backup fails when upload to destination fails', function (): void {
     $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
@@ -153,7 +153,7 @@ test('backup fails when upload to destination fails', function () {
     ]);
 });
 
-test('backup with rotation', function () {
+test('backup with rotation', function (): void {
     $this->backupTask->update(['maximum_backups_to_keep' => 5]);
 
     $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
@@ -175,7 +175,7 @@ test('backup with rotation', function () {
     ]);
 });
 
-test('handle unexpected exception', function () {
+test('handle unexpected exception', function (): void {
     $this->fileBackupTask->shouldReceive('performBackup')->andThrow(new Exception('Unexpected error'));
     $this->fileBackupTask->shouldReceive('handleBackupFailure')->once();
 

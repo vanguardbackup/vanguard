@@ -22,7 +22,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
 
     protected function gate(): void
     {
-        Gate::define('viewHorizon', function () {
+        Gate::define('viewHorizon', function (): bool {
 
             if (request()->bearerToken() && request()->bearerToken() === config('services.horizon.token')) {
                 return true;

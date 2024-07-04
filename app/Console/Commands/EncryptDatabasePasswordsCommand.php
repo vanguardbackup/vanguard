@@ -26,7 +26,7 @@ class EncryptDatabasePasswordsCommand extends Command
             return;
         }
 
-        $remoteServers->each(function ($remoteServer) {
+        $remoteServers->each(function ($remoteServer): void {
 
             if (! $remoteServer->isDatabasePasswordEncrypted()) {
 
@@ -37,7 +37,7 @@ class EncryptDatabasePasswordsCommand extends Command
                 }
 
                 $remoteServer->update([
-                    'database_password' => Crypt::encryptString($remoteServer->database_password),
+                    'database_password' => Crypt::encryptString($remoteServer->getAttribute('database_password')),
                 ]);
 
                 $remoteServer->save();

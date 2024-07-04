@@ -14,7 +14,7 @@ use App\Services\Backup\Destinations\S3;
 use Illuminate\Support\Facades\Config;
 use Tests\Unit\Services\Backup\BackupTestClass;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Event::fake();
     $this->backup = Mockery::mock(BackupTestClass::class)
         ->makePartial()
@@ -23,11 +23,11 @@ beforeEach(function () {
     $this->backup->shouldReceive('get_ssh_private_key')->andReturn('mock_private_key_content');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 
-it('validates configuration successfully', function () {
+it('validates configuration successfully', function (): void {
     Config::set('app.ssh.passphrase', 'test_passphrase');
     Config::set('app.env', 'testing');
 
@@ -36,7 +36,7 @@ it('validates configuration successfully', function () {
     expect(fn () => $this->backup->publicValidateConfiguration())->not->toThrow(BackupTaskRuntimeException::class);
 });
 
-it('throws exception when SSH passphrase is not set', function () {
+it('throws exception when SSH passphrase is not set', function (): void {
     Config::set('app.ssh.passphrase', null);
     Config::set('app.env', 'production');
 
@@ -45,7 +45,7 @@ it('throws exception when SSH passphrase is not set', function () {
     expect(fn () => $this->backup->publicValidateConfiguration())->toThrow(BackupTaskRuntimeException::class);
 });
 
-it('obtains backup task', function () {
+it('obtains backup task', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     $obtainedTask = $this->backup->obtainBackupTask($backupTask->id);
@@ -53,7 +53,7 @@ it('obtains backup task', function () {
     expect($obtainedTask->id)->toBe($backupTask->id);
 });
 
-it('records backup task log', function () {
+it('records backup task log', function (): void {
     $backupTask = BackupTask::factory()->create();
     $logOutput = 'Test log output';
 
@@ -64,7 +64,7 @@ it('records backup task log', function () {
         ->and($backupTaskLog->output)->toBe($logOutput);
 });
 
-it('updates backup task log output', function () {
+it('updates backup task log output', function (): void {
     $backupTaskLog = BackupTaskLog::factory()->create();
     $newLogOutput = 'Updated log output';
 
@@ -73,7 +73,7 @@ it('updates backup task log output', function () {
     expect($backupTaskLog->fresh()->output)->toBe($newLogOutput);
 });
 
-it('updates backup task status', function () {
+it('updates backup task status', function (): void {
     $backupTask = BackupTask::factory()->create(['status' => 'ready']);
     $newStatus = 'ready';
 
@@ -83,7 +83,7 @@ it('updates backup task status', function () {
     expect($backupTask->status)->toBe($newStatus);
 });
 
-it('checks if path exists', function () {
+it('checks if path exists', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('stat')->with('/path/to/source')->andReturn(['type' => 2]); // 2 for directory
 
@@ -92,7 +92,7 @@ it('checks if path exists', function () {
     expect($result)->toBeTrue();
 });
 
-it('gets remote directory size', function () {
+it('gets remote directory size', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with("du -sb '/path/to/source' | cut -f1")->andReturn('1024');
@@ -102,7 +102,7 @@ it('gets remote directory size', function () {
     expect($result)->toBe(1024);
 });
 
-it('establishes SFTP connection', function () {
+it('establishes SFTP connection', function (): void {
     test_create_keys();
     $remoteServer = RemoteServer::factory()->create([
         'ip_address' => '192.168.1.1',
@@ -132,7 +132,7 @@ it('establishes SFTP connection', function () {
     test_restore_keys();
 });
 
-it('zips remote directory successfully', function () {
+it('zips remote directory successfully', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
@@ -146,7 +146,7 @@ it('zips remote directory successfully', function () {
     expect(true)->toBeTrue();
 });
 
-it('throws exception when zipping fails', function () {
+it('throws exception when zipping fails', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
@@ -159,7 +159,7 @@ it('throws exception when zipping fails', function () {
         ->toThrow(BackupTaskZipException::class);
 });
 
-it('gets database type', function () {
+it('gets database type', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
 
@@ -168,7 +168,7 @@ it('gets database type', function () {
     expect($dbType)->toBe('mysql');
 });
 
-it('dumps remote database', function () {
+it('dumps remote database', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^mysqldump/'))->andReturn('');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^test -s/'))->andReturn('exists');
@@ -186,7 +186,7 @@ it('dumps remote database', function () {
     expect(true)->toBeTrue();
 });
 
-it('checks if directory is a Laravel project', function () {
+it('checks if directory is a Laravel project', function (): void {
     $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/artisan')->andReturn(['type' => 1]);
     $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/composer.json')->andReturn(['type' => 1]);
     $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/package.json')->andReturn(['type' => 1]);
@@ -196,7 +196,7 @@ it('checks if directory is a Laravel project', function () {
     expect($isLaravel)->toBeTrue();
 });
 
-it('deletes folder', function () {
+it('deletes folder', function (): void {
     $this->mockSftp->shouldReceive('exec')->with("rm -rf '/path/to/delete'")->andReturn('');
 
     $this->backup->deleteFolder($this->mockSftp, '/path/to/delete');
@@ -204,7 +204,7 @@ it('deletes folder', function () {
     expect(true)->toBeTrue();
 });
 
-it('creates backup destination instance', function () {
+it('creates backup destination instance', function (): void {
     $backupDestination = Mockery::mock(BackupDestination::class);
     $backupDestination->shouldReceive('getAttribute')->with('type')->andReturn('s3');
     $backupDestination->shouldReceive('getAttribute')->with('s3_bucket_name')->andReturn('test-bucket');
