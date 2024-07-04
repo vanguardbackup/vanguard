@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks;
 
+use App\Models\RemoteServer;
+use App\Models\Tag;
 use App\Models\BackupTask;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
 use Carbon\Carbon;
@@ -43,7 +45,7 @@ class CreateBackupTaskForm extends Component
     public string $backupType = BackupTask::TYPE_FILES;
 
     /**
-     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RemoteServer>|null
+     * @var Collection<int, RemoteServer>|null
      */
     public ?Collection $remoteServers;
 
@@ -69,7 +71,7 @@ class CreateBackupTaskForm extends Component
     public ?string $excludedDatabaseTables = null;
 
     /**
-     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag>|null
+     * @var Collection<int, Tag>|null
      */
     public ?Collection $availableTags;
 

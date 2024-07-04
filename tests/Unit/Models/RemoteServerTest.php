@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CheckRemoteServerConnectionJob;
 use App\Jobs\RemoteServers\RemoveServerJob;
 use App\Jobs\RemoteServers\RemoveSSHKeyJob;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupTasks\RunTaskButton;
 use App\Models\BackupTask;
 

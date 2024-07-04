@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Mail\User\WelcomeMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;

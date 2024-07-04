@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\RemoteServer\CheckRemoteServerConnection;
 use App\Events\RemoteServerConnectivityStatusChanged;
 use App\Models\RemoteServer;

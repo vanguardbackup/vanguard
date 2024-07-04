@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupTasks\IndexItem;
 use App\Models\BackupTask;
 use Livewire\Livewire;

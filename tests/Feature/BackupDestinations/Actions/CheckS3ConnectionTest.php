@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\BackupDestinations\CheckS3Connection;
 use App\Models\BackupDestination;
 use Aws\S3\S3Client;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\RemoteServers\RemoveServerJob;
 use App\Jobs\RemoteServers\RemoveSSHKeyJob;
 use App\Livewire\RemoteServers\DeleteRemoteServerForm;

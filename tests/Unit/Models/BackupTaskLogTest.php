@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\BackupTaskLog;
 
 it('scopes finished task logs', function () {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Services\Backup\Adapters\SFTPAdapter;
 use phpseclib3\Net\SFTP;
 

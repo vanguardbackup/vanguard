@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupDestination;

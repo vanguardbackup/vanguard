@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Services\Backup\Tasks\Helpers;
 
 use App\Models\BackupTask;

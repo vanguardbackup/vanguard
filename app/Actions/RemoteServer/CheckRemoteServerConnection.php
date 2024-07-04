@@ -84,7 +84,7 @@ class CheckRemoteServerConnection
 
             Log::debug('[Server Connection Check] Successfully connected to remote server');
 
-            if ($remoteServer instanceof \App\Models\RemoteServer) {
+            if ($remoteServer instanceof RemoteServer) {
                 Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
                 RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }
@@ -100,7 +100,7 @@ class CheckRemoteServerConnection
                 'connectivity_status' => RemoteServer::STATUS_OFFLINE,
             ]);
 
-            if ($remoteServer instanceof \App\Models\RemoteServer) {
+            if ($remoteServer instanceof RemoteServer) {
                 Log::debug('[Server Connection Check] Dispatching RemoteServerConnectivityStatusChanged event (result: ' . $remoteServer->connectivity_status . ')', ['remote_server' => $remoteServer]);
                 RemoteServerConnectivityStatusChanged::dispatch($remoteServer, $remoteServer->connectivity_status);
             }

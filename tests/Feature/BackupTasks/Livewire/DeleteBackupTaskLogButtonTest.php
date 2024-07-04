@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupTasks\DeleteBackupTaskLogButton;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;

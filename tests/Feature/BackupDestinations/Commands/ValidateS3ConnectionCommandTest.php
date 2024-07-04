@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\BackupDestinations\CheckS3Connection;
 use App\Console\Commands\ValidateS3ConnectionCommand;
 use App\Models\BackupDestination;

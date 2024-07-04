@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Console\Commands\CheckVersion;
 use Illuminate\Support\Facades\File;
 

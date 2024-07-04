@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Console\Commands\GenerateSSHKeyCommand;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;

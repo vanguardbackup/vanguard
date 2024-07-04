@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupTasks\UpdateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;

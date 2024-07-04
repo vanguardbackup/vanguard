@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupTasks\LogModal;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;

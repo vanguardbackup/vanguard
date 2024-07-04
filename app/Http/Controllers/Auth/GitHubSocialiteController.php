@@ -44,11 +44,11 @@ class GitHubSocialiteController extends Controller
         try {
             $githubUser = Socialite::driver('github')->user();
 
-            if (($user = $this->findUserByGitHubId((int) $githubUser->getId())) instanceof \App\Models\User) {
+            if (($user = $this->findUserByGitHubId((int) $githubUser->getId())) instanceof User) {
                 return $this->loginAndRedirect($user, 'Found GH ID associated with this user, logging them in.');
             }
 
-            if (($user = $this->findUserByEmailAndUpdateGitHubId($githubUser)) instanceof \App\Models\User) {
+            if (($user = $this->findUserByEmailAndUpdateGitHubId($githubUser)) instanceof User) {
                 return $this->loginAndRedirect($user, 'Adding the user\'s GH ID to their account.');
             }
 

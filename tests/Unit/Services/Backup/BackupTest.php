@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Exceptions\BackupTaskRuntimeException;
 use App\Exceptions\BackupTaskZipException;
 use App\Models\BackupDestination;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupDestinations\DeleteBackupDestinationForm;
 use App\Models\BackupDestination;
 use App\Models\User;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\RemoteServers\CreateRemoteServerForm;
 use App\Models\RemoteServer;
 use App\Models\User;

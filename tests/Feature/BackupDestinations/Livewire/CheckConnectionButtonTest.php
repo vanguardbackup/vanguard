@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupDestinations\CheckConnectionButton;
 use App\Models\BackupDestination;
 

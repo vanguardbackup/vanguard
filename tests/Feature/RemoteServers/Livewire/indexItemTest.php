@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Events\RemoteServerConnectivityStatusChanged;
 use App\Livewire\RemoteServers\IndexItem;
 use App\Models\RemoteServer;

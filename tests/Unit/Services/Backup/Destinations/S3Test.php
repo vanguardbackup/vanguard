@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\S3;
 use Aws\Api\DateTimeResult;

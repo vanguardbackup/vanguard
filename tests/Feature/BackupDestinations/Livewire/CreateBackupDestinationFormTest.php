@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\BackupDestinations\CreateBackupDestinationForm;
 use App\Models\User;
 

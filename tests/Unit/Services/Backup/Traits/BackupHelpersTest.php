@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Services\Backup\Contracts\SFTPInterface;
 use Illuminate\Support\Facades\Log;
 use Tests\Unit\Services\Backup\Traits\BackupHelpersTestClass;

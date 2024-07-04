@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Console\Commands\GenerateSSHKeyCommand;
 
 it('should not generate SSH keys if they already exist', function () {
