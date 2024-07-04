@@ -28,7 +28,7 @@ class CreateBackupTaskForm extends Component
 
     public ?string $sourcePath = null;
 
-    public string $remoteServerId = '';
+    public ?int $remoteServerId = null;
 
     public string $backupDestinationId = '';
 
@@ -98,8 +98,7 @@ class CreateBackupTaskForm extends Component
             $this->remoteServers = Auth::user()->remoteServers->where('database_password', '!=', null);
         }
 
-        // Reset the remote server ID to ensure it matches the new type
-        $this->remoteServerId = $this->remoteServers->first()?->id ?? '';
+        $this->remoteServerId = $this->remoteServers->first()?->id;
     }
 
     public function mount(): void
@@ -109,7 +108,7 @@ class CreateBackupTaskForm extends Component
         $this->userTimezone = Auth::user()->timezone ?? 'UTC';
 
         $this->remoteServers = Auth::user()->remoteServers->where('database_password', null);
-        $this->remoteServerId = (string) ($this->remoteServers->first()?->id ?? '');
+        $this->remoteServerId = $this->remoteServers->first()?->id;
 
         if (Auth::user()->preferred_backup_destination_id) {
             $this->backupDestinationId = (string) Auth::user()->preferred_backup_destination_id;
@@ -177,7 +176,7 @@ class CreateBackupTaskForm extends Component
                 'label' => ['required', 'string'],
                 'description' => ['nullable', 'string', 'max:100'],
                 'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-                'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
+                'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
                 'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
                 'frequency' => ['required', 'string', 'in:daily,weekly'],
                 'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId)],
@@ -201,7 +200,7 @@ class CreateBackupTaskForm extends Component
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string', 'max:100'],
             'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-            'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
+            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
             'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
             'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId)],
