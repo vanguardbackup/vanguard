@@ -47,23 +47,32 @@ class BackupTask extends Model
      */
     public static function logsCountPerMonthForLastSixMonths(int $userId): array
     {
-        $endDate = now()->startOfMonth();
+        $user = User::whereId($userId)->firstOrFail();
+
+        $endDate = now();
         $startDate = $endDate->copy()->subMonths(6)->startOfMonth();
 
-        return BackupTaskData::query()
+        $locale = $user->language ?? 'en';
+        Carbon::setLocale($locale);
+
+        $results = BackupTaskData::query()
             ->join('backup_tasks', 'backup_tasks.id', '=', 'backup_task_data.backup_task_id')
             ->where('backup_tasks.user_id', $userId)
             ->where('backup_task_data.created_at', '>=', $startDate)
-            ->where('backup_task_data.created_at', '<', $endDate)
-            ->selectRaw('COUNT(*) as count, to_char(backup_task_data.created_at, \'Mon YYYY\') as month, MAX(backup_task_data.created_at) as max_date')
-            ->groupBy('month')
-            ->orderBy('max_date', 'desc')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item['month'] => $item['count']];
-            })
-            ->toArray();
+            ->where('backup_task_data.created_at', '<=', $endDate)
+            ->selectRaw('COUNT(*) as count, DATE_TRUNC(\'month\', backup_task_data.created_at) as month_date')
+            ->groupBy('month_date')
+            ->orderBy('month_date')
+            ->get();
+
+        return $results->mapWithKeys(function ($item) use ($locale) {
+            $carbonDate = Carbon::parse($item->month_date)->locale($locale);
+            $localizedMonth = ucfirst($carbonDate->isoFormat('MMM YYYY'));
+            return [$localizedMonth => $item->count];
+        })->toArray();
     }
+
+
 
     /**
      * Get the count of backup tasks by type for a given user.

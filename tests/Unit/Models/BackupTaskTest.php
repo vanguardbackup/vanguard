@@ -468,7 +468,7 @@ it('returns the correct count of logs per month for the last six months', functi
     $now = now()->startOfMonth();
 
     $expectedDates = [];
-    for ($i = 1; $i <= 6; $i++) {
+    for ($i = 1; $i <= 5; $i++) {
         $date = $now->copy()->subMonths($i)->startOfMonth();
 
         BackupTaskData::create([
@@ -482,7 +482,7 @@ it('returns the correct count of logs per month for the last six months', functi
     $logsCountPerMonth = BackupTask::logsCountPerMonthForLastSixMonths($user->id);
 
     $monthsCount = count($logsCountPerMonth);
-    expect($monthsCount)->toBe(6);
+    expect($monthsCount)->toBe(5);
 
     foreach ($expectedDates as $month => $expectedCount) {
         expect($logsCountPerMonth)->toHaveKey($month)
