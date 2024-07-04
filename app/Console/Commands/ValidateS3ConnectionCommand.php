@@ -15,13 +15,9 @@ class ValidateS3ConnectionCommand extends Command
 
     protected $description = 'Validates connectivity to the specified S3 bucket.';
 
-    protected CheckS3Connection $checkConnection;
-
-    public function __construct(CheckS3Connection $checkConnection)
+    public function __construct(protected CheckS3Connection $checkConnection)
     {
         parent::__construct();
-
-        $this->checkConnection = $checkConnection;
     }
 
     public function handle(): void

@@ -9,6 +9,7 @@ use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Backup;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -54,7 +55,7 @@ abstract class AbstractBackupTask extends Backup
     {
         $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
 
-        return "{$prefix}backup_{$this->backupTask->id}_" . date('YmdHis') . ".{$extension}";
+        return "{$prefix}backup_{$this->backupTask->id}_" . Carbon::now()->format('YmdHis') . ".{$extension}";
     }
 
     abstract protected function performBackup(): void;

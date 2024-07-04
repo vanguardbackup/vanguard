@@ -16,14 +16,11 @@ class CreatedBackupTaskLog implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public BackupTaskLog $backupTaskLog;
-
     public BackupTask $backupTask;
 
-    public function __construct(BackupTaskLog $backupTaskLog)
+    public function __construct(public BackupTaskLog $backupTaskLog)
     {
-        $this->backupTaskLog = $backupTaskLog;
-        $this->backupTask = $backupTaskLog->backupTask;
+        $this->backupTask = $this->backupTaskLog->backupTask;
     }
 
     /**
