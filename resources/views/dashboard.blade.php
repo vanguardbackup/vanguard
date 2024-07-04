@@ -65,70 +65,98 @@
     </div>
         <script>
             document.addEventListener('livewire:navigated', function () {
-                const label = '{!! __('Backup Tasks') !!}';
-                const ctx = document.getElementById('totalBackupsPerMonth').getContext('2d');
-                const totalBackupsPerMonth = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: {!! $months !!},
-                        datasets: [{
-                            label: label,
-                            data: {!! $counts !!},
-                            borderColor: 'rgb(0,0,0)',
-                            backgroundColor: 'rgba(0,0,0,0.24)',
-                            tension: 0.2
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: false
+                function createCharts() {
+                    const isDarkMode = document.documentElement.classList.contains('dark');
+                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'; // dark:text-gray-200 : text-gray-900
+                    const backgroundColor = isDarkMode ? 'rgba(229, 231, 235, 0.24)' : 'rgba(17, 24, 39, 0.24)';
+
+                    const label = '{!! __('Backup Tasks') !!}';
+                    const ctx = document.getElementById('totalBackupsPerMonth').getContext('2d');
+                    const totalBackupsPerMonth = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: {!! $months !!},
+                            datasets: [{
+                                label: label,
+                                data: {!! $counts !!},
+                                borderColor: textColor,
+                                backgroundColor: backgroundColor,
+                                tension: 0.2
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor }
+                                },
+                                y: {
+                                    ticks: { color: textColor }
+                                }
                             }
                         },
-                    },
+                    });
+
+                    const type = '{!! __('Type') !!}';
+                    const ctx2 = document.getElementById('backupTasksByType').getContext('2d');
+                    const translations = {
+                        'Files': '{!! __('Files') !!}',
+                        'Database': '{!! __('Database') !!}'
+                    };
+                    const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}
+                        .map(label => translations[label] || label)
+                        .map(label => label.charAt(0).toUpperCase() + label.slice(1));
+                    const backupTasksByType = new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: type,
+                                data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
+                                backgroundColor: isDarkMode
+                                    ? ['rgb(55, 65, 81)', 'rgb(75, 85, 99)']  // dark:bg-gray-700, dark:bg-gray-600
+                                    : ['rgb(237,254,255)', 'rgb(250,245,255)'],
+                                borderColor: isDarkMode
+                                    ? ['rgb(107, 114, 128)', 'rgb(156, 163, 175)']  // dark:border-gray-500, dark:border-gray-400
+                                    : ['rgb(189,220,223)', 'rgb(192,180,204)'],
+                                borderWidth: 0.8
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor }
+                                },
+                                y: {
+                                    ticks: { color: textColor }
+                                }
+                            }
+                        },
+                    });
+
+                    return { totalBackupsPerMonth, backupTasksByType };
+                }
+
+                let charts = createCharts();
+
+                window.addEventListener('themeChanged', function(event) {
+                    charts.totalBackupsPerMonth.destroy();
+                    charts.backupTasksByType.destroy();
+                    charts = createCharts();
                 });
             });
         </script>
-        <script>
-            document.addEventListener('livewire:navigated', function () {
-                const type = '{!! __('Type') !!}';
-                const ctx = document.getElementById('backupTasksByType').getContext('2d');
-                const translations = {
-                    'Files': '{!! __('Files') !!}',
-                    'Database': '{!! __('Database') !!}'
-                };
-                const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}
-                    .map(label => translations[label] || label)
-                    .map(label => label.charAt(0).toUpperCase() + label.slice(1));
-                    const backupTasksByType = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: type,
-                            data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
-                            backgroundColor: [
-                                'rgb(237,254,255)',
-                                'rgb(250,245,255)',
-                            ],
-                            borderColor: [
-                                'rgb(189,220,223)',
-                                'rgb(192,180,204)',
-                            ],
-                            borderWidth: 0.8
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                    },
-                });
-            });
-        </script>
-        @else
+
+    @else
         @include('partials.steps-to-get-started.view')
     @endif
 </x-app-layout>
