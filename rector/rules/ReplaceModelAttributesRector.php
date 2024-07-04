@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rector\CustomRules;
 
+use Illuminate\Database\Eloquent\Model;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;
@@ -13,7 +14,6 @@ use PHPStan\Type\ObjectType;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use Illuminate\Database\Eloquent\Model;
 
 final class ReplaceModelAttributesRector extends AbstractRector
 {
