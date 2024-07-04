@@ -343,5 +343,8 @@
     "laravel_app_db_backup": "laravel_app_db_backup",
     "to create your SSH key.": "for at oprette din SSH-nøgle.",
     "to help you generate a valid cron expression.": "til at hjælpe dig med at generere en gyldig cron-udtryk.",
-    "← Return to Home": "← Gå tilbage til forsiden"
+    "← Return to Home": "← Gå tilbage til forsiden",
+    "Light": "Lys",
+    "Dark": "Mørk",
+    "System": "System"
 }

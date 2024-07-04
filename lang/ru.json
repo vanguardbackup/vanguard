@@ -343,5 +343,8 @@
     "laravel_app_db_backup": "резервная_копия_бд_laravel_app",
     "to create your SSH key.": "для создания вашего SSH-ключа.",
     "to help you generate a valid cron expression.": "чтобы помочь вам сгенерировать действительное выражение cron.",
-    "← Return to Home": "← Вернуться на главную"
+    "← Return to Home": "← Вернуться на главную",
+    "Light": "Свет",
+    "Dark": "Тёмный",
+    "System": "Система"
 }

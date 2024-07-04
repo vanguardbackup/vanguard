@@ -343,5 +343,8 @@
     "laravel_app_db_backup": "laravel应用数据库备份",
     "to create your SSH key.": "来创建您的SSH密钥。",
     "to help you generate a valid cron expression.": "来帮助您生成有效的cron表达式。",
-    "← Return to Home": "← 返回首页"
+    "← Return to Home": "← 返回首页",
+    "Light": "光",
+    "Dark": "暗",
+    "System": "系统"
 }
