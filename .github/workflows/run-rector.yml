@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 1
 
       - name: Cache Composer packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -41,14 +41,14 @@ jobs:
           php artisan key:generate
 
       - name: Cache Laravel application
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: bootstrap/cache
           key: ${{ runner.os }}-laravel-${{ github.sha }}
           restore-keys: ${{ runner.os }}-laravel-
 
       - name: Cache NPM packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -61,14 +61,14 @@ jobs:
         run: npm run build
 
       - name: Cache built assets
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: public/build
           key: ${{ runner.os }}-assets-${{ github.sha }}
           restore-keys: ${{ runner.os }}-assets-
 
       - name: Cache Rector
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./storage/rector/cache
           key: ${{ runner.os }}-rector-${{ hashFiles('**/composer.lock') }}
