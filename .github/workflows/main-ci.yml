@@ -9,6 +9,8 @@ on:
 jobs:
   duster:
     uses: ./.github/workflows/duster-fix-blame.yml
+    permissions:
+      contents: write
 
   static-analysis:
     needs: duster
