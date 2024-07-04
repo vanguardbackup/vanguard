@@ -25,20 +25,47 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
       - name: Install composer dependencies
-        run: |
-          composer install --no-scripts
+        run: composer install --no-scripts
 
       - name: Prepare Laravel Application
         run: |
           cp .env.example.ci .env
           php artisan key:generate
 
+      - name: Cache Laravel application
+        uses: actions/cache@v3
+        with:
+          path: bootstrap/cache
+          key: ${{ runner.os }}-laravel-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-laravel-
+
+      - name: Cache NPM packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
       - name: Install npm dependencies
         run: npm install
 
       - name: Build assets
         run: npm run build
+
+      - name: Cache built assets
+        uses: actions/cache@v3
+        with:
+          path: public/build
+          key: ${{ runner.os }}-assets-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-assets-
 
       - name: Run Phpstan
         run: vendor/bin/phpstan analyse
