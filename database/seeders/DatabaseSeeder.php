@@ -105,7 +105,7 @@ class DatabaseSeeder extends Seeder
     private function createBackupTaskData(array $backupTasks): void
     {
         $startDate = Carbon::create(now()->year, 1, 1);
-        $endDate = Carbon::create(now()->year, 6, 30);
+        $endDate = Carbon::now();
 
         foreach ($backupTasks as $task) {
             $currentDate = $startDate->copy();
@@ -118,18 +118,16 @@ class DatabaseSeeder extends Seeder
                         'created_at' => $currentDate->copy()->addHours(random_int(0, 23))->addMinutes(random_int(0, 59)),
                     ]);
 
-                    if (random_int(1, 100) <= 20) { // 20% chance of creating a log entry
-                        BackupTaskLog::create([
-                            'backup_task_id' => $task->id,
-                            'output' => Arr::random([
-                                'Backup task completed successfully',
-                                'Backup task failed: connection timeout',
-                                'Partial backup completed: some files were inaccessible',
-                                'Backup aborted: insufficient storage space',
-                            ]),
-                            'created_at' => $currentDate,
-                        ]);
-                    }
+                    BackupTaskLog::create([
+                        'backup_task_id' => $task->id,
+                        'output' => Arr::random([
+                            'Backup task completed successfully',
+                            'Backup task failed: connection timeout',
+                            'Partial backup completed: some files were inaccessible',
+                            'Backup aborted: insufficient storage space',
+                        ]),
+                        'created_at' => $currentDate,
+                    ]);
                 }
                 $currentDate->addDay();
             }
