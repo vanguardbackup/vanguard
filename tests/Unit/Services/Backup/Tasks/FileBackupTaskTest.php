@@ -10,30 +10,17 @@ use App\Models\RemoteServer;
 use App\Services\Backup\Adapters\SFTPAdapter;
 use App\Services\Backup\BackupConstants;
 use App\Services\Backup\Destinations\S3;
-use App\Services\Backup\Tasks\FileBackupTask;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Mockery;
 use RuntimeException;
+use Tests\Unit\Services\Backup\Tasks\Helpers\FileBackupTaskTestClass;
 
 uses(RefreshDatabase::class);
 
-class MockFileBackupTask extends FileBackupTask
-{
-    public function __construct($backupTaskId)
-    {
-        $this->backupTask = BackupTask::findOrFail($backupTaskId);
-        $this->scriptRunTime = microtime(true);
-        $this->logOutput = '';
-    }
-
-    public function validateConfiguration(): void
-    {
-        // Do nothing
-    }
-}
-
 beforeEach(function () {
+    Event::fake();
     $this->remoteServer = RemoteServer::factory()->create();
     $this->backupDestination = BackupDestination::factory()->create([
         'type' => BackupConstants::DRIVER_S3,
@@ -51,7 +38,7 @@ beforeEach(function () {
     $this->sftpMock->shouldReceive('delete')->andReturn(true)->byDefault();
     $this->s3Mock = Mockery::mock(S3::class);
 
-    $this->fileBackupTask = Mockery::mock(MockFileBackupTask::class, [$this->backupTask->id])
+    $this->fileBackupTask = Mockery::mock(FileBackupTaskTestClass::class, [$this->backupTask->id])
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
 

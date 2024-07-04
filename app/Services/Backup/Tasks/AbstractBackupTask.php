@@ -48,6 +48,13 @@ abstract class AbstractBackupTask extends Backup
         }
     }
 
+    public function generateBackupFileName(string $extension): string
+    {
+        $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
+
+        return "{$prefix}backup_{$this->backupTask->id}_" . date('YmdHis') . ".{$extension}";
+    }
+
     abstract protected function performBackup(): void;
 
     /**
@@ -113,12 +120,5 @@ abstract class AbstractBackupTask extends Backup
     protected function logMessage(string $message): void
     {
         $this->logWithTimestamp($message, $this->backupTask->user->timezone);
-    }
-
-    protected function generateBackupFileName(string $extension): string
-    {
-        $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
-
-        return "{$prefix}backup_{$this->backupTask->id}_" . date('YmdHis') . ".{$extension}";
     }
 }

@@ -6,27 +6,14 @@ use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\RemoteServer;
-use App\Services\Backup\Backup;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Destinations\S3;
 use Illuminate\Support\Facades\Config;
-
-class BackupTest extends Backup
-{
-    public function publicValidateConfiguration(): void
-    {
-        $this->validateConfiguration();
-    }
-
-    public function publicCreateSFTP($host, $port, $timeout): SFTPInterface
-    {
-        return $this->createSFTP($host, $port, $timeout);
-    }
-}
+use Tests\Unit\Services\Backup\BackupTestClass;
 
 beforeEach(function () {
-    $this->backup = Mockery::mock(BackupTest::class)
+    $this->backup = Mockery::mock(BackupTestClass::class)
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
     $this->mockSftp = Mockery::mock(SFTPInterface::class);
@@ -113,6 +100,7 @@ it('gets remote directory size', function () {
 });
 
 it('establishes SFTP connection', function () {
+    test_create_keys();
     $remoteServer = RemoteServer::factory()->create([
         'ip_address' => '192.168.1.1',
         'port' => 22,
@@ -138,6 +126,7 @@ it('establishes SFTP connection', function () {
 
     expect($sftp)->toBe($mockSftp)
         ->and($remoteServer->fresh()->connectivity_status)->toBe('online');
+    test_restore_keys();
 });
 
 it('zips remote directory successfully', function () {

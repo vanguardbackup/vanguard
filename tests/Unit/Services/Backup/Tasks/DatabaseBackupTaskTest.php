@@ -9,27 +9,13 @@ use App\Models\RemoteServer;
 use App\Services\Backup\Adapters\SFTPAdapter;
 use App\Services\Backup\BackupConstants;
 use App\Services\Backup\Destinations\S3;
-use App\Services\Backup\Tasks\DatabaseBackupTask;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Unit\Services\Backup\Tasks\Helpers\DBBackupTaskTestClass;
 
 uses(RefreshDatabase::class);
 
-class MockDatabaseBackupTask extends DatabaseBackupTask
-{
-    public function __construct($backupTaskId)
-    {
-        $this->backupTask = BackupTask::findOrFail($backupTaskId);
-        $this->scriptRunTime = microtime(true);
-        $this->logOutput = '';
-    }
-
-    public function validateConfiguration(): void
-    {
-        // Do nothing
-    }
-}
-
 beforeEach(function () {
+    Event::fake();
     $this->remoteServer = RemoteServer::factory()->create([
         'database_password' => encrypt('testpassword'),
     ]);
@@ -50,7 +36,7 @@ beforeEach(function () {
     $this->sftpMock->shouldReceive('exec')->andReturn(''); // Default behavior
     $this->s3Mock = Mockery::mock(S3::class);
 
-    $this->databaseBackupTask = Mockery::mock(MockDatabaseBackupTask::class, [$this->backupTask->id])
+    $this->databaseBackupTask = Mockery::mock(DBBackupTaskTestClass::class, [$this->backupTask->id])
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
 
@@ -256,7 +242,7 @@ test('generate backup file name', function () {
     $this->backupTask->update(['appended_file_name' => 'custom']);
 
     // Create a new mock instance for this specific scenario
-    $mockTaskWithAppend = Mockery::mock(MockDatabaseBackupTask::class, [$this->backupTask->id])
+    $mockTaskWithAppend = Mockery::mock(DBBackupTaskTestClass::class, [$this->backupTask->id])
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
 
@@ -267,7 +253,7 @@ test('generate backup file name', function () {
 });
 
 test('handle unexpected exception', function () {
-    $this->databaseBackupTask->shouldReceive('performBackup')->andThrow(new \Exception('Unexpected error'));
+    $this->databaseBackupTask->shouldReceive('performBackup')->andThrow(new Exception('Unexpected error'));
     $this->databaseBackupTask->shouldReceive('handleBackupFailure')->once();
 
     expect(fn () => $this->databaseBackupTask->handle())

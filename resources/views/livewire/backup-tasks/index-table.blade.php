@@ -60,8 +60,8 @@
     </div>
     <script>
         document.addEventListener('livewire:navigated', function () {
-            let filesType = @json(__('Files Task'), JSON_THROW_ON_ERROR);
-            let databaseType = @json(__('Database Task'), JSON_THROW_ON_ERROR);
+            let filesType = {!! __('Files Task') !!};
+            let databaseType = {!! __('Database Task') !!};
 
             tippy('#files-type', {
                 content: filesType,

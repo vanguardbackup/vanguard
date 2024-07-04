@@ -9,6 +9,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskData;
 use App\Models\BackupTaskLog;
 use App\Models\RemoteServer;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
@@ -780,8 +781,8 @@ it('returns null if there are no attached tags', function () {
 it('returns the attached tags as a string', function () {
 
     $task = BackupTask::factory()->create();
-    $tag1 = \App\Models\Tag::factory()->create(['label' => 'Tag 1']);
-    $tag2 = \App\Models\Tag::factory()->create(['label' => 'Tag 2']);
+    $tag1 = Tag::factory()->create(['label' => 'Tag 1']);
+    $tag2 = Tag::factory()->create(['label' => 'Tag 2']);
 
     $task->tags()->attach([$tag1->id, $tag2->id]);
 

@@ -1,6 +1,10 @@
 <?php
 
 use App\Console\Commands\GenerateSSHKeyCommand;
+use App\Models\BackupDestination;
+use App\Models\BackupTask;
+use App\Models\RemoteServer;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -88,5 +92,25 @@ function test_restore_keys(): void
         Log::info('Restoring the SSH keys to their original location.');
         File::moveDirectory($backupPath, $pathToSSHKeys);
     }
+}
+
+function createUserWithBackupTaskAndDependencies(): array
+{
+    $user = User::factory()->create();
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $user->id]);
+    $backupTask = BackupTask::factory()->create([
+        'user_id' => $user->id,
+        'remote_server_id' => $remoteServer->id,
+        'maximum_backups_to_keep' => 5,
+        'source_path' => null,
+    ]);
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $user->id]);
+
+    return [
+        'user' => $user,
+        'remoteServer' => $remoteServer,
+        'backupTask' => $backupTask,
+        'backupDestination' => $backupDestination,
+    ];
 }
 

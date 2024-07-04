@@ -12,6 +12,7 @@ use App\Mail\BackupTasks\OutputMail;
 use App\Traits\HasTags;
 use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -66,10 +67,10 @@ class BackupTask extends Model
             ->get();
 
         return $results->mapWithKeys(function ($item) use ($locale) {
-            $carbonDate = Carbon::parse($item->month_date)->locale($locale);
+            $carbonDate = Carbon::parse($item->getAttribute('month_date'))->locale($locale);
             $localizedMonth = ucfirst($carbonDate->isoFormat('MMM YYYY'));
 
-            return [$localizedMonth => $item->count];
+            return [$localizedMonth => $item->getAttribute('count')];
         })->toArray();
     }
 
@@ -80,16 +81,18 @@ class BackupTask extends Model
      */
     public static function backupTasksCountByType(int $userId): array
     {
-        return self::query()
+        /** @var Collection<int, Model> $results */
+        $results = self::query()
             ->where('user_id', $userId)
             ->selectRaw('type, COUNT(*) as count')
             ->groupBy('type')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                $localizedType = __($item->type);
+            ->get();
 
-                return [$localizedType => $item->count];
-            })
+        return $results->mapWithKeys(function ($item) {
+            $localizedType = __($item->getAttribute('type'));
+
+            return [$localizedType => $item->getAttribute('count')];
+        })
             ->toArray();
     }
 

@@ -45,6 +45,6 @@ return [
         'en' => 'English (English)',
         'da' => 'Danish (Dansk)',
         'zh' => 'Chinese (中文)',
-        'ru' => 'Russian (Русский)'
+        'ru' => 'Russian (Русский)',
     ],
 ];

@@ -14,7 +14,7 @@ test('the component can be rendered', function () {
 });
 
 test('the authorized user can delete a task log', function () {
-    \Masmerise\Toaster\Toaster::fake();
+    Toaster::fake();
 
     $user = User::factory()->create();
     $task = BackupTask::factory()->create(['user_id' => $user->id]);
