@@ -139,7 +139,7 @@ class CreateBackupTaskForm extends Component
 
     private function initializeBackupTimes(): void
     {
-        $this->backupTimes = collect(range(0, 95))->map(fn ($quarterHour) => sprintf('%02d:%02d', intdiv($quarterHour, 4), ($quarterHour % 4) * 15)
+        $this->backupTimes = collect(range(0, 95))->map(fn ($quarterHour): string => sprintf('%02d:%02d', intdiv($quarterHour, 4), ($quarterHour % 4) * 15)
         );
     }
 
@@ -151,10 +151,13 @@ class CreateBackupTaskForm extends Component
         } elseif ($this->timeToRun && $this->frequency) {
             $this->cronExpression = null;
         }
-
-        if ($this->userTimezone !== 'UTC' && $this->timeToRun) {
-            $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
+        if ($this->userTimezone === 'UTC') {
+            return;
         }
+        if (!$this->timeToRun) {
+            return;
+        }
+        $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
     }
 
     /**
