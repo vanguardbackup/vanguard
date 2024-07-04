@@ -93,8 +93,14 @@
             document.addEventListener('livewire:navigated', function () {
                 const type = '{!! __('Type') !!}';
                 const ctx = document.getElementById('backupTasksByType').getContext('2d');
-                const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(label => label.charAt(0).toUpperCase() + label.slice(1));
-                const backupTasksByType = new Chart(ctx, {
+                const translations = {
+                    'Files': '{!! __('Files') !!}',
+                    'Database': '{!! __('Database') !!}'
+                };
+                const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}
+                    .map(label => translations[label] || label)
+                    .map(label => label.charAt(0).toUpperCase() + label.slice(1));
+                    const backupTasksByType = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,

@@ -68,11 +68,10 @@ class BackupTask extends Model
         return $results->mapWithKeys(function ($item) use ($locale) {
             $carbonDate = Carbon::parse($item->month_date)->locale($locale);
             $localizedMonth = ucfirst($carbonDate->isoFormat('MMM YYYY'));
+
             return [$localizedMonth => $item->count];
         })->toArray();
     }
-
-
 
     /**
      * Get the count of backup tasks by type for a given user.
@@ -87,7 +86,9 @@ class BackupTask extends Model
             ->groupBy('type')
             ->get()
             ->mapWithKeys(function ($item) {
-                return [$item['type'] => $item['count']];
+                $localizedType = __($item->type);
+
+                return [$localizedType => $item->count];
             })
             ->toArray();
     }

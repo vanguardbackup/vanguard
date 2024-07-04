@@ -49,7 +49,7 @@
                         {{ $scheduledBackupTask->task->remoteServer->label }}
                     </x-table.body-item>
                     <x-table.body-item class="col-span-2 hidden md:block">
-                        {{ ucfirst($scheduledBackupTask->task->type) }}
+                        {{ ucfirst($scheduledBackupTask->type) }}
                     </x-table.body-item>
                     <x-table.body-item class="col-span-2">
                         {{ $scheduledBackupTask->due_to_run }}

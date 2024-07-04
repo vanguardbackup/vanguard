@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Dashboard;
 
 use App\Models\BackupTask;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -16,15 +17,27 @@ class UpcomingBackupTasks extends Component
 
     public function render(): View
     {
-        $tasks = BackupTask::notPaused()->with('remoteServer')->get()->map(function ($task) {
+        $user = Auth::user();
+        $locale = $user->language ?? config('app.locale');
+        $timezone = $user->timezone ?? config('app.timezone');
+
+        Carbon::setLocale($locale);
+
+        $tasks = BackupTask::notPaused()->with('remoteServer')->get()->map(function ($task) use ($timezone, $locale) {
             $nextRun = $task->calculateNextRun();
+
+            if ($nextRun) {
+                $nextRunLocalized = $nextRun->timezone($timezone)->locale($locale);
+                $dueToRun = $nextRunLocalized->isoFormat('dddd, D MMMM YYYY HH:mm');
+            } else {
+                $dueToRun = null;
+            }
 
             return (object) [
                 'task' => $task,
                 'next_run' => $nextRun,
-                'due_to_run' => optional($nextRun)
-                    ->timezone(Auth::user()->timezone ?? config('app.timezone'))
-                    ->format('l, d F Y H:i'),
+                'due_to_run' => ucfirst($dueToRun),
+                'type' => ucfirst(__($task->type)),
             ];
         })->filter(function ($scheduledTask) {
             return ! is_null($scheduledTask->next_run);

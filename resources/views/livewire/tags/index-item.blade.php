@@ -6,7 +6,7 @@
         {{ $tag->description ?? __('—') }}
     </x-table.body-item>
     <x-table.body-item class="col-span-2 hidden md:block">
-        {{ $tag->created_at->timezone(auth()->user()->timezone)->format('F j, Y g:i A') }}
+        {{ ucfirst($tag->created_at->timezone(auth()->user()->timezone)->locale(auth()->user()->language ?? app()->getLocale())->isoFormat('MMMM D, YYYY [at] h:mm A')) }}
     </x-table.body-item>
     <x-table.body-item class="col-span-2">
         <div class="flex justify-center space-x-2">
