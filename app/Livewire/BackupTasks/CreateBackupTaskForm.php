@@ -154,7 +154,7 @@ class CreateBackupTaskForm extends Component
         if ($this->userTimezone === 'UTC') {
             return;
         }
-        if (!$this->timeToRun) {
+        if (! $this->timeToRun) {
             return;
         }
         $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');

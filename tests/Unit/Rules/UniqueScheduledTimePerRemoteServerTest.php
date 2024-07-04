@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\BackupTask;
 use App\Models\RemoteServer;
 use App\Models\User;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
 uses(RefreshDatabase::class);
