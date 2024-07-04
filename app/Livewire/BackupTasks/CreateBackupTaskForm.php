@@ -23,114 +23,190 @@ use Toaster;
 class CreateBackupTaskForm extends Component
 {
     public string $label = '';
-
     public ?string $description = '';
-
     public ?string $sourcePath = null;
-
     public ?int $remoteServerId = null;
-
     public string $backupDestinationId = '';
-
     public ?string $frequency = BackupTask::FREQUENCY_DAILY;
-
     public ?string $timeToRun = '00:00';
-
     public bool $useCustomCron = false;
-
     public ?string $cronExpression = null;
-
     public int $backupsToKeep = 5;
-
     public string $backupType = BackupTask::TYPE_FILES;
-
-    /**
-     * @var Collection<int, RemoteServer>|null
-     */
-    public ?Collection $remoteServers;
-
     public ?string $databaseName = null;
-
     public ?string $appendedFileName = null;
-
     public ?string $notifyEmail = null;
-
     public ?string $notifyDiscordWebhook = null;
-
     public ?string $notifySlackWebhook = null;
-
-    /**
-     * @var \Illuminate\Support\Collection<int, string>
-     */
-    public \Illuminate\Support\Collection $backupTimes;
-
     public string $userTimezone;
-
-    public ?string $storePath;
-
+    public ?string $storePath = null;
     public ?string $excludedDatabaseTables = null;
-
-    /**
-     * @var Collection<int, Tag>|null
-     */
-    public ?Collection $availableTags;
-
-    /**
-     * @var array<string>|null
-     */
-    public ?array $selectedTags;
-
     public bool $useIsolatedCredentials = false;
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
 
-    public function updatedUseCustomCron(): void {}
+    /** @var Collection<int, RemoteServer>|null */
+    public ?Collection $remoteServers;
 
-    public function updatedUseIsolatedCredentials(): void {}
+    /** @var \Illuminate\Support\Collection<int, string> */
+    public \Illuminate\Support\Collection $backupTimes;
 
-    public function updatedBackupType(): void
-    {
-        if ($this->backupType === BackupTask::TYPE_FILES) {
-            $this->remoteServers = Auth::user()->remoteServers;
-        }
+    /** @var Collection<int, Tag>|null */
+    public ?Collection $availableTags;
 
-        if ($this->backupType === BackupTask::TYPE_DATABASE) {
-            $this->remoteServers = Auth::user()->remoteServers->where('database_password', '!=', null);
-        }
-
-        $this->remoteServerId = $this->remoteServers->first()?->id;
-    }
+    /** @var array<int>|null */
+    public ?array $selectedTags = [];
 
     public function mount(): void
     {
-        $this->useIsolatedCredentials = false; // Set to false by default!
-        $this->availableTags = Auth::user()->tags;
-        $this->userTimezone = Auth::user()->timezone ?? 'UTC';
+        $this->initializeDefaultValues();
+        $this->initializeBackupTimes();
+        $this->updatedBackupType();
+        $this->updatedUseCustomCron();
+    }
 
-        $this->remoteServers = Auth::user()->remoteServers->where('database_password', null);
-        $this->remoteServerId = $this->remoteServers->first()?->id;
-
-        if (Auth::user()->preferred_backup_destination_id) {
-            $this->backupDestinationId = (string) Auth::user()->preferred_backup_destination_id;
+    public function updatedUseCustomCron(): void
+    {
+        if ($this->useCustomCron) {
+            $this->timeToRun = null;
+            $this->frequency = null;
         } else {
-            $this->backupDestinationId = (string) (Auth::user()->backupDestinations->first()?->id ?? '');
+            $this->cronExpression = null;
+        }
+    }
+
+    public function updatedUseIsolatedCredentials(): void
+    {
+        if (! $this->useIsolatedCredentials) {
+            $this->isolatedUsername = null;
+            $this->isolatedPassword = null;
+        }
+    }
+
+    public function updatedBackupType(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return;
         }
 
-        // Initialize backup times in 15min increments
-        $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour): string {
-            $hour = intdiv($quarterHour, 4);
-            $minute = ($quarterHour % 4) * 15;
+        $this->remoteServers = $this->backupType === BackupTask::TYPE_FILES
+            ? $user->remoteServers
+            : $user->remoteServers->where('database_password', '!=', null);
 
-            return sprintf('%02d:%02d', $hour, $minute);
-        });
-
-        $this->updatedBackupType(); // Ensure the initial remoteServers collection is set correctly
-        $this->updatedUseCustomCron(); // Ensure the initial useCustomCron value is set correctly
+        $this->remoteServerId = $this->remoteServers->first()?->id;
     }
 
     public function submit(): RedirectResponse|Redirector
     {
-        $messages = [
+        $this->validate($this->rules(), $this->messages());
+        $this->processScheduleSettings();
+        $backupTask = BackupTask::create($this->prepareBackupTaskData());
+        $backupTask->tags()->sync($this->selectedTags);
+
+        Toaster::success(__('Backup task has been added.'));
+
+        return Redirect::route('backup-tasks.index');
+    }
+
+    public function render(): View
+    {
+        return view('livewire.backup-tasks.create-backup-task-form', [
+            'backupTimes' => $this->backupTimes,
+            'backupDestinations' => Auth::user()?->backupDestinations ?? collect(),
+            'backupTypes' => [
+                BackupTask::TYPE_FILES => __('files'),
+                BackupTask::TYPE_DATABASE => __('database'),
+            ],
+            'remoteServers' => $this->remoteServers,
+        ]);
+    }
+
+    private function initializeDefaultValues(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $this->useIsolatedCredentials = false;
+        $this->availableTags = $user->tags;
+        $this->userTimezone = $user->timezone ?? 'UTC';
+        $this->remoteServers = $user->remoteServers->where('database_password', null);
+        $this->remoteServerId = $this->remoteServers->first()?->id;
+        $this->backupDestinationId = (string) ($user->preferred_backup_destination_id ?? $user->backupDestinations->first()?->id ?? '');
+    }
+
+    private function initializeBackupTimes(): void
+    {
+        $this->backupTimes = collect(range(0, 95))->map(fn ($quarterHour) => sprintf('%02d:%02d', intdiv($quarterHour, 4), ($quarterHour % 4) * 15)
+        );
+    }
+
+    private function processScheduleSettings(): void
+    {
+        if ($this->cronExpression) {
+            $this->timeToRun = null;
+            $this->frequency = null;
+        } elseif ($this->timeToRun && $this->frequency) {
+            $this->cronExpression = null;
+        }
+
+        if ($this->userTimezone !== 'UTC' && $this->timeToRun) {
+            $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function rules(): array
+    {
+        $baseRules = [
+            'isolatedUsername' => ['nullable', 'string'],
+            'isolatedPassword' => ['nullable', 'string'],
+            'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
+            'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
+            'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
+            'notifyEmail' => ['nullable', 'email'],
+            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
+            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
+            'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
+            'backupType' => ['required', 'string', 'in:files,database'],
+            'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
+            'label' => ['required', 'string'],
+            'description' => ['nullable', 'string', 'max:100'],
+            'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
+            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
+            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
+            'frequency' => ['required', 'string', 'in:daily,weekly'],
+            'timeToRun' => [
+                'string',
+                'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/',
+                'required_unless:useCustomCron,true',
+                new UniqueScheduledTimePerRemoteServer($this->remoteServerId),
+            ],
+            'cronExpression' => [
+                'nullable',
+                'string',
+                'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/',
+                'required_if:useCustomCron,true',
+            ],
+        ];
+
+        if ($this->backupType === BackupTask::TYPE_FILES) {
+            $baseRules['sourcePath'] = ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'];
+        }
+
+        return $baseRules;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function messages(): array
+    {
+        return [
             'selectedTags.*.exists' => __('One or more of the selected tags do not exist.'),
             'storePath.regex' => __('The path must be a valid Unix path.'),
             'notifyEmail.email' => __('Please enter a valid email address.'),
@@ -159,68 +235,14 @@ class CreateBackupTaskForm extends Component
             'timeToRun.regex' => __('You have entered an invalid time. Please enter a time in the format HH:MM.'),
             'cronExpression.regex' => __('You have entered an invalid cron expression.'),
         ];
+    }
 
-        if ($this->backupType === 'files') {
-            $this->validate([
-                'isolatedUsername' => ['nullable', 'string'],
-                'isolatedPassword' => ['nullable', 'string'],
-                'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
-                'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
-                'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
-                'notifyEmail' => ['nullable', 'email'],
-                'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
-                'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
-                'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
-                'backupType' => ['required', 'string', 'in:files,database'],
-                'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
-                'label' => ['required', 'string'],
-                'description' => ['nullable', 'string', 'max:100'],
-                'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-                'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
-                'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
-                'frequency' => ['required', 'string', 'in:daily,weekly'],
-                'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId)],
-                'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
-                'sourcePath' => ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
-            ], $messages);
-        }
-
-        $this->validate([
-            'isolatedUsername' => ['nullable', 'string'],
-            'isolatedPassword' => ['nullable', 'string'],
-            'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
-            'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
-            'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'], // Unix path regex
-            'notifyEmail' => ['nullable', 'email'],
-            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
-            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
-            'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
-            'backupType' => ['required', 'string', 'in:files,database'],
-            'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
-            'label' => ['required', 'string'],
-            'description' => ['nullable', 'string', 'max:100'],
-            'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
-            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
-            'frequency' => ['required', 'string', 'in:daily,weekly'],
-            'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId)],
-            'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
-        ], $messages);
-
-        if ($this->cronExpression) {
-            $this->timeToRun = null;
-            $this->frequency = null;
-        }
-
-        if ($this->timeToRun && $this->frequency) {
-            $this->cronExpression = null;
-        }
-
-        if ($this->userTimezone !== 'UTC' && $this->timeToRun) {
-            $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
-        }
-
-        $backupTask = BackupTask::create([
+    /**
+     * @return array<string, mixed>
+     */
+    private function prepareBackupTaskData(): array
+    {
+        return [
             'user_id' => Auth::id(),
             'remote_server_id' => $this->remoteServerId,
             'backup_destination_id' => $this->backupDestinationId,
@@ -235,33 +257,13 @@ class CreateBackupTaskForm extends Component
             'type' => $this->backupType,
             'database_name' => $this->databaseName,
             'appended_file_name' => $this->appendedFileName,
-            'notify_email' => $this->notifyEmail ?? null,
-            'notify_discord_webhook' => $this->notifyDiscordWebhook ?? null,
-            'notify_slack_webhook' => $this->notifySlackWebhook ?? null,
-            'store_path' => $this->storePath ?? null,
+            'notify_email' => $this->notifyEmail,
+            'notify_discord_webhook' => $this->notifyDiscordWebhook,
+            'notify_slack_webhook' => $this->notifySlackWebhook,
+            'store_path' => $this->storePath,
             'excluded_database_tables' => $this->excludedDatabaseTables,
-            'isolated_username' => $this->isolatedUsername ?? null,
-            'isolated_password' => Crypt::encryptString($this->isolatedPassword),
-        ]);
-
-        $backupTask->tags()->sync($this->selectedTags);
-
-        Toaster::success(__('Backup task has been added.'));
-
-        return Redirect::route('backup-tasks.index');
-    }
-
-    public function render(): View
-    {
-        $backupTypes = [
-            BackupTask::TYPE_FILES => __('files'),
-            BackupTask::TYPE_DATABASE => __('database')];
-
-        return view('livewire.backup-tasks.create-backup-task-form', [
-            'backupTimes' => $this->backupTimes,
-            'backupDestinations' => Auth::user()->backupDestinations,
-            'backupTypes' => $backupTypes,
-            'remoteServers' => $this->remoteServers,
-        ]);
+            'isolated_username' => $this->isolatedUsername,
+            'isolated_password' => $this->isolatedPassword ? Crypt::encryptString($this->isolatedPassword) : null,
+        ];
     }
 }

@@ -334,6 +334,10 @@ describe('tag handling', function (): void {
 
         $user = User::factory()->create();
 
+        $remoteServer = RemoteServer::factory()->create([
+            'user_id' => $user->id,
+        ]);
+
         $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $user->id]);
         $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $user->id]);
         $tag3 = Tag::factory()->create(['label' => 'Tag 3', 'user_id' => $user->id]);
@@ -351,6 +355,7 @@ describe('tag handling', function (): void {
             'remoteServers' => RemoteServer::all(),
             'availableTags' => $user->tags,
         ])
+            ->set('remoteServerId', $remoteServer->id)
             ->set('selectedTags', [$tag3->id])
             ->set('sourcePath', '/var/www/html')
             ->set('description', '')
