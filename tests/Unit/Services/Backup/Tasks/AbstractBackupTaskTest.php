@@ -6,9 +6,9 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Tasks\AbstractBackupTask;
-use Event;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Mockery;
 use ReflectionClass;
 
