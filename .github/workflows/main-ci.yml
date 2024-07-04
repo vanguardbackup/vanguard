@@ -12,10 +12,10 @@ jobs:
 
   static-analysis:
     needs: duster
-    uses: ./.github/workflows/phpstan.yml
+    uses: ./.github/workflows/static-analysis.yml
 
   rector:
-    needs: phpstan
+    needs: static-analysis
     uses: ./.github/workflows/run-rector.yml
 
   test-suite:
@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/test-suite.yml
 
   ci-passed:
-    needs: [duster, phpstan, rector, tests]
+    needs: [duster, static-analysis, rector, test-suite]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI checks passed!"
