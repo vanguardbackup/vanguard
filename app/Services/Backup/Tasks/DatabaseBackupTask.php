@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Backup\Tasks;
 
 use App\Exceptions\DatabaseDumpException;

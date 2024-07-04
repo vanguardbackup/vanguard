@@ -1,14 +1,7 @@
 name: Static Analysis
-
 on:
-  workflow_run:
-    workflows: ["Duster Fix"]
-    types:
-      - completed
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   phpunit:

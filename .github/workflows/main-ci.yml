@@ -1,0 +1,29 @@
+name: Main CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  duster:
+    uses: ./.github/workflows/duster-fix-blame.yml
+
+  static-analysis:
+    needs: duster
+    uses: ./.github/workflows/phpstan.yml
+
+  rector:
+    needs: phpstan
+    uses: ./.github/workflows/run-rector.yml
+
+  test-suite:
+    needs: rector
+    uses: ./.github/workflows/test-suite.yml
+
+  ci-passed:
+    needs: [duster, phpstan, rector, tests]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All CI checks passed!"

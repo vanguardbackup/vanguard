@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\BackupTasks;
 
 use App\Models\BackupTask;
@@ -24,9 +26,8 @@ class UpdateBackupTaskForm extends Component
 
     public ?string $sourcePath = null;
 
-    public string $remoteServerId = '';
-
-    public string $backupDestinationId = '';
+    public ?int $remoteServerId = null;
+    public ?int $backupDestinationId = null;
 
     public ?string $frequency = BackupTask::FREQUENCY_DAILY;
 
@@ -94,8 +95,7 @@ class UpdateBackupTaskForm extends Component
             $this->remoteServers = Auth::user()->remoteServers->where('database_password', '!=', null);
         }
 
-        // Reset the remote server ID to ensure it matches the new type
-        $this->remoteServerId = $this->remoteServers->first()?->id ?? '';
+        $this->remoteServerId = $this->remoteServers->first()?->id;
     }
 
     public function mount(): void
@@ -111,16 +111,16 @@ class UpdateBackupTaskForm extends Component
         });
 
         $this->remoteServers = Auth::user()->remoteServers->where('database_password', null);
-        $this->remoteServerId = $this->remoteServers->first()?->id ?? '';
-        $this->backupDestinationId = Auth::user()->backupDestinations->first()?->id ?? '';
+        $this->remoteServerId = $this->remoteServers->first()?->id;
+        $this->backupDestinationId = Auth::user()->backupDestinations->first()?->id;
 
         $this->updatedBackupType(); // Ensure the initial remoteServers collection is set correctly
 
         $this->label = $this->backupTask->label;
         $this->description = $this->backupTask->description;
         $this->sourcePath = $this->backupTask->source_path ?? null;
-        $this->remoteServerId = (string) ($this->backupTask->remote_server_id ?? '');
-        $this->backupDestinationId = (string) $this->backupTask->backup_destination_id;
+        $this->remoteServerId = $this->backupTask->remote_server_id;
+        $this->backupDestinationId = $this->backupTask->backup_destination_id;
         $this->frequency = $this->backupTask->frequency ?? null;
         $this->cronExpression = $this->backupTask->custom_cron_expression;
         $this->backupsToKeep = $this->backupTask->maximum_backups_to_keep;
@@ -201,8 +201,8 @@ class UpdateBackupTaskForm extends Component
                 'label' => ['required', 'string'],
                 'description' => ['nullable', 'string', 'max:100'],
                 'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-                'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
-                'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
+                'remoteServerId' => ['required', 'integer', 'exists:remote_servers,id'],
+                'backupDestinationId' => ['required', 'integer', 'exists:backup_destinations,id'],
                 'frequency' => ['required', 'string', 'in:daily,weekly'],
                 'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
                 'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
@@ -225,8 +225,8 @@ class UpdateBackupTaskForm extends Component
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string', 'max:100'],
             'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-            'remoteServerId' => ['required', 'string', 'exists:remote_servers,id'],
-            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
+            'remoteServerId' => ['required', 'integer', 'exists:remote_servers,id'],
+            'backupDestinationId' => ['required', 'integer', 'exists:backup_destinations,id'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
             'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
             'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],

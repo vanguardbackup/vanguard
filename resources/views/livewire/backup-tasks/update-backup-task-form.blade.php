@@ -22,8 +22,7 @@
             <div class="mt-4 flex space-x-6">
                 <div class="w-3/6">
                     <x-input-label for="remoteServerId" :value="__('Remote Server')"/>
-                    <x-select id="remoteServerId" class="block mt-1 w-full" wire:model="remoteServerId"
-                              name="remoteServerId">
+                    <x-select id="remoteServerId" class="block mt-1 w-full" wire:model.live="remoteServerId" name="remoteServerId">
                         @foreach ($remoteServers as $remoteServer)
                             <option value="{{ $remoteServer->id }}">{{ $remoteServer->label }}
                                 ({{ $remoteServer->ip_address }})
@@ -48,8 +47,7 @@
             <div class="mt-4 flex space-x-6">
                 <div class="w-3/6">
                     <x-input-label for="backupDestinationId" :value="__('Backup Destination')"/>
-                    <x-select id="backupDestinationId" class="block mt-1 w-full" wire:model="backupDestinationId"
-                              name="backupDestinationId">
+                    <x-select id="backupDestinationId" class="block mt-1 w-full" wire:model.live="backupDestinationId" name="backupDestinationId">
                         @foreach ($backupDestinations as $backupDestination)
                             <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }}
                                 - {{ ucfirst($backupDestination->type()) }}</option>

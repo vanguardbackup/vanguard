@@ -6,6 +6,7 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Tasks\AbstractBackupTask;
+use Event;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -14,6 +15,7 @@ use ReflectionClass;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    Event::fake();
     $this->backupTask = BackupTask::factory()->create();
 
     $this->abstractBackupTask = new class($this->backupTask->id) extends AbstractBackupTask

@@ -1,4 +1,4 @@
-name: Test Suite
+name: Rector
 on:
   workflow_call:
   workflow_dispatch:
@@ -40,5 +40,5 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Run Tests
-        run: vendor/bin/pest
+      - name: Run Rector
+        run: vendor/bin/rector --dry-run

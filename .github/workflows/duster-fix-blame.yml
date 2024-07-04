@@ -1,13 +1,10 @@
 name: Duster Fix
+on:
+  workflow_call:
+  workflow_dispatch:
 
 # Commits made in here will not trigger any workflows
 # Checkout Duster's documentation for a workaround
-
-on:
-    push:
-        branches: [ main ]
-    pull_request:
-
 jobs:
   duster:
     runs-on: ubuntu-latest
