@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Config;
 use Tests\Unit\Services\Backup\BackupTestClass;
 
 beforeEach(function () {
+    Event::fake();
     $this->backup = Mockery::mock(BackupTestClass::class)
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
