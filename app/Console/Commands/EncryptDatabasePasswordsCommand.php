@@ -30,8 +30,8 @@ class EncryptDatabasePasswordsCommand extends Command
 
             if (! $remoteServer->isDatabasePasswordEncrypted()) {
 
-                if (empty($remoteServer->database_password)) {
-                    $this->components->warn("Database password for remote server {$remoteServer->label} is empty. Skipping encryption.");
+                if (empty($remoteServer->getAttribute('database_password'))) {
+                    $this->components->warn("Database password for remote server {$remoteServer->getAttribute('label')} is empty. Skipping encryption.");
 
                     return;
                 }

@@ -23,7 +23,7 @@ class RemoveServerJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('Removing server.', ['server_id' => $this->remoteServer->id]);
+        Log::info('Removing server.', ['server_id' => $this->remoteServer->getAttribute('id')]);
         $this->remoteServer->forceDelete();
     }
 }

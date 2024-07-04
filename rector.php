@@ -7,6 +7,7 @@ use Rector\Carbon\Rector\FuncCall\DateFuncCallToCarbonRector;
 use Rector\CodeQuality\Rector\FuncCall\CompactToVariablesRector;
 use Rector\CodeQuality\Rector\If_\CombineIfRector;
 use Rector\Config\RectorConfig;
+use Rector\CustomRules\ReplaceModelAttributesRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector;
 use Rector\DeadCode\Rector\If_\SimplifyIfElseWithSameContentRector;
 use Rector\DeadCode\Rector\PropertyProperty\RemoveNullPropertyInitializationRector;
@@ -58,6 +59,7 @@ return static function (RectorConfig $rectorConfig): void {
         SimplifyIfElseWithSameContentRector::class,
 
         // Custom
+        ReplaceModelAttributesRector::class,
     ]);
 
     $rectorConfig->sets([

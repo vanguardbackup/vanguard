@@ -23,7 +23,7 @@ test('password can be updated', function () {
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
-    $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    $this->assertTrue(Hash::check('new-password', $user->refresh()->getAttribute('password')));
 });
 
 test('correct password must be provided to update password', function () {

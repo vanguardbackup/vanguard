@@ -105,7 +105,7 @@ class UpdateBackupTaskForm extends Component
     public function mount(): void
     {
         $this->availableTags = Auth::user()->tags;
-        $this->selectedTags = $this->backupTask->tags->pluck('id')->toArray();
+        $this->selectedTags = $this->backupTask->getAttribute('tags')->pluck('id')->toArray();
 
         $this->backupTimes = collect(range(0, 95))->map(function ($quarterHour) {
             $hour = intdiv($quarterHour, 4);
@@ -120,28 +120,28 @@ class UpdateBackupTaskForm extends Component
 
         $this->updatedBackupType(); // Ensure the initial remoteServers collection is set correctly
 
-        $this->label = $this->backupTask->label;
-        $this->description = $this->backupTask->description;
-        $this->sourcePath = $this->backupTask->source_path ?? null;
-        $this->remoteServerId = $this->backupTask->remote_server_id;
-        $this->backupDestinationId = $this->backupTask->backup_destination_id;
-        $this->frequency = $this->backupTask->frequency ?? null;
-        $this->cronExpression = $this->backupTask->custom_cron_expression;
-        $this->backupsToKeep = $this->backupTask->maximum_backups_to_keep;
-        $this->backupType = $this->backupTask->type;
-        $this->databaseName = $this->backupTask->database_name;
-        $this->appendedFileName = $this->backupTask->appended_file_name;
-        $this->notifyEmail = $this->backupTask->notify_email ?? null;
-        $this->notifyDiscordWebhook = $this->backupTask->notify_discord_webhook ?? null;
-        $this->notifySlackWebhook = $this->backupTask->notify_slack_webhook ?? null;
+        $this->label = $this->backupTask->getAttribute('label');
+        $this->description = $this->backupTask->getAttribute('description');
+        $this->sourcePath = $this->backupTask->getAttribute('source_path') ?? null;
+        $this->remoteServerId = $this->backupTask->getAttribute('remote_server_id');
+        $this->backupDestinationId = $this->backupTask->getAttribute('backup_destination_id');
+        $this->frequency = $this->backupTask->getAttribute('frequency') ?? null;
+        $this->cronExpression = $this->backupTask->getAttribute('custom_cron_expression');
+        $this->backupsToKeep = $this->backupTask->getAttribute('maximum_backups_to_keep');
+        $this->backupType = $this->backupTask->getAttribute('type');
+        $this->databaseName = $this->backupTask->getAttribute('database_name');
+        $this->appendedFileName = $this->backupTask->getAttribute('appended_file_name');
+        $this->notifyEmail = $this->backupTask->getAttribute('notify_email') ?? null;
+        $this->notifyDiscordWebhook = $this->backupTask->getAttribute('notify_discord_webhook') ?? null;
+        $this->notifySlackWebhook = $this->backupTask->getAttribute('notify_slack_webhook') ?? null;
         $this->userTimezone = Auth::user()->timezone ?? 'UTC';
-        $this->storePath = $this->backupTask->store_path;
-        $this->excludedDatabaseTables = $this->backupTask->excluded_database_tables ?? null;
-        $this->isolatedUsername = $this->backupTask->isolated_username ?? null;
+        $this->storePath = $this->backupTask->getAttribute('store_path');
+        $this->excludedDatabaseTables = $this->backupTask->getAttribute('excluded_database_tables') ?? null;
+        $this->isolatedUsername = $this->backupTask->getAttribute('isolated_username') ?? null;
         $this->isolatedPassword = null;
 
-        if ($this->backupTask->time_to_run_at) {
-            $this->timeToRun = Carbon::createFromFormat('H:i', $this->backupTask->time_to_run_at, 'UTC')?->setTimezone($this->userTimezone)->format('H:i');
+        if ($this->backupTask->getAttribute('time_to_run_at')) {
+            $this->timeToRun = Carbon::createFromFormat('H:i', $this->backupTask->getAttribute('time_to_run_at'), 'UTC')?->setTimezone($this->userTimezone)->format('H:i');
         }
 
         if ($this->cronExpression) {
@@ -208,7 +208,7 @@ class UpdateBackupTaskForm extends Component
                 'remoteServerId' => ['required', 'integer', 'exists:remote_servers,id'],
                 'backupDestinationId' => ['required', 'integer', 'exists:backup_destinations,id'],
                 'frequency' => ['required', 'string', 'in:daily,weekly'],
-                'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
+                'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->getAttribute('id'))],
                 'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
                 'sourcePath' => ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
             ], $messages);
@@ -232,7 +232,7 @@ class UpdateBackupTaskForm extends Component
             'remoteServerId' => ['required', 'integer', 'exists:remote_servers,id'],
             'backupDestinationId' => ['required', 'integer', 'exists:backup_destinations,id'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
-            'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->id)],
+            'timeToRun' => ['string', 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/', 'required_unless:useCustomCron,true', new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->getAttribute('id'))],
             'cronExpression' => ['nullable', 'string', 'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/', 'required_if:useCustomCron,true'],
         ], $messages);
 

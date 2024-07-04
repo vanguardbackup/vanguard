@@ -21,7 +21,7 @@ class TogglePauseButton extends Component
     public function getListeners(): array
     {
         return [
-            "task-button-clicked-{$this->backupTask->id}" => 'refreshSelf',
+            "task-button-clicked-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
         ];
     }
 
@@ -40,7 +40,7 @@ class TogglePauseButton extends Component
             $this->backupTask->pause();
         }
 
-        $this->dispatch('pause-button-clicked-' . $this->backupTask->id);
+        $this->dispatch('pause-button-clicked-' . $this->backupTask->getAttribute('id'));
     }
 
     public function render(): View

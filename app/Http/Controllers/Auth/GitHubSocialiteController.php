@@ -95,7 +95,7 @@ class GitHubSocialiteController extends Controller
 
     private function loginAndRedirect(User $user, string $message): RedirectResponse
     {
-        Log::debug($message, ['id' => $user->github_id]);
+        Log::debug($message, ['id' => $user->getAttribute('github_id')]);
         Auth::login($user);
 
         return Redirect::route('overview');

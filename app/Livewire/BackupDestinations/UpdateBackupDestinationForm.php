@@ -77,14 +77,14 @@ class UpdateBackupDestinationForm extends Component
     public function mount(BackupDestination $backupDestination): void
     {
         $this->backupDestination = $backupDestination;
-        $this->label = $backupDestination->label;
-        $this->type = $backupDestination->type;
-        $this->s3AccessKey = $backupDestination->s3_access_key ?? null;
-        $this->s3SecretKey = $backupDestination->s3_secret_key ?? null;
-        $this->s3BucketName = $backupDestination->s3_bucket_name ?? null;
-        $this->customS3Region = $backupDestination->custom_s3_region ?? null;
-        $this->customS3Endpoint = $backupDestination->custom_s3_endpoint ?? null;
-        $this->usePathStyleEndpoint = $backupDestination->path_style_endpoint ?? false;
+        $this->label = $backupDestination->getAttribute('label');
+        $this->type = $backupDestination->getAttribute('type');
+        $this->s3AccessKey = $backupDestination->getAttribute('s3_access_key') ?? null;
+        $this->s3SecretKey = $backupDestination->getAttribute('s3_secret_key') ?? null;
+        $this->s3BucketName = $backupDestination->getAttribute('s3_bucket_name') ?? null;
+        $this->customS3Region = $backupDestination->getAttribute('custom_s3_region') ?? null;
+        $this->customS3Endpoint = $backupDestination->getAttribute('custom_s3_endpoint') ?? null;
+        $this->usePathStyleEndpoint = $backupDestination->getAttribute('path_style_endpoint') ?? false;
     }
 
     public function render(): View

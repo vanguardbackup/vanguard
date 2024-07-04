@@ -27,7 +27,7 @@ class StreamBackupTaskLogEvent implements ShouldBroadcast
     {
         Log::debug('StreamBackupTaskLogEvent constructor', ['backupTaskLog' => $backupTaskLog, 'logOutput' => $logOutput]);
         $this->backupTaskLog = $backupTaskLog;
-        $this->backupTask = $backupTaskLog->backupTask;
+        $this->backupTask = $backupTaskLog->getAttribute('backupTask');
         $this->logOutput = $logOutput;
 
     }
@@ -40,7 +40,7 @@ class StreamBackupTaskLogEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("backup-task-log.{$this->backupTask->id}"),
+            new Channel("backup-task-log.{$this->backupTask->getAttribute('id')}"),
         ];
     }
 }

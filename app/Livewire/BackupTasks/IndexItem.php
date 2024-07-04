@@ -21,13 +21,13 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:new-backup-task-log.{$this->backupTask->id},CreatedBackupTaskLog" => 'echoBackupTaskLogCreatedEvent',
-            "echo:backup-tasks.{$this->backupTask->id},BackupTaskStatusChanged" => 'echoBackupTaskStatusReceivedEvent',
+            "echo:new-backup-task-log.{$this->backupTask->getAttribute('id')},CreatedBackupTaskLog" => 'echoBackupTaskLogCreatedEvent',
+            "echo:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'echoBackupTaskStatusReceivedEvent',
 
             // Refresh the component when the following events are dispatched, so the status of the table row changes.
-            "task-button-clicked-{$this->backupTask->id}" => '$refresh',
-            "pause-button-clicked-{$this->backupTask->id}" => '$refresh',
-            "log-modal-updated-{$this->backupTask->id}" => '$refresh',
+            "task-button-clicked-{$this->backupTask->getAttribute('id')}" => '$refresh',
+            "pause-button-clicked-{$this->backupTask->getAttribute('id')}" => '$refresh',
+            "log-modal-updated-{$this->backupTask->getAttribute('id')}" => '$refresh',
         ];
     }
 
@@ -40,7 +40,7 @@ class IndexItem extends Component
         $this->backupTaskLog = BackupTaskLog::findOrFail($event['logId']);
 
         // Refresh the component and fetch the latest log.
-        $this->dispatch('backup-task-item-updated-' . $this->backupTask->id);
+        $this->dispatch('backup-task-item-updated-' . $this->backupTask->getAttribute('id'));
     }
 
     public function echoBackupTaskStatusReceivedEvent(): void
@@ -48,7 +48,7 @@ class IndexItem extends Component
         Log::debug('Received the BackupTaskStatusChanged event. Refreshing the component.');
 
         $this->dispatch('$refresh');
-        $this->dispatch('update-run-button-' . $this->backupTask->id);
+        $this->dispatch('update-run-button-' . $this->backupTask->getAttribute('id'));
 
         $this->dispatch('refresh-backup-tasks-table'); // We want to refresh the index table since buttons will be disabled after task run.
         $this->dispatch('refreshBackupTaskHistory'); // Refresh the backup task history component as there's a new log.

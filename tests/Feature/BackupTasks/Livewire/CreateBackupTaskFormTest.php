@@ -69,7 +69,7 @@ test('users can create backup tasks', function () {
 
     $tags->each(function ($tag) use ($backupTask) {
         $this->assertDatabaseHas('taggables', [
-            'tag_id' => $tag->id,
+            'tag_id' => $tag->getAttribute('id'),
             'taggable_id' => $backupTask->id,
             'taggable_type' => BackupTask::class,
         ]);

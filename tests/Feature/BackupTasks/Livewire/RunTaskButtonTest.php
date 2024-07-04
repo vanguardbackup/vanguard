@@ -30,7 +30,7 @@ it('runs task and dispatches event', function () {
         ->call('runTask')
         ->assertDispatched('task-button-clicked-' . $backupTask->id);
 
-    expect($backupTask->refresh()->status)->toBe(BackupTask::STATUS_RUNNING);
+    expect($backupTask->refresh()->getAttribute('status'))->toBe(BackupTask::STATUS_RUNNING);
 
     Toaster::assertDispatched(__('Backup task is running.'));
 });

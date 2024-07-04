@@ -21,8 +21,8 @@ class CheckConnectionButton extends Component
     public function getListeners(): array
     {
         return [
-            "echo:remote-servers.{$this->remoteServer->id},RemoteServerConnectivityStatusChanged" => 'refreshSelf',
-            "update-check-button-{$this->remoteServer->id}" => '$refresh',
+            "echo:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'refreshSelf',
+            "update-check-button-{$this->remoteServer->getAttribute('id')}" => '$refresh',
         ];
     }
 
@@ -36,7 +36,7 @@ class CheckConnectionButton extends Component
         $this->remoteServer->runServerConnectionCheck();
 
         // This will call the "markAsChecking" method on the "IndexItem" component.
-        $this->dispatch('connection-check-initiated-' . $this->remoteServer->id);
+        $this->dispatch('connection-check-initiated-' . $this->remoteServer->getAttribute('id'));
 
         Toaster::info(__('Performing a connectivity check.'));
     }

@@ -22,8 +22,8 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:backup-destinations.{$this->backupDestination->id},BackupDestinationConnectionCheck" => 'echoReceivedEvent',
-            "backup-destination-connection-check-initiated-{$this->backupDestination->id}" => 'updateLivewireComponents',
+            "echo:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'echoReceivedEvent',
+            "backup-destination-connection-check-initiated-{$this->backupDestination->getAttribute('id')}" => 'updateLivewireComponents',
         ];
     }
 
@@ -44,7 +44,7 @@ class IndexItem extends Component
         $this->dispatch('$refresh');
 
         // This will refresh the "CheckConnectionButton" component via its listener.
-        $this->dispatch('update-backup-destination-check-button-' . $this->backupDestination->id);
+        $this->dispatch('update-backup-destination-check-button-' . $this->backupDestination->getAttribute('id'));
     }
 
     public function mount(BackupDestination $backupDestination): void

@@ -84,7 +84,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
-    $this->assertNotNull($user->refresh()->email_verified_at);
+    $this->assertNotNull($user->refresh()->getAttribute('email_verified_at'));
 });
 
 test('user can delete their account', function () {
@@ -175,7 +175,7 @@ test('the preferred backup destination must exist', function () {
         ->assertHasErrors('preferred_backup_destination_id')
         ->assertNoRedirect();
 
-    $this->assertNull($user->refresh()->preferred_backup_destination_id);
+    $this->assertNull($user->refresh()->getAttribute('preferred_backup_destination_id'));
 });
 
 test('the preferred backup destination must belong to the user', function () {
@@ -199,7 +199,7 @@ test('the preferred backup destination must belong to the user', function () {
         ->assertHasErrors('preferred_backup_destination_id')
         ->assertNoRedirect();
 
-    $this->assertNull($user->refresh()->preferred_backup_destination_id);
+    $this->assertNull($user->refresh()->getAttribute('preferred_backup_destination_id'));
 });
 
 test('the language must exist', function () {

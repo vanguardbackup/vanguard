@@ -22,8 +22,8 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:remote-servers.{$this->remoteServer->id},RemoteServerConnectivityStatusChanged" => 'echoReceivedEvent',
-            "connection-check-initiated-{$this->remoteServer->id}" => 'updateLivewireComponents',
+            "echo:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'echoReceivedEvent',
+            "connection-check-initiated-{$this->remoteServer->getAttribute('id')}" => 'updateLivewireComponents',
         ];
     }
 
@@ -44,7 +44,7 @@ class IndexItem extends Component
         $this->dispatch('$refresh');
 
         // This will refresh the "CheckConnectionButton" component via its listener.
-        $this->dispatch('update-check-button-' . $this->remoteServer->id);
+        $this->dispatch('update-check-button-' . $this->remoteServer->getAttribute('id'));
     }
 
     public function mount(RemoteServer $remoteServer): void

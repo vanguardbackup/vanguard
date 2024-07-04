@@ -22,8 +22,8 @@ class UpdateForm extends Component
     public function mount(Tag $tag): void
     {
         $this->tag = $tag;
-        $this->label = $tag->label;
-        $this->description = $tag->description ?? null;
+        $this->label = $tag->getAttribute('label');
+        $this->description = $tag->getAttribute('description') ?? null;
     }
 
     public function submit(): RedirectResponse|Redirector
@@ -44,7 +44,7 @@ class UpdateForm extends Component
 
         $this->tag->save();
 
-        Toaster::success(__('The tag :label has been updated.', ['label' => $this->tag->label]));
+        Toaster::success(__('The tag :label has been updated.', ['label' => $this->tag->getAttribute('label')]));
 
         return Redirect::route('tags.index');
     }

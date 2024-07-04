@@ -12,21 +12,21 @@ class BackupDestinationPolicy
 {
     public function view(User $user, BackupDestination $backupDestination): Response
     {
-        return $user->id === $backupDestination->user_id
+        return $user->getAttribute('id') === $backupDestination->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup destination.');
     }
 
     public function update(User $user, BackupDestination $backupDestination): Response
     {
-        return $user->id === $backupDestination->user_id
+        return $user->getAttribute('id') === $backupDestination->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup destination.');
     }
 
     public function forceDelete(User $user, BackupDestination $backupDestination): Response
     {
-        return $user->id === $backupDestination->user_id
+        return $user->getAttribute('id') === $backupDestination->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup destination.');
     }

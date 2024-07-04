@@ -24,7 +24,7 @@ class RemoveSSHKeyJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('Removing SSH key from server.', ['server_id' => $this->remoteServer->id]);
+        Log::info('Removing SSH key from server.', ['server_id' => $this->remoteServer->getAttribute('id')]);
 
         $action = new RemoveSSHKey;
         $action->handle($this->remoteServer);

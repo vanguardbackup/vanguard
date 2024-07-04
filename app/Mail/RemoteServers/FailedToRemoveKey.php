@@ -32,7 +32,7 @@ class FailedToRemoveKey extends Mailable implements ShouldQueue
     {
         return new Content(
             markdown: 'mail.remote-servers.failed-to-remove-key',
-            with: ['remoteServer' => $this->remoteServer, 'message' => $this->message, 'user' => $this->remoteServer->user],
+            with: ['remoteServer' => $this->remoteServer, 'message' => $this->message, 'user' => $this->remoteServer->getAttribute('user')],
         );
     }
 }

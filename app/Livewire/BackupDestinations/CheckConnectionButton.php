@@ -21,8 +21,8 @@ class CheckConnectionButton extends Component
     public function getListeners(): array
     {
         return [
-            "echo:backup-destinations.{$this->backupDestination->id},BackupDestinationConnectionCheck" => 'refreshSelf',
-            "update-backup-destination-check-button-{$this->backupDestination->id}" => '$refresh',
+            "echo:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'refreshSelf',
+            "update-backup-destination-check-button-{$this->backupDestination->getAttribute('id')}" => '$refresh',
         ];
     }
 
@@ -41,7 +41,7 @@ class CheckConnectionButton extends Component
 
         Toaster::info(__('Performing a connectivity check.'));
 
-        $this->dispatch("backup-destination-connection-check-initiated-{$this->backupDestination->id}");
+        $this->dispatch("backup-destination-connection-check-initiated-{$this->backupDestination->getAttribute('id')}");
     }
 
     public function render(): View

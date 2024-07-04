@@ -61,14 +61,14 @@ class LogModal extends Component
         $this->isWaiting = false;
 
         $this->dispatch('$refresh');
-        $this->dispatch('log-modal-updated-' . $this->backupTask->id);
+        $this->dispatch('log-modal-updated-' . $this->backupTask->getAttribute('id'));
     }
 
     public function refreshSelf(): void
     {
         Log::debug('A refresh event was dispatched from the parent component.', [
-            'backupTaskId' => $this->backupTask->id,
-            'backupTaskLogId' => $this->backupTaskLog->id ?? null,
+            'backupTaskId' => $this->backupTask->getAttribute('id'),
+            'backupTaskLogId' => $this->backupTaskLog?->getAttribute('id'),
         ]);
 
         $this->resetLog();
@@ -87,8 +87,8 @@ class LogModal extends Component
     protected function getListeners(): array
     {
         return [
-            "echo:backup-task-log.{$this->backupTask->id},StreamBackupTaskLogEvent" => 'updateLogOutput',
-            "backup-task-item-updated-{$this->backupTask->id}" => 'refreshSelf',
+            "echo:backup-task-log.{$this->backupTask->getAttribute('id')},StreamBackupTaskLogEvent" => 'updateLogOutput',
+            "backup-task-item-updated-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
         ];
     }
 

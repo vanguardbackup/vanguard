@@ -61,7 +61,7 @@ abstract class Backup
             case BackupConstants::DRIVER_S3:
             case BackupConstants::DRIVER_CUSTOM_S3:
                 $client = $backupDestination->getS3Client();
-                $bucketName = $backupDestination->s3_bucket_name;
+                $bucketName = $backupDestination->getAttribute('s3_bucket_name');
 
                 return (new S3($client, $bucketName))->streamFiles($sftp, $remotePath, $fileName, $storagePath);
 
@@ -113,7 +113,7 @@ abstract class Backup
 
     public function updateBackupTaskLogOutput(BackupTaskLog $backupTaskLog, string $logOutput): void
     {
-        $this->logInfo('Updating backup task log output.', ['log_id' => $backupTaskLog->id]);
+        $this->logInfo('Updating backup task log output.', ['log_id' => $backupTaskLog->getAttribute('id')]);
 
         try {
             $this->logDebug('Dispatching StreamBackupTaskLogEvent');
@@ -124,26 +124,26 @@ abstract class Backup
 
         $backupTaskLog->forceFill(['output' => $logOutput]);
         $backupTaskLog->save();
-        $this->logDebug('Backup task log output updated.', ['log_id' => $backupTaskLog->id, 'output' => $logOutput]);
+        $this->logDebug('Backup task log output updated.', ['log_id' => $backupTaskLog->getAttribute('id'), 'output' => $logOutput]);
     }
 
     public function updateBackupTaskStatus(BackupTask $backupTask, string $status): void
     {
-        $this->logInfo('Updating backup task status.', ['backup_task_id' => $backupTask->id, 'status' => $status]);
+        $this->logInfo('Updating backup task status.', ['backup_task_id' => $backupTask->getAttribute('id'), 'status' => $status]);
 
         $backupTask->forceFill(['status' => $status]);
-        $this->logDebug('Task status updated.', ['backup_task_id' => $backupTask->id, 'status' => $status]);
+        $this->logDebug('Task status updated.', ['backup_task_id' => $backupTask->getAttribute('id'), 'status' => $status]);
 
         BackupTaskStatusChanged::dispatch($backupTask, $status);
     }
 
     public function sendEmailNotificationOfTaskFailure(BackupTask $backupTask, string $errorMessage): void
     {
-        $this->logInfo('Sending failure notification email.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
+        $this->logInfo('Sending failure notification email.', ['backup_task_id' => $backupTask->getAttribute('id'), 'error' => $errorMessage]);
 
         try {
-            Mail::to($backupTask->user)
-                ->queue(new BackupTaskFailed($backupTask->user, $backupTask->label, $errorMessage));
+            Mail::to($backupTask->getAttribute('user'))
+                ->queue(new BackupTaskFailed($backupTask->getAttribute('user'), $backupTask->getAttribute('label'), $errorMessage));
         } catch (Exception $e) {
             $this->handleException($e, 'Failed to send task failure notification email.');
         }
@@ -151,7 +151,7 @@ abstract class Backup
 
     public function handleFailure(BackupTask $backupTask, string &$logOutput, string $errorMessage): void
     {
-        $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->id, 'error' => $errorMessage]);
+        $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->getAttribute('id'), 'error' => $errorMessage]);
 
         $logOutput .= "\n" . $errorMessage;
         $this->sendEmailNotificationOfTaskFailure($backupTask, $errorMessage);
@@ -476,15 +476,15 @@ abstract class Backup
 
     public function createBackupDestinationInstance(BackupDestination $backupDestinationModel): BackupDestinationInterface
     {
-        switch ($backupDestinationModel->type) {
+        switch ($backupDestinationModel->getAttribute('type')) {
             case BackupConstants::DRIVER_CUSTOM_S3:
             case BackupConstants::DRIVER_S3:
                 $client = $backupDestinationModel->getS3Client();
 
-                return new S3($client, $backupDestinationModel->s3_bucket_name);
+                return new S3($client, $backupDestinationModel->getAttribute('s3_bucket_name'));
 
             default:
-                throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->type}");
+                throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->getAttribute('type')}");
         }
     }
 

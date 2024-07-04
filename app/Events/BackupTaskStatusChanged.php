@@ -19,7 +19,7 @@ class BackupTaskStatusChanged implements ShouldBroadcast
         private readonly BackupTask $backupTask,
         public ?string $status = null
     ) {
-        $this->status = $status ?? $backupTask->status;
+        $this->status = $status ?? $backupTask->getAttribute('status');
     }
 
     /**
@@ -30,7 +30,7 @@ class BackupTaskStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("backup-tasks.{$this->backupTask->id}"),
+            new Channel("backup-tasks.{$this->backupTask->getAttribute('id')}"),
         ];
     }
 }

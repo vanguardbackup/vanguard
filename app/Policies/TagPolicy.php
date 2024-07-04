@@ -12,21 +12,21 @@ class TagPolicy
 {
     public function view(User $user, Tag $tag): Response
     {
-        return $user->id === $tag->user_id
+        return $user->getAttribute('id') === $tag->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this tag.');
     }
 
     public function update(User $user, Tag $tag): Response
     {
-        return $user->id === $tag->user_id
+        return $user->getAttribute('id') === $tag->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this tag.');
     }
 
     public function forceDelete(User $user, Tag $tag): Response
     {
-        return $user->id === $tag->user_id
+        return $user->getAttribute('id') === $tag->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this tag.');
     }

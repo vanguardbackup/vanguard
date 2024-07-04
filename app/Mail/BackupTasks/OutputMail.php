@@ -24,7 +24,7 @@ class OutputMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->backupTaskLog->successful_at ? 'Backup task completed' : 'Backup task failed',
+            subject: $this->backupTaskLog->getAttribute('successful_at') ? 'Backup task completed' : 'Backup task failed',
         );
     }
 

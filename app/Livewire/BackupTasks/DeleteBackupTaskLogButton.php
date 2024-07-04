@@ -23,7 +23,7 @@ class DeleteBackupTaskLogButton extends Component
 
     public function delete(): RedirectResponse|Redirector
     {
-        $this->authorize('forceDelete', $this->backupTaskLog->backupTask);
+        $this->authorize('forceDelete', $this->backupTaskLog->getAttribute('backupTask'));
 
         $this->backupTaskLog->forceDelete();
 

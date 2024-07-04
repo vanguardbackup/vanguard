@@ -41,7 +41,7 @@ it('refreshes itself when the method is called', function () {
         ->call('refreshSelf')
         ->assertSet('logOutput', 'Some log output');
 
-    $this->assertEquals('Some log output', $task->refresh()->logs->first()->output);
+    $this->assertEquals('Some log output', $task->refresh()->getAttribute('logs')->first()->output);
 });
 
 it('renders the component correctly when live log output has been given', function () {

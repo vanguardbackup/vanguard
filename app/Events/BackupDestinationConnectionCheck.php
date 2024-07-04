@@ -19,7 +19,7 @@ class BackupDestinationConnectionCheck implements ShouldBroadcast
         private readonly BackupDestination $backupDestination,
         public ?string $status = null
     ) {
-        $this->status = $status ?? $this->backupDestination->status;
+        $this->status = $status ?? $this->backupDestination->getAttribute('status');
     }
 
     /**
@@ -30,7 +30,7 @@ class BackupDestinationConnectionCheck implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("backup-destinations.{$this->backupDestination->id}"),
+            new Channel("backup-destinations.{$this->backupDestination->getAttribute('id')}"),
         ];
     }
 }

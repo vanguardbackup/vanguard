@@ -19,7 +19,7 @@ class RemoteServerConnectivityStatusChanged implements ShouldBroadcast
         public readonly RemoteServer $remoteServer,
         public ?string $connectivityStatus = null
     ) {
-        $this->connectivityStatus = $connectivityStatus ?? $remoteServer->connectivity_status;
+        $this->connectivityStatus = $connectivityStatus ?? $remoteServer->getAttribute('connectivity_status');
     }
 
     /**
@@ -30,7 +30,7 @@ class RemoteServerConnectivityStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("remote-servers.{$this->remoteServer->id}"),
+            new Channel("remote-servers.{$this->remoteServer->getAttribute('id')}"),
         ];
     }
 }

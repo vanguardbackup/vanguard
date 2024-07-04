@@ -20,7 +20,7 @@ class CreatedBackupTaskLog implements ShouldBroadcast
 
     public function __construct(public BackupTaskLog $backupTaskLog)
     {
-        $this->backupTask = $this->backupTaskLog->backupTask;
+        $this->backupTask = $this->backupTaskLog->getAttribute('backupTask');
     }
 
     /**
@@ -31,7 +31,7 @@ class CreatedBackupTaskLog implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("new-backup-task-log.{$this->backupTask->id}"),
+            new Channel("new-backup-task-log.{$this->backupTask->getAttribute('id')}"),
         ];
     }
 
@@ -42,6 +42,6 @@ class CreatedBackupTaskLog implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
-        return ['logId' => $this->backupTaskLog->id];
+        return ['logId' => $this->backupTaskLog->getAttribute('id')];
     }
 }

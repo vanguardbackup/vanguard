@@ -29,10 +29,10 @@ class UpdateRemoteServerForm extends Component
 
     public function mount(): void
     {
-        $this->label = $this->remoteServer->label;
-        $this->host = $this->remoteServer->ip_address;
-        $this->username = $this->remoteServer->username;
-        $this->port = (int) $this->remoteServer->port;
+        $this->label = $this->remoteServer->getAttribute('label');
+        $this->host = $this->remoteServer->getAttribute('ip_address');
+        $this->username = $this->remoteServer->getAttribute('username');
+        $this->port = (int) $this->remoteServer->getAttribute('port');
         $this->databasePassword = '';
     }
 
@@ -42,7 +42,7 @@ class UpdateRemoteServerForm extends Component
 
         $this->validate([
             'label' => ['required', 'string'],
-            'host' => ['required', 'string', 'ip', 'unique:remote_servers,ip_address,' . $this->remoteServer->id],
+            'host' => ['required', 'string', 'ip', 'unique:remote_servers,ip_address,' . $this->remoteServer->getAttribute('id')],
             'username' => ['required', 'string'],
             'port' => ['required', 'integer', 'min:1', 'max:65535'],
             'databasePassword' => ['string', 'nullable'],

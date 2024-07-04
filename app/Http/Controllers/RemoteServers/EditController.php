@@ -15,7 +15,7 @@ class EditController extends Controller
     {
         $remoteServer->query()
             ->whereNull('marked_for_deletion_at')
-            ->findOrFail($remoteServer->id);
+            ->findOrFail($remoteServer->getAttribute('id'));
 
         return view('remote-servers.edit', [
             'remoteServer' => $remoteServer,

@@ -24,7 +24,7 @@ class ResetInoperativeBackupTasksCommand extends Command
         $tasks->each(function (BackupTask $task) {
             $task->markAsReady();
             $task->resetScriptUpdateTime();
-            $this->info("Resetting backup task with ID {$task->id}.");
+            $this->info("Resetting backup task with ID {$task->getAttribute('id')}.");
         });
     }
 }

@@ -17,8 +17,8 @@ class FileBackupTask extends AbstractBackupTask
      */
     protected function performBackup(): void
     {
-        $remoteServer = $this->backupTask->remoteServer;
-        $backupDestinationModel = $this->backupTask->backupDestination;
+        $remoteServer = $this->backupTask->getAttribute('remoteServer');
+        $backupDestinationModel = $this->backupTask->getAttribute('backupDestination');
         $sourcePath = $this->backupTask->getAttributeValue('source_path');
         $storagePath = $this->backupTask->getAttributeValue('store_path');
 
@@ -56,7 +56,7 @@ class FileBackupTask extends AbstractBackupTask
 
         if ($this->backupTask->isRotatingBackups()) {
             $backupDestination = $this->createBackupDestinationInstance($backupDestinationModel);
-            $this->rotateOldBackups($backupDestination, $this->backupTask->id, $this->backupTask->maximum_backups_to_keep, '.zip', 'backup_');
+            $this->rotateOldBackups($backupDestination, $this->backupTask->getAttribute('id'), $this->backupTask->getAttribute('maximum_backups_to_keep'), '.zip', 'backup_');
         }
 
         $this->logMessage("Backup has been uploaded to {$backupDestinationModel->label} - {$backupDestinationModel->type()}: {$zipFileName}");

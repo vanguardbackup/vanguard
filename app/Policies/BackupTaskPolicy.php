@@ -12,21 +12,21 @@ class BackupTaskPolicy
 {
     public function view(User $user, BackupTask $backupTask): Response
     {
-        return $user->id === $backupTask->user_id
+        return $user->getAttribute('id') === $backupTask->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup task.');
     }
 
     public function update(User $user, BackupTask $backupTask): Response
     {
-        return $user->id === $backupTask->user_id
+        return $user->getAttribute('id') === $backupTask->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup task.');
     }
 
     public function forceDelete(User $user, BackupTask $backupTask): Response
     {
-        return $user->id === $backupTask->user_id
+        return $user->getAttribute('id') === $backupTask->getAttribute('user_id')
             ? Response::allow()
             : Response::deny('You do not own this backup task.');
     }

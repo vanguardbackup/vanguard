@@ -32,7 +32,7 @@ class SuccessfullyRemovedKey extends Mailable implements ShouldQueue
     {
         return new Content(
             markdown: 'mail.remote-servers.successfully-removed-key',
-            with: ['remoteServer' => $this->remoteServer, 'user' => $this->remoteServer->user],
+            with: ['remoteServer' => $this->remoteServer, 'user' => $this->remoteServer->getAttribute('user')],
         );
     }
 }

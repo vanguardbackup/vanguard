@@ -29,7 +29,7 @@ class VerifyConnectionToRemoteServersCommand extends Command
 
         Bus::batch(
             $remoteServers->map(function (RemoteServer $remoteServer) {
-                return new CheckRemoteServerConnectionJob($remoteServer->id);
+                return new CheckRemoteServerConnectionJob($remoteServer->getAttribute('id'));
             })->toArray()
         )->name('Check connection to remote servers')
             ->onQueue('connectivity-checks')
