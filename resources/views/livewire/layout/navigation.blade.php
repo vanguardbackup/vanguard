@@ -20,7 +20,7 @@ new class extends Component {
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('overview') }}" wire:navigate>
-                        <x-application-logo class="block h-14 w-auto fill-current text-white mt-2"/>
+                        <x-application-logo class="block h-6 w-auto fill-current text-white"/>
                     </a>
                 </div>
 
