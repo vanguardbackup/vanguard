@@ -12,10 +12,6 @@ Breadcrumbs::for('overview', function (BreadcrumbTrail $trail) {
     }
 });
 
-Breadcrumbs::for('frequently-asked-questions', function (BreadcrumbTrail $trail) {
-    $trail->push(__('FAQ'), route('frequently-asked-questions'));
-});
-
 Breadcrumbs::for('profile', function (BreadcrumbTrail $trail) {
     $trail->push(__('Profile'), route('profile'));
 });

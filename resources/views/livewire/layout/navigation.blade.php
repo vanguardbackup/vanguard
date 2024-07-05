@@ -103,10 +103,6 @@ new class extends Component {
                             </x-dropdown-link>
                         @endif
 
-                        <x-dropdown-link :href="route('frequently-asked-questions')" wire:navigate>
-                            {{ __('FAQ') }}
-                        </x-dropdown-link>
-
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
                             <x-dropdown-link>

@@ -23,10 +23,6 @@ Route::middleware([UserLanguage::class])->group(function () {
         ->middleware(['auth'])
         ->name('account.remove-account');
 
-    Route::view('frequently-asked-questions', 'frequently-asked-questions')
-        ->middleware(['auth'])
-        ->name('frequently-asked-questions');
-
     Route::middleware(['auth'])
         ->prefix('remote-servers')
         ->group(function () {
