@@ -149,14 +149,6 @@ abstract class Backup
         }
     }
 
-    public function handleFailure(BackupTask $backupTask, string &$logOutput, string $errorMessage): void
-    {
-        $this->logError('Handling failure for backup task.', ['backup_task_id' => $backupTask->getAttribute('id'), 'error' => $errorMessage]);
-
-        $logOutput .= "\n" . $errorMessage;
-        $this->sendEmailNotificationOfTaskFailure($backupTask, $errorMessage);
-    }
-
     /**
      * @throws SFTPConnectionException
      */

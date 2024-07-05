@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Backup\Tasks;
 
+use App\Mail\BackupTaskFailed;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Services\Backup\Contracts\SFTPInterface;
@@ -11,6 +12,7 @@ use App\Services\Backup\Tasks\AbstractBackupTask;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Mail;
 use Mockery;
 use ReflectionClass;
 
@@ -102,10 +104,13 @@ it('zips remote directory', function (): void {
 });
 
 it('handles backup failure', function (): void {
+    Mail::fake();
     $method = $this->reflection->getMethod('handleBackupFailure');
 
     $exception = new Exception('Test exception');
     $method->invoke($this->abstractBackupTask, $exception);
+
+    Mail::assertQueued(BackupTaskFailed::class);
 
     expect($this->abstractBackupTask->getLogOutput())
         ->toContain('Error in backup process: Test exception');

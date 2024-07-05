@@ -85,6 +85,7 @@ abstract class AbstractBackupTask extends Backup
     protected function handleBackupFailure(Exception $exception): void
     {
         $this->logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
+        $this->sendEmailNotificationOfTaskFailure($this->backupTask, $exception->getMessage());
         Log::error("Error in backup process for task {$this->backupTask->id}: " . $exception->getMessage(), ['exception' => $exception]);
     }
 
