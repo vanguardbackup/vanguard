@@ -1,13 +1,13 @@
 <p align="center"><img src="https://i.imgur.com/wyPXdbX.png" width="120" alt="Vanguard Logo"></p>
 
 <p align="center">
-  <a href="https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml">
-    <img src="https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main" alt="CI Pipeline">
+  <a href="https://github.com/vanguardbackup/vanguard/actions/workflows/main-ci.yml">
+    <img src="https://github.com/vanguardbackup/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main" alt="CI Pipeline">
   </a>
   <a href="https://opensource.org/licenses/MIT">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
   </a>
-  <img src="https://img.shields.io/github/v/release/vanguardsh/vanguard" alt="GitHub Release">
+  <img src="https://img.shields.io/github/v/release/vanguardbackup/vanguard" alt="GitHub Release">
 </p>
 
 ## About Vanguard

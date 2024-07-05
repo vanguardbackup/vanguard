@@ -72,7 +72,7 @@
                 @endif
             </div>
             <div>
-                <a href="https://github.com/vanguardsh/vanguard" title="{{ __('GitHub repository') }}" target="_blank">
+                <a href="https://github.com/vanguardbackup/vanguard" title="{{ __('GitHub repository') }}" target="_blank">
                     <x-icons.github class="h-4 w-4 fill-current ease-in-out hover:text-gray-700 dark:hover:text-gray-200 duration-150" />
                 </a>
             </div>
