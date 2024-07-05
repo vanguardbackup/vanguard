@@ -12,7 +12,7 @@ use App\Services\Backup\Tasks\AbstractBackupTask;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Mockery;
 use ReflectionClass;
 
