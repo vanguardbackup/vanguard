@@ -1,10 +1,15 @@
 <p align="center"><img src="https://i.imgur.com/wyPXdbX.png" width="120" alt="Vanguard Logo"></p>
 
-[![CI Pipeline](https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main)](https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![GitHub Release](https://img.shields.io/github/v/release/vanguardsh/vanguard)
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![Livewire](https://img.shields.io/badge/livewire-4e56a6?style=for-the-badge&logo=livewire&logoColor=white)
+<p align="center">
+  <a href="https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml">
+    <img src="https://github.com/vanguardsh/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main" alt="CI Pipeline">
+  </a>
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+  </a>
+  <img src="https://img.shields.io/github/v/release/vanguardsh/vanguard" alt="GitHub Release">
+</p>
+
 ## About Vanguard
 
 Vanguard is a Laravel project that aims to provide an easy way to back up your Linux server files or databases to a remote destination such as an S3 bucket. It is designed to be easy to use and to be able to run on a schedule, enhanced with notifications, so you know what's happening with your backups.
@@ -13,9 +18,11 @@ Vanguard is a Laravel project that aims to provide an easy way to back up your L
 
 - Backup files and databases to S3 buckets
 - Schedule backups
-- Notifications via email or Discord / Slack webhooks
+- Notifications via Email or Discord / Slack webhooks
 - View your log in real-time via the web interface
-- Pause any backup tasks you don't want to run on the schedule
+- Pause any backup tasks you don't want scheduled
+- Supports multiple languages
+- View statistics on your backup tasks over time
 
 ## Installation and Running
 As Vanguard is a Laravel project, you can install it like any other Laravel project. Here are the "general" steps to get you started:
