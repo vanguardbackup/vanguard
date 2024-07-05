@@ -1,7 +1,6 @@
 <p align="center"><img src="https://i.imgur.com/wyPXdbX.png" width="120" alt="Vanguard Logo"></p>
 
-[![Tests](https://github.com/lewislarsen/vanguard/actions/workflows/test-suite.yml/badge.svg?branch=main)](https://github.com/lewislarsen/vanguard/actions/workflows/test-suite.yml)
-[![Fix code style](https://github.com/lewislarsen/vanguard/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/lewislarsen/vanguard/actions/workflows/fix-code-style.yml)
+[![CI Pipeline](https://github.com/lewislarsen/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main)](https://github.com/lewislarsen/vanguard/actions/workflows/main-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub Release](https://img.shields.io/github/v/release/vanguardsh/vanguard)
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
