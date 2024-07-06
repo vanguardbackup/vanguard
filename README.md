@@ -12,23 +12,31 @@
 
 ## About Vanguard
 
-Vanguard is a Laravel project that aims to provide an easy way to back up your Linux server files or databases to a remote destination such as an S3 bucket. It is designed to be easy to use and to be able to run on a schedule, enhanced with notifications, so you know what's happening with your backups.
+Vanguard is a Laravel project that aims to provide an easy way to back up your files and databases. It is designed to be easy to use and friendly.  
+
+Vanguard has official support for modern Ubuntu and Debian servers. There are no plans to support Windows. 
 
 ## Features
 
-- Backup files and databases to S3 buckets
-- Schedule backups
-- Notifications via Email or Discord / Slack webhooks
-- View your log in real-time via the web interface
-- Pause any backup tasks you don't want scheduled
-- Supports multiple languages
-- View statistics on your backup tasks over time
+- Easy-to-use interface
+- Flexible scheduling of backups
+- Daily/weekly or custom via cron
+- Supports both file and database backups
+- Notifications via Email, Discord or Slack webhooks
+- Ability to pause/resume scheduled backup tasks as needed
+- Automatic server connection checks
+- Multi-language support
+- Encrypts sensitive information
+- View statistics and aggregated data about your backups over time
 
-## Installation and Running
+Do you have an idea that isn't listed? [Create a post](https://github.com/vanguardbackup/vanguard/discussions/new?category=ideas) in our discussions section.
+
+## Installation and Running Vanguard
 As Vanguard is a Laravel project, you can install it like any other Laravel project. Here are the "general" steps to get you started:
 
-Vanguard requires PHP 8.3, Redis and Composer to be installed on your system. You will also need to have Node.js and NPM installed to build the frontend assets. Ideally we recommend using Laravel Valet, but you can use any other local development environment.
+Vanguard requires PHP 8.2+, Redis and Composer to be installed on your system. You will also need to have Node.js and NPM installed to build the frontend assets. Ideally we recommend using Laravel Valet, but you can use any other local development environment.
 
+We will try our best to help you to get Vanguard running, but we always recommend you read the [Laravel documentation](https://laravel.com/docs/11.x/installation) if you get stuck.
 1. Clone the repository
 2. Run `composer install --no-dev --optimize-autoloader`
 3. Run `npm install && npm run build`
@@ -40,18 +48,12 @@ Vanguard requires PHP 8.3, Redis and Composer to be installed on your system. Yo
 9. Run `php artisan reverb:run` to start Laravel Reverb for websockets and real-time log viewing.
 10. Run `php artisan schedule:work` to start the scheduler.
 
-**Note:** The `vanguard:generate-key`
-command will generate an SSH key that will be used to authenticate with the remote server. The generated keys will be stored in the `storage/app/ssh` directory. Make sure to keep the private key safe.
+> [!NOTE]
+> The `vanguard:generate-key`
+command will generate an SSH key that will be used to authenticate with your remote servers. The generated keys will be stored in the `storage/app/ssh` directory. Make sure to keep the private key safe.
 
-**Note Two:** Please ensure you have set your SSH key passphrase, as Vanguard does not support SSH keys without a passphrase, and it will likely not work if the passphrase is not set.
-
-## Tests
-
-Vanguard has a test suite that can be run using Pest. You can run the test suite by running `php artisan test`. We always aim to keep the test suite up to date and passing and welcome any contributions to the test suite to ensure a high level of code quality.
-
-## Code Style
-
-Vanguard uses Duster by Tighten to ensure a consistent code style across the project. You can run the code style fixer by running `./vendor/bin/duster fix` to resolve any issues.  We do have a GitHub action that will automatically fix any code style issues on a pull request, so you can be sure that the code style is always up to date.
+> [!IMPORTANT]
+> Make sure you have set your SSH passphrase in your `.env` file. Keep it safe!
 
 ## Commands
 
@@ -60,11 +62,34 @@ Vanguard has a few artisan commands that are specific to the project that can be
 | Command                                | Description                                                                                                                            |
 |----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | `vanguard:generate-ssh-key`            | Generates an SSH key required for backup operations.                                                                                   |
-| `vanguard:version`                     | Checks the version of Vanguard.                                                                                                        |
+| `vanguard:version (--check)`           | Checks the version of the application. Passing `--check` will see if there is a newer version published to Github.                     |
 | `vanguard:validate-s3-connection {id}` | Able to check whether a backup destination that uses S3 can be reached. This takes the primary key of the backup destination as an id. |
 | `vanguard:encrypt-database-passwords`  | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                            |
 
-**Note:** There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
+> [!WARNING]
+> There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
+
+> [!NOTE]
+> You will not be allowed to generate another SSH key if you already have one configured.
+
+
+<details>
+<summary>Vanguard's terminology</summary>
+
+## Terminology
+
+### Backup Tasks
+
+Backup Tasks are where you define your directory paths pointing to your backup, the times you wish the content to be backed up and where you would like it to be backed up to
+
+### Backup Destinations
+
+Backup Destinations are where you define destinations for your data once it has been backed up. This could be on an S3 bucket or perhaps on the same server just in another directory. The choice is yours.
+
+### Remote Servers
+
+Remote Servers are the Linux servers that hold the data you want to back up.
+</details>
 
 ## Contributing
 
@@ -72,4 +97,4 @@ Thank you for considering contributing to Vanguard! Please read the [CONTRIBUTIN
 
 ## License
 
-Vanguard is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Vanguard is open-sourced software licensed under the [MIT licence](https://opensource.org/licenses/MIT).

@@ -36,8 +36,9 @@ body:
   - type: input
     id: version
     attributes:
-      label: Version
+      label: Vanguard Version
       description: What version of the application are you using?
+      placeholder: 'v1.0.0 etc'
     validations:
       required: true
   - type: textarea

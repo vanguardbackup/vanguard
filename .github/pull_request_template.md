@@ -1,4 +1,4 @@
-# Pull Request Template
+# Vanguard PR
 
 ## Description
 
@@ -8,7 +8,7 @@ Fixes # (issue) if applicable.
 
 ## Type of change
 
-Please delete options that are not relevant.
+Please delete options that are not relevant to this PR.
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -27,6 +27,7 @@ Please describe the tests that you ran to verify your changes. Please also list 
 - [ ] My changes do not introduce any new warnings or errors
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing tests pass locally with my changes
+- [ ] I have used translation helpers and provided translations (where appropriate)
 
 ## Screenshots (if applicable):
 

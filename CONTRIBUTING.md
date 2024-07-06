@@ -18,7 +18,7 @@ If you are submitting a bug report, please include as much information as possib
 
 ## Pull Requests
 
-When submitting a pull request, please ensure that your changes are in line with the project's coding standards and that any new features are well documented in the PR. We require that you include tests for any new functionality to ensure that it works as expected and does not introduce any regressions in the codebase. Screenshots where  would be nice but are not required.
+When submitting a pull request, please ensure that your changes are in line with the project's coding standards and that any new features are well documented in the PR. We require that you include tests for any new functionality to ensure that it works as expected and does not introduce any regressions in the codebase. Screenshots where  would be nice but are not required. Please ensure that if your addition introduces any new language strings that they are translated. We want to ensure that Vanguard is as accessible as it can be.
 
 Pull requests will be reviewed by the project maintainers, and we may request changes or provide feedback before merging the changes. We aim to review pull requests as quickly as possible and will work with you to ensure that your changes are merged in a timely manner.
 
@@ -27,6 +27,12 @@ Pull requests will be reviewed by the project maintainers, and we may request ch
 Please ensure you write tests for any new functionality you add to the project. Additionally, use Laravel's translation helpers for any text so that the base language strings are in English and can be localized.
 
 We use Duster by Tighten to ensure a consistent code style across the project. You can run the code style fixer by running `./vendor/bin/duster fix` to resolve any issues. We do have a GitHub action that will automatically fix any code style issues on a pull requests and commits.
+
+Additionally, Vanguard uses Rector to aid in a consistent codebase. Rector can be run by executing the command `./vendor/bin/rector`. Much like Duster, we also have a GitHub Action for Rector that will run on PRs.
+
+## Tests
+
+Vanguard has a test suite that can be run using Pest. You can run the test suite by running `php artisan test`. We always aim to keep the test suite up to date and passing and welcome any contributions to the test suite to ensure a high level of code quality.
 
 ## Adding Languages
 
