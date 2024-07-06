@@ -19,8 +19,7 @@ class Local implements BackupDestinationInterface
     public function __construct(
         protected SFTPInterface $sftp,
         protected string $storagePath
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string>
@@ -79,6 +78,35 @@ class Local implements BackupDestinationInterface
         }
 
         return $this->normalizePath($basePath . '/' . $relativePath);
+    }
+
+    public function ensureDirectoryExists(string $path): bool
+    {
+        $path = $this->normalizePath($path);
+
+        $result = $this->sftp->mkdir($path, 0755, true);
+
+        if ($result) {
+            Log::info('Directory created successfully', ['path' => $path]);
+
+            return true;
+        }
+
+        $listResult = $this->sftp->exec('ls -la ' . escapeshellarg($path));
+
+        if (! empty($listResult)) {
+            Log::info('Directory already exists', ['path' => $path]);
+
+            return true;
+        }
+
+        $lastError = $this->sftp->getLastError();
+        Log::error('Failed to create or access directory', [
+            'path' => $path,
+            'sftp_error' => $lastError,
+        ]);
+
+        return false;
     }
 
     /**
@@ -159,35 +187,6 @@ class Local implements BackupDestinationInterface
         $lastError = $this->sftp->getLastError();
         Log::error('Failed to stream file to remote local storage', [
             'full_path' => $fullPath,
-            'sftp_error' => $lastError,
-        ]);
-
-        return false;
-    }
-
-    public function ensureDirectoryExists(string $path): bool
-    {
-        $path = $this->normalizePath($path);
-
-        $result = $this->sftp->mkdir($path, 0755, true);
-
-        if ($result) {
-            Log::info('Directory created successfully', ['path' => $path]);
-
-            return true;
-        }
-
-        $listResult = $this->sftp->exec('ls -la ' . escapeshellarg($path));
-
-        if (! empty($listResult)) {
-            Log::info('Directory already exists', ['path' => $path]);
-
-            return true;
-        }
-
-        $lastError = $this->sftp->getLastError();
-        Log::error('Failed to create or access directory', [
-            'path' => $path,
             'sftp_error' => $lastError,
         ]);
 
