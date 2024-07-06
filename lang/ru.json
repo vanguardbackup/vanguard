@@ -339,5 +339,7 @@
     "Light": "Свет",
     "Dark": "Тёмный",
     "System": "Система",
-    "The username has been updated to \":username\".": "Имя пользователя было обновлено на \":username\"."
+    "The username has been updated to \":username\".": "Имя пользователя было обновлено на \":username\".",
+    "Local": "локальный",
+    "Custom S3": "пользовательский S3"
 }

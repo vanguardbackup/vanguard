@@ -339,5 +339,7 @@
     "Light": "光",
     "Dark": "暗",
     "System": "系统",
-    "The username has been updated to \":username\".": "И用户名已更新为 \":username\"."
+    "The username has been updated to \":username\".": "И用户名已更新为 \":username\".",
+    "Local": "本地",
+    "Custom S3": "自定义 S3"
 }

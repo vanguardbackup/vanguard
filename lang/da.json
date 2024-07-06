@@ -339,5 +339,7 @@
     "Light": "Lys",
     "Dark": "Mørk",
     "System": "System",
-    "The username has been updated to \":username\".": "Brugernavnet er blevet opdateret til \":username\"."
+    "The username has been updated to \":username\".": "Brugernavnet er blevet opdateret til \":username\".",
+    "Local": "Lokal",
+    "Custom S3": "Tilpasset S3"
 }

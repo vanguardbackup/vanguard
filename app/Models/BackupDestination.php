@@ -111,11 +111,11 @@ class BackupDestination extends Model
         }
 
         if ($this->type === self::TYPE_CUSTOM_S3) {
-            return 'Custom S3';
+            return __('Custom S3');
         }
 
         if ($this->type === self::TYPE_LOCAL) {
-            return 'Local';
+            return __('Local');
         }
 
         return null;
