@@ -338,5 +338,6 @@
     "← Return to Home": "← Gå tilbage til forsiden",
     "Light": "Lys",
     "Dark": "Mørk",
-    "System": "System"
+    "System": "System",
+    "The username has been updated to \":username\".": "Brugernavnet er blevet opdateret til \":username\"."
 }

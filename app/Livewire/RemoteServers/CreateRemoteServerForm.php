@@ -102,6 +102,8 @@ class CreateRemoteServerForm extends Component
 
     public function usingServerProvider(string $provider): void
     {
+        Toaster::success(__('The username has been updated to ":username".', ['username' => $provider]));
+
         $this->username = $provider;
         $this->port = 22;
     }

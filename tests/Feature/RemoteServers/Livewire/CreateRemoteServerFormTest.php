@@ -103,3 +103,16 @@ test('port must be in valid range', function (): void {
         ->call('submit')
         ->assertHasErrors(['port']);
 });
+
+test('username is set correctly after provider method called', function () {
+    Toaster::fake();
+
+    $component = Livewire::test(CreateRemoteServerForm::class)
+        ->set('username', 'test')
+        ->call('usingServerProvider', 'ploi');
+
+    $component->assertSet('username', 'ploi');
+
+    Toaster::assertDispatched(__('The username has been updated to ":username".', ['username' => 'ploi']));
+});
+

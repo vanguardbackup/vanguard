@@ -338,5 +338,6 @@
     "← Return to Home": "← Вернуться на главную",
     "Light": "Свет",
     "Dark": "Тёмный",
-    "System": "Система"
+    "System": "Система",
+    "The username has been updated to \":username\".": "Имя пользователя было обновлено на \":username\"."
 }
