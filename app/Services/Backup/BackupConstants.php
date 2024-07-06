@@ -16,6 +16,8 @@ class BackupConstants
 
     public const string DRIVER_CUSTOM_S3 = 'custom_s3';
 
+    public const string DRIVER_LOCAL = 'local';
+
     public const int ZIP_RETRY_MAX_ATTEMPTS = 3;
 
     public const int ZIP_RETRY_DELAY_SECONDS = 5;

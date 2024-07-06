@@ -22,6 +22,8 @@ class BackupDestination extends Model
 
     public const string TYPE_S3 = 's3';
 
+    public const string TYPE_LOCAL = 'local';
+
     public const string STATUS_REACHABLE = 'reachable';
 
     public const string STATUS_UNREACHABLE = 'unreachable';
@@ -55,6 +57,11 @@ class BackupDestination extends Model
     public function isS3Connection(): bool
     {
         return $this->type === self::TYPE_S3 || $this->type === self::TYPE_CUSTOM_S3;
+    }
+
+    public function isLocalConnection(): bool
+    {
+        return $this->type === self::TYPE_LOCAL;
     }
 
     public function determineS3Region(): string
@@ -105,6 +112,10 @@ class BackupDestination extends Model
 
         if ($this->type === self::TYPE_CUSTOM_S3) {
             return 'Custom S3';
+        }
+
+        if ($this->type === self::TYPE_LOCAL) {
+            return 'Local';
         }
 
         return null;

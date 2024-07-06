@@ -13,6 +13,7 @@
                     <x-select id="type" class="block mt-1 w-full" wire:model.live="type" name="type">
                         <option value="s3">{{ __('Amazon S3') }}</option>
                         <option value="custom_s3">{{ __('Custom S3') }}</option>
+                        <option value="local">{{ __('Local') }}</option>
                     </x-select>
                     <x-input-error :messages="$errors->get('type')" class="mt-2"/>
                 </div>

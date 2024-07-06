@@ -45,7 +45,10 @@ class DatabaseBackupTask extends AbstractBackupTask
 
         $this->backupTask->setScriptUpdateTime();
 
-        if ($this->backupTask->isRotatingBackups()) {
+        // NOTE: Vanguard doesn't support backup rotations on the local driver due to how the abstract class methods are set up.
+        // It is so heavily coupled to assuming it's a third party driver that it will be a nuisance to sort.
+        // It will need to be addressed.
+        if ($this->backupTask->isRotatingBackups() && ! $backupDestinationModel->isLocalConnection()) {
             $backupDestination = $this->createBackupDestinationInstance($backupDestinationModel);
             $this->rotateOldBackups($backupDestination, $this->backupTask->getAttribute('id'), $this->backupTask->getAttribute('maximum_backups_to_keep'), '.sql', 'backup_');
         }

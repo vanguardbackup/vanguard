@@ -254,3 +254,21 @@ it('sets the status to unreachable', function (): void {
 
     $this->assertEquals(BackupDestination::STATUS_UNREACHABLE, $backupDestination->status);
 });
+
+it('returns true if the backup destination is local', function (): void {
+
+    $backupDestination = BackupDestination::factory()->create([
+        'type' => BackupDestination::TYPE_LOCAL,
+    ]);
+
+    $this->assertTrue($backupDestination->isLocalConnection());
+});
+
+it('returns false if the backup destination is not local', function (): void {
+
+    $backupDestination = BackupDestination::factory()->create([
+        'type' => BackupDestination::TYPE_S3,
+    ]);
+
+    $this->assertFalse($backupDestination->isLocalConnection());
+});

@@ -22,8 +22,10 @@
     </x-table.body-item>
     <x-table.body-item class="col-span-2">
         <div class="flex justify-center space-x-2">
+            @if ($backupDestination->type !== \App\Models\BackupDestination::TYPE_LOCAL)
             @livewire('backup-destinations.check-connection-button', ['backupDestination' => $backupDestination],
             key($backupDestination->id))
+            @endif
             <a href="{{ route('backup-destinations.edit', $backupDestination) }}" wire:navigate>
                 <x-secondary-button iconOnly>
                     <span class="sr-only">{{ __('Update Backup Destination') }}</span>

@@ -18,6 +18,7 @@ use App\Models\BackupTaskLog;
 use App\Services\Backup\Adapters\SFTPAdapter;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
+use App\Services\Backup\Destinations\Local;
 use App\Services\Backup\Destinations\S3;
 use App\Services\Backup\Traits\BackupHelpers;
 use Closure;
@@ -64,7 +65,8 @@ abstract class Backup
                 $bucketName = $backupDestination->getAttribute('s3_bucket_name');
 
                 return (new S3($client, $bucketName))->streamFiles($sftp, $remotePath, $fileName, $storagePath);
-
+            case BackupConstants::DRIVER_LOCAL:
+                return (new Local($sftp, $storagePath))->streamFiles($sftp, $remotePath, $fileName, $storagePath);
             default:
                 throw new RuntimeException("Unsupported destination driver: {$destinationDriver}");
         }
@@ -474,7 +476,6 @@ abstract class Backup
                 $client = $backupDestinationModel->getS3Client();
 
                 return new S3($client, $backupDestinationModel->getAttribute('s3_bucket_name'));
-
             default:
                 throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->getAttribute('type')}");
         }

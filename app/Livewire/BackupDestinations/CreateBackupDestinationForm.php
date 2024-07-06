@@ -35,7 +35,7 @@ class CreateBackupDestinationForm extends Component
     {
         $this->validate([
             'label' => ['required', 'string'],
-            'type' => ['required', 'string', 'in:custom_s3,s3'],
+            'type' => ['required', 'string', 'in:custom_s3,s3,local'],
             's3AccessKey' => ['nullable', 'required_if:type,custom_s3,s3'],
             's3SecretKey' => ['nullable', 'required_if:type,custom_s3,s3'],
             's3BucketName' => ['nullable', 'required_if:type,custom_s3,s3'],
