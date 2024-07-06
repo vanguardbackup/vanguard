@@ -77,7 +77,6 @@
     <div class="max-w-6xl mx-auto">
         <div class="flex justify-between">
             <div>
-                <x-application-logo class="w-6 h-6 fill-current text-gray-500 dark:text-gray-400 inline" />
                 {{ __(':app - v:version', ['app' => config('app.name'),'version' => obtain_vanguard_version()]) }}
                 @if (config('app.env') === 'local')
                     <strong class="text-purple-500 uppercase ml-1">{{ __('Local Environment') }}</strong>
