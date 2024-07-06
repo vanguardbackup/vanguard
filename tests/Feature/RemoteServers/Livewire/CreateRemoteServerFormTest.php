@@ -115,4 +115,3 @@ test('username is set correctly after provider method called', function () {
 
     Toaster::assertDispatched(__('The username has been updated to ":username".', ['username' => 'ploi']));
 });
-
