@@ -56,7 +56,7 @@ print_result() {
 run_command() {
     print_task "$1"
     start_time=$(date +%s.%N)
-    output=$($2 2>&1)
+    output=$($2 2>&1) || true
     exit_code=$?
     end_time=$(date +%s.%N)
     duration=$(echo "$end_time - $start_time" | bc)
@@ -64,27 +64,35 @@ run_command() {
     if [ "$1" = "Running test suite" ]; then
         if echo "$output" | grep -q "No \"dirty\" tests found"; then
             printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
-            printf " ${CYAN}(%.2fs) No changes requiring tests${NC}\n" $duration
+            printf " ${CYAN}(%.2fs) No changes requiring tests${NC}\n" "$duration"
             return 0
         elif [ $exit_code -eq 0 ]; then
             print_result 0
-            printf " ${GREEN}(%.2fs)${NC}\n" $duration
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
             return 0
         else
             print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" $duration
-            printf "\n${RED}Test Error:${NC}\n$output\n\n"
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Test Error:${NC}\n%s\n\n" "$output"
             return 1
         fi
     else
         if [ $exit_code -eq 0 ]; then
             print_result 0
-            printf " ${GREEN}(%.2fs)${NC}\n" $duration
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
             return 0
         else
             print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" $duration
-            printf "\n${RED}Error output:${NC}\n$output\n\n"
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Error output:${NC}\n"
+            echo "$output" | while IFS= read -r line; do
+                if [[ $line == *"invalid format character"* ]]; then
+                    printf "${YELLOW}Warning: Invalid format character in output${NC}\n"
+                else
+                    printf "%s\n" "$line"
+                fi
+            done
+            printf "\n"
             return 1
         fi
     fi
