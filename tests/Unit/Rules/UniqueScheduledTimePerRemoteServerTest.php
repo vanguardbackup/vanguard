@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Tests\Rules\Helpers\RuleValidators\UniqueScheduledTimePerRemoteServerRuleValidator;
 
 uses(RefreshDatabase::class);
 
@@ -19,7 +21,7 @@ beforeEach(function (): void {
 describe('UniqueScheduledTimePerRemoteServer', function (): void {
     it('passes when no conflicting tasks', function (): void {
         $rule = new UniqueScheduledTimePerRemoteServer($this->remoteServerId);
-        expect(validateRule($rule, '12:00'))->toBeTrue();
+        expect(UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, '12:00'))->toBeTrue();
     });
 
     it('fails when conflicting task exists', function (): void {
@@ -30,7 +32,7 @@ describe('UniqueScheduledTimePerRemoteServer', function (): void {
         ]);
 
         $rule = new UniqueScheduledTimePerRemoteServer($this->remoteServerId);
-        expect(validateRule($rule, '12:00'))->toBeFalse();
+        expect(UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, '12:00'))->toBeFalse();
     });
 
     it('passes when conflicting task exists but different server', function (): void {
@@ -42,7 +44,7 @@ describe('UniqueScheduledTimePerRemoteServer', function (): void {
         ]);
 
         $rule = new UniqueScheduledTimePerRemoteServer($this->remoteServerId);
-        expect(validateRule($rule, '12:00'))->toBeTrue();
+        expect(UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, '12:00'))->toBeTrue();
     });
 
     it('passes when updating existing task', function (): void {
@@ -53,7 +55,7 @@ describe('UniqueScheduledTimePerRemoteServer', function (): void {
         ]);
 
         $rule = new UniqueScheduledTimePerRemoteServer($this->remoteServerId, $task->id);
-        expect(validateRule($rule, '12:00'))->toBeTrue();
+        expect(UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, '12:00'))->toBeTrue();
     });
 
     it('handles different timezones', function (): void {
@@ -75,29 +77,17 @@ describe('UniqueScheduledTimePerRemoteServer', function (): void {
 
         Log::info('Test: Time for validation', ['utc_time' => $utcTime]);
 
-        $result = validateRule($rule, $utcTime);
+        $result = UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, $utcTime);
         Log::info('Test: Validation result for conflicting time', ['result' => $result]);
         expect($result)->toBeFalse();
 
-        $result = validateRule($rule, '13:00');
+        $result = UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, '13:00');
         Log::info('Test: Validation result for non-conflicting time', ['result' => $result]);
         expect($result)->toBeTrue();
     });
 
     it('handles invalid time format', function (): void {
         $rule = new UniqueScheduledTimePerRemoteServer($this->remoteServerId);
-        expect(validateRule($rule, 'invalid_time'))->toBeTrue();
+        expect(UniqueScheduledTimePerRemoteServerRuleValidator::validate($rule, 'invalid_time'))->toBeTrue();
     });
 });
-
-function validateRule(UniqueScheduledTimePerRemoteServer $rule, string $value): bool
-{
-    $fails = false;
-    $fail = function () use (&$fails): void {
-        $fails = true;
-    };
-
-    $rule->validate('time_to_run_at', $value, $fail);
-
-    return ! $fails;
-}
