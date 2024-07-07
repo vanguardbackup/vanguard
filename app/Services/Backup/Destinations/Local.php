@@ -19,7 +19,8 @@ class Local implements BackupDestinationInterface
     public function __construct(
         protected SFTPInterface $sftp,
         protected string $storagePath
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string>
@@ -94,7 +95,7 @@ class Local implements BackupDestinationInterface
 
         $listResult = $this->sftp->exec('ls -la ' . escapeshellarg($path));
 
-        if (! empty($listResult)) {
+        if (! ($listResult === false || ($listResult === '' || $listResult === '0'))) {
             Log::info('Directory already exists', ['path' => $path]);
 
             return true;

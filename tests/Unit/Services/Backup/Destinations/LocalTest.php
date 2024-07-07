@@ -64,7 +64,7 @@ describe('Local driver', function (): void {
             $this->mockLocal->shouldReceive('ensureDirectoryExists')->andReturn(true);
             $this->mockSftp->shouldReceive('mkdir')->andReturn(true);
             $this->mockSftp->shouldReceive('getLastError')->andReturn('');
-            $this->mockSftp->shouldReceive('exec')->withArgs(function ($command) {
+            $this->mockSftp->shouldReceive('exec')->withArgs(function ($command): bool {
                 return str_starts_with($command, 'ls -la ');
             })->andReturn('');
         });
@@ -84,7 +84,7 @@ describe('Local driver', function (): void {
 
             Log::shouldReceive('info');
             Log::shouldReceive('warning')->atLeast()->once()->withAnyArgs();
-            Log::shouldReceive('error')->atLeast()->once()->withArgs(function ($message) {
+            Log::shouldReceive('error')->atLeast()->once()->withArgs(function ($message): bool {
                 return str_contains($message, 'Failed to stream file to remote local storage');
             });
 

@@ -104,7 +104,7 @@ test('port must be in valid range', function (): void {
         ->assertHasErrors(['port']);
 });
 
-test('username is set correctly after provider method called', function () {
+test('username is set correctly after provider method called', function (): void {
     Toaster::fake();
 
     $component = Livewire::test(CreateRemoteServerForm::class)
