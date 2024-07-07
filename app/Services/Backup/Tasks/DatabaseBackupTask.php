@@ -26,11 +26,12 @@ class DatabaseBackupTask extends AbstractBackupTask
             throw new RuntimeException('Please provide a database password for the remote server.');
         }
 
+        $this->logMessage('Attempting to connect to remote server.');
         $sftp = $this->establishSFTPConnection($remoteServer, $this->backupTask);
-        $this->logMessage('SSH Connection established to the server.');
+        $this->logMessage('Secure SSH connection established with the remote server.');
 
         $databaseType = $this->getDatabaseType($sftp);
-        $this->logMessage("Database type detected: {$databaseType}.");
+        $this->logMessage('Detected database type: ' . ucfirst($databaseType) . '.');
 
         $this->backupTask->setScriptUpdateTime();
 
@@ -51,11 +52,12 @@ class DatabaseBackupTask extends AbstractBackupTask
         if ($this->backupTask->isRotatingBackups() && ! $backupDestinationModel->isLocalConnection()) {
             $backupDestination = $this->createBackupDestinationInstance($backupDestinationModel);
             $this->rotateOldBackups($backupDestination, $this->backupTask->getAttribute('id'), $this->backupTask->getAttribute('maximum_backups_to_keep'), '.sql', 'backup_');
+            $this->logMessage("Initiating backup rotation. Retention limit: {$this->backupTask->getAttribute('maximum_backups_to_keep')} backups.");
         }
 
         $this->logMessage("Database backup has been uploaded to {$backupDestinationModel->label} - {$backupDestinationModel->type()}: {$dumpFileName}");
 
         $sftp->delete($remoteDumpPath);
-        $this->logMessage('Cleaned up the temporary file on the server.');
+        $this->logMessage('Temporary server file removed after successful backup operation.');
     }
 }

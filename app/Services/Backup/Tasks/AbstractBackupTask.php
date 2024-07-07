@@ -68,7 +68,7 @@ abstract class AbstractBackupTask extends Backup
         $this->backupTask->setScriptUpdateTime();
         $this->backupTaskLog = $this->recordBackupTaskLog($this->backupTask->id, $this->logOutput);
         $this->updateBackupTaskStatus($this->backupTask, BackupTaskModel::STATUS_RUNNING);
-        $this->logMessage('Backup task started.');
+        $this->logMessage('Backup task initiated.');
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
     }
 
@@ -77,7 +77,7 @@ abstract class AbstractBackupTask extends Backup
      */
     protected function finalizeSuccessfulBackup(): void
     {
-        $this->logMessage('Backup task has finished successfully!');
+        $this->logMessage('Backup task has been completed.');
         $this->backupTaskLog->setSuccessfulTime();
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
     }
@@ -103,6 +103,8 @@ abstract class AbstractBackupTask extends Backup
             'duration' => $elapsedTime,
             'size' => $this->backupSize,
         ]);
+
+        $this->logMessage("Backup summary: Operation completed in {$elapsedTime} seconds.");
 
         Log::info("Completed backup task: {$this->backupTask->label} ({$this->backupTask->id}).");
     }
