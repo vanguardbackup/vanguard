@@ -25,7 +25,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         id: auto_commit_action
         with:
-          commit_message: Dusting
+          commit_message: "style: automated changes to code style"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
 
@@ -35,6 +35,6 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Ignore Dusting commit in git blame
+          commit_message: "ci: ignoring commit change in git blame"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
