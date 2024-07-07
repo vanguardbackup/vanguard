@@ -5,48 +5,90 @@ set -e
 
 # Colour codes
 GREEN='\033[0;32m'
+LIGHT_GREEN='\033[1;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 WHITE='\033[1;37m'
+YELLOW='\033[0;33m'
+LIGHT_MAGENTA='\033[1;35m'
 BOLD='\033[1m'
+DIM='\033[2m'
+UNDERLINE='\033[4m'
 BG_GREEN='\033[42m'
 BG_RED='\033[41m'
+BG_BLUE='\033[44m'
 NC='\033[0m' # No Colour
 
-print_header() {
-    printf '\n%s=== Vanguard Pre-commit Checks ===%s\n\n' "${BOLD}${BLUE}" "${NC}"
+print_vanguard_logo() {
+    printf "${LIGHT_MAGENTA}"
+    printf " _    __                                     __\n"
+    printf "| |  / /___ _____  ____ ___  ______ ______  / /\n"
+    printf "| | / / __ \`/ __ \/ __ \`/ / / / __ \`/ ___/ / / \n"
+    printf "| |/ / /_/ / / / / /_/ / /_/ / /_/ / /  _ / /  \n"
+    printf "|___/\__,_/_/ /_/\__, /\__,_/\__,_/_/  (_)_/   \n"
+    printf "                /____/                         \n"
+    printf "${NC}\n"
 }
 
-print_colored() {
-    printf '%s%s%s\n' "$2" "$1" "${NC}"
+print_fancy_header() {
+    local title="$1"
+    local width=60
+    local line=$(printf '%*s' "$width" | tr ' ' '─')
+
+    printf "${BLUE}┌${line}┐${NC}\n"
+    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
+    printf "${BLUE}└${line}┘${NC}\n"
 }
 
 print_task() {
-    printf '%s➜ %s%s' "${CYAN}" "$1" "${NC}"
+    printf "${CYAN}${BOLD}▶ %-45s${NC}" "$1"
 }
 
 print_result() {
-    if [ "$1" -eq 0 ]; then
-        printf ' %s%s PASS %s\n' "${BG_GREEN}" "${WHITE}" "${NC}"
-    else
-        printf ' %s%s FAIL %s\n' "${BG_RED}" "${WHITE}" "${NC}"
-    fi
+    case "$1" in
+        0) printf "${BG_GREEN}${WHITE} PASS ${NC}" ;;
+        1) printf "${BG_RED}${WHITE} FAIL ${NC}" ;;
+        2) printf "${BG_BLUE}${WHITE} CLEAN ${NC}" ;;
+    esac
 }
 
 run_command() {
     print_task "$1"
-    if $2 > /dev/null 2>&1; then
-        print_result 0
-        return 0
+    start_time=$(date +%s.%N)
+    output=$($2 2>&1)
+    exit_code=$?
+    end_time=$(date +%s.%N)
+    duration=$(echo "$end_time - $start_time" | bc)
+
+    if [ "$1" = "Running test suite" ]; then
+        if echo "$output" | grep -q "No \"dirty\" tests found"; then
+            printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
+            printf " ${CYAN}(%.2fs) No changes requiring tests${NC}\n" $duration
+            return 0
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" $duration
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" $duration
+            printf "\n${RED}Test Error:${NC}\n$output\n\n"
+            return 1
+        fi
     else
-        print_result 1
-        return 1
+        if [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" $duration
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" $duration
+            printf "\n${RED}Error output:${NC}\n$output\n\n"
+            return 1
+        fi
     fi
 }
-
-TOTAL=0
-PASSED=0
 
 commands=(
     "Running static analysis:./vendor/bin/phpstan analyse --no-progress"
@@ -56,30 +98,71 @@ commands=(
     "Building assets:npm run build"
 )
 
-print_header
+print_vanguard_logo
+print_fancy_header "Pre-commit Quality Checks"
+printf "\n"
+
+failed_checks=()
+total_duration=0
+start_time_total=$(date +%s.%N)
 
 for cmd in "${commands[@]}"; do
     IFS=':' read -r name command <<< "$cmd"
-    TOTAL=$((TOTAL+1))
-    if run_command "$name" "$command"; then
-        PASSED=$((PASSED+1))
+    if ! run_command "$name" "$command"; then
+        failed_checks+=("$name")
     fi
 done
 
-COVERAGE=$((PASSED * 100 / TOTAL))
-MINIMUM_COVERAGE=70
+end_time_total=$(date +%s.%N)
+total_duration=$(echo "$end_time_total - $start_time_total" | bc)
 
-printf '\n%s=== Summary ===%s\n\n' "${BOLD}${BLUE}" "${NC}"
-printf '%sTotal Checks%s .............................................. %s%d%s\n' "${CYAN}" "${NC}" "${BOLD}" "${TOTAL}" "${NC}"
-printf '%sPassed Checks%s ............................................ %s%d%s\n' "${CYAN}" "${NC}" "${BOLD}" "${PASSED}" "${NC}"
-printf '%sCode Coverage%s ............................................ %s%d%%%s\n' "${CYAN}" "${NC}" "${BOLD}" "${COVERAGE}" "${NC}"
+printf "\n"
+print_fancy_header "Summary"
+printf "\n"
 
-if [ $COVERAGE -ge $MINIMUM_COVERAGE ]; then
-    printf '\n%s%s PASS %s %sCode coverage above expected: %d%%. Minimum: %d%%.%s\n' "${BG_GREEN}" "${WHITE}" "${NC}" "${GREEN}" "${COVERAGE}" "${MINIMUM_COVERAGE}" "${NC}"
-    printf '%s       Vanguard pre-commit checks passed.%s\n' "${GREEN}" "${NC}"
-    exit 0
+if [ ${#failed_checks[@]} -eq 0 ]; then
+    printf "${BG_GREEN}${WHITE} SUCCESS ${NC} ${LIGHT_GREEN}All Vanguard pre-commit checks passed.${NC}\n"
+    printf "\n${GREEN}✨ ${BOLD}Your code is looking great! Ready to commit. ✨${NC}\n"
 else
-    printf '\n%s%s FAIL %s %sCode coverage below expected: %d%%. Minimum: %d%%.%s\n' "${BG_RED}" "${WHITE}" "${NC}" "${RED}" "${COVERAGE}" "${MINIMUM_COVERAGE}" "${NC}"
-    printf '%s       Some Vanguard pre-commit checks failed. Please address the issues before committing.%s\n' "${RED}" "${NC}"
-    exit 1
+    printf "${BG_RED}${WHITE} FAILURE ${NC} ${RED}The following Vanguard pre-commit checks failed:${NC}\n"
+    for check in "${failed_checks[@]}"; do
+        printf "${RED}  ✖ $check${NC}\n"
+    done
+    printf "\n${YELLOW}Please address these issues before committing.${NC}\n"
+    printf "${YELLOW}Run the failed checks individually for more details.${NC}\n"
 fi
+
+printf "\n${CYAN}${BOLD}Total execution time:${NC} ${UNDERLINE}%.2f seconds${NC}\n" $total_duration
+
+# Git status summary
+printf "\n${BOLD}${BLUE}Git Status Summary:${NC}\n"
+git status --short | awk '{printf "  %s%-2s%s %s\n", "\033[1;31m", $1, "\033[0m", $2}'
+
+# Commit message guide
+printf "\n${BOLD}${BLUE}Commit Message Guide:${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Format:${NC} ${LIGHT_GREEN}<type>(<scope>): <subject>${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Types:${NC} ${LIGHT_GREEN}feat, fix, docs, style, refactor, test, chore${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Rules:${NC}\n"
+printf "    ${LIGHT_GREEN}- Keep the subject line under 50 characters${NC}\n"
+printf "    ${LIGHT_GREEN}- Use the imperative mood in the subject line${NC}\n"
+printf "    ${LIGHT_GREEN}- Capitalize the subject line${NC}\n"
+printf "    ${LIGHT_GREEN}- Do not end the subject line with a period${NC}\n"
+
+# Project health indicators
+printf "\n${BOLD}${BLUE}Project Health:${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Last Commit:${NC} ${LIGHT_GREEN}$(git log -1 --format=%cr)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Active Branch:${NC} ${LIGHT_GREEN}$(git rev-parse --abbrev-ref HEAD)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}PHP Version:${NC} ${LIGHT_GREEN}$(php -v | head -n 1 | cut -d ' ' -f 2)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Node Version:${NC} ${LIGHT_GREEN}$(node -v)${NC}\n"
+
+# Motivational quote
+quotes=(
+    "Code is like humor. When you have to explain it, it's bad. - Cory House"
+    "First, solve the problem. Then, write the code. - John Johnson"
+    "Make it work, make it right, make it fast. - Kent Beck"
+    "Any fool can write code that a computer can understand. Good programmers write code that humans can understand. - Martin Fowler"
+)
+random_quote=${quotes[$RANDOM % ${#quotes[@]}]}
+printf "\n${DIM}${ITALIC}\"${random_quote}\"${NC}\n"
+
+exit ${#failed_checks[@]}
