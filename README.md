@@ -48,10 +48,6 @@ We will try our best to help you to get Vanguard running, but we always recommen
 9. Run `php artisan reverb:run` to start Laravel Reverb for websockets and real-time log viewing.
 10. Run `php artisan schedule:work` to start the scheduler.
 
-> [!NOTE]
-> The `vanguard:generate-key`
-command will generate an SSH key that will be used to authenticate with your remote servers. The generated keys will be stored in the `storage/app/ssh` directory. Make sure to keep the private key safe.
-
 > [!IMPORTANT]
 > Make sure you have set your SSH passphrase in your `.env` file. Keep it safe!
 
@@ -59,15 +55,19 @@ command will generate an SSH key that will be used to authenticate with your rem
 
 Vanguard has a few artisan commands that are specific to the project that can be run. Here is a list of the commands and what they do:
 
+> [!NOTE]
+> The `vanguard:generate-key`
+command will generate an SSH key that will be used to authenticate with your remote servers. The generated keys will be stored in the `storage/app/ssh` directory. Make sure to keep the private key safe.
+
+> [!WARNING]
+> There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
+
 | Command                                | Description                                                                                                                            |
 |----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | `vanguard:generate-ssh-key`            | Generates an SSH key required for backup operations.                                                                                   |
 | `vanguard:version (--check)`           | Checks the version of the application. Passing `--check` will see if there is a newer version published to Github.                     |
 | `vanguard:validate-s3-connection {id}` | Able to check whether a backup destination that uses S3 can be reached. This takes the primary key of the backup destination as an id. |
 | `vanguard:encrypt-database-passwords`  | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                            |
-
-> [!WARNING]
-> There are other commands, but they are not intended to be run manually and are used internally by Vanguard's scheduler.
 
 > [!NOTE]
 > You will not be allowed to generate another SSH key if you already have one configured.
