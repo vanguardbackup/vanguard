@@ -142,17 +142,20 @@ log "INFO" "New version:     ${GREEN}$NEW_VERSION${NC}"
 # Interactive version confirmation
 echo
 echo "Select the version to use:"
-echo "1) ${GREEN}$NEW_VERSION${NC} (recommended)"
-echo "2) ${YELLOW}Enter custom version${NC}"
-echo "3) ${RED}Cancel${NC}"
+echo "1) $NEW_VERSION (recommended)"
+echo "2) Enter custom version"
+echo "3) Cancel"
 read -p "Enter your choice (1-3): " choice
 
 case $choice in
-    1) ;;
+    1)
+        log "INFO" "Using recommended version: $NEW_VERSION"
+        ;;
     2)
         read -p "Enter custom version: " custom_version
         validate_semver "$custom_version"
         NEW_VERSION="$custom_version"
+        log "INFO" "Using custom version: $NEW_VERSION"
         ;;
     3)
         log "INFO" "Version bump canceled."
