@@ -51,6 +51,7 @@
                     </code>
                     {{ __('to create your SSH key.') }}
                 </span>
+            @livewire('other.generate-ssh-keys-button')
         </div>
     </div>
 @endif
