@@ -37,7 +37,7 @@
         "pestphp/pest-plugin-laravel": "^2.0",
         "rector/rector": "^1.1",
         "roave/security-advisories": "dev-latest",
-        "tightenco/duster": "^2.7"
+        "tightenco/duster": "^3.0"
     },
     "autoload": {
         "files": ["app/helpers.php"],
