@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -e
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Colour codes
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+BG_GREEN='\033[42m'
+BG_RED='\033[41m'
+NC='\033[0m' # No Colour
+
+print_header() {
+    printf '\n%s=== Vanguard Pre-commit Checks ===%s\n\n' "${BOLD}${BLUE}" "${NC}"
+}
+
+print_colored() {
+    printf '%s%s%s\n' "$2" "$1" "${NC}"
+}
+
+print_task() {
+    printf '%s➜ %s%s' "${CYAN}" "$1" "${NC}"
+}
+
+print_result() {
+    if [ "$1" -eq 0 ]; then
+        printf ' %s%s PASS %s\n' "${BG_GREEN}" "${WHITE}" "${NC}"
+    else
+        printf ' %s%s FAIL %s\n' "${BG_RED}" "${WHITE}" "${NC}"
+    fi
+}
+
+run_command() {
+    print_task "$1"
+    if $2 > /dev/null 2>&1; then
+        print_result 0
+        return 0
+    else
+        print_result 1
+        return 1
+    fi
+}
+
+TOTAL=0
+PASSED=0
+
+commands=(
+    "Running static analysis:./vendor/bin/phpstan analyse --no-progress"
+    "Running test suite:./vendor/bin/pest --parallel --dirty --bail"
+    "Checking code style:./vendor/bin/duster lint"
+    "Checking for refactoring opportunities:./vendor/bin/rector --no-progress-bar --dry-run"
+    "Building assets:npm run build"
+)
+
+print_header
+
+for cmd in "${commands[@]}"; do
+    IFS=':' read -r name command <<< "$cmd"
+    TOTAL=$((TOTAL+1))
+    if run_command "$name" "$command"; then
+        PASSED=$((PASSED+1))
+    fi
+done
+
+COVERAGE=$((PASSED * 100 / TOTAL))
+MINIMUM_COVERAGE=70
+
+printf '\n%s=== Summary ===%s\n\n' "${BOLD}${BLUE}" "${NC}"
+printf '%sTotal Checks%s .............................................. %s%d%s\n' "${CYAN}" "${NC}" "${BOLD}" "${TOTAL}" "${NC}"
+printf '%sPassed Checks%s ............................................ %s%d%s\n' "${CYAN}" "${NC}" "${BOLD}" "${PASSED}" "${NC}"
+printf '%sCode Coverage%s ............................................ %s%d%%%s\n' "${CYAN}" "${NC}" "${BOLD}" "${COVERAGE}" "${NC}"
+
+if [ $COVERAGE -ge $MINIMUM_COVERAGE ]; then
+    printf '\n%s%s PASS %s %sCode coverage above expected: %d%%. Minimum: %d%%.%s\n' "${BG_GREEN}" "${WHITE}" "${NC}" "${GREEN}" "${COVERAGE}" "${MINIMUM_COVERAGE}" "${NC}"
+    printf '%s       Vanguard pre-commit checks passed.%s\n' "${GREEN}" "${NC}"
+    exit 0
+else
+    printf '\n%s%s FAIL %s %sCode coverage below expected: %d%%. Minimum: %d%%.%s\n' "${BG_RED}" "${WHITE}" "${NC}" "${RED}" "${COVERAGE}" "${MINIMUM_COVERAGE}" "${NC}"
+    printf '%s       Some Vanguard pre-commit checks failed. Please address the issues before committing.%s\n' "${RED}" "${NC}"
+    exit 1
+fi
