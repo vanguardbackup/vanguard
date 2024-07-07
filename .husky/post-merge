@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# Source husky
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Colour codes
+GREEN='\033[0;32m'
+LIGHT_GREEN='\033[1;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+YELLOW='\033[0;33m'
+BOLD='\033[1m'
+NC='\033[0m' # No Colour
+
+print_vanguard_logo() {
+    printf "${MAGENTA}"
+    printf " _    __                                     __\n"
+    printf "| |  / /___ _____  ____ ___  ______ ______  / /\n"
+    printf "| | / / __ \`/ __ \/ __ \`/ / / / __ \`/ ___/ / / \n"
+    printf "| |/ / /_/ / / / / /_/ / /_/ / /_/ / /  _ / /  \n"
+    printf "|___/\__,_/_/ /_/\__, /\__,_/\__,_/_/  (_)_/   \n"
+    printf "                /____/                         \n"
+    printf "${NC}\n"
+}
+
+print_fancy_header() {
+    local title="$1"
+    local width=60
+    local line=$(printf '%*s' "$width" | tr ' ' '─')
+
+    printf "${BLUE}┌${line}┐${NC}\n"
+    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
+    printf "${BLUE}└${line}┘${NC}\n"
+}
+
+print_task() {
+    printf "${CYAN}${BOLD}▶ %-45s${NC}" "$1"
+}
+
+print_result() {
+    case "$1" in
+        0) printf "${GREEN}${BOLD}[ OK ]${NC}\n" ;;
+        1) printf "${RED}${BOLD}[FAIL]${NC}\n" ;;
+    esac
+}
+
+check_dependencies() {
+    local changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+
+    print_task "Checking for changes in package.json"
+    if echo "$changed_files" | grep --quiet "package.json"; then
+        print_result 0
+        printf "${YELLOW}package.json changed. Running npm install...${NC}\n"
+        npm install
+    else
+        print_result 0
+    fi
+
+    print_task "Checking for changes in composer.json"
+    if echo "$changed_files" | grep --quiet "composer.json"; then
+        print_result 0
+        printf "${YELLOW}composer.json changed. Running composer install...${NC}\n"
+        composer install
+    else
+        print_result 0
+    fi
+}
+
+main() {
+    print_vanguard_logo
+    print_fancy_header "Post-Merge Tasks"
+    printf "\n"
+
+    check_dependencies
+
+    printf "\n${GREEN}✨ ${BOLD}Post-merge tasks completed successfully.${NC}\n"
+}
+
+# Run the main function, but catch any errors
+if ! main "$@"; then
+    printf "${RED}Post-merge tasks failed. Please review and run necessary updates manually.${NC}\n"
+    exit 1
+fi

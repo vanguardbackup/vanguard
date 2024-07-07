@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# Source husky
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Colour codes
+GREEN='\033[0;32m'
+LIGHT_GREEN='\033[1;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+NC='\033[0m' # No Colour
+
+# Configuration
+MAX_SUBJECT_LENGTH=50
+TYPES=(feat fix docs style refactor test chore perf ci build)
+
+print_vanguard_logo() {
+    printf "${MAGENTA}"
+    printf " _    __                                     __\n"
+    printf "| |  / /___ _____  ____ ___  ______ ______  / /\n"
+    printf "| | / / __ \`/ __ \/ __ \`/ / / / __ \`/ ___/ / / \n"
+    printf "| |/ / /_/ / / / / /_/ / /_/ / /_/ / /  _ / /  \n"
+    printf "|___/\__,_/_/ /_/\__, /\__,_/\__,_/_/  (_)_/   \n"
+    printf "                /____/                         \n"
+    printf "${NC}\n"
+}
+
+print_fancy_header() {
+    local title="$1"
+    local width=60
+    local line=$(printf '%*s' "$width" | tr ' ' '─')
+
+    printf "${BLUE}┌${line}┐${NC}\n"
+    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
+    printf "${BLUE}└${line}┘${NC}\n"
+}
+
+validate_commit_message() {
+    local commit_file="$1"
+    local commit_msg
+
+    if [ ! -f "$commit_file" ]; then
+        printf "${RED}Warning: Commit message file not found. Skipping validation.${NC}\n"
+        return 0
+    fi
+
+    commit_msg=$(sed -e '/^#/d' -e '/^\s*$/d' "$commit_file" | head -n1)
+
+    if [ -z "$commit_msg" ]; then
+        printf "${RED}Warning: Commit message is empty. Please provide a meaningful commit message.${NC}\n"
+        print_commit_message_guide
+        return 1
+    fi
+
+    local type=$(echo "$commit_msg" | cut -d':' -f1)
+    local subject=$(echo "$commit_msg" | cut -d':' -f2- | xargs)
+
+    # Validate type
+    if ! echo "${TYPES[@]}" | grep -qw "$type"; then
+        printf "${RED}Error: Invalid commit type '%s'.${NC}\n" "$type"
+        print_commit_message_guide
+        return 1
+    fi
+
+    # Validate subject length
+    if [ ${#subject} -gt $MAX_SUBJECT_LENGTH ]; then
+        printf "${RED}Error: Commit subject too long (%d > %d characters).${NC}\n" ${#subject} $MAX_SUBJECT_LENGTH
+        print_commit_message_guide
+        return 1
+    fi
+
+    # Validate subject capitalization and period
+    if ! [[ $subject =~ ^[A-Z] ]] || [[ $subject =~ \.$  ]]; then
+        printf "${RED}Error: Subject should start with a capital letter and not end with a period.${NC}\n"
+        print_commit_message_guide
+        return 1
+    fi
+
+    printf "${GREEN}Commit message is valid.${NC}\n"
+    return 0
+}
+
+print_commit_message_guide() {
+    printf "\n${BOLD}${BLUE}Commit Message Guide:${NC}\n"
+    printf "  ${CYAN}• ${BOLD}Format:${NC} <type>: <subject>\n"
+    printf "  ${CYAN}• ${BOLD}Allowed Types:${NC} ${LIGHT_GREEN}%s${NC}\n" "${TYPES[*]}"
+    printf "  ${CYAN}• ${BOLD}Rules:${NC}\n"
+    printf "    - Keep the subject line under %d characters\n" $MAX_SUBJECT_LENGTH
+    printf "    - Use the imperative mood in the subject line\n"
+    printf "    - Capitalize the subject line\n"
+    printf "    - Do not end the subject line with a period\n"
+    printf "\n  ${MAGENTA}${BOLD}Examples of valid commit messages:${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}feat: Add new user registration feature${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}fix: Resolve login issue with Google OAuth${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}docs: Update README with new API endpoints${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}style: Format code according to new style guide${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}refactor: Simplify data processing pipeline${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}test: Add unit tests for user service${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}chore: Update dependencies to latest versions${NC}\n"
+}
+
+print_fix_instructions() {
+    # Get the current branch name
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+    printf "\n${CYAN}${BOLD}To fix your commit message, follow these steps:${NC}\n\n"
+    printf "  ${GREEN}1. Run this command to edit your commit message:${NC}\n"
+    printf "     ${YELLOW}git commit --amend${NC}\n\n"
+    printf "  ${GREEN}2. Your default text editor will open. Update the message to:${NC}\n"
+    printf "     ${YELLOW}<type>: <subject>${NC}\n"
+    printf "     For example: ${YELLOW}feat: Add user authentication${NC}\n\n"
+    printf "  ${GREEN}3. Save the file and close the editor${NC}\n\n"
+    printf "  ${GREEN}4. If you've already pushed this commit, you'll need to force-push:${NC}\n"
+    printf "     ${YELLOW}git push --force-with-lease origin %s${NC}\n\n" "$current_branch"
+    printf "  ${CYAN}Need more help? Run ${YELLOW}git commit --help${CYAN} for full documentation.${NC}\n"
+}
+
+main() {
+    print_vanguard_logo
+    print_fancy_header "Commit Message Validation"
+    printf "\n"
+
+    if validate_commit_message "$1"; then
+        printf "\n${GREEN}✨ ${BOLD}Great job! Your commit message looks perfect. ✨${NC}\n"
+    else
+        printf "\n${RED}Oops! Your commit message doesn't quite match our guidelines.${NC}\n"
+        print_fix_instructions
+        exit 1
+    fi
+}
+
+# Run the main function, but catch any errors
+if ! main "$@"; then
+    printf "${RED}Commit message validation failed. Please review and try again.${NC}\n"
+    exit 1
+fi

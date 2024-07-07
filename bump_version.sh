@@ -1,23 +1,65 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 
-set -e
+# Colour codes
+GREEN='\033[0;32m'
+LIGHT_GREEN='\033[1;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+YELLOW='\033[0;33m'
+BOLD='\033[1m'
+NC='\033[0m' # No Colour
 
 LOG_FILE="bump_version.log"
 VERBOSE=false
 
+print_vanguard_logo() {
+    printf "${MAGENTA}"
+    printf " _    __                                     __\n"
+    printf "| |  / /___ _____  ____ ___  ______ ______  / /\n"
+    printf "| | / / __ \`/ __ \/ __ \`/ / / / __ \`/ ___/ / / \n"
+    printf "| |/ / /_/ / / / / /_/ / /_/ / /_/ / /  _ / /  \n"
+    printf "|___/\__,_/_/ /_/\__, /\__,_/\__,_/_/  (_)_/   \n"
+    printf "                /____/                         \n"
+    printf "${NC}\n"
+}
+
+print_fancy_header() {
+    local title="$1"
+    local width=60
+    local line=$(printf '%*s' "$width" | tr ' ' '─')
+
+    printf "${BLUE}┌${line}┐${NC}\n"
+    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
+    printf "${BLUE}└${line}┘${NC}\n"
+}
+
 log() {
-    if $VERBOSE; then
-        echo "$1"
+    local level="$1"
+    local message="$2"
+    local color=""
+
+    case "$level" in
+        "INFO") color="$CYAN" ;;
+        "WARNING") color="$YELLOW" ;;
+        "ERROR") color="$RED" ;;
+        "SUCCESS") color="$GREEN" ;;
+    esac
+
+    if $VERBOSE || [ "$level" != "INFO" ]; then
+        printf "${color}${BOLD}[$level]${NC} $message\n"
     fi
-    echo "$1" >> "$LOG_FILE"
+    echo "[$level] $message" >> "$LOG_FILE"
 }
 
 validate_semver() {
     if [[ $1 =~ ^v ]]; then
-        log "Error: Version cannot start with 'v'."
+        log "ERROR" "Version cannot start with 'v'."
         exit 1
     elif [[ ! $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        log "Error: Version is not valid according to Semantic Versioning (SemVer)."
+        log "ERROR" "Version is not valid according to Semantic Versioning (SemVer)."
         exit 1
     fi
 }
@@ -42,7 +84,7 @@ bump_version() {
             parts[2]=$((parts[2] + 1))
             ;;
         *)
-            log "Error: Invalid bump type '$bump_type'. Use 'major', 'minor', or 'patch'."
+            log "ERROR" "Invalid bump type '$bump_type'. Use 'major', 'minor', or 'patch'."
             exit 1
             ;;
     esac
@@ -55,16 +97,11 @@ show_usage() {
     echo "  -v: Enable verbose mode"
 }
 
-# Check for verbose flag
+# Parse command line arguments
 while getopts "v" opt; do
     case ${opt} in
-        v )
-            VERBOSE=true
-            ;;
-        \? )
-            show_usage
-            exit 1
-            ;;
+        v ) VERBOSE=true ;;
+        \? ) show_usage; exit 1 ;;
     esac
 done
 shift $((OPTIND -1))
@@ -76,18 +113,22 @@ fi
 
 BUMP_TYPE="$1"
 
+print_vanguard_logo
+print_fancy_header "Version Bump"
+
+# Preliminary checks
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    log "Error: This directory is not a Git repository."
+    log "ERROR" "This directory is not a Git repository."
     exit 1
 fi
 
 if ! git diff --quiet --exit-code; then
-    log "Error: There are uncommitted changes in the repository. Please commit or stash them first."
+    log "ERROR" "There are uncommitted changes in the repository. Please commit or stash them first."
     exit 1
 fi
 
 if [ ! -f VERSION ]; then
-    log "Error: VERSION file not found."
+    log "ERROR" "VERSION file not found."
     exit 1
 fi
 
@@ -95,34 +136,60 @@ OLD_VERSION=$(cat VERSION)
 NEW_VERSION=$(bump_version "$OLD_VERSION" "$BUMP_TYPE")
 validate_semver "$NEW_VERSION"
 
-log "Old Version: $OLD_VERSION"
-log "New Version: $NEW_VERSION"
+log "INFO" "Current version: ${CYAN}$OLD_VERSION${NC}"
+log "INFO" "New version:     ${GREEN}$NEW_VERSION${NC}"
 
-read -r -p "Are you sure you want to bump the version from $OLD_VERSION to $NEW_VERSION? [y/n]: " confirm
-if [ "$confirm" != "y" ]; then
-    log "Version bump canceled."
-    exit 0
-fi
+# Interactive version confirmation
+echo
+echo "Select the version to use:"
+echo "1) ${GREEN}$NEW_VERSION${NC} (recommended)"
+echo "2) ${YELLOW}Enter custom version${NC}"
+echo "3) ${RED}Cancel${NC}"
+read -p "Enter your choice (1-3): " choice
 
-log "Bumping version to $NEW_VERSION ..."
+case $choice in
+    1) ;;
+    2)
+        read -p "Enter custom version: " custom_version
+        validate_semver "$custom_version"
+        NEW_VERSION="$custom_version"
+        ;;
+    3)
+        log "INFO" "Version bump canceled."
+        exit 0
+        ;;
+    *)
+        log "ERROR" "Invalid choice. Exiting."
+        exit 1
+        ;;
+esac
+
+log "INFO" "Bumping version to $NEW_VERSION ..."
 echo "$NEW_VERSION" > VERSION
 
-log "Committing version bump..."
+log "INFO" "Committing version bump..."
 git add VERSION
-git commit -m "chore: bumped version from $OLD_VERSION to $NEW_VERSION. 🎉"
+git commit -m "chore: bump version from $OLD_VERSION to $NEW_VERSION 🎉"
 
 if git rev-parse -q --verify "refs/tags/$OLD_VERSION" >/dev/null; then
-    log "Deleting old tag locally..."
+    log "WARNING" "Deleting old tag locally..."
     git tag -d "$OLD_VERSION"
 fi
 
 git tag "$NEW_VERSION"
 
-log "Pushing changes to GitHub..."
+log "INFO" "Pushing changes to GitHub..."
 if ! git push origin main "$NEW_VERSION"; then
-    log "Error: Failed to push changes to GitHub."
+    log "ERROR" "Failed to push changes to GitHub."
     exit 1
 fi
 
-log "Version bumped from $OLD_VERSION to $NEW_VERSION."
-echo "Version bumped from $OLD_VERSION to $NEW_VERSION."
+log "SUCCESS" "Version bumped from $OLD_VERSION to $NEW_VERSION. 🚀"
+echo
+print_fancy_header "Version Bump Complete"
+echo
+log "INFO" "Next steps:"
+log "INFO" "1. Create a new release on GitHub"
+log "INFO" "2. Update any necessary documentation"
+echo
+log "SUCCESS" "Happy coding! 🎉👨‍💻👩‍💻"

@@ -146,31 +146,11 @@ printf "\n${CYAN}${BOLD}Total execution time:${NC} ${UNDERLINE}%.2f seconds${NC}
 printf "\n${BOLD}${BLUE}Git Status Summary:${NC}\n"
 git status --short | awk '{printf "  %s%-2s%s %s\n", "\033[1;31m", $1, "\033[0m", $2}'
 
-# Commit message guide
-printf "\n${BOLD}${BLUE}Commit Message Guide:${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}Format:${NC} ${LIGHT_GREEN}<type>(<scope>): <subject>${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}Types:${NC} ${LIGHT_GREEN}feat, fix, docs, style, refactor, test, chore${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}Rules:${NC}\n"
-printf "    ${LIGHT_GREEN}- Keep the subject line under 50 characters${NC}\n"
-printf "    ${LIGHT_GREEN}- Use the imperative mood in the subject line${NC}\n"
-printf "    ${LIGHT_GREEN}- Capitalize the subject line${NC}\n"
-printf "    ${LIGHT_GREEN}- Do not end the subject line with a period${NC}\n"
-
 # Project health indicators
 printf "\n${BOLD}${BLUE}Project Health:${NC}\n"
 printf "  ${YELLOW}• ${UNDERLINE}Last Commit:${NC} ${LIGHT_GREEN}$(git log -1 --format=%cr)${NC}\n"
 printf "  ${YELLOW}• ${UNDERLINE}Active Branch:${NC} ${LIGHT_GREEN}$(git rev-parse --abbrev-ref HEAD)${NC}\n"
 printf "  ${YELLOW}• ${UNDERLINE}PHP Version:${NC} ${LIGHT_GREEN}$(php -v | head -n 1 | cut -d ' ' -f 2)${NC}\n"
 printf "  ${YELLOW}• ${UNDERLINE}Node Version:${NC} ${LIGHT_GREEN}$(node -v)${NC}\n"
-
-# Motivational quote
-quotes=(
-    "Code is like humor. When you have to explain it, it's bad. - Cory House"
-    "First, solve the problem. Then, write the code. - John Johnson"
-    "Make it work, make it right, make it fast. - Kent Beck"
-    "Any fool can write code that a computer can understand. Good programmers write code that humans can understand. - Martin Fowler"
-)
-random_quote=${quotes[$RANDOM % ${#quotes[@]}]}
-printf "\n${DIM}${ITALIC}\"${random_quote}\"${NC}\n"
 
 exit ${#failed_checks[@]}
