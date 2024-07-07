@@ -19,7 +19,8 @@ class Local implements BackupDestinationInterface
     public function __construct(
         protected SFTPInterface $sftp,
         protected string $storagePath
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string>
