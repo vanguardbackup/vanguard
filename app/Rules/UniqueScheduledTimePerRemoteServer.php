@@ -14,7 +14,8 @@ class UniqueScheduledTimePerRemoteServer implements ValidationRule
     public function __construct(
         public int $remoteServerId,
         public ?int $taskId = null,
-    ) {}
+    ) {
+    }
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

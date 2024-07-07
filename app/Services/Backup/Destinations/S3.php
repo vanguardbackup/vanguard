@@ -25,7 +25,8 @@ class S3 implements BackupDestinationInterface
     public function __construct(
         protected S3Client $client,
         protected string $bucketName
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string>
