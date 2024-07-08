@@ -47,7 +47,15 @@
             <span class="block sm:inline">
                     {{ __('Please run') }}
                     <code class="text-sm bg-red-800/60 p-1 mx-1.5 font-medium rounded-lg">
-                        php artisan vanguard:generate-ssh-key
+                       <span id="command">php artisan vanguard:generate-ssh-key</span>
+                      <button title="{{ __('Copy') }}" data-clipboard-target="#command" class="btn" id="copyButton">
+                             <span id="copyIcon" class="inline">
+                                              @svg('heroicon-o-clipboard-document', 'h-4 w-4 mr-1 inline')
+                                        </span>
+                                        <span id="copiedIcon" class="hidden">
+                                            @svg('heroicon-o-clipboard-document-check', 'h-4 w-4 inline mr-1')
+                                        </span>
+                      </button>
                     </code>
                     {{ __('to create your SSH key.') }}
                 </span>
@@ -91,5 +99,14 @@
         </div>
     </div>
 </footer>
+<script>
+    document.addEventListener('livewire:navigated', function () {
+        new ClipboardJS('.btn');
+        document.getElementById('copyButton').addEventListener('click', function () {
+            document.getElementById('copiedIcon').classList.remove('hidden');
+            document.getElementById('copyIcon').classList.add('hidden');
+        });
+    });
+</script>
 </body>
 </html>
