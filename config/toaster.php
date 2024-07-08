@@ -16,14 +16,14 @@ return [
      *
      * Supported: "bottom", "middle" or "top"
      */
-    'alignment' => 'top',
+    'alignment' => 'middle',
 
     /**
      * Allow users to close toast messages prematurely.
      *
      * Supported: true | false
      */
-    'closeable' => false,
+    'closeable' => true,
 
     /**
      * The on-screen duration of each toast.
