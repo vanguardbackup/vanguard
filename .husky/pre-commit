@@ -3,7 +3,6 @@ set -e
 
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Colour codes
 GREEN='\033[0;32m'
 LIGHT_GREEN='\033[1;32m'
 RED='\033[0;31m'
@@ -18,7 +17,22 @@ UNDERLINE='\033[4m'
 BG_GREEN='\033[42m'
 BG_RED='\033[41m'
 BG_BLUE='\033[44m'
-NC='\033[0m' # No Colour
+BG_YELLOW='\033[43m'
+BLACK='\033[0;30m'
+NC='\033[0m'
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+get_laravel_version() {
+    if [ -f composer.lock ]; then
+        version=$(grep -A 1 '"name": "laravel/framework"' composer.lock | grep version | cut -d '"' -f 4)
+        echo "${version:-Not found}"
+    else
+        echo "composer.lock not found"
+    fi
+}
 
 print_vanguard_logo() {
     printf "${LIGHT_MAGENTA}"
@@ -61,11 +75,49 @@ run_command() {
     end_time=$(date +%s.%N)
     duration=$(echo "$end_time - $start_time" | bc)
 
-    if [ "$1" = "Running test suite" ]; then
+    if [ "$1" = "Running static analysis" ]; then
+        if echo "$output" | grep -q "\[ERROR\]"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Static Analysis Error:${NC}\n"
+            echo "$output" | grep "\[ERROR\]" | while IFS= read -r line; do
+                printf "${RED}%s${NC}\n" "$line"
+            done
+            return 1
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
+            return 1
+        fi
+    elif [ "$1" = "Running test suite" ]; then
         if echo "$output" | grep -q "No \"dirty\" tests found"; then
             printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
             printf " ${CYAN}(%.2fs) No changes requiring tests${NC}\n" "$duration"
             return 0
+        elif echo "$output" | grep -q "General error"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Test Failure (General error):${NC}\n"
+            echo "$output" | sed -n '/The test/,/Error Output:/p' | while IFS= read -r line; do
+                printf "${RED}%s${NC}\n" "$line"
+            done
+            return 1
+        elif echo "$output" | grep -q " FAILED "; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Test Failure:${NC}\n"
+            echo "$output" | sed -n '/ FAILED /,/^$/p' | while IFS= read -r line; do
+                printf "${RED}%s${NC}\n" "$line"
+            done
+            echo "$output" | grep "Tests:" | while IFS= read -r line; do
+                printf "${YELLOW}%s${NC}\n" "$line"
+            done
+            return 1
         elif [ $exit_code -eq 0 ]; then
             print_result 0
             printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
@@ -74,6 +126,38 @@ run_command() {
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
             printf "\n${RED}Test Error:${NC}\n%s\n\n" "$output"
+            return 1
+        fi
+    elif [ "$1" = "Checking code style" ]; then
+        if echo "$output" | grep -qE "FAIL|WARNING"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Duster Lint Error:${NC}\n%s\n\n" "$output"
+            return 1
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
+            return 1
+        fi
+    elif [ "$1" = "Checking for refactoring opportunities" ]; then
+        if echo "$output" | grep -q "file would have been changed (dry-run) by Rector"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Rector found potential refactoring opportunities:${NC}\n%s\n\n" "$output"
+            return 1
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
             return 1
         fi
     else
@@ -111,11 +195,20 @@ print_fancy_header "Pre-commit Quality Checks"
 printf "\n"
 
 failed_checks=()
+skipped_checks=()
 total_duration=0
 start_time_total=$(date +%s.%N)
 
 for cmd in "${commands[@]}"; do
     IFS=':' read -r name command <<< "$cmd"
+
+    if ! command_exists $(echo $command | cut -d' ' -f1); then
+        print_task "$name"
+        printf "${BG_YELLOW}${BLACK} SKIP ${NC} (Command not found)\n"
+        skipped_checks+=("$name")
+        continue
+    fi
+
     if ! run_command "$name" "$command"; then
         failed_checks+=("$name")
     fi
@@ -128,29 +221,85 @@ printf "\n"
 print_fancy_header "Summary"
 printf "\n"
 
-if [ ${#failed_checks[@]} -eq 0 ]; then
+if [ ${#failed_checks[@]} -eq 0 ] && [ ${#skipped_checks[@]} -eq 0 ]; then
     printf "${BG_GREEN}${WHITE} SUCCESS ${NC} ${LIGHT_GREEN}All Vanguard pre-commit checks passed.${NC}\n"
     printf "\n${GREEN}✨ ${BOLD}Your code is looking great! Ready to commit. ✨${NC}\n"
 else
-    printf "${BG_RED}${WHITE} FAILURE ${NC} ${RED}The following Vanguard pre-commit checks failed:${NC}\n"
-    for check in "${failed_checks[@]}"; do
-        printf "${RED}  ✖ $check${NC}\n"
-    done
-    printf "\n${YELLOW}Please address these issues before committing.${NC}\n"
-    printf "${YELLOW}Run the failed checks individually for more details.${NC}\n"
+    if [ ${#failed_checks[@]} -gt 0 ]; then
+        printf "${BG_RED}${WHITE} FAILURE ${NC} ${RED}The following Vanguard pre-commit checks failed:${NC}\n"
+        for check in "${failed_checks[@]}"; do
+            printf "${RED}  ✖ $check${NC}\n"
+            case "$check" in
+                "Running static analysis")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/phpstan analyse${YELLOW}' and address the issues${NC}\n"
+                    ;;
+                "Running test suite")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/pest${YELLOW}' and fix failing tests${NC}\n"
+                    ;;
+                "Checking code style")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/duster fix${YELLOW}' to automatically fix style issues${NC}\n"
+                    ;;
+                "Checking for refactoring opportunities")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/rector${YELLOW}' to apply suggested refactorings${NC}\n"
+                    ;;
+                "Building assets")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}npm run build${YELLOW}' and ensure it completes successfully${NC}\n"
+                    ;;
+            esac
+        done
+    fi
+
+    if [ ${#skipped_checks[@]} -gt 0 ]; then
+        printf "\n${BG_YELLOW}${BLACK} WARNING ${NC} ${YELLOW}The following checks were skipped (command not found):${NC}\n"
+        for check in "${skipped_checks[@]}"; do
+            printf "${YELLOW}  ⚠ $check${NC}\n"
+        done
+        printf "\n${YELLOW}Please ensure all required tools are installed.${NC}\n"
+    fi
+
+    if [ ${#failed_checks[@]} -gt 0 ]; then
+        printf "\n${YELLOW}Please address these issues before committing.${NC}\n"
+        printf "${YELLOW}Run the suggested commands for each failed check to resolve the issues.${NC}\n"
+    fi
 fi
 
 printf "\n${CYAN}${BOLD}Total execution time:${NC} ${UNDERLINE}%.2f seconds${NC}\n" $total_duration
 
-# Git status summary
 printf "\n${BOLD}${BLUE}Git Status Summary:${NC}\n"
-git status --short | awk '{printf "  %s%-2s%s %s\n", "\033[1;31m", $1, "\033[0m", $2}'
+git status --short | awk '{
+    status = $1
+    file = $2
+    if (status == "M") {
+        status_color = "\033[1;33m"  # Yellow for modified
+        status_text = "Modified"
+    } else if (status == "A") {
+        status_color = "\033[1;32m"  # Green for added
+        status_text = "Added   "
+    } else if (status == "D") {
+        status_color = "\033[1;31m"  # Red for deleted
+        status_text = "Deleted "
+    } else if (status == "R") {
+        status_color = "\033[1;35m"  # Magenta for renamed
+        status_text = "Renamed "
+    } else if (status == "C") {
+        status_color = "\033[1;36m"  # Cyan for copied
+        status_text = "Copied  "
+    } else if (status == "??") {
+        status_color = "\033[1;37m"  # White for untracked
+        status_text = "Untracked"
+    } else {
+        status_color = "\033[1;31m"  # Default to red for unknown status
+        status_text = status
+    }
+    printf "  %s%-9s%s %s\n", status_color, status_text, "\033[0m", file
+}'
 
-# Project health indicators
 printf "\n${BOLD}${BLUE}Project Health:${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}Last Commit:${NC} ${LIGHT_GREEN}$(git log -1 --format=%cr)${NC}\n"
 printf "  ${YELLOW}• ${UNDERLINE}Active Branch:${NC} ${LIGHT_GREEN}$(git rev-parse --abbrev-ref HEAD)${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}PHP Version:${NC} ${LIGHT_GREEN}$(php -v | head -n 1 | cut -d ' ' -f 2)${NC}\n"
-printf "  ${YELLOW}• ${UNDERLINE}Node Version:${NC} ${LIGHT_GREEN}$(node -v)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Uncommitted Changes:${NC} ${LIGHT_GREEN}$(git status --porcelain | wc -l)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Last Commit:${NC} ${LIGHT_GREEN}$(git log -1 --format=%cr)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}App Version:${NC} ${LIGHT_GREEN}$(cat VERSION 2>/dev/null || echo "VERSION file not found")${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}Laravel Version:${NC} ${LIGHT_GREEN}$(get_laravel_version)${NC}\n"
+printf "  ${YELLOW}• ${UNDERLINE}PHP Version:${NC} ${LIGHT_GREEN}$(php -r 'echo PHP_VERSION;')${NC}\n"
 
-exit ${#failed_checks[@]}
+exit $((${#failed_checks[@]} + ${#skipped_checks[@]}))
