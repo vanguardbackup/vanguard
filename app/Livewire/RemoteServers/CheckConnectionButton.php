@@ -21,7 +21,7 @@ class CheckConnectionButton extends Component
     public function getListeners(): array
     {
         return [
-            "echo:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'refreshSelf',
+            "echo-private:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'refreshSelf',
             "update-check-button-{$this->remoteServer->getAttribute('id')}" => '$refresh',
         ];
     }

@@ -21,8 +21,8 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:new-backup-task-log.{$this->backupTask->getAttribute('id')},CreatedBackupTaskLog" => 'echoBackupTaskLogCreatedEvent',
-            "echo:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'echoBackupTaskStatusReceivedEvent',
+            "echo-private:new-backup-task-log.{$this->backupTask->getAttribute('id')},CreatedBackupTaskLog" => 'echoBackupTaskLogCreatedEvent',
+            "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'echoBackupTaskStatusReceivedEvent',
 
             // Refresh the component when the following events are dispatched, so the status of the table row changes.
             "task-button-clicked-{$this->backupTask->getAttribute('id')}" => '$refresh',

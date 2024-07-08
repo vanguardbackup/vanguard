@@ -22,7 +22,7 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'echoReceivedEvent',
+            "echo-private:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'echoReceivedEvent',
             "connection-check-initiated-{$this->remoteServer->getAttribute('id')}" => 'updateLivewireComponents',
         ];
     }

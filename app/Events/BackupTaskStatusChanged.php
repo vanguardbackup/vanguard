@@ -7,6 +7,7 @@ namespace App\Events;
 use App\Models\BackupTask;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -30,7 +31,7 @@ class BackupTaskStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("backup-tasks.{$this->backupTask->getAttribute('id')}"),
+            new PrivateChannel("backup-tasks.{$this->backupTask->getAttribute('id')}"),
         ];
     }
 }

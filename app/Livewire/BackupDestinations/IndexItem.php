@@ -22,7 +22,7 @@ class IndexItem extends Component
     public function getListeners(): array
     {
         return [
-            "echo:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'echoReceivedEvent',
+            "echo-private:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'echoReceivedEvent',
             "backup-destination-connection-check-initiated-{$this->backupDestination->getAttribute('id')}" => 'updateLivewireComponents',
         ];
     }

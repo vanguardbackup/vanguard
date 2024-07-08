@@ -21,7 +21,7 @@ class RunTaskButton extends Component
     public function getListeners(): array
     {
         return [
-            "echo:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'refreshSelf',
+            "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'refreshSelf',
             "update-run-button-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
             "pause-button-clicked-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
         ];

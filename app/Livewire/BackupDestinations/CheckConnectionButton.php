@@ -21,7 +21,7 @@ class CheckConnectionButton extends Component
     public function getListeners(): array
     {
         return [
-            "echo:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'refreshSelf',
+            "echo-private:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'refreshSelf',
             "update-backup-destination-check-button-{$this->backupDestination->getAttribute('id')}" => '$refresh',
         ];
     }
