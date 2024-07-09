@@ -16,7 +16,7 @@ return [
      *
      * Supported: "bottom", "middle" or "top"
      */
-    'alignment' => 'middle',
+    'alignment' => 'top',
 
     /**
      * Allow users to close toast messages prematurely.
@@ -37,7 +37,7 @@ return [
      *
      * Supported: "center", "left" or "right"
      */
-    'position' => 'right',
+    'position' => 'center',
 
     /**
      * Whether messages passed as translation keys should be translated automatically.
