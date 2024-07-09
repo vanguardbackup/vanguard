@@ -19,17 +19,6 @@ NC='\033[0m' # No Colour
 MAX_SUBJECT_LENGTH=50
 TYPES=(feat fix docs style refactor test chore perf ci build)
 
-print_vanguard_logo() {
-    printf "${MAGENTA}"
-    printf " _    __                                     __\n"
-    printf "| |  / /___ _____  ____ ___  ______ ______  / /\n"
-    printf "| | / / __ \`/ __ \/ __ \`/ / / / __ \`/ ___/ / / \n"
-    printf "| |/ / /_/ / / / / /_/ / /_/ / /_/ / /  _ / /  \n"
-    printf "|___/\__,_/_/ /_/\__, /\__,_/\__,_/_/  (_)_/   \n"
-    printf "                /____/                         \n"
-    printf "${NC}\n"
-}
-
 print_fancy_header() {
     local title="$1"
     local width=60
@@ -121,7 +110,6 @@ print_fix_instructions() {
 }
 
 main() {
-    print_vanguard_logo
     print_fancy_header "Commit Message Validation"
     printf "\n"
 
