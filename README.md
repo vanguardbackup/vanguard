@@ -67,8 +67,6 @@ command will generate an SSH key that will be used to authenticate with your rem
 | `vanguard:generate-ssh-key`            | Generates an SSH key required for backup operations.                                                                                       |
 | `vanguard:version (--check)`           | Checks the version of the application. Passing `--check` will see if there is a newer version published to Github.                         |
 | `vanguard:validate-s3-connection {id}` | Able to check whether a backup destination that uses S3 can be reached. This takes the primary key of the backup destination as an id.     |
-| `vanguard:encrypt-database-passwords`  | Used to convert any previously non-encrypted database passwords to encrypted. This was only necessary once.                                |
-| `vanguard:encrypt-backup-destinations` | Used to convert any previously non-encrypted backup destination fields to encrypted data. This is not necessary for any new installations. |
 
 > [!NOTE]
 > You will not be allowed to generate another SSH key if you already have one configured.
