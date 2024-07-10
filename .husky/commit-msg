@@ -11,6 +11,7 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
+YELLOW='\033[1;33m'
 WHITE='\033[1;37m'
 BOLD='\033[1m'
 NC='\033[0m' # No Colour
@@ -24,106 +25,111 @@ print_fancy_header() {
     local width=60
     local line=$(printf '%*s' "$width" | tr ' ' '─')
 
-    printf "${BLUE}┌${line}┐${NC}\n"
-    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
-    printf "${BLUE}└${line}┘${NC}\n"
+    printf '%s┌%s┐%s\n' "${BLUE}" "${line}" "${NC}"
+    printf '%s│ %s%-*s %s│%s\n' "${BLUE}" "${CYAN}" $((width-2)) "$title" "${BLUE}" "${NC}"
+    printf '%s└%s┘%s\n' "${BLUE}" "${line}" "${NC}"
 }
 
-validate_commit_message() {
+auto_correct_commit_message() {
     local commit_file="$1"
     local commit_msg
+    local corrected=false
 
     if [ ! -f "$commit_file" ]; then
-        printf "${RED}Warning: Commit message file not found. Skipping validation.${NC}\n"
+        printf '%sWarning: Commit message file not found. Skipping validation.%s\n' "${RED}" "${NC}"
         return 0
     fi
 
     commit_msg=$(sed -e '/^#/d' -e '/^\s*$/d' "$commit_file" | head -n1)
 
     if [ -z "$commit_msg" ]; then
-        printf "${RED}Warning: Commit message is empty. Please provide a meaningful commit message.${NC}\n"
+        printf '%sWarning: Commit message is empty. Please provide a meaningful commit message.%s\n' "${RED}" "${NC}"
         print_commit_message_guide
         return 1
     fi
 
-    local type=$(echo "$commit_msg" | cut -d':' -f1)
+    local type=$(echo "$commit_msg" | cut -d':' -f1 | tr '[:upper:]' '[:lower:]')
     local subject=$(echo "$commit_msg" | cut -d':' -f2- | xargs)
 
-    # Validate type
+    # Auto-correct type
     if ! echo "${TYPES[@]}" | grep -qw "$type"; then
-        printf "${RED}Error: Invalid commit type '%s'.${NC}\n" "$type"
-        print_commit_message_guide
-        return 1
+        local closest_type=$(echo "${TYPES[@]}" | tr ' ' '\n' | sort -u | grep -i "^$type" | head -n1)
+        if [ -n "$closest_type" ]; then
+            type=$closest_type
+            corrected=true
+            printf '%sAuto-corrected type to '%s'.%s\n' "${YELLOW}" "${type}" "${NC}"
+        else
+            printf '%sError: Invalid commit type '%s'. Unable to auto-correct.%s\n' "${RED}" "${type}" "${NC}"
+            print_commit_message_guide
+            return 1
+        fi
     fi
 
-    # Validate subject length
+    # Auto-correct subject capitalization
+    if [[ ! $subject =~ ^[A-Z] ]]; then
+        subject="$(tr '[:lower:]' '[:upper:]' <<< ${subject:0:1})${subject:1}"
+        corrected=true
+        printf '%sAuto-capitalized the subject line.%s\n' "${YELLOW}" "${NC}"
+    fi
+
+    # Remove trailing period if present
+    if [[ $subject =~ \.$  ]]; then
+        subject="${subject%.}"
+        corrected=true
+        printf '%sRemoved trailing period from the subject line.%s\n' "${YELLOW}" "${NC}"
+    fi
+
+    # Truncate subject if too long
     if [ ${#subject} -gt $MAX_SUBJECT_LENGTH ]; then
-        printf "${RED}Error: Commit subject too long (%d > %d characters).${NC}\n" ${#subject} $MAX_SUBJECT_LENGTH
-        print_commit_message_guide
-        return 1
+        subject="${subject:0:$MAX_SUBJECT_LENGTH}"
+        corrected=true
+        printf '%sTruncated subject to %d characters.%s\n' "${YELLOW}" "${MAX_SUBJECT_LENGTH}" "${NC}"
     fi
 
-    # Validate subject capitalization and period
-    if ! [[ $subject =~ ^[A-Z] ]] || [[ $subject =~ \.$  ]]; then
-        printf "${RED}Error: Subject should start with a capital letter and not end with a period.${NC}\n"
-        print_commit_message_guide
-        return 1
+    # Update commit message file if corrections were made
+    if [ "$corrected" = true ]; then
+        echo "${type}: ${subject}" > "$commit_file"
+        printf '%sCommit message has been auto-corrected.%s\n' "${GREEN}" "${NC}"
+    else
+        printf '%sCommit message is valid. No corrections needed.%s\n' "${GREEN}" "${NC}"
     fi
 
-    printf "${GREEN}Commit message is valid.${NC}\n"
     return 0
 }
 
 print_commit_message_guide() {
-    printf "\n${BOLD}${BLUE}Commit Message Guide:${NC}\n"
-    printf "  ${CYAN}• ${BOLD}Format:${NC} <type>: <subject>\n"
-    printf "  ${CYAN}• ${BOLD}Allowed Types:${NC} ${LIGHT_GREEN}%s${NC}\n" "${TYPES[*]}"
-    printf "  ${CYAN}• ${BOLD}Rules:${NC}\n"
-    printf "    - Keep the subject line under %d characters\n" $MAX_SUBJECT_LENGTH
-    printf "    - Use the imperative mood in the subject line\n"
-    printf "    - Capitalize the subject line\n"
-    printf "    - Do not end the subject line with a period\n"
-    printf "\n  ${MAGENTA}${BOLD}Examples of valid commit messages:${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}feat: Add new user registration feature${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}fix: Resolve login issue with Google OAuth${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}docs: Update README with new API endpoints${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}style: Format code according to new style guide${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}refactor: Simplify data processing pipeline${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}test: Add unit tests for user service${NC}\n"
-    printf "  ${GREEN}✓${NC} ${CYAN}chore: Update dependencies to latest versions${NC}\n"
-}
-
-print_fix_instructions() {
-    # Get the current branch name
-    local current_branch=$(git rev-parse --abbrev-ref HEAD)
-
-    printf "\n${CYAN}${BOLD}To fix your commit message, follow these steps:${NC}\n\n"
-    printf "  ${GREEN}1. Run this command to edit your commit message:${NC}\n"
-    printf "     ${YELLOW}git commit --amend${NC}\n\n"
-    printf "  ${GREEN}2. Your default text editor will open. Update the message to:${NC}\n"
-    printf "     ${YELLOW}<type>: <subject>${NC}\n"
-    printf "     For example: ${YELLOW}feat: Add user authentication${NC}\n\n"
-    printf "  ${GREEN}3. Save the file and close the editor${NC}\n\n"
-    printf "  ${GREEN}4. If you've already pushed this commit, you'll need to force-push:${NC}\n"
-    printf "     ${YELLOW}git push --force-with-lease origin %s${NC}\n\n" "$current_branch"
-    printf "  ${CYAN}Need more help? Run ${YELLOW}git commit --help${CYAN} for full documentation.${NC}\n"
+    printf '\n%s%sCommit Message Guide:%s\n' "${BOLD}" "${BLUE}" "${NC}"
+    printf '  %s• %sFormat:%s <type>: <subject>\n' "${CYAN}" "${BOLD}" "${NC}"
+    printf '  %s• %sAllowed Types:%s %s%s%s\n' "${CYAN}" "${BOLD}" "${NC}" "${LIGHT_GREEN}" "${TYPES[*]}" "${NC}"
+    printf '  %s• %sRules:%s\n' "${CYAN}" "${BOLD}" "${NC}"
+    printf '    - Keep the subject line under %d characters\n' "$MAX_SUBJECT_LENGTH"
+    printf '    - Use the imperative mood in the subject line\n'
+    printf '    - Capitalize the subject line\n'
+    printf '    - Do not end the subject line with a period\n'
+    printf '\n  %s%sExamples of valid commit messages:%s\n' "${MAGENTA}" "${BOLD}" "${NC}"
+    printf '  %s✓%s %sfeat: Add new user registration feature%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %sfix: Resolve login issue with Google OAuth%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %sdocs: Update README with new API endpoints%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %sstyle: Format code according to new style guide%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %srefactor: Simplify data processing pipeline%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %stest: Add unit tests for user service%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf '  %s✓%s %schore: Update dependencies to latest versions%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
 }
 
 main() {
-    print_fancy_header "Commit Message Validation"
-    printf "\n"
+    print_fancy_header "Commit Message Validation and Auto-correction"
+    printf '\n'
 
-    if validate_commit_message "$1"; then
-        printf "\n${GREEN}✨ ${BOLD}Great job! Your commit message looks perfect. ✨${NC}\n"
+    if auto_correct_commit_message "$1"; then
+        printf '\n%s✨ %sCommit message is now valid. Proceeding with commit. ✨%s\n' "${GREEN}" "${BOLD}" "${NC}"
     else
-        printf "\n${RED}Oops! Your commit message doesn't quite match our guidelines.${NC}\n"
-        print_fix_instructions
+        printf '\n%sUnable to auto-correct commit message. Please review and try again.%s\n' "${RED}" "${NC}"
         exit 1
     fi
 }
 
 # Run the main function, but catch any errors
 if ! main "$@"; then
-    printf "${RED}Commit message validation failed. Please review and try again.${NC}\n"
+    printf '%sCommit message validation and auto-correction failed. Please review and try again.%s\n' "${RED}" "${NC}"
     exit 1
 fi
