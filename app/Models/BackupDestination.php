@@ -163,4 +163,17 @@ class BackupDestination extends Model
     {
         $this->update(['status' => self::STATUS_UNREACHABLE]);
     }
+
+    /**
+     * @return string[]
+     */
+    protected function casts(): array
+    {
+        return [
+            's3_access_key' => 'encrypted',
+            's3_secret_key' => 'encrypted',
+            's3_bucket_name' => 'encrypted',
+            'custom_s3_endpoint' => 'encrypted',
+        ];
+    }
 }
