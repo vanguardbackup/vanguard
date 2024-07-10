@@ -25,9 +25,9 @@ print_fancy_header() {
     local width=60
     local line=$(printf '%*s' "$width" | tr ' ' '─')
 
-    printf '%s┌%s┐%s\n' "${BLUE}" "${line}" "${NC}"
-    printf '%s│ %s%-*s %s│%s\n' "${BLUE}" "${CYAN}" $((width-2)) "$title" "${BLUE}" "${NC}"
-    printf '%s└%s┘%s\n' "${BLUE}" "${line}" "${NC}"
+    printf "${BLUE}┌${line}┐${NC}\n"
+    printf "${BLUE}│ ${CYAN}%-$((width-2))s ${BLUE}│${NC}\n" "$title"
+    printf "${BLUE}└${line}┘${NC}\n"
 }
 
 auto_correct_commit_message() {
@@ -36,14 +36,14 @@ auto_correct_commit_message() {
     local corrected=false
 
     if [ ! -f "$commit_file" ]; then
-        printf '%sWarning: Commit message file not found. Skipping validation.%s\n' "${RED}" "${NC}"
+        printf "${RED}Warning: Commit message file not found. Skipping validation.${NC}\n"
         return 0
     fi
 
     commit_msg=$(sed -e '/^#/d' -e '/^\s*$/d' "$commit_file" | head -n1)
 
     if [ -z "$commit_msg" ]; then
-        printf '%sWarning: Commit message is empty. Please provide a meaningful commit message.%s\n' "${RED}" "${NC}"
+        printf "${RED}Warning: Commit message is empty. Please provide a meaningful commit message.${NC}\n"
         print_commit_message_guide
         return 1
     fi
@@ -57,9 +57,9 @@ auto_correct_commit_message() {
         if [ -n "$closest_type" ]; then
             type=$closest_type
             corrected=true
-            printf '%sAuto-corrected type to '%s'.%s\n' "${YELLOW}" "${type}" "${NC}"
+            printf "${YELLOW}Auto-corrected type to '${type}'.${NC}\n"
         else
-            printf '%sError: Invalid commit type '%s'. Unable to auto-correct.%s\n' "${RED}" "${type}" "${NC}"
+            printf "${RED}Error: Invalid commit type '%s'. Unable to auto-correct.${NC}\n" "$type"
             print_commit_message_guide
             return 1
         fi
@@ -69,67 +69,67 @@ auto_correct_commit_message() {
     if [[ ! $subject =~ ^[A-Z] ]]; then
         subject="$(tr '[:lower:]' '[:upper:]' <<< ${subject:0:1})${subject:1}"
         corrected=true
-        printf '%sAuto-capitalized the subject line.%s\n' "${YELLOW}" "${NC}"
+        printf "${YELLOW}Auto-capitalized the subject line.${NC}\n"
     fi
 
     # Remove trailing period if present
     if [[ $subject =~ \.$  ]]; then
         subject="${subject%.}"
         corrected=true
-        printf '%sRemoved trailing period from the subject line.%s\n' "${YELLOW}" "${NC}"
+        printf "${YELLOW}Removed trailing period from the subject line.${NC}\n"
     fi
 
     # Truncate subject if too long
     if [ ${#subject} -gt $MAX_SUBJECT_LENGTH ]; then
         subject="${subject:0:$MAX_SUBJECT_LENGTH}"
         corrected=true
-        printf '%sTruncated subject to %d characters.%s\n' "${YELLOW}" "${MAX_SUBJECT_LENGTH}" "${NC}"
+        printf "${YELLOW}Truncated subject to ${MAX_SUBJECT_LENGTH} characters.${NC}\n"
     fi
 
     # Update commit message file if corrections were made
     if [ "$corrected" = true ]; then
         echo "${type}: ${subject}" > "$commit_file"
-        printf '%sCommit message has been auto-corrected.%s\n' "${GREEN}" "${NC}"
+        printf "${GREEN}Commit message has been auto-corrected.${NC}\n"
     else
-        printf '%sCommit message is valid. No corrections needed.%s\n' "${GREEN}" "${NC}"
+        printf "${GREEN}Commit message is valid. No corrections needed.${NC}\n"
     fi
 
     return 0
 }
 
 print_commit_message_guide() {
-    printf '\n%s%sCommit Message Guide:%s\n' "${BOLD}" "${BLUE}" "${NC}"
-    printf '  %s• %sFormat:%s <type>: <subject>\n' "${CYAN}" "${BOLD}" "${NC}"
-    printf '  %s• %sAllowed Types:%s %s%s%s\n' "${CYAN}" "${BOLD}" "${NC}" "${LIGHT_GREEN}" "${TYPES[*]}" "${NC}"
-    printf '  %s• %sRules:%s\n' "${CYAN}" "${BOLD}" "${NC}"
-    printf '    - Keep the subject line under %d characters\n' "$MAX_SUBJECT_LENGTH"
-    printf '    - Use the imperative mood in the subject line\n'
-    printf '    - Capitalize the subject line\n'
-    printf '    - Do not end the subject line with a period\n'
-    printf '\n  %s%sExamples of valid commit messages:%s\n' "${MAGENTA}" "${BOLD}" "${NC}"
-    printf '  %s✓%s %sfeat: Add new user registration feature%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %sfix: Resolve login issue with Google OAuth%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %sdocs: Update README with new API endpoints%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %sstyle: Format code according to new style guide%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %srefactor: Simplify data processing pipeline%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %stest: Add unit tests for user service%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
-    printf '  %s✓%s %schore: Update dependencies to latest versions%s\n' "${GREEN}" "${NC}" "${CYAN}" "${NC}"
+    printf "\n${BOLD}${BLUE}Commit Message Guide:${NC}\n"
+    printf "  ${CYAN}• ${BOLD}Format:${NC} <type>: <subject>\n"
+    printf "  ${CYAN}• ${BOLD}Allowed Types:${NC} ${LIGHT_GREEN}%s${NC}\n" "${TYPES[*]}"
+    printf "  ${CYAN}• ${BOLD}Rules:${NC}\n"
+    printf "    - Keep the subject line under %d characters\n" $MAX_SUBJECT_LENGTH
+    printf "    - Use the imperative mood in the subject line\n"
+    printf "    - Capitalize the subject line\n"
+    printf "    - Do not end the subject line with a period\n"
+    printf "\n  ${MAGENTA}${BOLD}Examples of valid commit messages:${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}feat: Add new user registration feature${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}fix: Resolve login issue with Google OAuth${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}docs: Update README with new API endpoints${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}style: Format code according to new style guide${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}refactor: Simplify data processing pipeline${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}test: Add unit tests for user service${NC}\n"
+    printf "  ${GREEN}✓${NC} ${CYAN}chore: Update dependencies to latest versions${NC}\n"
 }
 
 main() {
     print_fancy_header "Commit Message Validation and Auto-correction"
-    printf '\n'
+    printf "\n"
 
     if auto_correct_commit_message "$1"; then
-        printf '\n%s✨ %sCommit message is now valid. Proceeding with commit. ✨%s\n' "${GREEN}" "${BOLD}" "${NC}"
+        printf "\n${GREEN}✨ ${BOLD}Commit message is now valid. Proceeding with commit. ✨${NC}\n"
     else
-        printf '\n%sUnable to auto-correct commit message. Please review and try again.%s\n' "${RED}" "${NC}"
+        printf "\n${RED}Unable to auto-correct commit message. Please review and try again.${NC}\n"
         exit 1
     fi
 }
 
 # Run the main function, but catch any errors
 if ! main "$@"; then
-    printf '%sCommit message validation and auto-correction failed. Please review and try again.%s\n' "${RED}" "${NC}"
+    printf "${RED}Commit message validation and auto-correction failed. Please review and try again.${NC}\n"
     exit 1
 fi
