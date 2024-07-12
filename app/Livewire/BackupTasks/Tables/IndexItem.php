@@ -64,7 +64,7 @@ class IndexItem extends Component
         $this->backupTask = $this->backupTask->fresh();
 
         // This needs to be here to fetch the latest log.
-        $this->backupTaskLog = $this->backupTask->logs->last();
+        $this->backupTaskLog = $this->backupTask->latestLog;
     }
 
     public function render(): View

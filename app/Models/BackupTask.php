@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -110,7 +111,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<User, \App\Models\BackupTask>
+     * @return BelongsTo<User, BackupTask>
      */
     public function user(): BelongsTo
     {
@@ -118,7 +119,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<BackupDestination, \App\Models\BackupTask>
+     * @return BelongsTo<BackupDestination, BackupTask>
      */
     public function backupDestination(): BelongsTo
     {
@@ -126,7 +127,7 @@ class BackupTask extends Model
     }
 
     /**
-     * @return BelongsTo<RemoteServer, \App\Models\BackupTask>
+     * @return BelongsTo<RemoteServer, BackupTask>
      */
     public function remoteServer(): BelongsTo
     {
@@ -544,6 +545,16 @@ class BackupTask extends Model
             ->timezone($user->timezone ?? config('app.timezone'))
             ->locale($locale)
             ->isoFormat('D MMMM YYYY HH:mm');
+    }
+
+    /**
+     * Get the latest log for the backup task.
+     *
+     * @return HasOne<BackupTaskLog>
+     */
+    public function latestLog(): HasOne
+    {
+        return $this->hasOne(BackupTaskLog::class)->latest();
     }
 
     /**

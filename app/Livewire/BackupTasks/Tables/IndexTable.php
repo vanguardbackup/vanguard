@@ -17,6 +17,8 @@ class IndexTable extends Component
     public function render(): View
     {
         $backupTasks = BackupTask::where('user_id', Auth::id())
+            ->with(['remoteServer', 'backupDestination'])
+            ->withAggregate('latestLog', 'created_at')
             ->orderBy('created_at', 'desc')
             ->paginate(10, pageName: 'backup-tasks');
 
