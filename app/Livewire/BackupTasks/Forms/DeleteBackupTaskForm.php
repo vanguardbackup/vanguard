@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Forms;
 
 use App\Models\BackupTask;
 use Illuminate\Http\RedirectResponse;
@@ -34,6 +34,6 @@ class DeleteBackupTaskForm extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.delete-backup-task-form');
+        return view('livewire.backup-tasks.forms.delete-backup-task-form');
     }
 }

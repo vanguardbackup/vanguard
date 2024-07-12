@@ -8,8 +8,8 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @livewire('backup-tasks.update-backup-task-form', ['backupTask' => $backupTask])
-            @livewire('backup-tasks.delete-backup-task-form', ['backupTask' => $backupTask])
+            @livewire('backup-tasks.forms.update-backup-task-form', ['backupTask' => $backupTask])
+            @livewire('backup-tasks.forms.delete-backup-task-form', ['backupTask' => $backupTask])
 
         </div>
     </div>

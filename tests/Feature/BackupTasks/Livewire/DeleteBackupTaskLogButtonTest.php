@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\DeleteBackupTaskLogButton;
+use App\Livewire\BackupTasks\Buttons\DeleteBackupTaskLogButton;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;

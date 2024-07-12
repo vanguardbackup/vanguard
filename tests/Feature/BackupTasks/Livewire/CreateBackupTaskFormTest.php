@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\CreateBackupTaskForm;
+use App\Livewire\BackupTasks\Forms\CreateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\RemoteServer;

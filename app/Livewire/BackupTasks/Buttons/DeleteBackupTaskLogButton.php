@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Buttons;
 
 use App\Models\BackupTaskLog;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +36,6 @@ class DeleteBackupTaskLogButton extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.delete-backup-task-log-button');
+        return view('livewire.backup-tasks.buttons.delete-backup-task-log-button');
     }
 }

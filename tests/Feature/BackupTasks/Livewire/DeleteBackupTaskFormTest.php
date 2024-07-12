@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\DeleteBackupTaskForm;
+use App\Livewire\BackupTasks\Forms\DeleteBackupTaskForm;
 use App\Models\BackupTask;
 use App\Models\User;
 

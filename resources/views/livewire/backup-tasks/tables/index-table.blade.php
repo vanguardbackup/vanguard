@@ -49,7 +49,7 @@
                 </x-slot>
                 <x-slot name="advancedBody">
                     @foreach ($backupTasks as $backupTask)
-                        <livewire:backup-tasks.index-item :backupTask="$backupTask" :key="'index-item-' . $backupTask->id" />
+                        <livewire:backup-tasks.tables.index-item :backupTask="$backupTask" :key="'index-item-' . $backupTask->id" />
                     @endforeach
                 </x-slot>
             </x-table.wrapper>

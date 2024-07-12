@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Buttons;
 
 use App\Models\BackupTask;
 use Illuminate\View\View;
@@ -47,6 +47,6 @@ class RunTaskButton extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.run-task-button');
+        return view('livewire.backup-tasks.buttons.run-task-button');
     }
 }

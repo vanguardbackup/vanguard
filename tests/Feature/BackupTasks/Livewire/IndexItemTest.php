@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\IndexItem;
+use App\Livewire\BackupTasks\Tables\IndexItem;
 use App\Models\BackupTask;
 use Livewire\Livewire;
 

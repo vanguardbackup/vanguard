@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Buttons;
 
 use App\Models\BackupTask;
 use Illuminate\View\View;
@@ -45,6 +45,6 @@ class TogglePauseButton extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.toggle-pause-button');
+        return view('livewire.backup-tasks.buttons.toggle-pause-button');
     }
 }

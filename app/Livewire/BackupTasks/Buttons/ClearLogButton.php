@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Buttons;
 
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +26,7 @@ class ClearLogButton extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.clear-log-button');
+        return view('livewire.backup-tasks.buttons.clear-log-button');
     }
 
     /**

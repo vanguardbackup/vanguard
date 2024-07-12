@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Tables;
 
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
@@ -69,6 +69,6 @@ class IndexItem extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.index-item');
+        return view('livewire.backup-tasks.tables.index-item');
     }
 }

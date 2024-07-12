@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Modals;
 
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
@@ -76,7 +76,7 @@ class LogModal extends Component
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.log-modal');
+        return view('livewire.backup-tasks.modals.log-modal');
     }
 
     /**

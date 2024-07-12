@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\TogglePauseButton;
+use App\Livewire\BackupTasks\Buttons\TogglePauseButton;
 use App\Models\BackupTask;
 use Livewire\Livewire;
 
@@ -45,5 +45,5 @@ it('renders the component view', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(TogglePauseButton::class, ['backupTask' => $backupTask])
-        ->assertViewIs('livewire.backup-tasks.toggle-pause-button');
+        ->assertViewIs('livewire.backup-tasks.buttons.toggle-pause-button');
 });

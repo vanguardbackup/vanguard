@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Tables;
 
 use App\Models\BackupTask;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +20,7 @@ class IndexTable extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(10, pageName: 'backup-tasks');
 
-        return view('livewire.backup-tasks.index-table', ['backupTasks' => $backupTasks]);
+        return view('livewire.backup-tasks.tables.index-table', ['backupTasks' => $backupTasks]);
     }
 
     /**

@@ -6,6 +6,8 @@ use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\RemoteServers;
 use App\Http\Controllers\Tags;
 use App\Http\Middleware\UserLanguage;
+use App\Livewire\BackupTasks\Forms\CreateBackupTaskForm;
+use App\Livewire\BackupTasks\Index;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
@@ -33,8 +35,8 @@ Route::middleware([UserLanguage::class, 'auth'])->group(function () {
     });
 
     Route::prefix('backup-tasks')->group(function () {
-        Route::view('/', 'backup-tasks.index')->name('backup-tasks.index');
-        Route::view('create', 'backup-tasks.create')->name('backup-tasks.create');
+        Route::get('/', Index::class)->name('backup-tasks.index');
+        Route::get('create', CreateBackupTaskForm::class)->name('backup-tasks.create');
         Route::get('edit/{backupTask}', BackupTasks\EditController::class)
             ->name('backup-tasks.edit')
             ->middleware('can:update,backupTask');

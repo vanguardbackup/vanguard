@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Forms;
 
 use App\Models\BackupTask;
 use App\Models\RemoteServer;
@@ -20,22 +20,21 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Toaster;
 
-class UpdateBackupTaskForm extends Component
+class CreateBackupTaskForm extends Component
 {
-    public BackupTask $backupTask;
     public string $label = '';
-    public ?string $description = null;
+    public ?string $description = '';
     public ?string $sourcePath = null;
     public ?int $remoteServerId = null;
-    public ?int $backupDestinationId = null;
+    public string $backupDestinationId = '';
     public ?string $frequency = BackupTask::FREQUENCY_DAILY;
     public ?string $timeToRun = '00:00';
+    public bool $useCustomCron = false;
     public ?string $cronExpression = null;
     public int $backupsToKeep = 5;
     public string $backupType = BackupTask::TYPE_FILES;
     public ?string $databaseName = null;
     public ?string $appendedFileName = null;
-    public bool $useCustomCron = false;
     public ?string $notifyEmail = null;
     public ?string $notifyDiscordWebhook = null;
     public ?string $notifySlackWebhook = null;
@@ -56,13 +55,14 @@ class UpdateBackupTaskForm extends Component
     public ?Collection $availableTags;
 
     /** @var array<int>|null */
-    public ?array $selectedTags = null;
+    public ?array $selectedTags = [];
 
     public function mount(): void
     {
-        $this->initializeForm();
+        $this->initializeDefaultValues();
         $this->initializeBackupTimes();
         $this->updatedBackupType();
+        $this->updatedUseCustomCron();
     }
 
     public function updatedUseCustomCron(): void
@@ -72,6 +72,14 @@ class UpdateBackupTaskForm extends Component
             $this->frequency = null;
         } else {
             $this->cronExpression = null;
+        }
+    }
+
+    public function updatedUseIsolatedCredentials(): void
+    {
+        if (! $this->useIsolatedCredentials) {
+            $this->isolatedUsername = null;
+            $this->isolatedPassword = null;
         }
     }
 
@@ -91,20 +99,19 @@ class UpdateBackupTaskForm extends Component
 
     public function submit(): RedirectResponse|Redirector
     {
-        $this->authorize('update', $this->backupTask);
-
         $this->validate($this->rules(), $this->messages());
         $this->processScheduleSettings();
-        $this->updateBackupTask();
+        $backupTask = BackupTask::create($this->prepareBackupTaskData());
+        $backupTask->tags()->sync($this->selectedTags);
 
-        Toaster::success(__('Backup task details saved.'));
+        Toaster::success(__('Backup task has been added.'));
 
         return Redirect::route('backup-tasks.index');
     }
 
     public function render(): View
     {
-        return view('livewire.backup-tasks.update-backup-task-form', [
+        return view('livewire.backup-tasks.forms.create-backup-task-form', [
             'backupTimes' => $this->backupTimes,
             'backupDestinations' => Auth::user()?->backupDestinations ?? collect(),
             'backupTypes' => [
@@ -115,61 +122,19 @@ class UpdateBackupTaskForm extends Component
         ]);
     }
 
-    private function initializeForm(): void
+    private function initializeDefaultValues(): void
     {
         $user = Auth::user();
         if (! $user) {
             return;
         }
 
+        $this->useIsolatedCredentials = false;
         $this->availableTags = $user->tags;
-        $this->selectedTags = $this->backupTask->getAttribute('tags')->pluck('id')->toArray();
-        $this->remoteServers = $user->remoteServers->where('database_password', null);
         $this->userTimezone = $user->timezone ?? 'UTC';
-
-        $this->fillFormFromBackupTask();
-
-        if ($this->cronExpression) {
-            $this->useCustomCron = true;
-        }
-
-        if ($this->backupTask->hasIsolatedCredentials()) {
-            $this->useIsolatedCredentials = true;
-        }
-    }
-
-    private function fillFormFromBackupTask(): void
-    {
-        $attributeMap = [
-            'label' => 'label',
-            'description' => 'description',
-            'source_path' => 'sourcePath',
-            'remote_server_id' => 'remoteServerId',
-            'backup_destination_id' => 'backupDestinationId',
-            'frequency' => 'frequency',
-            'custom_cron_expression' => 'cronExpression',
-            'maximum_backups_to_keep' => 'backupsToKeep',
-            'type' => 'backupType',
-            'database_name' => 'databaseName',
-            'appended_file_name' => 'appendedFileName',
-            'notify_email' => 'notifyEmail',
-            'notify_discord_webhook' => 'notifyDiscordWebhook',
-            'notify_slack_webhook' => 'notifySlackWebhook',
-            'store_path' => 'storePath',
-            'excluded_database_tables' => 'excludedDatabaseTables',
-            'isolated_username' => 'isolatedUsername',
-        ];
-
-        foreach ($attributeMap as $modelAttribute => $formProperty) {
-            $this->{$formProperty} = $this->backupTask->getAttribute($modelAttribute);
-        }
-
-        $this->backupsToKeep = (int) $this->backupTask->getAttribute('maximum_backups_to_keep');
-        $this->isolatedPassword = null;
-
-        if ($this->backupTask->getAttribute('time_to_run_at')) {
-            $this->timeToRun = Carbon::createFromFormat('H:i', $this->backupTask->getAttribute('time_to_run_at'), 'UTC')?->setTimezone($this->userTimezone)->format('H:i');
-        }
+        $this->remoteServers = $user->remoteServers->where('database_password', null);
+        $this->remoteServerId = $this->remoteServers->first()?->id;
+        $this->backupDestinationId = (string) ($user->preferred_backup_destination_id ?? $user->backupDestinations->first()?->id ?? '');
     }
 
     private function initializeBackupTimes(): void
@@ -207,22 +172,22 @@ class UpdateBackupTaskForm extends Component
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
             'notifyEmail' => ['nullable', 'email'],
-            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
             'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
+            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
             'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
             'backupType' => ['required', 'string', 'in:files,database'],
             'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string', 'max:100'],
             'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-            'remoteServerId' => ['required', 'integer', 'exists:remote_servers,id'],
-            'backupDestinationId' => ['required', 'integer', 'exists:backup_destinations,id'],
+            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
+            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
             'timeToRun' => [
                 'string',
                 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/',
                 'required_unless:useCustomCron,true',
-                new UniqueScheduledTimePerRemoteServer($this->remoteServerId, $this->backupTask->getAttribute('id')),
+                new UniqueScheduledTimePerRemoteServer($this->remoteServerId),
             ],
             'cronExpression' => [
                 'nullable',
@@ -246,7 +211,6 @@ class UpdateBackupTaskForm extends Component
     {
         return [
             'selectedTags.*.exists' => __('One or more of the selected tags do not exist.'),
-            'excludedDatabaseTables.regex' => __('Please enter a valid list of table names separated by commas.'),
             'storePath.regex' => __('The path must be a valid Unix path.'),
             'notifyEmail.email' => __('Please enter a valid email address.'),
             'notifySlackWebhook.url' => __('Please enter a valid URL.'),
@@ -276,10 +240,12 @@ class UpdateBackupTaskForm extends Component
         ];
     }
 
-    private function updateBackupTask(): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function prepareBackupTaskData(): array
     {
-        $this->backupTask->update([
-            'excluded_database_tables' => $this->excludedDatabaseTables,
+        return [
             'user_id' => Auth::id(),
             'remote_server_id' => $this->remoteServerId,
             'backup_destination_id' => $this->backupDestinationId,
@@ -289,6 +255,7 @@ class UpdateBackupTaskForm extends Component
             'frequency' => $this->frequency,
             'time_to_run_at' => $this->timeToRun,
             'custom_cron_expression' => $this->cronExpression,
+            'status' => 'ready',
             'maximum_backups_to_keep' => $this->backupsToKeep,
             'type' => $this->backupType,
             'database_name' => $this->databaseName,
@@ -297,15 +264,9 @@ class UpdateBackupTaskForm extends Component
             'notify_discord_webhook' => $this->notifyDiscordWebhook,
             'notify_slack_webhook' => $this->notifySlackWebhook,
             'store_path' => $this->storePath,
+            'excluded_database_tables' => $this->excludedDatabaseTables,
             'isolated_username' => $this->isolatedUsername,
-        ]);
-
-        if ($this->isolatedPassword) {
-            $this->backupTask->updateQuietly([
-                'isolated_password' => Crypt::encrypt($this->isolatedPassword),
-            ]);
-        }
-
-        $this->backupTask->tags()->sync($this->selectedTags);
+            'isolated_password' => $this->isolatedPassword ? Crypt::encryptString($this->isolatedPassword) : null,
+        ];
     }
 }

@@ -1,5 +1,5 @@
-@section('title', __('Backup Tasks'))
-<x-app-layout>
+<div>
+    @section('title', __('Backup Tasks'))
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Backup Tasks') }}
@@ -17,14 +17,14 @@
                     </a>
                 </div>
             @endif
-            @livewire('backup-tasks.index-table')
+            @livewire('backup-tasks.tables.index-table')
 
             @if (!Auth::user()->backupTasks->isEmpty())
                 <div class="mt-6">
-                    @livewire('backup-tasks.backup-task-history')
-                    @livewire('backup-tasks.clear-log-button')
+                    @livewire('backup-tasks.tables.backup-task-history-table')
+                    @livewire('backup-tasks.buttons.clear-log-button')
                 </div>
             @endif
         </div>
     </div>
-</x-app-layout>
+</div>

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Livewire\BackupTasks\RunTaskButton;
+use App\Livewire\BackupTasks\Buttons\RunTaskButton;
 use App\Models\BackupTask;
 
 it('renders the component view', function (): void {
     $backupTask = BackupTask::factory()->create();
 
     Livewire::test(RunTaskButton::class, ['backupTask' => $backupTask])
-        ->assertViewIs('livewire.backup-tasks.run-task-button');
+        ->assertViewIs('livewire.backup-tasks.buttons.run-task-button');
 });
 
 it('refreshes component when listener is called', function (): void {

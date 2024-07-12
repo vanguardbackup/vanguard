@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\BackupTasks;
+namespace App\Livewire\BackupTasks\Tables;
 
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +10,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class BackupTaskHistory extends Component
+class BackupTaskHistoryTable extends Component
 {
     use WithPagination;
 
@@ -26,7 +26,7 @@ class BackupTaskHistory extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(8, pageName: 'backup-task-logs');
 
-        return view('livewire.backup-tasks.backup-task-history', [
+        return view('livewire.backup-tasks.tables.backup-task-history-table', [
             'backupTaskLogs' => $backupTaskLogs,
         ]);
     }
