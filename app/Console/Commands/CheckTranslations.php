@@ -16,6 +16,10 @@ use Symfony\Component\Finder\SplFileInfo;
 final class CheckTranslations extends Command
 {
     /**
+     * @var array<string>
+     */
+    private const array EXCLUDED_DIRECTORIES = ['errors', 'vendor', 'auth', 'mail'];
+    /**
      * @var string
      */
     protected $signature = 'translations:check {--show-details : Display detailed information about missing translations}';
@@ -25,14 +29,6 @@ final class CheckTranslations extends Command
      */
     protected $description = 'Check for missing translations in language files, grouped by type';
 
-    /**
-     * @var array<string>
-     */
-    private const array EXCLUDED_DIRECTORIES = ['errors', 'vendor', 'auth', 'mail'];
-
-    /**
-     * @return int
-     */
     public function handle(): int
     {
         $defaultKeys = $this->scanForTranslationKeys();
@@ -49,12 +45,13 @@ final class CheckTranslations extends Command
     {
         $keys = $this->extractKeysFromFiles($this->createConfiguredFinder());
         $this->components->info("Found {$keys->count()} unique translatable strings.");
+
         return $keys;
     }
 
     private function createConfiguredFinder(): Finder
     {
-        return (new Finder())
+        return (new Finder)
             ->in([app_path(), resource_path('views')])
             ->name('*.php')
             ->files()
@@ -76,6 +73,7 @@ final class CheckTranslations extends Command
     private function shouldSkipFile(SplFileInfo $file): bool
     {
         $relativePath = str_replace(base_path(), '', $file->getPathname());
+
         return (bool) preg_match('#/(' . implode('|', self::EXCLUDED_DIRECTORIES) . ')/#', $relativePath);
     }
 
@@ -86,12 +84,14 @@ final class CheckTranslations extends Command
     {
         $type = $this->determineFileType($file);
         $keys = $this->scanFileForKeys($file);
+
         return array_map(fn (string $key) => ['key' => $key, 'type' => $type], $keys);
     }
 
     private function determineFileType(SplFileInfo $file): string
     {
         $path = $file->getPathname();
+
         return match (true) {
             str_contains($path, 'app/Mail'), str_contains($path, 'resources/views/emails') => 'Mailable',
             str_contains($path, 'app/Http/Controllers') => 'Controller',
@@ -110,9 +110,11 @@ final class CheckTranslations extends Command
         $content = file_get_contents($file->getRealPath());
         if ($content === false) {
             $this->components->error("Failed to read file: {$file->getPathname()}");
+
             return [];
         }
         preg_match_all('/\b(?:__|trans|trans_choice|@lang)\s*\(\s*[\'"](.+?)[\'"]\s*[\),]/', $content, $matches);
+
         return $matches[1] ?? [];
     }
 
@@ -123,14 +125,14 @@ final class CheckTranslations extends Command
     {
         return collect(File::glob(lang_path('*.json')))
             ->mapWithKeys(fn (string $file) => [
-                pathinfo($file, PATHINFO_FILENAME) => json_decode(File::get($file), true, 512, JSON_THROW_ON_ERROR) ?? []
+                pathinfo($file, PATHINFO_FILENAME) => json_decode(File::get($file), true, 512, JSON_THROW_ON_ERROR) ?? [],
             ])
             ->all();
     }
 
     /**
-     * @param Collection<int, TranslationKey> $defaultKeys
-     * @param array<string, array<string, string>> $languageFiles
+     * @param  Collection<int, TranslationKey>  $defaultKeys
+     * @param  array<string, array<string, string>>  $languageFiles
      */
     private function compareTranslations(Collection $defaultKeys, array $languageFiles): void
     {
@@ -142,8 +144,8 @@ final class CheckTranslations extends Command
     }
 
     /**
-     * @param array<string, string> $translations
-     * @param Collection<int, TranslationKey> $defaultKeys
+     * @param  array<string, string>  $translations
+     * @param  Collection<int, TranslationKey>  $defaultKeys
      */
     private function processLanguage(string $language, array $translations, Collection $defaultKeys): int
     {
@@ -161,7 +163,7 @@ final class CheckTranslations extends Command
     }
 
     /**
-     * @param Collection<int, TranslationKey> $missingTranslations
+     * @param  Collection<int, TranslationKey>  $missingTranslations
      */
     private function outputMissingByType(Collection $missingTranslations): void
     {
@@ -170,7 +172,7 @@ final class CheckTranslations extends Command
             ->each(function (Collection $translations, string $type) {
                 $this->components->twoColumnDetail($type, "{$translations->count()} missing");
                 if ($this->option('show-details')) {
-                    $translations->each(fn(array $item) => $this->components->bulletList([$item['key']]));
+                    $translations->each(fn (array $item) => $this->components->bulletList([$item['key']]));
                 }
             });
     }
@@ -178,10 +180,10 @@ final class CheckTranslations extends Command
     private function outputSummary(int $totalStrings, int $languageCount, int $totalMissing): void
     {
         $this->newLine();
-        $this->components->info("Summary:");
-        $this->components->twoColumnDetail("Total strings", (string) $totalStrings);
-        $this->components->twoColumnDetail("Languages checked", (string) $languageCount);
-        $this->components->twoColumnDetail("Total missing", (string) $totalMissing);
+        $this->components->info('Summary:');
+        $this->components->twoColumnDetail('Total strings', (string) $totalStrings);
+        $this->components->twoColumnDetail('Languages checked', (string) $languageCount);
+        $this->components->twoColumnDetail('Total missing', (string) $totalMissing);
 
         if ($totalMissing === 0) {
             $this->components->info('All translations are up to date.');
