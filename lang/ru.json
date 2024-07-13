@@ -341,5 +341,13 @@
     "System": "Система",
     "The username has been updated to \":username\".": "Имя пользователя было обновлено на \":username\".",
     "Local": "локальный",
-    "Custom S3": "пользовательский S3"
+    "Custom S3": "пользовательский S3",
+    "Backup Details": "Детали резервного копирования",
+    "Details": "Детали",
+    "Configuration": "Конфигурация",
+    "Backup Info": "Информация о резервном копировании",
+    "Schedule": "Расписание",
+    "Next": "Далее",
+    "Previous": "Назад",
+    "Generate SSH Keys": "GСоздать SSH-ключи"
 }

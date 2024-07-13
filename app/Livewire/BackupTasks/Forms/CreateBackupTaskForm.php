@@ -44,6 +44,8 @@ class CreateBackupTaskForm extends Component
     public bool $useIsolatedCredentials = false;
     public ?string $isolatedUsername = null;
     public ?string $isolatedPassword = null;
+    public int $currentStep = 1;
+    public int $totalSteps = 5;
 
     /** @var Collection<int, RemoteServer>|null */
     public ?Collection $remoteServers;
@@ -57,12 +59,44 @@ class CreateBackupTaskForm extends Component
     /** @var array<int>|null */
     public ?array $selectedTags = [];
 
+    /** @var array<string, string> */
+    protected array $validationAttributes = [
+        'label' => 'Label',
+        'description' => 'Description',
+        'remoteServerId' => 'Remote Server',
+        'backupType' => 'Backup Type',
+        'backupDestinationId' => 'Backup Destination',
+        'backupsToKeep' => 'Maximum Backups to Keep',
+        'sourcePath' => 'Path of Directory on Remote Server to Backup',
+        'databaseName' => 'Database Name',
+        'excludedDatabaseTables' => 'Excluded Database Tables',
+        'appendedFileName' => 'Additional Filename Text',
+        'storePath' => 'Backup Destination Directory',
+        'frequency' => 'Backup Frequency',
+        'timeToRun' => 'Time to Backup',
+        'cronExpression' => 'Cron Expression',
+        'notifyEmail' => 'Email Address',
+        'notifyDiscordWebhook' => 'Discord Webhook',
+        'notifySlackWebhook' => 'Slack Webhook',
+    ];
+
     public function mount(): void
     {
         $this->initializeDefaultValues();
         $this->initializeBackupTimes();
         $this->updatedBackupType();
         $this->updatedUseCustomCron();
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate($this->getStepRules(), $this->messages());
+        $this->currentStep = min($this->currentStep + 1, $this->totalSteps);
+    }
+
+    public function previousStep(): void
+    {
+        $this->currentStep = max($this->currentStep - 1, 1);
     }
 
     public function updatedUseCustomCron(): void
@@ -122,6 +156,69 @@ class CreateBackupTaskForm extends Component
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        $baseRules = [
+            'isolatedUsername' => ['nullable', 'string'],
+            'isolatedPassword' => ['nullable', 'string'],
+            'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
+            'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
+            'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
+            'notifyEmail' => ['nullable', 'email'],
+            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
+            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
+            'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
+            'backupType' => ['required', 'string', 'in:files,database'],
+            'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
+            'label' => ['required', 'string'],
+            'description' => ['nullable', 'string', 'max:100'],
+            'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
+            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
+            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
+            'frequency' => ['required', 'string', 'in:daily,weekly'],
+            'timeToRun' => [
+                'string',
+                'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/',
+                'required_unless:useCustomCron,true',
+            ],
+            'cronExpression' => [
+                'nullable',
+                'string',
+                'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/',
+                'required_if:useCustomCron,true',
+            ],
+        ];
+
+        if ($this->backupType === BackupTask::TYPE_FILES) {
+            $baseRules['sourcePath'] = ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'];
+        }
+
+        if ($this->remoteServerId !== null) {
+            $baseRules['timeToRun'][] = new UniqueScheduledTimePerRemoteServer($this->remoteServerId);
+        }
+
+        return $baseRules;
+    }
+
+    public function updatedRemoteServerId(?int $value): void
+    {
+
+        if ($this->remoteServerId !== null && $this->timeToRun !== null) {
+            $conflictingTask = BackupTask::where('remote_server_id', $this->remoteServerId)
+                ->where('time_to_run_at', $this->timeToRun)
+                ->first();
+
+            if ($conflictingTask) {
+                $this->addError('timeToRun', 'The scheduled time for this remote server is already taken. Please choose a different time.');
+            } else {
+                $this->resetErrorBag('timeToRun');
+            }
+        }
+    }
+
     private function initializeDefaultValues(): void
     {
         $user = Auth::user();
@@ -158,50 +255,6 @@ class CreateBackupTaskForm extends Component
             return;
         }
         $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function rules(): array
-    {
-        $baseRules = [
-            'isolatedUsername' => ['nullable', 'string'],
-            'isolatedPassword' => ['nullable', 'string'],
-            'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
-            'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
-            'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
-            'notifyEmail' => ['nullable', 'email'],
-            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
-            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
-            'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
-            'backupType' => ['required', 'string', 'in:files,database'],
-            'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
-            'label' => ['required', 'string'],
-            'description' => ['nullable', 'string', 'max:100'],
-            'databaseName' => ['nullable', 'string', 'required_if:backupType,database'],
-            'remoteServerId' => ['required', 'int', 'exists:remote_servers,id'],
-            'backupDestinationId' => ['required', 'string', 'exists:backup_destinations,id'],
-            'frequency' => ['required', 'string', 'in:daily,weekly'],
-            'timeToRun' => [
-                'string',
-                'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/',
-                'required_unless:useCustomCron,true',
-                new UniqueScheduledTimePerRemoteServer($this->remoteServerId),
-            ],
-            'cronExpression' => [
-                'nullable',
-                'string',
-                'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/',
-                'required_if:useCustomCron,true',
-            ],
-        ];
-
-        if ($this->backupType === BackupTask::TYPE_FILES) {
-            $baseRules['sourcePath'] = ['required', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'];
-        }
-
-        return $baseRules;
     }
 
     /**
@@ -268,5 +321,22 @@ class CreateBackupTaskForm extends Component
             'isolated_username' => $this->isolatedUsername,
             'isolated_password' => $this->isolatedPassword ? Crypt::encryptString($this->isolatedPassword) : null,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getStepRules(): array
+    {
+        $allRules = $this->rules();
+
+        return match ($this->currentStep) {
+            1 => array_intersect_key($allRules, array_flip(['label', 'description'])),
+            2 => array_intersect_key($allRules, array_flip(['remoteServerId', 'backupType', 'backupDestinationId', 'backupsToKeep'])),
+            3 => array_intersect_key($allRules, array_flip(['sourcePath', 'databaseName', 'excludedDatabaseTables', 'appendedFileName', 'storePath'])),
+            4 => array_intersect_key($allRules, array_flip(['frequency', 'timeToRun', 'cronExpression'])),
+            5 => array_intersect_key($allRules, array_flip(['notifyEmail', 'notifyDiscordWebhook', 'notifySlackWebhook', 'selectedTags'])),
+            default => [],
+        };
     }
 }

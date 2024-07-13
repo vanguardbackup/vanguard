@@ -341,5 +341,14 @@
     "System": "系统",
     "The username has been updated to \":username\".": "И用户名已更新为 \":username\".",
     "Local": "本地",
-    "Custom S3": "自定义 S3"
+    "Custom S3": "自定义 S3",
+    "Backup Details": "备份详情",
+    "Details": "详情",
+    "Configuration": "配置",
+    "Backup Info": "备份信息",
+    "Schedule": "计划",
+    "Next": "下一步",
+    "Previous": "上一步",
+    "Generate SSH Keys": "生成SSH密钥"
+
 }

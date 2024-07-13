@@ -21,7 +21,10 @@ beforeEach(function (): void {
 });
 
 test('form is rendered', function (): void {
-    Livewire::test(CreateBackupTaskForm::class)->assertStatus(200);
+    Livewire::test(CreateBackupTaskForm::class)
+        ->assertSet('currentStep', 1)
+        ->assertSet('totalSteps', 5)
+        ->assertStatus(200);
 });
 
 test('users can create backup tasks', function (): void {
@@ -241,4 +244,16 @@ test('users cannot add a tag that does not exist', function (): void {
         ->set('selectedTags', [999])
         ->call('submit')
         ->assertHasErrors('selectedTags');
+});
+
+test('validation is performed at each step', function (): void {
+    Livewire::test(CreateBackupTaskForm::class)
+        ->set('currentStep', 1)
+        ->call('nextStep')
+        ->assertHasErrors(['label' => 'required'])
+        ->set('label', 'Test Backup Task')
+        ->call('nextStep')
+        ->assertSet('currentStep', 2)
+        ->call('nextStep')
+        ->assertHasErrors(['remoteServerId' => 'required', 'backupDestinationId' => 'required']);
 });

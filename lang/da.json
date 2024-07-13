@@ -341,5 +341,13 @@
     "System": "System",
     "The username has been updated to \":username\".": "Brugernavnet er blevet opdateret til \":username\".",
     "Local": "Lokal",
-    "Custom S3": "Tilpasset S3"
+    "Custom S3": "Tilpasset S3",
+    "Backup Details": "Backup Detaljer",
+    "Details": "Detaljer",
+    "Configuration": "Konfiguration",
+    "Backup Info": "Backup Information",
+    "Schedule": "Tidsplan",
+    "Next": "Næste",
+    "Previous": "Forrige",
+    "Generate SSH Keys": "Generer SSH-nøgler"
 }
