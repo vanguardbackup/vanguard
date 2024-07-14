@@ -39,27 +39,50 @@
 </head>
 <body class="font-sans antialiased">
 @if (!ssh_keys_exist())
-    <div>
-        <div class="mx-auto text-center bg-red-700/85 border-none text-white px-3 py-5 rounded relative"
+    <div x-data="{ copied: false }">
+        <div class="mx-auto text-center bg-red-700/85 border-none text-white px-3 py-2 sm:py-3 rounded relative"
              role="alert">
-            @svg('heroicon-o-exclamation-triangle', 'h-6 w-6 text-inherit inline mr-1')
-            <strong class="font-bold">{{ __('Warning!') }}</strong>
-            <span class="block sm:inline">
-                    {{ __('Please run') }}
-                    <code class="text-sm bg-red-800/60 p-1 mx-1.5 font-medium rounded-lg">
-                       <span id="command">php artisan vanguard:generate-ssh-key</span>
-                      <button title="{{ __('Copy') }}" data-clipboard-target="#command" class="btn" id="copyButton">
-                             <span id="copyIcon" class="inline">
-                                              @svg('heroicon-o-clipboard-document', 'h-4 w-4 mr-1 inline')
-                                        </span>
-                                        <span id="copiedIcon" class="hidden">
-                                            @svg('heroicon-o-clipboard-document-check', 'h-4 w-4 inline mr-1')
-                                        </span>
-                      </button>
-                    </code>
+            <div class="flex flex-col sm:flex-row items-center justify-center sm:space-x-2 space-y-2 sm:space-y-0">
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-inherit')
+                    <strong class="font-bold text-sm">{{ __('Warning!') }}</strong>
+                </div>
+                <p class="text-sm">
+                    <span class="hidden sm:inline">{{ __('Please run') }}</span>
+                    <span class="sm:hidden">{{ __('Please run:') }}</span>
+                </p>
+                <code class="text-xs bg-red-800/60 p-1 sm:px-2 font-medium rounded-lg inline-flex items-center">
+                    <span id="command">php artisan vanguard:generate-ssh-key</span>
+                    <button
+                        title="{{ __('Copy') }}"
+                        x-on:click="
+                        navigator.clipboard.writeText(document.getElementById('command').textContent);
+                        copied = true;
+                        setTimeout(() => copied = false, 2000);
+                    "
+                        class="ml-1 focus:outline-none"
+                    >
+                    <span x-show="!copied">
+                        @svg('heroicon-o-clipboard-document', 'h-3 w-3 sm:h-4 sm:w-4')
+                    </span>
+                        <span x-show="copied" x-cloak>
+                        @svg('heroicon-o-clipboard-document-check', 'h-3 w-3 sm:h-4 sm:w-4')
+                    </span>
+                    </button>
+                </code>
+                <p class="text-sm hidden sm:block">
                     {{ __('to create your SSH key.') }}
-                </span>
-            @livewire('other.generate-ssh-keys-button')
+                </p>
+                <div class="sm:hidden text-sm">
+                    {{ __('to create your SSH key.') }}
+                </div>
+                <div class="sm:hidden">
+                    @livewire('other.generate-ssh-keys-button')
+                </div>
+            </div>
+            <div class="hidden sm:block mt-2">
+                @livewire('other.generate-ssh-keys-button')
+            </div>
         </div>
     </div>
 @endif
