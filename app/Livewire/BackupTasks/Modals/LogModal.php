@@ -6,6 +6,7 @@ namespace App\Livewire\BackupTasks\Modals;
 
 use App\Models\BackupTask;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -16,14 +17,19 @@ class LogModal extends Component
     public bool $isStreaming = false;
     public bool $isLoading = true;
 
-    public function mount($backupTask): void
+    public function mount(BackupTask|int $backupTask): void
     {
-        $this->backupTaskId = $backupTask instanceof BackupTask ? $backupTask->id : $backupTask;
+        $this->backupTaskId = $backupTask instanceof BackupTask ? $backupTask->getAttribute('id') : $backupTask;
         $this->loadLatestLog();
     }
 
+    /**
+     * Handle the stream event.
+     *
+     * @param  array{logOutput: string}  $event
+     */
     #[On('echo:backup-task-log.{backupTaskId},StreamBackupTaskLogEvent')]
-    public function handleStreamEvent($event): void
+    public function handleStreamEvent(array $event): void
     {
         Log::debug('LogModal: Received StreamBackupTaskLogEvent', ['event' => $event, 'componentId' => $this->getId()]);
 
@@ -37,7 +43,7 @@ class LogModal extends Component
         $this->loadLatestLog();
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.backup-tasks.modals.log-modal', [
             'backupTask' => BackupTask::find($this->backupTaskId),
