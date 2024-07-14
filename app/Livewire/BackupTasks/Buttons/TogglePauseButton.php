@@ -22,6 +22,7 @@ class TogglePauseButton extends Component
     {
         return [
             "task-button-clicked-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
+            "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'refreshSelf',
         ];
     }
 
