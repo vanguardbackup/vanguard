@@ -19,7 +19,7 @@ class IndexTable extends Component
         $backupTasks = BackupTask::where('user_id', Auth::id())
             ->with(['remoteServer', 'backupDestination'])
             ->withAggregate('latestLog', 'created_at')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate(10, pageName: 'backup-tasks');
 
         return view('livewire.backup-tasks.tables.index-table', ['backupTasks' => $backupTasks]);

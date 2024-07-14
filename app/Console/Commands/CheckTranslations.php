@@ -64,8 +64,8 @@ final class CheckTranslations extends Command
     private function extractKeysFromFiles(Finder $finder): Collection
     {
         return collect($finder)
-            ->reject(fn (SplFileInfo $file) => $this->shouldSkipFile($file))
-            ->flatMap(fn (SplFileInfo $file) => $this->getKeysFromFile($file))
+            ->reject(fn (SplFileInfo $file): bool => $this->shouldSkipFile($file))
+            ->flatMap(fn (SplFileInfo $file): array => $this->getKeysFromFile($file))
             ->unique('key')
             ->values();
     }
@@ -85,7 +85,7 @@ final class CheckTranslations extends Command
         $type = $this->determineFileType($file);
         $keys = $this->scanFileForKeys($file);
 
-        return array_map(fn (string $key) => ['key' => $key, 'type' => $type], $keys);
+        return array_map(fn (string $key): array => ['key' => $key, 'type' => $type], $keys);
     }
 
     private function determineFileType(SplFileInfo $file): string
@@ -137,7 +137,7 @@ final class CheckTranslations extends Command
     private function compareTranslations(Collection $defaultKeys, array $languageFiles): void
     {
         $totalMissing = collect($languageFiles)
-            ->map(fn (array $translations, string $language) => $this->processLanguage($language, $translations, $defaultKeys))
+            ->map(fn (array $translations, string $language): int => $this->processLanguage($language, $translations, $defaultKeys))
             ->sum();
 
         $this->outputSummary($defaultKeys->count(), count($languageFiles), $totalMissing);
@@ -169,7 +169,7 @@ final class CheckTranslations extends Command
     {
         $missingTranslations
             ->groupBy('type')
-            ->each(function (Collection $translations, string $type) {
+            ->each(function (Collection $translations, string $type): void {
                 $this->components->twoColumnDetail($type, "{$translations->count()} missing");
                 if ($this->option('show-details')) {
                     $translations->each(fn (array $item) => $this->components->bulletList([$item['key']]));

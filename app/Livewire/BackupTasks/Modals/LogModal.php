@@ -7,106 +7,58 @@ namespace App\Livewire\BackupTasks\Modals;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class LogModal extends Component
 {
-    public BackupTask $backupTask;
+    public int $backupTaskId;
+    public ?string $logOutput = null;
+    public bool $isStreaming = false;
+    public bool $isLoading = true;
 
-    public ?BackupTaskLog $backupTaskLog = null;
-
-    public string $logOutput = '';
-
-    public bool $isWaiting = true;
-
-    /**
-     * @var array<string>
-     */
-    protected $listeners = [
-        'refreshSelf',
-        'updateLogOutput',
-    ];
-
-    public function mount(BackupTask $backupTask): void
+    public function mount($backupTask): void
     {
-        $this->backupTask = $backupTask->fresh();
-        $this->resetLog();
+        $this->backupTaskId = $backupTask instanceof BackupTask ? $backupTask->id : $backupTask;
+        $this->loadLatestLog();
     }
 
-    public function boot(): void
+    #[On('echo:backup-task-log.{backupTaskId},StreamBackupTaskLogEvent')]
+    public function handleStreamEvent($event): void
     {
-        $this->resetLog();
+        Log::debug('LogModal: Received StreamBackupTaskLogEvent', ['event' => $event, 'componentId' => $this->getId()]);
+
+        $this->logOutput = $event['logOutput'];
+        $this->isStreaming = true;
+        $this->isLoading = false;
     }
 
-    /**
-     * Update the log output with the new data from the event.
-     *
-     * @param  array<string, string>  $event
-     */
-    public function updateLogOutput(array $event): void
+    public function refresh(): void
     {
-        Log::debug('Received the StreamBackupTaskLogEvent event. Updating log output.', ['event' => $event]);
-
-        $newLogOutput = $event['logOutput'];
-
-        // Avoid duplicate entries by checking if the new log output is already present in the current log output
-        if (! str_contains($this->logOutput, $newLogOutput)) {
-            // Append the new log output with a newline character if logOutput is not empty
-            $this->logOutput .= ($this->logOutput !== '' && $this->logOutput !== '0' ? "\n" : '') . $newLogOutput;
-        }
-
-        Log::debug('Updated streamed log output:', ['logOutput' => $this->logOutput]);
-
-        $this->isWaiting = false;
-
-        $this->dispatch('$refresh');
-        $this->dispatch('log-modal-updated-' . $this->backupTask->getAttribute('id'));
-    }
-
-    public function refreshSelf(): void
-    {
-        Log::debug('A refresh event was dispatched from the parent component.', [
-            'backupTaskId' => $this->backupTask->getAttribute('id'),
-            'backupTaskLogId' => $this->backupTaskLog?->getAttribute('id'),
-        ]);
-
-        $this->resetLog();
-    }
-
-    public function render(): View
-    {
-        return view('livewire.backup-tasks.modals.log-modal');
-    }
-
-    /**
-     * Get the listeners array.
-     *
-     * @return array<string, string>
-     */
-    protected function getListeners(): array
-    {
-        return [
-            "echo:backup-task-log.{$this->backupTask->getAttribute('id')},StreamBackupTaskLogEvent" => 'updateLogOutput',
-            "backup-task-item-updated-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
-        ];
-    }
-
-    private function resetLog(): void
-    {
-        $this->logOutput = '';
-        $this->isWaiting = true;
-
         $this->loadLatestLog();
     }
 
     private function loadLatestLog(): void
     {
-        $latestLog = $this->backupTask->logs()->latest()->first();
+        $this->isLoading = true;
+        $backupTask = BackupTask::find($this->backupTaskId);
 
-        if ($this->backupTask->isReady()) {
-            $this->isWaiting = false;
-            $this->logOutput = $latestLog?->output ?? __('Something went wrong while trying to fetch the log output.');
+        if ($backupTask) {
+            $latestLog = $backupTask->logs()->latest()->first();
+            $this->logOutput = $latestLog?->output ?? __('No log output available.');
+            $this->isStreaming = $backupTask->status === BackupTask::STATUS_RUNNING;
+        } else {
+            $this->logOutput = __('Backup task not found.');
+            $this->isStreaming = false;
         }
+
+        $this->isLoading = false;
+    }
+
+    public function render()
+    {
+        return view('livewire.backup-tasks.modals.log-modal', [
+            'backupTask' => BackupTask::find($this->backupTaskId),
+        ]);
     }
 }

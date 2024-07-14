@@ -75,22 +75,31 @@
     <x-table.body-item class="col-span-3">
         <div class="flex justify-start space-x-2">
             <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
-            @if ($backupTaskLog)
-                <x-secondary-button x-data=""
-                                    x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
-                                    iconOnly title="{{ __('Click to view this log') }}">
+            @if ($backupTask->logs()->exists())
+                <x-secondary-button
+                    x-data=""
+                    x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
+                    iconOnly
+                    title="{{ __('Click to view this log') }}"
+                >
                     @svg('heroicon-o-document-text', 'h-4 w-4')
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
             @else
-                <x-secondary-button class="bg-opacity-50 cursor-not-allowed" disabled iconOnly
-                                    title="{{ __('No log available') }}">
+                <x-secondary-button
+                    class="bg-opacity-50 cursor-not-allowed"
+                    disabled
+                    iconOnly
+                    title="{{ __('No log available') }}"
+                >
                     @svg('heroicon-o-document-text', 'h-4 w-4')
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
             @endif
-            <livewire:backup-tasks.buttons.toggle-pause-button :backupTask="$backupTask"
-                                                       :key="'toggle-pause-button-' . $backupTask->id"/>
+            <livewire:backup-tasks.buttons.toggle-pause-button
+                :backupTask="$backupTask"
+                :key="'toggle-pause-button-' . $backupTask->id"
+            />
             <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
                 <x-secondary-button iconOnly>
                     <span class="sr-only">{{ __('Update Backup Task') }}</span>
@@ -99,9 +108,7 @@
             </a>
         </div>
     </x-table.body-item>
-    @if ($backupTaskLog)
-        <livewire:backup-tasks.modals.log-modal :$backupTask :$backupTaskLog :key="'show-log-modal-' . $backupTask->id"/>
-    @endif
+    <livewire:backup-tasks.modals.log-modal :backupTask="$backupTask" :key="'show-log-modal-' . $backupTask->id"/>
 </div>
 
 @if ($backupTask->tags()->exists())
