@@ -24,6 +24,7 @@ class RunTaskButton extends Component
             "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'refreshSelf',
             "update-run-button-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
             "pause-button-clicked-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
+            'refresh-backup-tasks-table' => 'refreshSelf', // Refresh everything!
         ];
     }
 
