@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Livewire\BackupTasks\Modals;
 
 use App\Models\BackupTask;
-use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Log;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class LogModal extends Component
 {
@@ -38,6 +37,13 @@ class LogModal extends Component
         $this->loadLatestLog();
     }
 
+    public function render()
+    {
+        return view('livewire.backup-tasks.modals.log-modal', [
+            'backupTask' => BackupTask::find($this->backupTaskId),
+        ]);
+    }
+
     private function loadLatestLog(): void
     {
         $this->isLoading = true;
@@ -53,12 +59,5 @@ class LogModal extends Component
         }
 
         $this->isLoading = false;
-    }
-
-    public function render()
-    {
-        return view('livewire.backup-tasks.modals.log-modal', [
-            'backupTask' => BackupTask::find($this->backupTaskId),
-        ]);
     }
 }

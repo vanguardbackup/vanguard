@@ -19,6 +19,7 @@ final class CheckTranslations extends Command
      * @var array<string>
      */
     private const array EXCLUDED_DIRECTORIES = ['errors', 'vendor', 'auth', 'mail'];
+
     /**
      * @var string
      */

@@ -4,7 +4,7 @@
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                 {{ __('Viewing latest log for ":label".', ['label' => $backupTask?->label ?? __('Unknown')]) }}
             </h2>
-            @if(app()->isLocal())
+            @if (app()->isLocal())
             <!-- Debug Info -->
             <div class="mt-4 p-2 bg-gray-100 text-gray-700 text-xs">
                 <p>Component ID: {{ $this->getId() }}</p>
