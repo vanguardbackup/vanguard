@@ -13,45 +13,65 @@
 
                     <!-- Steps Progress -->
                     <div class="w-full py-4">
-                        <div class="flex justify-between">
-                            @php
-                                $steps = [
-                                    ['label' => __('Details'), 'icon' => 'heroicon-o-document-text'],
-                                    ['label' => __('Configuration'), 'icon' => 'heroicon-o-cog'],
-                                    ['label' => __('Backup Info'), 'icon' => 'heroicon-o-circle-stack'],
-                                    ['label' => __('Schedule'), 'icon' => 'heroicon-o-calendar'],
-                                    ['label' => __('Notifications'), 'icon' => 'heroicon-o-bell']
-                                ];
-                            @endphp
+                        @php
+                            $steps = [
+                                ['label' => __('Details'), 'icon' => 'heroicon-o-document-text'],
+                                ['label' => __('Configuration'), 'icon' => 'heroicon-o-cog'],
+                                ['label' => __('Backup Info'), 'icon' => 'heroicon-o-circle-stack'],
+                                ['label' => __('Schedule'), 'icon' => 'heroicon-o-calendar'],
+                                ['label' => __('Notifications'), 'icon' => 'heroicon-o-bell']
+                            ];
+                        @endphp
 
+                            <!-- Mobile View -->
+                        <div class="sm:hidden">
                             @foreach ($steps as $index => $step)
-                                <div class="flex flex-col items-center">
-                                    <div class="mb-2 flex items-center justify-center w-10 h-10 rounded-full
+                                <div class="flex items-center mb-4">
+                                    <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full
                     {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-50' : 'bg-gray-300 dark:bg-gray-700') }}
                     transition-all duration-300 ease-in-out">
                                         @if ($index < $currentStep - 1)
-                                            @svg('heroicon-o-check-circle', 'w-6 h-6 text-white')
+                                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-white')
                                         @else
-                                            @svg($step['icon'], 'w-6 h-6 ' . ($index <= $currentStep - 1 ? 'text-white
-                                            dark:text-gray-950'
-                                            : 'text-gray-500 dark:text-gray-200'))
+                                            @svg($step['icon'], 'w-5 h-5 ' . ($index <= $currentStep - 1 ? 'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
                                         @endif
                                     </div>
-                                    <div
-                                        class="text-xs font-medium {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
+                                    <div class="ml-4 text-sm font-medium {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
                                         {{ $step['label'] }}
                                     </div>
                                 </div>
                             @endforeach
                         </div>
-                        <div class="mt-4 h-2 flex">
-                            @foreach ($steps as $index => $step)
-                                <div class="flex-1 {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-100' : 'bg-gray-300 dark:bg-gray-600') }}
-                {{ $index === 0 ? 'rounded-l-full' : '' }}
-                {{ $index === count($steps) - 1 ? 'rounded-r-full' : '' }}
-                transition-all duration-300 ease-in-out">
-                                </div>
-                            @endforeach
+
+                        <!-- Desktop View -->
+                        <div class="hidden sm:block">
+                            <div class="flex justify-between">
+                                @foreach ($steps as $index => $step)
+                                    <div class="flex flex-col items-center">
+                                        <div class="mb-2 flex items-center justify-center w-10 h-10 rounded-full
+                        {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-50' : 'bg-gray-300 dark:bg-gray-700') }}
+                        transition-all duration-300 ease-in-out">
+                                            @if ($index < $currentStep - 1)
+                                                @svg('heroicon-o-check-circle', 'w-6 h-6 text-white')
+                                            @else
+                                                @svg($step['icon'], 'w-6 h-6 ' . ($index <= $currentStep - 1 ? 'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
+                                            @endif
+                                        </div>
+                                        <div class="text-xs font-medium {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
+                                            {{ $step['label'] }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="mt-4 h-2 flex">
+                                @foreach ($steps as $index => $step)
+                                    <div class="flex-1 {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-100' : 'bg-gray-300 dark:bg-gray-600') }}
+                    {{ $index === 0 ? 'rounded-l-full' : '' }}
+                    {{ $index === count($steps) - 1 ? 'rounded-r-full' : '' }}
+                    transition-all duration-300 ease-in-out">
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                     <!-- End Steps Progress -->
