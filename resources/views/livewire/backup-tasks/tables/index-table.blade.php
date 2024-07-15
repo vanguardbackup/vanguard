@@ -20,55 +20,40 @@
                 </x-slot>
             </x-no-content>
         @else
-            <x-table.wrapper title="{{ __('Backup Tasks') }}" class="grid-cols-12">
+            <x-table.table-wrapper
+                title="{{ __('Backup Tasks') }}"
+                description="{{ __('An overview of all configured backup tasks along with their current statuses.') }}">
                 <x-slot name="icon">
-                    @svg('heroicon-o-archive-box', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                    <x-heroicon-o-archive-box class="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 </x-slot>
-                <x-slot name="description">
-                    {{ __('An overview of all configured backup tasks along with their current statuses.') }}
-                </x-slot>
-                <x-slot name="header">
-                    <x-table.header-item class="col-span-2">
-                        {{ __('Label') }}
-                    </x-table.header-item>
-                    <x-table.header-item class="col-span-2">
-                        {{ __('Remote Server') }}
-                    </x-table.header-item>
-                    <x-table.header-item class="col-span-2">
-                        {{ __('Backup Destination') }}
-                    </x-table.header-item>
-                    <x-table.header-item class="col-span-1">
-                        {{ __('Status') }}
-                    </x-table.header-item>
-                    <x-table.header-item class="col-span-2">
-                        {{ __('Time') }}
-                    </x-table.header-item>
-                    <x-table.header-item class="col-span-3">
-                        {{ __('Actions') }}
-                    </x-table.header-item>
-                </x-slot>
-                <x-slot name="advancedBody">
+                <x-table.table-header>
+                    <div class="col-span-12 md:col-span-3">{{ __('Task') }}</div>
+                    <div class="col-span-12 md:col-span-3">{{ __('Server & Destination') }}</div>
+                    <div class="col-span-12 md:col-span-4">{{ __('Status & Schedule') }}</div>
+                    <div class="col-span-12 md:col-span-2">{{ __('Actions') }}</div>
+                </x-table.table-header>
+                <x-table.table-body>
                     @foreach ($backupTasks as $backupTask)
-                        <livewire:backup-tasks.tables.index-item :backupTask="$backupTask" :key="'index-item-' . $backupTask->id" />
+                        <livewire:backup-tasks.tables.index-item
+                            :backupTask="$backupTask"
+                            :key="'index-item-' . $backupTask->id"
+                        />
                     @endforeach
-                </x-slot>
-            </x-table.wrapper>
+                </x-table.table-body>
+            </x-table.table-wrapper>
             <div class="mt-4 flex justify-end">
                 {{ $backupTasks->links() }}
             </div>
         @endif
     </div>
-    <script>
-        document.addEventListener('livewire:navigated', function () {
-            let filesType = {!! __('Files Task') !!};
-            let databaseType = {!! __('Database Task') !!};
 
-            tippy('#files-type', {
-                content: filesType,
+    @push('scripts')
+        <script>
+            document.addEventListener('livewire:init', function () {
+                Livewire.on('taskUpdated', taskId => {
+                    Alpine.store('tagsTooltip').refresh(taskId);
+                });
             });
-            tippy('#database-type', {
-                content: databaseType
-            });
-        });
-    </script>
+        </script>
+    @endpush
 </div>

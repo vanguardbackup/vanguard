@@ -19,35 +19,29 @@
             </x-slot>
         </x-no-content>
     @else
-        <x-table.wrapper title="{{ __('Backup Destinations') }}" class="grid-cols-8">
+        <x-table.table-wrapper
+            title="{{ __('Backup Destinations') }}"
+            description="{{ __('A summary of configured backup destinations, where your backups will reside.') }}"
+        >
             <x-slot name="icon">
-                @svg('heroicon-o-globe-europe-africa', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                <x-heroicon-o-globe-europe-africa class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
-            <x-slot name="description">
-                {{ __('A summary of configured backup destinations, where your backups will reside.') }}
-            </x-slot>
-            <x-slot name="header">
-                <x-table.header-item class="col-span-2">
-                    {{ __('Label') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Type') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Connection Status') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Actions') }}
-                </x-table.header-item>
-            </x-slot>
-            <x-slot name="advancedBody">
+            <x-table.table-header>
+                <div class="col-span-3">{{ __('Label') }}</div>
+                <div class="col-span-3">{{ __('Type') }}</div>
+                <div class="col-span-3">{{ __('Connection Status') }}</div>
+                <div class="col-span-3">{{ __('Actions') }}</div>
+            </x-table.table-header>
+            <x-table.table-body>
                 @foreach ($backupDestinations as $backupDestination)
-                    @livewire('backup-destinations.index-item', ['backupDestination' => $backupDestination], key($backupDestination->id))
+                    @livewire('backup-destinations.index-item', ['backupDestination' => $backupDestination],
+                    key($backupDestination->id))
                 @endforeach
-            </x-slot>
-        </x-table.wrapper>
+            </x-table.table-body>
+        </x-table.table-wrapper>
         <div class="mt-4 flex justify-end">
             {{ $backupDestinations->links() }}
         </div>
     @endif
 </div>
+

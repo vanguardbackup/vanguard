@@ -1,122 +1,218 @@
-<div class="grid gap-0 text-center grid-cols-12">
-    <x-table.body-item class="col-span-2 hidden md:block text-left">
-        <div class="justify-start mx-4 space-x-5 hidden md:flex">
-            <div>
-                @if ($backupTask->isFilesType())
-                    <div id="files-type"
-                         class="rounded-full bg-purple-50 dark:bg-purple-950 border border-purple-100 dark:border-purple-900 p-2 overflow-hidden"
-                         title="{{ __('Files Task') }}">
-                        @svg('heroicon-o-document-duplicate', 'h-5 w-5 text-purple-600 dark:text-purple-400')
+<div class="bg-white dark:bg-gray-800 rounded-none transition-all duration-300 overflow-hidden mb-4">
+    <div class="p-3 space-y-4">
+        <!-- Responsive View (Collapsible) -->
+        <div class="md:hidden">
+            <!-- Task Type, Label, and Status - Always visible -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        @if ($backupTask->isFilesType())
+                            <div class="relative group" title="{{ __('Files Task') }}">
+                                <div class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 dark:from-purple-600 dark:to-purple-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
+                                <div class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
+                                    @svg('heroicon-o-document-duplicate', 'h-5 w-5 text-purple-600 dark:text-purple-400')
+                                </div>
+                            </div>
+                        @elseif ($backupTask->isDatabaseType())
+                            <div class="relative group" title="{{ __('Database Task') }}">
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-300 to-cyan-400 dark:from-cyan-600 dark:to-cyan-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
+                                <div class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
+                                    @svg('heroicon-o-circle-stack', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
+                                </div>
+                            </div>
+                        @endif
                     </div>
-                @elseif ($backupTask->isDatabaseType())
-                    <div id="database-type"
-                         class="rounded-full bg-cyan-50 dark:bg-cyan-950 border border-cyan-100 dark:border-cyan-900 p-2 overflow-hidden"
-                         title="{{ __('Database Task') }}">
-                        @svg('heroicon-o-circle-stack', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $backupTask->label }}</h3>
+                        @if ($backupTask->tags()->exists())
+                            <div class="mt-1" x-data x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                    @svg('heroicon-o-tag', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                                    {{ $backupTask->tags->count() }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
-                @endif
-            </div>
-            <div>
-                @if ($backupTask->tags()->exists())
-                    <span id="tags">
-                    @svg('heroicon-o-tag', 'h-5 w-5 text-gray-400 dark:text-gray-600 inline')
-                </span>
-                @endif
-                <span>{{ $backupTask->label }}</span>
-            </div>
-        </div>
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2 hidden md:block">
-        {{ $backupTask->remoteServer->label }}
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2 hidden md:block">
-        {{ $backupTask->backupDestination->label }} ({{ $backupTask->backupDestination->type() }})
-    </x-table.body-item>
-    <x-table.body-item class="col-span-1 font-medium">
-        @if ($backupTask->isPaused())
-            @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-red-600 dark:text-red-400 inline mr-2')
-            <span class="text-red-600 dark:text-red-400">{{ __('Paused') }}</span>
-        @else
-           @if ($backupTask->status === 'ready')
-               {{ __('Ready') }}
-            @else
-               {{ __('Running') }}
-           @endif
-        @endif
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2">
-        <div>
-            <span>
-                {{ __('Scheduled') }}:
-            </span>
-            <span class="text-xs text-gray-600 dark:text-gray-50">
-                @if ($backupTask->isPaused())
-                    {{ __('— N/A') }}
+                </div>
+                <div class="text-sm font-medium">
+                    @if ($backupTask->isPaused())
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+                            @svg('heroicon-o-pause', 'h-3.5 w-3.5 mr-1')
+                            {{ __('Paused') }}
+                        </span>
                     @else
-                    @if ($backupTask->usingCustomCronExpression())
-                        ({{ $backupTask->custom_cron_expression }})
-                    @else
-                        @if ($backupTask->frequency === 'weekly')
-                            {{ __('Weekly') }}
-                        @elseif ($backupTask->frequency === 'daily')
-                            {{ __('Daily') }}
-                        @endif {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
+                            @svg($backupTask->status === 'ready' ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1')
+                            {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
+                        </span>
                     @endif
-                @endif
-            </span>
-        </div>
-        <span>
-            {{ __('Last ran') }}:
-        </span>
-        <span class="text-xs text-gray-600 dark:text-gray-50">
-            {{ $backupTask->lastRunFormatted(Auth::user()) }}
-        </span>
-    </x-table.body-item>
-    <x-table.body-item class="col-span-3">
-        <div class="flex justify-start space-x-2">
-            <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
-            @if ($backupTask->logs()->exists())
+                </div>
+            </div>
+
+            <!-- Server, Destination, and Schedule - Collapsible Responsively -->
+            <div x-data="{ open: false }" class="my-3">
+                <button @click="open = !open" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none">
+                    {{ __('Details') }}
+                    <span x-show="!open">▼</span>
+                    <span x-show="open">▲</span>
+                </button>
+                <div x-show="open" class="mt-2 space-y-2 text-sm">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        <span class="font-medium">{{ __('Server') }}:</span> {{ $backupTask->remoteServer->label }}
+                    </p>
+                    <p class="text-gray-500 dark:text-gray-400">
+                        <span class="font-medium">{{ __('Destination') }}:</span> {{ $backupTask->backupDestination->label }} ({{ $backupTask->backupDestination->type() }})
+                    </p>
+                    <p class="text-gray-500 dark:text-gray-400">
+                        <span class="font-medium">{{ __('Scheduled') }}:</span>
+                        @if ($backupTask->isPaused())
+                            {{ __('N/A') }}
+                        @else
+                            @if ($backupTask->usingCustomCronExpression())
+                                {{ $backupTask->custom_cron_expression }}
+                            @else
+                                {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                            @endif
+                        @endif
+                    </p>
+                    <p class="text-gray-500 dark:text-gray-400">
+                        <span class="font-medium">{{ __('Last ran') }}:</span> {{ $backupTask->lastRunFormatted(Auth::user()) }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions - Always visible, but reorganized for responsive view -->
+            <div class="flex flex-wrap justify-start space-x-2 space-y-2 sm:space-y-0 sm:justify-end">
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
+
                 <x-secondary-button
                     x-data=""
                     x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
                     iconOnly
-                    title="{{ __('Click to view this log') }}"
+                    :disabled="!$backupTask->logs()->exists()"
+                    :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
                 >
                     @svg('heroicon-o-document-text', 'h-4 w-4')
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
-            @else
-                <x-secondary-button
-                    class="bg-opacity-50 cursor-not-allowed"
-                    disabled
-                    iconOnly
-                    title="{{ __('No log available') }}"
-                >
-                    @svg('heroicon-o-document-text', 'h-4 w-4')
-                    <span class="sr-only">{{ __('View Log') }}</span>
-                </x-secondary-button>
-            @endif
-            <livewire:backup-tasks.buttons.toggle-pause-button
-                :backupTask="$backupTask"
-                :key="'toggle-pause-button-' . $backupTask->id"
-            />
-            <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
-                <x-secondary-button iconOnly>
-                    <span class="sr-only">{{ __('Update Backup Task') }}</span>
-                    <x-heroicon-o-pencil-square class="w-4 h-4"/>
-                </x-secondary-button>
-            </a>
+
+                <livewire:backup-tasks.buttons.toggle-pause-button
+                    :backupTask="$backupTask"
+                    :key="'toggle-pause-button-' . $backupTask->id"
+                />
+
+                <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
+                    <x-secondary-button iconOnly>
+                        <span class="sr-only">{{ __('Update Backup Task') }}</span>
+                        <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                    </x-secondary-button>
+                </a>
+            </div>
         </div>
-    </x-table.body-item>
+
+        <!-- Large View (Grid) -->
+        <div class="hidden md:grid grid-cols-12 gap-4 items-center">
+            <!-- Task Type and Label -->
+            <div class="col-span-12 md:col-span-3 flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                    @if ($backupTask->isFilesType())
+                        <div class="relative group" title="{{ __('Files Task') }}">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 dark:from-purple-600 dark:to-purple-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
+                            <div class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
+                                @svg('heroicon-o-document-duplicate', 'h-5 w-5 text-purple-600 dark:text-purple-400')
+                            </div>
+                        </div>
+                    @elseif ($backupTask->isDatabaseType())
+                        <div class="relative group" title="{{ __('Database Task') }}">
+                            <div class="absolute inset-0 bg-gradient-to-br from-cyan-300 to-cyan-400 dark:from-cyan-600 dark:to-cyan-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
+                            <div class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
+                                @svg('heroicon-o-circle-stack', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $backupTask->label }}</h3>
+                    @if ($backupTask->tags()->exists())
+                        <div class="mt-1" x-data x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                @svg('heroicon-o-tag', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                                {{ $backupTask->tags->count() }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Server and Destination -->
+            <div class="col-span-12 md:col-span-3 text-sm">
+                <p class="text-gray-600 dark:text-gray-300">{{ $backupTask->remoteServer->label }}</p>
+                <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">{{ $backupTask->backupDestination->label }} ({{ $backupTask->backupDestination->type() }})</p>
+            </div>
+
+            <!-- Status -->
+            <div class="col-span-6 md:col-span-2 text-sm font-medium">
+                @if ($backupTask->isPaused())
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+                        @svg('heroicon-o-pause', 'h-3.5 w-3.5 mr-1')
+                        {{ __('Paused') }}
+                    </span>
+                @else
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
+                        @svg($backupTask->status === 'ready' ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1')
+                        {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
+                    </span>
+                @endif
+            </div>
+
+            <!-- Schedule -->
+            <div class="col-span-6 md:col-span-2 text-xs text-gray-500 dark:text-gray-400">
+                <p>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('Scheduled') }}:</span>
+                    @if ($backupTask->isPaused())
+                        {{ __('N/A') }}
+                    @else
+                        @if ($backupTask->usingCustomCronExpression())
+                            {{ $backupTask->custom_cron_expression }}
+                        @else
+                            {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                        @endif
+                    @endif
+                </p>
+                <p class="mt-1">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('Last ran') }}:</span>
+                    {{ $backupTask->lastRunFormatted(Auth::user()) }}
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-span-12 md:col-span-2 flex justify-end space-x-2">
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
+
+                <x-secondary-button
+                    x-data=""
+                    x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
+                    iconOnly
+                    :disabled="!$backupTask->logs()->exists()"
+                    :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
+                >
+                    @svg('heroicon-o-document-text', 'h-4 w-4')
+                    <span class="sr-only">{{ __('View Log') }}</span>
+                </x-secondary-button>
+
+                <livewire:backup-tasks.buttons.toggle-pause-button
+                    :backupTask="$backupTask"
+                    :key="'toggle-pause-button-' . $backupTask->id"
+                />
+
+                <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
+                    <x-secondary-button iconOnly>
+                        <span class="sr-only">{{ __('Update Backup Task') }}</span>
+                        <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                    </x-secondary-button>
+                </a>
+            </div>
+        </div>
+    </div>
     <livewire:backup-tasks.modals.log-modal :backupTask="$backupTask" :key="'show-log-modal-' . $backupTask->id"/>
 </div>
-
-@if ($backupTask->tags()->exists())
-    <script>
-        document.addEventListener('livewire:init', function () {
-            tippy('#tags', {
-                content: 'Has tags: {{ $backupTask->listOfAttachedTagLabels() }}',
-            });
-        });
-    </script>
-@endif

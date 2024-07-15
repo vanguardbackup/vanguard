@@ -227,7 +227,7 @@
                     {{ __('Input the Slack webhook to receive notifications on Slack.') }}
                 </x-input-explain>
             </div>
-            @if (Auth::user()->tags)
+            @if ($availableTags->isNotEmpty())
                 <x-form-section>
                     {{ __('Tags') }}
                 </x-form-section>

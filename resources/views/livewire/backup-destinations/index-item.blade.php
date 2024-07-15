@@ -1,30 +1,45 @@
-<div class="grid gap-0 text-center grid-cols-8">
-    <x-table.body-item class="col-span-2 hidden md:block">
-        {{ $backupDestination->label }}
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2 hidden md:block">
-        {{ $backupDestination->type() }}
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2 hidden md:block">
-        @if ($backupDestination->isReachable())
-            <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-green-600"></div>
-            {{ __('Reachable') }}
-        @elseif ($backupDestination->isUnreachable())
-            <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-red-700"></div>
-            {{ __('Unreachable') }}
-        @elseif ($backupDestination->isChecking())
-            <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-purple-600"></div>
-            {{ __('Checking') }}
-        @else
-            <div class="h-3 w-3 rounded-full inline-flex mr-1 bg-gray-400"></div>
-            {{ __('Unknown') }}
-        @endif
-    </x-table.body-item>
-    <x-table.body-item class="col-span-2">
-        <div class="flex justify-center space-x-2">
+<div>
+    <x-table.table-row>
+        <div class="col-span-12 sm:col-span-3 flex flex-col sm:flex-row sm:items-center">
+            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $backupDestination->label }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 sm:hidden">
+                {{ $backupDestination->type() }}
+            </p>
+        </div>
+
+        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0 hidden sm:block">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+            {{ $backupDestination->type() }}
+        </span>
+        </div>
+
+        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
+            @if ($backupDestination->isReachable())
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                <div class="h-2 w-2 rounded-full bg-green-500 mr-1.5"></div>
+                {{ __('Reachable') }}
+            </span>
+            @elseif ($backupDestination->isUnreachable())
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+                <div class="h-2 w-2 rounded-full bg-red-500 mr-1.5"></div>
+                {{ __('Unreachable') }}
+            </span>
+            @elseif ($backupDestination->isChecking())
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
+                <div class="h-2 w-2 rounded-full bg-purple-500 mr-1.5"></div>
+                {{ __('Checking') }}
+            </span>
+            @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                <div class="h-2 w-2 rounded-full bg-gray-500 mr-1.5"></div>
+                {{ __('Unknown') }}
+            </span>
+            @endif
+        </div>
+
+        <div class="col-span-12 sm:col-span-3 mt-4 sm:mt-0 flex justify-start sm:justify-center space-x-2">
             @if ($backupDestination->type !== \App\Models\BackupDestination::TYPE_LOCAL)
-            @livewire('backup-destinations.check-connection-button', ['backupDestination' => $backupDestination],
-            key($backupDestination->id))
+                @livewire('backup-destinations.check-connection-button', ['backupDestination' => $backupDestination], key($backupDestination->id))
             @endif
             <a href="{{ route('backup-destinations.edit', $backupDestination) }}" wire:navigate>
                 <x-secondary-button iconOnly>
@@ -33,5 +48,5 @@
                 </x-secondary-button>
             </a>
         </div>
-    </x-table.body-item>
+    </x-table.table-row>
 </div>

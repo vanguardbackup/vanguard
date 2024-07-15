@@ -10,43 +10,68 @@
                 {{ __('Overview') }}
             </h2>
         </x-slot>
-        <div class="pt-4 pb-8 px-4 mx-auto max-w-full sm:max-w-6xl">
-            <div class="mb-4">
-                <div class="flex flex-col sm:flex-row items-center">
-                    <div class="flex shrink-0">
-                        <img class="h-14 w-14 rounded-full border border-gray-200 dark:border-gray-700" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}" />
-                        <div class="ml-3 mt-3 sm:mt-0">
-                            <div class="font-semibold text-2xl dark:text-gray-100">
-                                {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
+        <div class="py-6 px-4 mx-auto max-w-full sm:max-w-6xl">
+            <div class="mb-6">
+                <div class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                    <img class="h-16 w-16 rounded-full border-2 border-primary-200 dark:border-primary-700" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}" />
+                    <div class="ml-4 mt-4 sm:mt-0 text-center sm:text-left">
+                        <h3 class="font-semibold text-2xl text-gray-900 dark:text-gray-100">
+                            {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">
+                            {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                    <div class="px-6 py-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
+                                <svg class="h-6 w-6 text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                             </div>
-                            <p class="text-gray-700 dark:text-gray-300 mt-0.5">
-                                {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
-                            </p>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {{ __('Monthly Backup Task Activity') }}
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                    {{ __('Overview of backup tasks performed each month') }}.
+                                </p>
+                            </div>
                         </div>
                     </div>
+                    <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+                        <canvas id="totalBackupsPerMonth" width="auto" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                    <div class="px-6 py-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
+                                <svg class="h-6 w-6 text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {{ __('Backup Tasks Categorized by Type') }}
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                    {{ __('Distribution of backup tasks across different types') }}.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+                        <canvas id="backupTasksByType" width="auto" height="200"></canvas>
+                    </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-lg overflow-hidden border border-gray-950/5 p-5">
-                    <div class="flex items-center mb-4">
-                        @svg('heroicon-o-clock', 'h-7 w-7 text-gray-800 dark:text-gray-200 mr-2.5')
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ __('Monthly Backup Task Activity') }}
-                        </h3>
-                    </div>
-                    <canvas id="totalBackupsPerMonth" width="auto"></canvas>
-                </div>
-                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-lg overflow-hidden border border-gray-950/5 p-5">
-                    <div class="flex items-center mb-4">
-                        @svg('heroicon-o-swatch', 'h-7 w-7 text-gray-800 dark:text-gray-200 mr-2.5')
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ __('Backup Tasks Categorized by Type') }}
-                        </h3>
-                    </div>
-                    <canvas id="backupTasksByType" width="auto"></canvas>
-                </div>
-            </div>
-            <div class="my-3">
+            <div class="mt-6">
                 @livewire('dashboard.upcoming-backup-tasks')
             </div>
         </div>

@@ -19,43 +19,47 @@
             </x-slot>
         </x-no-content>
     @else
-        <x-table.wrapper title="{{ __('Upcoming Backup Tasks') }}" class="grid-cols-8">
+        <x-table.table-wrapper
+            title="{{ __('Upcoming Backup Tasks') }}"
+            description="{{ __('Scheduled backup tasks that are set to run soon.') }}">
             <x-slot name="icon">
-                @svg('heroicon-o-calendar', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                <x-heroicon-o-calendar class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
-            <x-slot name="description">
-                {{ __('Scheduled backup tasks that are set to run soon.') }}
-            </x-slot>
-            <x-slot name="header">
-                <x-table.header-item class="col-span-2">
-                    {{ __('Task Label') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Remote Server') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Task Type') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Scheduled for') }}
-                </x-table.header-item>
-            </x-slot>
-            <x-slot name="body">
+            <x-table.table-header>
+                <div class="col-span-3">{{ __('Task Label') }}</div>
+                <div class="col-span-3">{{ __('Remote Server') }}</div>
+                <div class="col-span-3">{{ __('Task Type') }}</div>
+                <div class="col-span-3">{{ __('Scheduled for') }}</div>
+            </x-table.table-header>
+            <x-table.table-body>
                 @foreach ($scheduledBackupTasks as $scheduledBackupTask)
-                    <x-table.body-item class="col-span-2 hidden md:block">
-                        {{ $scheduledBackupTask->task->label }}
-                    </x-table.body-item>
-                    <x-table.body-item class="col-span-2 hidden md:block">
-                        {{ $scheduledBackupTask->task->remoteServer->label }}
-                    </x-table.body-item>
-                    <x-table.body-item class="col-span-2 hidden md:block">
-                        {{ ucfirst($scheduledBackupTask->type) }}
-                    </x-table.body-item>
-                    <x-table.body-item class="col-span-2">
-                        {{ $scheduledBackupTask->due_to_run }}
-                    </x-table.body-item>
+                    <x-table.table-row>
+                        <div class="col-span-12 sm:col-span-3 flex flex-col sm:flex-row sm:items-center">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $scheduledBackupTask->task->label }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 sm:hidden">
+                                {{ $scheduledBackupTask->due_to_run }}
+                            </p>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $scheduledBackupTask->task->remoteServer->label }}</p>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scheduledBackupTask->type === 'Files' ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
+                                @svg($scheduledBackupTask->type === 'Files' ? 'heroicon-o-document-duplicate' : 'heroicon-o-circle-stack', 'h-4 w-4 mr-1')
+                                {{ ucfirst($scheduledBackupTask->type) }}
+                            </span>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0 hidden sm:block">
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                {{ $scheduledBackupTask->due_to_run }}
+                            </p>
+                        </div>
+                    </x-table.table-row>
                 @endforeach
-            </x-slot>
-        </x-table.wrapper>
+            </x-table.table-body>
+        </x-table.table-wrapper>
     @endif
 </div>

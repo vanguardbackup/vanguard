@@ -8,7 +8,7 @@
                 {{ __("You don't have any tags setup!") }}
             </x-slot>
             <x-slot name="description">
-                {{ __("Tags are a great way to organize backup tasks! create your first tag below.") }}
+                {{ __("Tags are a great way to organize backup tasks! Create your first tag below.") }}
             </x-slot>
             <x-slot name="action">
                 <a href="{{ route('tags.create') }}" wire:navigate>
@@ -19,33 +19,25 @@
             </x-slot>
         </x-no-content>
     @else
-        <x-table.wrapper title="{{ __('Tags') }}" class="grid-cols-8">
+        <x-table.table-wrapper
+            title="{{ __('Tags') }}"
+            description="{{ __('All tags used to organize and identify your backup tasks.') }}"
+        >
             <x-slot name="icon">
-                @svg('heroicon-o-tag', 'h-6 w-6 text-gray-800 dark:text-gray-200 mr-1.5 inline')
+                <x-heroicon-o-tag class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
-            <x-slot name="description">
-                {{ __('All tags used to organize and identify your backup tasks.') }}
-            </x-slot>
-            <x-slot name="header">
-                <x-table.header-item class="col-span-2">
-                    {{ __('Label') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Description') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Created') }}
-                </x-table.header-item>
-                <x-table.header-item class="col-span-2">
-                    {{ __('Actions') }}
-                </x-table.header-item>
-            </x-slot>
-            <x-slot name="advancedBody">
+            <x-table.table-header>
+                <div class="col-span-3">{{ __('Label') }}</div>
+                <div class="col-span-3">{{ __('Description') }}</div>
+                <div class="col-span-3">{{ __('Created') }}</div>
+                <div class="col-span-3">{{ __('Actions') }}</div>
+            </x-table.table-header>
+            <x-table.table-body>
                 @foreach ($tags as $tag)
                     @livewire('tags.index-item', ['tag' => $tag], key($tag->id))
                 @endforeach
-            </x-slot>
-        </x-table.wrapper>
+            </x-table.table-body>
+        </x-table.table-wrapper>
         <div class="mt-4 flex justify-end">
             {{ $tags->links() }}
         </div>
