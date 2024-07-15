@@ -10,59 +10,46 @@
                 {{ __('Overview') }}
             </h2>
         </x-slot>
-    <div class="pt-7 pb-12 mx-auto max-w-6xl">
-        <div class="mb-4">
-            <div class="flex">
-                <div class="flex shrink-0">
-                    <img class="h-14 w-14 rounded-full border border-gray-200 dark:border-gray-700" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}" />
-                  <div>
-                      <div class="font-semibold text-2xl ml-3 mt-0 dark:text-gray-100">
-                          {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
-                      </div>
-                      <p class="text-gray-700 dark:text-gray-300 mt-0.5 ml-3">
-                          {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
-                      </p>
-                  </div>
+        <div class="pt-4 pb-8 px-4 mx-auto max-w-full sm:max-w-6xl">
+            <div class="mb-4">
+                <div class="flex flex-col sm:flex-row items-center">
+                    <div class="flex shrink-0">
+                        <img class="h-14 w-14 rounded-full border border-gray-200 dark:border-gray-700" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}" />
+                        <div class="ml-3 mt-3 sm:mt-0">
+                            <div class="font-semibold text-2xl dark:text-gray-100">
+                                {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 mt-0.5">
+                                {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-6">
-                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border border-gray-950/5 p-5 my-3">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                @svg('heroicon-o-clock', 'h-7 w-7 text-gray-800 dark:text-gray-200 -mt-3
-                                mr-2.5')
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                                    {{ __('Monthly Backup Task Activity') }}
-                                </h3>
-                            </div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-lg overflow-hidden border border-gray-950/5 p-5">
+                    <div class="flex items-center mb-4">
+                        @svg('heroicon-o-clock', 'h-7 w-7 text-gray-800 dark:text-gray-200 mr-2.5')
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                            {{ __('Monthly Backup Task Activity') }}
+                        </h3>
                     </div>
                     <canvas id="totalBackupsPerMonth" width="auto"></canvas>
                 </div>
-            </div>
-            <div class="col-span-6">
-                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border border-gray-950/5 p-5 my-3">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                @svg('heroicon-o-swatch', 'h-7 w-7 text-gray-800 dark:text-gray-200 -mt-3 mr-2.5')
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                                    {{ __('Backup Tasks Categorized by Type') }}
-                                </h3>
-                            </div>
-                        </div>
+                <div class="h-auto bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-lg overflow-hidden border border-gray-950/5 p-5">
+                    <div class="flex items-center mb-4">
+                        @svg('heroicon-o-swatch', 'h-7 w-7 text-gray-800 dark:text-gray-200 mr-2.5')
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                            {{ __('Backup Tasks Categorized by Type') }}
+                        </h3>
                     </div>
                     <canvas id="backupTasksByType" width="auto"></canvas>
                 </div>
             </div>
+            <div class="my-3">
+                @livewire('dashboard.upcoming-backup-tasks')
+            </div>
         </div>
-        <div class="my-3">
-            @livewire('dashboard.upcoming-backup-tasks')
-        </div>
-    </div>
         <script>
             document.addEventListener('livewire:navigated', function () {
                 function createCharts() {

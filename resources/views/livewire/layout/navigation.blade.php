@@ -25,7 +25,7 @@ new class extends Component {
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     @if (Auth::user()->backupTasks->isNotEmpty())
                         <x-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
                             @svg('heroicon-o-book-open', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2')
@@ -62,7 +62,7 @@ new class extends Component {
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <x-theme-switcher />
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -74,7 +74,7 @@ new class extends Component {
                             <div x-data="{{ json_encode(['name' => auth()->user()->first_name]) }}" x-text="name"
                                  x-on:profile-updated.window="name = $event.detail.name"></div>
 
-                            <div class="ms-1">
+                            <div class="ml-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                      viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
@@ -96,10 +96,10 @@ new class extends Component {
 
                         @if (Auth::user()->isAdmin())
                             <x-dropdown-link href="{{ url('/pulse') }}">
-                                {{ __('Laravel Pulse') }}
+                                Laravel Pulse
                             </x-dropdown-link>
                             <x-dropdown-link href="{{ url('/horizon/dashboard') }}">
-                                {{ __('Laravel Horizon') }}
+                                Laravel Horizon
                             </x-dropdown-link>
                         @endif
 
@@ -114,7 +114,7 @@ new class extends Component {
             </div>
 
             <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <div class="-mr-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
                         class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -132,20 +132,48 @@ new class extends Component {
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('remote-servers.index')"
-                                   :active="request()->routeIs('remote-servers.*')" wire:navigate>
-                @svg('heroicon-o-server-stack', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2')
-                {{ __('Remote Servers') }}
-            </x-responsive-nav-link>
+            @if (Auth::user()->backupTasks->isNotEmpty())
+                <x-responsive-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
+                    @svg('heroicon-o-book-open', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2 inline')
+                    {{ __('Overview') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
+                    @svg('heroicon-o-rocket-launch', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2 inline')
+                    {{ __('Steps to Get Started') }}
+                </x-responsive-nav-link>
+            @endif
+            @if (Auth::user()->backupTasks->isNotEmpty())
+                <x-responsive-nav-link :href="route('backup-tasks.index')" :active="request()->routeIs('backup-tasks.*')" wire:navigate>
+                    @svg('heroicon-o-archive-box', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2 inline')
+                    {{ __('Backup Tasks') }}
+                </x-responsive-nav-link>
+            @endif
+            @if (Auth::user()->backupDestinations->isNotEmpty())
+                <x-responsive-nav-link :href="route('backup-destinations.index')" :active="request()->routeIs('backup-destinations.*')" wire:navigate>
+                    @svg('heroicon-o-globe-europe-africa', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2 inline')
+                    {{ __('Backup Destinations') }}
+                </x-responsive-nav-link>
+            @endif
+            @if (Auth::user()->remoteServers->isNotEmpty())
+                <x-responsive-nav-link :href="route('remote-servers.index')" :active="request()->routeIs('remote-servers.*')" wire:navigate>
+                    @svg('heroicon-o-server-stack', 'h-5 w-5 text-gray-50 dark:text-gray-200 mr-2 inline')
+                    {{ __('Remote Servers') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200"
-                     x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name"
-                     x-on:profile-updated.window="name = $event.detail.name"></div>
-                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
+            <div class="px-4 flex items-center">
+                <img class="h-10 w-10 rounded-full mr-2 border border-gray-950"
+                     src="{{ \Illuminate\Support\Facades\Auth::user()->gravatar() }}"
+                     alt="{{ \Illuminate\Support\Facades\Auth::user()->name }}"/>
+                <div>
+                    <div class="font-medium text-base text-gray-800 dark:text-gray-200"
+                         x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name"
+                         x-on:profile-updated.window="name = $event.detail.name"></div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -159,10 +187,10 @@ new class extends Component {
 
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link href="{{ url('/pulse') }}">
-                        {{ __('Laravel Pulse') }}
+                        Laravel Pulse
                     </x-responsive-nav-link>
                     <x-responsive-nav-link href="{{ url('/horizon/overview') }}">
-                        {{ __('Laravel Horizon') }}
+                        Laravel Horizon
                     </x-responsive-nav-link>
                 @endif
 
