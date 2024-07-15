@@ -1,14 +1,14 @@
 <div>
     <x-form-wrapper>
         <form wire:submit="submit">
-            <div class="mt-4 flex space-x-6">
-                <div class="w-3/6">
+            <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                <div class="w-full sm:w-3/6">
                     <x-input-label for="label" :value="__('Label')"/>
                     <x-text-input id="label" class="block mt-1 w-full" type="text" wire:model="label" name="label"
                                   autofocus/>
                     <x-input-error :messages="$errors->get('label')" class="mt-2"/>
                 </div>
-                <div class="w-3/6">
+                <div class="w-full sm:w-3/6">
                     <x-input-label for="type" :value="__('Type')"/>
                     <x-select id="type" class="block mt-1 w-full" wire:model.live="type" name="type">
                         <option value="s3">{{ __('Amazon S3') }}</option>
@@ -19,28 +19,28 @@
                 </div>
             </div>
             @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3)
-                <div class="mt-4 flex space-x-6">
-                    <div class="w-3/6">
+                <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                    <div class="w-full sm:w-3/6">
                         <x-input-label for="s3AccessKey" :value="__('Access Key')"/>
                         <x-text-input id="s3AccessKey" class="block mt-1 w-full" type="text" wire:model="s3AccessKey"
                                       name="s3AccessKey"/>
                         <x-input-error :messages="$errors->get('s3AccessKey')" class="mt-2"/>
                     </div>
-                    <div class="w-3/6">
+                    <div class="w-full sm:w-3/6">
                         <x-input-label for="s3SecretKey" :value="__('Secret Key')"/>
                         <x-text-input id="s3SecretKey" class="block mt-1 w-full" type="text" wire:model="s3SecretKey"
                                       name="s3SecretKey"/>
                         <x-input-error :messages="$errors->get('s3SecretKey')" class="mt-2"/>
                     </div>
                 </div>
-                <div class="mt-4 flex space-x-6">
-                    <div class="w-3/6">
+                <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                    <div class="w-full sm:w-3/6">
                         <x-input-label for="s3BucketName" :value="__('Bucket Name')"/>
                         <x-text-input id="s3BucketName" class="block mt-1 w-full" type="text" wire:model="s3BucketName"
                                       name="s3BucketName"/>
                         <x-input-error :messages="$errors->get('s3BucketName')" class="mt-2"/>
                     </div>
-                    <div class="w-3/6">
+                    <div class="w-full sm:w-3/6">
                         <x-input-label for="customS3Region" :value="__('Region')"/>
                         <x-text-input id="customS3Region" class="block mt-1 w-full" type="text"
                                       wire:model="customS3Region"
@@ -75,15 +75,15 @@
                 </div>
             @endif
             <div class="mt-6 max-w-3xl mx-auto">
-                <div class="flex space-x-5">
-                    <div class="w-4/6">
-                        <x-primary-button type="submit" class="mt-4" centered action="submit" loadingText="Saving changes...">
+                <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
+                    <div class="w-full sm:w-4/6">
+                        <x-primary-button type="submit" class="w-full justify-center" centered action="submit" loadingText="Saving changes...">
                             {{ __('Save changes') }}
                         </x-primary-button>
                     </div>
-                    <div class="w-2/6 ml-2">
-                        <a href="{{ route('backup-destinations.index') }}" wire:navigate>
-                            <x-secondary-button type="button" class="mt-4" centered>
+                    <div class="w-full sm:w-2/6">
+                        <a href="{{ route('backup-destinations.index') }}" wire:navigate class="block">
+                            <x-secondary-button type="button" class="w-full justify-center" centered>
                                 {{ __('Cancel') }}
                             </x-secondary-button>
                         </a>

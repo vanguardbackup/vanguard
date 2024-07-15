@@ -7,7 +7,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <x-form-wrapper>
                 <form wire:submit.prevent="submit">
 
@@ -114,8 +114,8 @@
                         <x-form-section>
                             {{ __('Backup Configuration') }}
                         </x-form-section>
-                        <div class="mt-4 flex space-x-6">
-                            <div class="w-3/6">
+                        <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="remoteServerId" :value="__('Remote Server')"/>
                                 <x-select id="remoteServerId" class="block mt-1 w-full" wire:model.live="remoteServerId"
                                           name="remoteServerId">
@@ -130,7 +130,7 @@
                                     {{ __('Choose the remote server from which you want to create a backup. Remember, if you plan to perform database backups on any remote server, you must set a database password for it.') }}
                                 </x-input-explain>
                             </div>
-                            <div class="w-3/6">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="backupType" :value="__('Backup Type')"/>
                                 <x-select id="backupType" class="block mt-1 w-full" wire:model.live="backupType"
                                           name="backupType">
@@ -141,8 +141,8 @@
                                 <x-input-error :messages="$errors->get('backupType')" class="mt-2"/>
                             </div>
                         </div>
-                        <div class="mt-4 flex space-x-6">
-                            <div class="w-3/6">
+                        <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="backupDestinationId" :value="__('Backup Destination')"/>
                                 <x-select id="backupDestinationId" class="block mt-1 w-full"
                                           wire:model="backupDestinationId"
@@ -157,7 +157,7 @@
                                     {{ __('Choose the backup destination where you want to store the backup files. If you have not yet set up a backup destination, you can do so in the Backup Destinations section.') }}
                                 </x-input-explain>
                             </div>
-                            <div class="w-3/6">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="backupsToKeep" :value="__('Maximum Backups to Keep')"/>
                                 <x-text-input id="backupsToKeep" class="block mt-1 w-full" type="number"
                                               wire:model="backupsToKeep"
@@ -265,8 +265,8 @@
                             {{ $useCustomCron ? __('Custom Cron Expression') : __('Backup Schedule') }}
                         </x-form-section>
                         @if (!$useCustomCron)
-                            <div class="mt-4 flex space-x-6">
-                                <div class="w-3/4">
+                            <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                                <div class="w-full sm:w-3/4">
                                     <x-input-label for="frequency" :value="__('Backup Frequency')"/>
                                     <x-select id="frequency" class="mt-1 w-full" wire:model="frequency"
                                               name="frequency">
@@ -275,7 +275,7 @@
                                     </x-select>
                                     <x-input-error :messages="$errors->get('frequency')" class="mt-2"/>
                                 </div>
-                                <div class="w-1/4">
+                                <div class="w-full sm:w-1/4">
                                     <x-input-label for="timeToRun" :value="__('Time to Backup')"/>
                                     <x-select id="timeToRun" class="mt-1 w-full" wire:model="timeToRun"
                                               name="timeToRun">
@@ -330,8 +330,8 @@
                                 {{ __('Input the email address to receive notifications. Regardless of this field, backup task failure notifications will always be sent to the email associated with your account.') }}
                             </x-input-explain>
                         </div>
-                        <div class="mt-4 flex space-x-6">
-                            <div class="w-3/6">
+                        <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="notifyDiscordWebhook" :value="__('Discord Webhook')"/>
                                 <x-text-input id="notifyDiscordWebhook" class="block mt-1 w-full" type="text"
                                               wire:model="notifyDiscordWebhook"
@@ -342,7 +342,7 @@
                                     {{ __('Input the Discord webhook to receive notifications on Discord.') }}
                                 </x-input-explain>
                             </div>
-                            <div class="w-3/6">
+                            <div class="w-full sm:w-3/6">
                                 <x-input-label for="notifySlackWebhook" :value="__('Slack Webhook')"/>
                                 <x-text-input id="notifySlackWebhook" class="block mt-1 w-full" type="text"
                                               wire:model="notifySlackWebhook"
@@ -355,7 +355,6 @@
                             </div>
                         </div>
                     @endif
-
 
                     <div class="mt-6 max-w-3xl mx-auto" x-data="{
     currentStep: @entangle('currentStep'),
@@ -375,7 +374,7 @@
     },
     nextStep() {
         this.$wire.nextStep();
-    },
+},
     previousStep() {
         this.$wire.previousStep();
     },
@@ -383,40 +382,38 @@
         this.$refs.saveButton.click();
     }
 }" @keydown.window="handleKeydown">
-                        <div class="flex justify-center space-x-5">
+                        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-5">
                             <!-- Previous Button -->
-                            <div class="w-2/6" x-show="currentStep > 1">
-                                <x-secondary-button type="button" class="mt-4 w-full" centered @click="previousStep">
+                            <div class="w-full sm:w-2/6" x-show="currentStep > 1">
+                                <x-secondary-button type="button" class="w-full justify-center" centered @click="previousStep">
                                     {{ __('Previous') }}
                                 </x-secondary-button>
                             </div>
 
                             <!-- Next/Save Button -->
-                            <div :class="currentStep > 1 ? 'w-2/6' : 'w-4/6'">
+                            <div class="w-full" :class="currentStep > 1 ? 'sm:w-2/6' : 'sm:w-4/6'">
                                 <template x-if="currentStep < totalSteps">
-                                    <x-primary-button type="button" class="mt-4 w-full" centered @click="nextStep">
+                                    <x-primary-button type="button" class="w-full justify-center" centered @click="nextStep">
                                         {{ __('Next') }}
                                     </x-primary-button>
                                 </template>
                                 <template x-if="currentStep >= totalSteps">
-                                    <x-primary-button type="submit" class="mt-4 w-full" centered x-ref="saveButton">
+                                    <x-primary-button type="submit" class="w-full justify-center" centered x-ref="saveButton">
                                         {{ __('Save') }}
                                     </x-primary-button>
                                 </template>
                             </div>
 
                             <!-- Cancel Button -->
-                            <div class="w-2/6">
-                                <a href="{{ route('backup-tasks.index') }}" wire:navigate>
-                                    <x-secondary-button type="button" class="mt-4 w-full" centered>
+                            <div class="w-full sm:w-2/6">
+                                <a href="{{ route('backup-tasks.index') }}" wire:navigate class="block">
+                                    <x-secondary-button type="button" class="w-full justify-center" centered>
                                         {{ __('Cancel') }}
                                     </x-secondary-button>
                                 </a>
                             </div>
                         </div>
                     </div>
-
-
 
                 </form>
             </x-form-wrapper>

@@ -88,16 +88,17 @@ new class extends Component {
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         @if (Auth::user()->canLoginWithGithub())
-            <div
-                class="my-4 bg-gray-100 dark:bg-gray-950/30 p-2 rounded-lg border border-gray-200 dark:border-gray-950/60 text-sm flex justify-between max-w-md">
-                <div>
-                    <x-icons.github class="w-6 h-6 inline mr-2 fill-current dark:text-white text-gray-900"/>
-                    <span class="font-medium dark:text-white text-gray-800">
-                    {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
+            <div class="my-4 bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                <div class="flex items-center justify-between max-w-md mx-auto">
+                    <div class="flex items-center space-x-2 sm:space-x-3 flex-grow">
+                        <x-icons.github class="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0 text-gray-900 dark:text-white transition-colors duration-200"/>
+                        <span class="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors duration-200">
+                {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
             </span>
-                </div>
-                <div>
-                    @svg('heroicon-o-check', 'w-6 h-6 text-green-600 dark:text-green-400 inline mr-2')
+                    </div>
+                    <div class="flex-shrink-0 ml-2">
+                        @svg('heroicon-o-check', 'w-6 h-6 sm:w-7 sm:h-7 text-green-600 dark:text-green-400 transition-colors duration-200')
+                    </div>
                 </div>
             </div>
         @endif

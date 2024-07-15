@@ -14,15 +14,15 @@
                 <x-input-error :messages="$errors->get('description')" class="mt-2"/>
             </div>
             <div class="mt-6 max-w-3xl mx-auto">
-                <div class="flex space-x-5">
-                    <div class="w-4/6">
-                        <x-primary-button type="submit" class="mt-4" centered action="submit" loadingText="Saving changes...">
+                <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
+                    <div class="w-full sm:w-4/6">
+                        <x-primary-button type="submit" class="w-full justify-center" centered action="submit" loadingText="Saving changes...">
                             {{ __('Save changes') }}
                         </x-primary-button>
                     </div>
-                    <div class="w-2/6 ml-2">
-                        <a href="{{ route('tags.index') }}" wire:navigate>
-                            <x-secondary-button type="button" class="mt-4" centered>
+                    <div class="w-full sm:w-2/6">
+                        <a href="{{ route('tags.index') }}" wire:navigate class="block">
+                            <x-secondary-button type="button" class="w-full justify-center" centered>
                                 {{ __('Cancel') }}
                             </x-secondary-button>
                         </a>
@@ -31,7 +31,7 @@
             </div>
         </form>
     </x-form-wrapper>
-    <div class="flex justify-end">
+    <div class="flex justify-end mt-4">
         @livewire('tags.delete-tag-button', ['tag' => $tag])
     </div>
 </div>
