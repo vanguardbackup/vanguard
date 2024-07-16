@@ -171,7 +171,7 @@ abstract class Backup
         $output = $sftp->exec($sizeCommand);
         $this->logDebug('Directory size command output.', ['output' => $output]);
 
-        return (int) trim($output);
+        return is_string($output) ? (int) trim($output) : 0;
     }
 
     /**
@@ -193,8 +193,9 @@ abstract class Backup
     /**
      * @throws SFTPConnectionException
      */
-    public function establishSFTPConnection(object $remoteServer, object $backupTask): SFTPInterface
+    public function establishSFTPConnection(BackupTask $backupTask): SFTPInterface
     {
+        $remoteServer = $backupTask->getAttribute('remoteServer');
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
         /** @var PrivateKey $key */
@@ -202,11 +203,7 @@ abstract class Backup
 
         $sftp = $this->createSFTP($remoteServer->ip_address, (int) $remoteServer->port, 120);
 
-        if ($backupTask->hasIsolatedCredentials()) {
-            $loginSuccess = $sftp->login($backupTask->isolated_username, $key); // We're passing the isolated username + our SSH key here. Password is used for sudo.
-        } else {
-            $loginSuccess = $sftp->login($remoteServer->username, $key);
-        }
+        $loginSuccess = $backupTask->hasIsolatedCredentials() ? $sftp->login($backupTask->getAttribute('isolated_username'), $key) : $sftp->login($remoteServer->username, $key);
 
         if (! $loginSuccess) {
             $error = $sftp->getLastError();
@@ -236,7 +233,7 @@ abstract class Backup
 
         $dirSizeCommand = 'du -sb ' . escapeshellarg($sourcePath) . ' | cut -f1';
         $dirSizeOutput = $sftp->exec($dirSizeCommand);
-        $dirSize = trim($dirSizeOutput);
+        $dirSize = is_string($dirSizeOutput) ? trim($dirSizeOutput) : '';
 
         if (! is_numeric($dirSize)) {
             $this->logError('Failed to get directory size.', ['source_path' => $sourcePath, 'dir_size_output' => $dirSizeOutput]);
@@ -252,7 +249,7 @@ abstract class Backup
 
         $diskSpaceCommand = 'df -P ' . escapeshellarg(dirname($remoteZipPath)) . ' | tail -1 | awk \'{print $4}\'';
         $diskSpaceOutput = $sftp->exec($diskSpaceCommand);
-        $availableSpace = (int) trim($diskSpaceOutput) * 1024; // Convert from KB to bytes
+        $availableSpace = is_string($diskSpaceOutput) ? (int) trim($diskSpaceOutput) * 1024 : 0; // Convert from KB to bytes
 
         if ($availableSpace === 0 || ! is_numeric($availableSpace)) {
             $this->logError('Failed to get available disk space.', ['remote_zip_path' => $remoteZipPath, 'disk_space_output' => $diskSpaceOutput]);
@@ -276,8 +273,8 @@ abstract class Backup
             return $sftp->exec($zipCommand);
         }, BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
 
-        if ($result === false) {
-            $error = $sftp->getLastError();
+        if ($result === false || (is_string($result) && stripos($result, 'error') !== false)) {
+            $error = $result === false ? $sftp->getLastError() : $result;
             $this->logError('Failed to execute zip command after retries.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'error' => $error]);
             throw new BackupTaskZipException('Failed to zip the directory after multiple attempts: ' . $error);
         }
@@ -286,14 +283,13 @@ abstract class Backup
         $fileCheckOutput = $sftp->exec($checkFileCommand);
         $this->logDebug('File check command output.', ['output' => $fileCheckOutput]);
 
-        if ($fileCheckOutput === false) {
-            $error = $sftp->getLastError();
-            $this->logError('Failed to check zip file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
-            throw new BackupTaskZipException('Failed to check zip file: ' . $error);
+        if (! is_string($fileCheckOutput)) {
+            $this->logError('Failed to check zip file.', ['remote_zip_path' => $remoteZipPath, 'error' => 'Invalid output']);
+            throw new BackupTaskZipException('Failed to check zip file: Invalid output');
         }
 
         $fileSize = trim($fileCheckOutput);
-        if (! is_numeric($fileSize) || $fileSize == 0) {
+        if (! is_numeric($fileSize)) {
             $this->logError('Zip file does not exist or is empty after zipping.', ['remote_zip_path' => $remoteZipPath, 'file_size' => $fileSize]);
             throw new BackupTaskZipException('Zip file does not exist or is empty after zipping.');
         }
@@ -312,14 +308,14 @@ abstract class Backup
         $this->validateSFTP($sftp);
 
         $mysqlOutput = $sftp->exec('mysql --version 2>&1');
-        if (stripos($mysqlOutput, 'mysql') !== false && stripos($mysqlOutput, 'not found') === false) {
+        if (is_string($mysqlOutput) && stripos($mysqlOutput, 'mysql') !== false && stripos($mysqlOutput, 'not found') === false) {
             $this->logInfo('Database type determined: MySQL.');
 
             return BackupConstants::DATABASE_TYPE_MYSQL;
         }
 
         $psqlOutput = $sftp->exec('psql --version 2>&1');
-        if (stripos($psqlOutput, 'psql') !== false && stripos($psqlOutput, 'not found') === false) {
+        if (is_string($psqlOutput) && stripos($psqlOutput, 'psql') !== false && stripos($psqlOutput, 'not found') === false) {
             $this->logInfo('Database type determined: PostgreSQL.');
 
             return BackupConstants::DATABASE_TYPE_POSTGRESQL;
@@ -386,13 +382,15 @@ abstract class Backup
         $output = $sftp->exec($dumpCommand);
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
-        if (stripos($output, 'error') !== false || stripos($output, 'failed') !== false) {
+        if (is_string($output) && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
             $this->logError('Failed to dump the database.', ['output' => $output]);
             throw new DatabaseDumpException('Failed to dump the database: ' . $output);
         }
 
         $checkFileCommand = sprintf('test -s %s && echo "exists" || echo "not exists"', escapeshellarg($remoteDumpPath));
-        $fileCheckOutput = trim($sftp->exec($checkFileCommand));
+
+        $fileCheckOutput = $sftp->exec($checkFileCommand);
+        $fileCheckOutput = is_string($fileCheckOutput) ? trim($fileCheckOutput) : '';
 
         if ($fileCheckOutput !== 'exists') {
             $this->logError('Database dump file was not created or is empty.');
@@ -400,7 +398,9 @@ abstract class Backup
         }
 
         $fileContent = $sftp->exec('cat ' . escapeshellarg($remoteDumpPath));
-        $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
+        if (is_string($fileContent)) {
+            $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
+        }
 
         $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
     }

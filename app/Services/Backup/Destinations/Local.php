@@ -232,6 +232,6 @@ class Local implements BackupDestinationInterface
             return [];
         }
 
-        return array_filter(explode("\n", $result));
+        return array_filter(explode("\n", (string) $result));
     }
 }

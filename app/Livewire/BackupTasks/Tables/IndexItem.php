@@ -13,7 +13,8 @@ use Livewire\Component;
 class IndexItem extends Component
 {
     public BackupTask $backupTask;
-    public ?BackupTaskLog $backupTaskLog;
+
+    public ?BackupTaskLog $backupTaskLog = null;
 
     /**
      * @return array<string, string>
@@ -37,7 +38,15 @@ class IndexItem extends Component
     public function echoBackupTaskLogCreatedEvent(array $event): void
     {
         Log::debug('Received the CreatedBackupTaskLog event. Fetching the log.', ['new_log_id' => $event['logId']]);
-        $this->backupTaskLog = BackupTaskLog::findOrFail($event['logId']);
+
+        $log = BackupTaskLog::find($event['logId']);
+
+        if ($log instanceof BackupTaskLog) {
+            $this->backupTaskLog = $log;
+        } else {
+            Log::warning('BackupTaskLog not found', ['logId' => $event['logId']]);
+            $this->backupTaskLog = null;
+        }
 
         // Refresh the component and fetch the latest log.
         $this->dispatch('backup-task-item-updated-' . $this->backupTask->getAttribute('id'));

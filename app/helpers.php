@@ -4,19 +4,53 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
 
+/**
+ * Check if SSH keys exist.
+ *
+ * @return bool True if both private and public SSH keys exist, false otherwise.
+ */
 function ssh_keys_exist(): bool
 {
-    return file_exists(config('app.ssh.private_key')) && file_exists(config('app.ssh.public_key'));
+    return file_exists(config('app.ssh.private_key'))
+        && file_exists(config('app.ssh.public_key'));
 }
 
+/**
+ * Get the contents of the SSH public key.
+ *
+ * @return string The contents of the SSH public key.
+ *
+ * @throws RuntimeException If the public key file cannot be read.
+ */
 function get_ssh_public_key(): string
 {
-    return file_get_contents(config('app.ssh.public_key'));
+    $publicKeyPath = config('app.ssh.public_key');
+    $publicKey = @file_get_contents($publicKeyPath);
+
+    if ($publicKey === false) {
+        throw new RuntimeException("Unable to read SSH public key from: {$publicKeyPath}");
+    }
+
+    return $publicKey;
 }
 
+/**
+ * Get the contents of the SSH private key.
+ *
+ * @return string The contents of the SSH private key.
+ *
+ * @throws RuntimeException If the private key file cannot be read.
+ */
 function get_ssh_private_key(): string
 {
-    return file_get_contents(config('app.ssh.private_key'));
+    $privateKeyPath = config('app.ssh.private_key');
+    $privateKey = @file_get_contents($privateKeyPath);
+
+    if ($privateKey === false) {
+        throw new RuntimeException("Unable to read SSH private key from: {$privateKeyPath}");
+    }
+
+    return $privateKey;
 }
 
 /**

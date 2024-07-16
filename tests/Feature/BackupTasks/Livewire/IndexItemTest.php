@@ -26,27 +26,27 @@ it('updates log information on log creation event', function (): void {
         'output' => 'Old log message',
     ]);
 
-    $log = $backupTask->logs()->create([
+    $newLog = $backupTask->logs()->create([
         'output' => 'New log message',
     ]);
 
     $component = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
 
     $component->call('echoBackupTaskLogCreatedEvent', [
-        'logId' => $log->id,
+        'logId' => $newLog->id,
     ]);
 
     $component->assertDispatched('backup-task-item-updated-' . $backupTask->id);
 
     $backupTask->refresh();
+    $newLog->refresh();
 
-    $log->refresh();
-
-    $component->assertSet('backupTaskLog.id', $log->id);
+    $component->assertSet('backupTaskLog.id', $newLog->id);
     $component->assertSet('backupTaskLog.output', 'New log message');
-    expect($component->backupTaskLog->id)->toBe($log->id)
-        ->and($component->backupTaskLog->output)->toBe('New log message')
-        ->and($component->backupTaskLog->id)->toBe($log->id);
+
+    expect($component->get('backupTaskLog')->id)->toBe($newLog->id)
+        ->and($component->get('backupTaskLog')->output)->toBe('New log message')
+        ->and($component->get('backupTaskLog')->id)->not->toBe($oldLog->id);
 });
 
 it('dispatches item updated event on log creation', function (): void {

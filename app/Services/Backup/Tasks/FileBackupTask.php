@@ -17,13 +17,13 @@ class FileBackupTask extends AbstractBackupTask
      */
     protected function performBackup(): void
     {
-        $remoteServer = $this->backupTask->getAttribute('remoteServer');
+        $this->backupTask->getAttribute('remoteServer');
         $backupDestinationModel = $this->backupTask->getAttribute('backupDestination');
         $sourcePath = $this->backupTask->getAttributeValue('source_path');
         $storagePath = $this->backupTask->getAttributeValue('store_path');
 
         $this->logMessage('Attempting to connect to remote server.');
-        $sftp = $this->establishSFTPConnection($remoteServer, $this->backupTask);
+        $sftp = $this->establishSFTPConnection($this->backupTask);
         $this->logMessage('Secure SSH connection established with the remote server.');
 
         if (! $this->checkPathExists($sftp, $sourcePath)) {

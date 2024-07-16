@@ -125,7 +125,7 @@ it('establishes SFTP connection', function (): void {
         ->shouldReceive('load')
         ->andReturn(Mockery::mock('phpseclib3\Crypt\Common\PrivateKey'));
 
-    $sftp = $this->backup->establishSFTPConnection($remoteServer, $backupTask);
+    $sftp = $this->backup->establishSFTPConnection($backupTask);
 
     expect($sftp)->toBe($mockSftp)
         ->and($remoteServer->fresh()->connectivity_status)->toBe('online');
@@ -157,6 +157,24 @@ it('throws exception when zipping fails', function (): void {
 
     expect(fn () => $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []))
         ->toThrow(BackupTaskZipException::class);
+});
+
+it('throws exception when zipping returns an error message', function (): void {
+    $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
+    $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
+    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
+    $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
+        ->andReturn('zip error: Command failed');
+
+    $this->backup->shouldReceive('retryCommand')
+        ->once()
+        ->andReturn('zip error: Command failed');
+
+    expect(fn () => $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []))
+        ->toThrow(BackupTaskZipException::class, 'Failed to zip the directory after multiple attempts: zip error: Command failed');
 });
 
 it('gets database type', function (): void {

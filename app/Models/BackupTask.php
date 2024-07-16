@@ -85,9 +85,14 @@ class BackupTask extends Model
             ->get();
 
         return $results->mapWithKeys(function ($item): array {
-            $localizedType = __($item->getAttribute('type'));
+            $type = $item->getAttributeValue('type');
 
-            return [$localizedType => $item->getAttribute('count')];
+            /** @var string $localizedType */
+            $localizedType = is_string($type) ? __($type) : __('Unknown');
+
+            $count = (int) $item->getAttribute('count');
+
+            return [$localizedType => $count];
         })
             ->toArray();
     }

@@ -27,7 +27,7 @@ class DatabaseBackupTask extends AbstractBackupTask
         }
 
         $this->logMessage('Attempting to connect to remote server.');
-        $sftp = $this->establishSFTPConnection($remoteServer, $this->backupTask);
+        $sftp = $this->establishSFTPConnection($this->backupTask);
         $this->logMessage('Secure SSH connection established with the remote server.');
 
         $databaseType = $this->getDatabaseType($sftp);

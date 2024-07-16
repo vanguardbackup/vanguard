@@ -6,6 +6,11 @@ parameters:
         - app/
 
     # Level 9 is the highest level
-    level: 6
+    level: 7
+
+
+    ignoreErrors:
+    # This is a particularly nasty error and I couldn't manage to resolve it (nicely)..
+        - '#Cannot call method isoFormat\(\) on (.*)Carbon(.*)string#'
 
     treatPhpDocTypesAsCertain: false
