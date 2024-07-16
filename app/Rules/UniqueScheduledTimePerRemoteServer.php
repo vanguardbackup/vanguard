@@ -25,19 +25,19 @@ class UniqueScheduledTimePerRemoteServer implements ValidationRule
         $utcTime = $value;
         Log::info('UniqueScheduledTimePerRemoteServer: Time for comparison', ['time' => $utcTime]);
 
-        $query = $user->backupTasks()
+        $builder = $user->backupTasks()
             ->where('remote_server_id', $this->remoteServerId)
             ->where('time_to_run_at', $utcTime);
 
         if ($this->taskId !== null) {
-            $query->where('id', '!=', $this->taskId);
+            $builder->where('id', '!=', $this->taskId);
         }
 
-        $conflictingTask = $query->first();
+        $conflictingTask = $builder->first();
         if ($conflictingTask) {
             Log::info('UniqueScheduledTimePerRemoteServer: Conflicting task found', [
-                'conflicting_task_id' => $conflictingTask->id,
-                'conflicting_task_time' => $conflictingTask->time_to_run_at,
+                'conflicting_task_id' => $conflictingTask->getAttribute('id'),
+                'conflicting_task_time' => $conflictingTask->getAttribute('time_to_run_at'),
             ]);
             $fail($this->message());
         } else {

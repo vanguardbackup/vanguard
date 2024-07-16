@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Jobs\CheckRemoteServerConnectionJob;
 use App\Jobs\RemoteServers\RemoveServerJob;
 use App\Jobs\RemoteServers\RemoveSSHKeyJob;
+use Database\Factories\RemoteServerFactory;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 
 class RemoteServer extends Model
 {
+    /** @use HasFactory<RemoteServerFactory> */
     use HasFactory;
 
     public const string STATUS_ONLINE = 'online';

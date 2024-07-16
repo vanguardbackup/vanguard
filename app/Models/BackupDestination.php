@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Jobs\CheckBackupDestinationsS3ConnectionJob;
 use Aws\S3\S3Client;
+use Database\Factories\BackupDestinationFactory;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use RuntimeException;
 
 class BackupDestination extends Model
 {
+    /** @use HasFactory<BackupDestinationFactory> */
     use HasFactory;
 
     public const string TYPE_CUSTOM_S3 = 'custom_s3';

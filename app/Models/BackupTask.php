@@ -11,6 +11,7 @@ use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
 use App\Traits\HasTags;
 use Cron\CronExpression;
+use Database\Factories\BackupTaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,8 +27,11 @@ use Illuminate\Support\Facades\Mail;
 
 class BackupTask extends Model
 {
+    /** @use HasFactory<BackupTaskFactory> */
     use HasFactory;
+
     use HasTags;
+
     public const string STATUS_READY = 'ready';
 
     public const string STATUS_RUNNING = 'running';
