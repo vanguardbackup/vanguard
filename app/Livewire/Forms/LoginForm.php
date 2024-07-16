@@ -9,18 +9,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
 
 class LoginForm extends Form
 {
-    #[Validate('required|string|email')]
     public string $email = '';
 
-    #[Validate('required|string')]
     public string $password = '';
 
-    #[Validate('boolean')]
     public bool $remember = false;
 
     public function authenticate(): void
@@ -36,6 +32,30 @@ class LoginForm extends Form
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    public function rules(): array
+    {
+        return [
+            'email' => ['required', 'email', 'string'],
+            'password' => ['required', 'string'],
+            'remember' => ['boolean'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => __('Please enter your email address.'),
+            'email.email' => __('Please enter a valid email address.'),
+            'password.required' => __('Please enter your password.'),
+        ];
     }
 
     protected function ensureIsNotRateLimited(): void
