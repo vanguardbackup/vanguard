@@ -64,7 +64,10 @@ class RemoteServer extends Model
             return null;
         }
 
-        return Crypt::decryptString($this->database_password);
+        /** @var string $databasePassword */
+        $databasePassword = $this->database_password;
+
+        return Crypt::decryptString($databasePassword);
     }
 
     public function isDatabasePasswordEncrypted(): bool

@@ -136,7 +136,11 @@ class CreateBackupTaskForm extends Component
         $this->validate($this->rules(), $this->messages());
         $this->processScheduleSettings();
         $backupTask = BackupTask::create($this->prepareBackupTaskData());
-        $backupTask->tags()->sync($this->selectedTags);
+
+        /** @var Tag $tags */
+        $tags = $this->selectedTags;
+
+        $backupTask->tags()->sync($tags);
 
         Toaster::success(__('Backup task has been added.'));
 

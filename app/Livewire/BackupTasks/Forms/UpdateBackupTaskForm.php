@@ -222,7 +222,7 @@ class UpdateBackupTaskForm extends Component
                 'string',
                 'regex:/^([01]?\d|2[0-3]):([0-5]?\d)$/',
                 'required_unless:useCustomCron,true',
-                new UniqueScheduledTimePerRemoteServer($this->remoteServerId, $this->backupTask->getAttribute('id')),
+                new UniqueScheduledTimePerRemoteServer((int) $this->remoteServerId, $this->backupTask->getAttribute('id')),
             ],
             'cronExpression' => [
                 'nullable',
@@ -306,6 +306,9 @@ class UpdateBackupTaskForm extends Component
             ]);
         }
 
-        $this->backupTask->tags()->sync($this->selectedTags);
+        /** @var Tag $tags */
+        $tags = $this->selectedTags;
+
+        $this->backupTask->tags()->sync($tags);
     }
 }

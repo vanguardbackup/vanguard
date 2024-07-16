@@ -70,7 +70,10 @@ class BackupDestination extends Model
             return 'us-east-1'; // Dummy region to satisfy the S3Client constructor
         }
 
-        return $this->custom_s3_region;
+        /** @var string $customS3Region */
+        $customS3Region = $this->custom_s3_region;
+
+        return $customS3Region;
     }
 
     public function getS3Client(): S3Client

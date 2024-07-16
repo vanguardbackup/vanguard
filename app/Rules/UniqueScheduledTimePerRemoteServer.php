@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Rules;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +19,13 @@ class UniqueScheduledTimePerRemoteServer implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $utcTime = $value;
         Log::info('UniqueScheduledTimePerRemoteServer: Time for comparison', ['time' => $utcTime]);
 
-        $query = $user?->backupTasks()
+        $query = $user->backupTasks()
             ->where('remote_server_id', $this->remoteServerId)
             ->where('time_to_run_at', $utcTime);
 

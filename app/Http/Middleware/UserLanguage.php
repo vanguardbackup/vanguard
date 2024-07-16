@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
@@ -23,7 +24,10 @@ class UserLanguage
             return $next($request);
         }
 
-        $userLanguage = Auth::user()->language;
+        /** @var User $user */
+        $user = Auth::user();
+
+        $userLanguage = $user->getAttribute('language');
 
         if (array_key_exists($userLanguage, config('app.available_languages'))) {
             Carbon::setLocale($userLanguage);

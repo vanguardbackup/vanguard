@@ -68,12 +68,17 @@ class IndexItem extends Component
         $this->backupTask = $backupTask;
     }
 
+    /**
+     * Boot the component.
+     */
     public function boot(): void
     {
-        $this->backupTask = $this->backupTask->fresh();
+        /** @var BackupTask $freshBackupTask */
+        $freshBackupTask = $this->backupTask->fresh();
+        $this->backupTask = $freshBackupTask;
 
         // This needs to be here to fetch the latest log.
-        $this->backupTaskLog = $this->backupTask->latestLog;
+        $this->backupTaskLog = $this->backupTask->getAttribute('latestLog');
     }
 
     public function render(): View

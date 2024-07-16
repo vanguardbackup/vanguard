@@ -8,6 +8,7 @@ use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
+use App\Models\User;
 use App\Services\Backup\Backup;
 use Carbon\Carbon;
 use Exception;
@@ -125,6 +126,9 @@ abstract class AbstractBackupTask extends Backup
      */
     protected function logMessage(string $message): void
     {
-        $this->logWithTimestamp($message, $this->backupTask->user->timezone);
+        /** @var User $user */
+        $user = $this->backupTask->user;
+
+        $this->logWithTimestamp($message, $user->getAttribute('timezone'));
     }
 }

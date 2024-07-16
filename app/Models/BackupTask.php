@@ -304,7 +304,7 @@ class BackupTask extends Model
         }
 
         if ($this->frequency === self::FREQUENCY_DAILY) {
-            $nextRun = Carbon::today()->setTimeFromTimeString($this->time_to_run_at);
+            $nextRun = Carbon::today()->setTimeFromTimeString((string) $this->time_to_run_at);
 
             if ($nextRun->lte(Carbon::now())) {
                 $nextRun->addDay();
@@ -320,7 +320,7 @@ class BackupTask extends Model
             }
 
             return Carbon::today()->addDays(7 - Carbon::today()->dayOfWeek + Carbon::parse($this->time_to_run_at)->dayOfWeek)
-                ->setTimeFromTimeString($this->time_to_run_at);
+                ->setTimeFromTimeString((string) $this->time_to_run_at);
         }
 
         return null;
@@ -377,6 +377,7 @@ class BackupTask extends Model
 
     public function sendNotifications(): void
     {
+        /** @var BackupTaskLog $latestLog */
         $latestLog = $this->fresh()?->logs()->latest()->first();
         // if we want to only send notifications on failure in the future ^^
 
@@ -395,17 +396,23 @@ class BackupTask extends Model
         }
     }
 
-    public function sendEmailNotification(?BackupTaskLog $latestLog): void
+    public function sendEmailNotification(BackupTaskLog $latestLog): void
     {
         Mail::to($this->notify_email)
             ->queue(new OutputMail($latestLog));
     }
 
-    public function sendDiscordWebhookNotification(?BackupTaskLog $latestLog): void
+    public function sendDiscordWebhookNotification(BackupTaskLog $latestLog): void
     {
-        $status = $latestLog?->successful_at ? 'success' : 'failure';
-        $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
-        $color = $latestLog?->successful_at ? 3066993 : 15158332; // Green for success, Red for failure
+        $status = $latestLog->getAttribute('successful_at') ? 'success' : 'failure';
+        $message = $latestLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $color = $latestLog->getAttribute('successful_at') ? 3066993 : 15158332; // Green for success, Red for failure
+
+        /** @var RemoteServer $remoteServer */
+        $remoteServer = $this->remoteServer;
+
+        /** @var RemoteServer $backupDestination */
+        $backupDestination = $this->backupDestination;
 
         $embed = [
             'title' => $this->label . ' Backup Task',
@@ -419,12 +426,12 @@ class BackupTask extends Model
                 ],
                 [
                     'name' => __('Remote Server'),
-                    'value' => $this->remoteServer?->label,
+                    'value' => $remoteServer->getAttribute('label'),
                     'inline' => true,
                 ],
                 [
                     'name' => __('Backup Destination'),
-                    'value' => $this->backupDestination?->label . ' (' . $this->backupDestination?->type() . ')',
+                    'value' => $backupDestination->getAttribute('label') . ' (' . $this->backupDestination?->type() . ')',
                     'inline' => true,
                 ],
                 [
@@ -434,7 +441,7 @@ class BackupTask extends Model
                 ],
                 [
                     'name' => __('Ran at'),
-                    'value' => $latestLog?->created_at->format('jS F Y, H:i:s'),
+                    'value' => Carbon::parse($latestLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
                     'inline' => true,
                 ],
             ],
@@ -448,18 +455,18 @@ class BackupTask extends Model
             'Content-Type' => 'application/json',
         ]);
 
-        $http->post($this->notify_discord_webhook, [
-            'username' => __('Vanguard'),
+        $http->post((string) $this->notify_discord_webhook, [
+            'username' => config('app.name'),
             'avatar_url' => asset('images/logo-on-black.png'),
             'embeds' => [$embed],
         ]);
     }
 
-    public function sendSlackWebhookNotification(?BackupTaskLog $latestLog): void
+    public function sendSlackWebhookNotification(BackupTaskLog $latestLog): void
     {
-        $status = $latestLog?->successful_at ? 'success' : 'failure';
-        $message = $latestLog?->successful_at ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
-        $color = $latestLog?->successful_at ? 'good' : 'danger'; // Green for success, Red for failure
+        $status = $latestLog->getAttribute('successful_at') ? 'success' : 'failure';
+        $message = $latestLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $color = $latestLog->getAttribute('successful_at') ? 'good' : 'danger'; // Green for success, Red for failure
 
         $payload = [
             'attachments' => [
@@ -490,7 +497,7 @@ class BackupTask extends Model
                         ],
                         [
                             'title' => __('Ran at'),
-                            'value' => $latestLog?->created_at->format('jS F Y, H:i:s'),
+                            'value' => Carbon::parse($latestLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
                             'short' => true,
                         ],
                     ],
@@ -503,7 +510,7 @@ class BackupTask extends Model
             'Content-Type' => 'application/json',
         ]);
 
-        $http->post($this->notify_slack_webhook, $payload);
+        $http->post((string) $this->notify_slack_webhook, $payload);
     }
 
     public function hasCustomStorePath(): bool
@@ -588,8 +595,11 @@ class BackupTask extends Model
         ];
     }
 
+    /**
+     *  Returns the cron expression.
+     */
     private function cronExpression(): CronExpression
     {
-        return new CronExpression($this->custom_cron_expression);
+        return new CronExpression((string) $this->custom_cron_expression);
     }
 }
