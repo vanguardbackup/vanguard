@@ -529,15 +529,18 @@ class BackupTask extends Model
         return $this->getAttribute('isolated_username') !== null && $this->getAttribute('isolated_password') !== null;
     }
 
+    /**
+     * Format the backup task's last run time according to their locale preferences.
+     */
     public function lastRunFormatted(?User $user = null): string
     {
         if (is_null($this->last_run_at)) {
             return __('Never');
         }
 
-        $user = $user ?? Auth::user() ?? new User(['language' => config('app.locale'), 'timezone' => config('app.timezone')]);
+        $user = $user ?? Auth::user();
 
-        $locale = $user->language === 'dk' ? 'da' : $user->language;
+        $locale = $user?->language ?? config('app.locale');
 
         Carbon::setLocale($locale);
 
