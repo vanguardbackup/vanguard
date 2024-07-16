@@ -164,7 +164,7 @@ test('the slack webhook url must be a valid slack url', function (): void {
         ->assertHasErrors('notifySlackWebhook');
 });
 
-test('the time to run at is converted to the user\'s timezone', function (): void {
+test("the time to run at is converted to the user's timezone", function (): void {
     $this->user->update(['timezone' => 'America/New_York']);
 
     Livewire::test(CreateBackupTaskForm::class)

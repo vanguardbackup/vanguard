@@ -28,7 +28,7 @@ function get_ssh_public_key(): string
     $publicKey = @file_get_contents($publicKeyPath);
 
     if ($publicKey === false) {
-        throw new RuntimeException("Unable to read SSH public key from: {$publicKeyPath}");
+        throw new RuntimeException('Unable to read SSH public key from: ' . $publicKeyPath);
     }
 
     return $publicKey;
@@ -47,7 +47,7 @@ function get_ssh_private_key(): string
     $privateKey = @file_get_contents($privateKeyPath);
 
     if ($privateKey === false) {
-        throw new RuntimeException("Unable to read SSH private key from: {$privateKeyPath}");
+        throw new RuntimeException('Unable to read SSH private key from: ' . $privateKeyPath);
     }
 
     return $privateKey;

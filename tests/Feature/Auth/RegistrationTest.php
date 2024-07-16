@@ -31,7 +31,5 @@ test('new users can register', function (): void {
 
     $this->assertAuthenticated();
 
-    Mail::assertQueued(WelcomeMail::class, function ($mail) {
-        return $mail->hasTo('test@example.com');
-    });
+    Mail::assertQueued(WelcomeMail::class, fn ($mail) => $mail->hasTo('test@example.com'));
 });

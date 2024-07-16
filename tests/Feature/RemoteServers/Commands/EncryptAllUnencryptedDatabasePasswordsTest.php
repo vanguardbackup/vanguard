@@ -19,7 +19,7 @@ it('skips encryption if the database password is empty', function (): void {
     ]);
 
     $this->artisan(EncryptDatabasePasswordsCommand::class)
-        ->expectsOutputToContain("Database password for remote server {$remoteServer->label} is empty. Skipping encryption.")
+        ->expectsOutputToContain(sprintf('Database password for remote server %s is empty. Skipping encryption.', $remoteServer->label))
         ->assertExitCode(0);
 });
 

@@ -14,7 +14,8 @@ use Illuminate\Queue\SerializesModels;
 
 class BackupTaskFailed extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(public User $user, public string $taskName, public string $errorMessage)
     {

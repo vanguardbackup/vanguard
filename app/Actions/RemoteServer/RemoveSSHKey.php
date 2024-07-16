@@ -20,25 +20,25 @@ class RemoveSSHKey
     {
         Log::info('Removing SSH key from server.', ['server_id' => $remoteServer->getAttribute('id')]);
 
-        /** @var PrivateKey $key */
-        $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
+        /** @var PrivateKey $asymmetricKey */
+        $asymmetricKey = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
         try {
-            $ssh = new SSH2($remoteServer->getAttribute('ip_address'), (int) $remoteServer->getAttribute('port'), 5);
+            $ssh2 = new SSH2($remoteServer->getAttribute('ip_address'), (int) $remoteServer->getAttribute('port'), 5);
 
-            $ssh->login($remoteServer->getAttribute('username'), $key);
+            $ssh2->login($remoteServer->getAttribute('username'), $asymmetricKey);
 
             $vanguardsPublicKey = get_ssh_public_key();
 
-            $ssh->exec("sed -i '/{$vanguardsPublicKey}/d' ~/.ssh/authorized_keys");
+            $ssh2->exec(sprintf("sed -i '/%s/d' ~/.ssh/authorized_keys", $vanguardsPublicKey));
 
             Log::info('Removed SSH key from server.', ['server_id' => $remoteServer->getAttribute('id')]);
             Log::info('Updated server to indicate SSH key was removed.', ['server_id' => $remoteServer->getAttribute('id')]);
             Mail::to($remoteServer->getAttribute('user')->email)->queue(new SuccessfullyRemovedKey($remoteServer));
 
-        } catch (RuntimeException $e) {
-            Log::debug('[SSH Key Removal] Failed to connect to remote server', ['error' => $e->getMessage()]);
-            Mail::to($remoteServer->getAttribute('user')->email)->queue(new FailedToRemoveKey($remoteServer, $e->getMessage()));
+        } catch (RuntimeException $runtimeException) {
+            Log::debug('[SSH Key Removal] Failed to connect to remote server', ['error' => $runtimeException->getMessage()]);
+            Mail::to($remoteServer->getAttribute('user')->email)->queue(new FailedToRemoveKey($remoteServer, $runtimeException->getMessage()));
         }
     }
 }

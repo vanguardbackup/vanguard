@@ -21,16 +21,14 @@ beforeEach(function (): void {
             ->andReturn($success);
     };
 
-    $this->callStreamFiles = function (int $retries = 3, int $delay = 5): bool {
-        return $this->backupDestination->streamFiles(
-            $this->mockSftp,
-            $this->remoteZipPath,
-            $this->fileName,
-            $this->storagePath,
-            $retries,
-            $delay
-        );
-    };
+    $this->callStreamFiles = fn (int $retries = 3, int $delay = 5): bool => $this->backupDestination->streamFiles(
+        $this->mockSftp,
+        $this->remoteZipPath,
+        $this->fileName,
+        $this->storagePath,
+        $retries,
+        $delay
+    );
 });
 
 afterEach(function (): void {

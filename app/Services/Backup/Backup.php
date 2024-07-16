@@ -45,9 +45,7 @@ abstract class Backup
         $this->logInfo('Initializing Backup class.');
         $this->validateConfiguration();
 
-        $this->sftpFactory = $sftpFactory ?? function (string $host, int $port, int $timeout): SFTPInterface {
-            return new SFTPAdapter($host, $port, $timeout);
-        };
+        $this->sftpFactory = $sftpFactory ?? fn (string $host, int $port, int $timeout): SFTPInterface => new SFTPAdapter($host, $port, $timeout);
     }
 
     public function backupDestinationDriver(
@@ -68,7 +66,7 @@ abstract class Backup
             case BackupConstants::DRIVER_LOCAL:
                 return (new Local($sftp, $storagePath))->streamFiles($sftp, $remotePath, $fileName, $storagePath);
             default:
-                throw new RuntimeException("Unsupported destination driver: {$destinationDriver}");
+                throw new RuntimeException('Unsupported destination driver: ' . $destinationDriver);
         }
     }
 
@@ -120,8 +118,8 @@ abstract class Backup
         try {
             $this->logDebug('Dispatching StreamBackupTaskLogEvent');
             StreamBackupTaskLogEvent::dispatch($backupTaskLog, $logOutput);
-        } catch (Exception $e) {
-            $this->handleException($e, 'Error dispatching StreamBackupTaskLogEvent');
+        } catch (Exception $exception) {
+            $this->handleException($exception, 'Error dispatching StreamBackupTaskLogEvent');
         }
 
         $backupTaskLog->forceFill(['output' => $logOutput]);
@@ -146,8 +144,8 @@ abstract class Backup
         try {
             Mail::to($backupTask->getAttribute('user'))
                 ->queue(new BackupTaskFailed($backupTask->getAttribute('user'), $backupTask->getAttribute('label'), $errorMessage));
-        } catch (Exception $e) {
-            $this->handleException($e, 'Failed to send task failure notification email.');
+        } catch (Exception $exception) {
+            $this->handleException($exception, 'Failed to send task failure notification email.');
         }
     }
 
@@ -198,12 +196,12 @@ abstract class Backup
         $remoteServer = $backupTask->getAttribute('remoteServer');
         $this->logInfo('Establishing SFTP connection.', ['remote_server' => $remoteServer->ip_address]);
 
-        /** @var PrivateKey $key */
-        $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
+        /** @var PrivateKey $asymmetricKey */
+        $asymmetricKey = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
         $sftp = $this->createSFTP($remoteServer->ip_address, (int) $remoteServer->port, 120);
 
-        $loginSuccess = $backupTask->hasIsolatedCredentials() ? $sftp->login($backupTask->getAttribute('isolated_username'), $key) : $sftp->login($remoteServer->username, $key);
+        $loginSuccess = $backupTask->hasIsolatedCredentials() ? $sftp->login($backupTask->getAttribute('isolated_username'), $asymmetricKey) : $sftp->login($remoteServer->username, $asymmetricKey);
 
         if (! $loginSuccess) {
             $error = $sftp->getLastError();
@@ -269,9 +267,7 @@ abstract class Backup
         $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
         $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
 
-        $result = $this->retryCommand(function () use ($sftp, $zipCommand): bool|string {
-            return $sftp->exec($zipCommand);
-        }, BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
+        $result = $this->retryCommand(fn (): bool|string => $sftp->exec($zipCommand), BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
 
         if ($result === false || (is_string($result) && stripos($result, 'error') !== false)) {
             $error = $result === false ? $sftp->getLastError() : $result;
@@ -345,14 +341,15 @@ abstract class Backup
         if ($databaseTablesToExcludeInTheBackup) {
             $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
             if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-                foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $table);
+                foreach ($tablesToExclude as $tableToExclude) {
+                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $tableToExclude);
                 }
             } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-                foreach ($tablesToExclude as $table) {
-                    $excludeTablesOption .= ' -T ' . escapeshellarg($table);
+                foreach ($tablesToExclude as $tableToExclude) {
+                    $excludeTablesOption .= ' -T ' . escapeshellarg($tableToExclude);
                 }
             }
+
             Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
         }
 
@@ -439,9 +436,9 @@ abstract class Backup
     {
         $this->logInfo('Checking if the directory is a Laravel project.', ['source_path' => $sourcePath]);
 
-        $artisanExists = $sftp->stat("{$sourcePath}/artisan") !== false;
-        $composerJsonExists = $sftp->stat("{$sourcePath}/composer.json") !== false;
-        $packageJsonExists = $sftp->stat("{$sourcePath}/package.json") !== false;
+        $artisanExists = $sftp->stat($sourcePath . '/artisan') !== false;
+        $composerJsonExists = $sftp->stat($sourcePath . '/composer.json') !== false;
+        $packageJsonExists = $sftp->stat($sourcePath . '/package.json') !== false;
 
         $isLaravel = $artisanExists && $composerJsonExists && $packageJsonExists;
         $this->logDebug('Laravel directory check.', [
@@ -468,16 +465,16 @@ abstract class Backup
         }
     }
 
-    public function createBackupDestinationInstance(BackupDestination $backupDestinationModel): BackupDestinationInterface
+    public function createBackupDestinationInstance(BackupDestination $backupDestination): BackupDestinationInterface
     {
-        switch ($backupDestinationModel->getAttribute('type')) {
+        switch ($backupDestination->getAttribute('type')) {
             case BackupConstants::DRIVER_CUSTOM_S3:
             case BackupConstants::DRIVER_S3:
-                $client = $backupDestinationModel->getS3Client();
+                $client = $backupDestination->getS3Client();
 
-                return new S3($client, $backupDestinationModel->getAttribute('s3_bucket_name'));
+                return new S3($client, $backupDestination->getAttribute('s3_bucket_name'));
             default:
-                throw new RuntimeException("Unsupported backup destination type: {$backupDestinationModel->getAttribute('type')}");
+                throw new RuntimeException('Unsupported backup destination type: ' . $backupDestination->getAttribute('type'));
         }
     }
 
@@ -497,6 +494,7 @@ abstract class Backup
             $this->logError('Failed to download the remote file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
             throw new Exception('Failed to download the remote file: ' . $error);
         }
+
         $this->logDebug('Remote file downloaded.', ['temp_file' => $tempFile]);
 
         return $tempFile;
@@ -513,6 +511,7 @@ abstract class Backup
             $this->logError('Failed to open the temporary file as a stream.', ['temp_file' => $tempFile, 'error' => $error]);
             throw new Exception('Failed to open the temporary file as a stream: ' . json_encode($error));
         }
+
         $this->logDebug('Temporary file opened as a stream.');
 
         return $stream;
@@ -549,7 +548,7 @@ abstract class Backup
 
         try {
             /** @var array<array<string, mixed>> $files */
-            $files = $backupDestination->listFiles("{$pattern}{$backupTaskId}_*{$fileExtension}");
+            $files = $backupDestination->listFiles(sprintf('%s%d_*%s', $pattern, $backupTaskId, $fileExtension));
 
             $this->logDebug('Files filtered and sorted.', ['file_count' => count($files)]);
 
@@ -576,14 +575,14 @@ abstract class Backup
             }
 
             $this->logInfo('Old backups rotation completed.', ['remaining_files' => count($files)]);
-        } catch (Exception $e) {
-            $this->logError('Error rotating old backups.', ['error' => $e->getMessage()]);
+        } catch (Exception $exception) {
+            $this->logError('Error rotating old backups.', ['error' => $exception->getMessage()]);
             // Consider re-throwing the exception or handling it according to your error management strategy
         }
     }
 
-    protected function handleException(Exception $e, string $context): void
+    protected function handleException(Exception $exception, string $context): void
     {
-        $this->logError($context . ': ' . $e->getMessage(), ['exception' => $e]);
+        $this->logError($context . ': ' . $exception->getMessage(), ['exception' => $exception]);
     }
 }

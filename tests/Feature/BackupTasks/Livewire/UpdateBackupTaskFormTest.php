@@ -28,13 +28,13 @@ describe('backup task update', function (): void {
         $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->data['user']->id]);
         $tagIds = [$tag1->id, $tag2->id];
 
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $this->data['user']->remoteServers,
             'availableTags' => $this->data['user']->tags,
         ]);
 
-        $livewire->set('label', 'Updated Label')
+        $testable->set('label', 'Updated Label')
             ->set('description', 'Updated Description')
             ->set('remoteServerId', $this->data['remoteServer']->id)
             ->set('backupDestinationId', $this->data['backupDestination']->id)
@@ -75,23 +75,23 @@ describe('backup task update', function (): void {
         $this->assertDatabaseHas('taggables', [
             'tag_id' => $tag1->id,
             'taggable_id' => $this->data['backupTask']->id,
-            'taggable_type' => 'App\Models\BackupTask',
+            'taggable_type' => BackupTask::class,
         ]);
 
         $this->assertDatabaseHas('taggables', [
             'tag_id' => $tag2->id,
             'taggable_id' => $this->data['backupTask']->id,
-            'taggable_type' => 'App\Models\BackupTask',
+            'taggable_type' => BackupTask::class,
         ]);
     });
 
     test('can be updated by the owner with custom cron', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $this->data['user']->remoteServers,
         ]);
 
-        $livewire->set('label', 'Updated Label')
+        $testable->set('label', 'Updated Label')
             ->set('description', 'Updated Description')
             ->set('remoteServerId', $this->data['remoteServer']->id)
             ->set('backupDestinationId', $this->data['backupDestination']->id)
@@ -121,12 +121,12 @@ describe('backup task update', function (): void {
 
         $this->actingAs($anotherUser);
 
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $anotherUser->remoteServers,
         ]);
 
-        $livewire->set('label', 'Updated Label')
+        $testable->set('label', 'Updated Label')
             ->set('description', 'Updated Description')
             ->set('remoteServerId', $this->data['remoteServer']->id)
             ->set('backupDestinationId', BackupDestination::factory()->create()->id)
@@ -143,12 +143,12 @@ describe('backup task update', function (): void {
 
 describe('validation rules', function (): void {
     test('backup task has required validation rules', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('label', '')
+        $testable->set('label', '')
             ->set('backupDestinationId', '')
             ->set('backupType', '')
             ->call('submit')
@@ -160,12 +160,12 @@ describe('validation rules', function (): void {
     });
 
     test('discord webhook url must be valid', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('notifyDiscordWebhook', 'invalid-discord-url')
+        $testable->set('notifyDiscordWebhook', 'invalid-discord-url')
             ->call('submit')
             ->assertHasErrors([
                 'notifyDiscordWebhook' => 'starts_with:https://discord.com/api/webhooks/',
@@ -173,12 +173,12 @@ describe('validation rules', function (): void {
     });
 
     test('slack webhook url must be valid', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('notifySlackWebhook', 'invalid-slack-url')
+        $testable->set('notifySlackWebhook', 'invalid-slack-url')
             ->call('submit')
             ->assertHasErrors([
                 'notifySlackWebhook' => 'starts_with:https://hooks.slack.com/services/',
@@ -186,12 +186,12 @@ describe('validation rules', function (): void {
     });
 
     test('the store path needs to be a valid unix path', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('sourcePath', 'C:\var\www\html')
+        $testable->set('sourcePath', 'C:\var\www\html')
             ->call('submit')
             ->assertHasErrors([
                 'sourcePath' => 'regex:/^\/[a-zA-Z0-9_\/]+$/', // Unix path
@@ -199,12 +199,12 @@ describe('validation rules', function (): void {
     });
 
     test('the excluded database tables must be a valid comma separated list', function (): void {
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('excludedDatabaseTables', 'table1, table2, table3')
+        $testable->set('excludedDatabaseTables', 'table1, table2, table3')
             ->set('sourcePath', '/var/www/html')
             ->set('description', '')
             ->call('submit')
@@ -218,12 +218,12 @@ describe('time and timezone handling', function (): void {
     test('the time to run at is converted from the users timezone to UTC', function (): void {
         $this->data['user']->update(['timezone' => 'America/New_York']);
 
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('timeToRun', '12:00') // 12:00 PM in America/New_York
+        $testable->set('timeToRun', '12:00') // 12:00 PM in America/New_York
             ->set('description', '')
             ->set('sourcePath', '/var/www/html')
             ->call('submit')
@@ -304,12 +304,12 @@ describe('tag handling', function (): void {
     test('users cannot set tags that do not belong them', function (): void {
         $tag = Tag::factory()->create();
 
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('selectedTags', [$tag->id])
+        $testable->set('selectedTags', [$tag->id])
             ->call('submit')
             ->assertHasErrors([
                 'selectedTags' => 'exists',
@@ -318,12 +318,12 @@ describe('tag handling', function (): void {
 
     test('users cannot set tags that do not exist', function (): void {
 
-        $livewire = Livewire::test(UpdateBackupTaskForm::class, [
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $livewire->set('selectedTags', [999])
+        $testable->set('selectedTags', [999])
             ->call('submit')
             ->assertHasErrors([
                 'selectedTags' => 'exists',
@@ -365,19 +365,19 @@ describe('tag handling', function (): void {
         $this->assertDatabaseHas('taggables', [
             'tag_id' => $tag3->id,
             'taggable_id' => $backupTask->id,
-            'taggable_type' => 'App\Models\BackupTask',
+            'taggable_type' => BackupTask::class,
         ]);
 
         $this->assertDatabaseMissing('taggables', [
             'tag_id' => $tag1->id,
             'taggable_id' => $backupTask->id,
-            'taggable_type' => 'App\Models\BackupTask',
+            'taggable_type' => BackupTask::class,
         ]);
 
         $this->assertDatabaseMissing('taggables', [
             'tag_id' => $tag2->id,
             'taggable_id' => $backupTask->id,
-            'taggable_type' => 'App\Models\BackupTask',
+            'taggable_type' => BackupTask::class,
         ]);
     });
 });

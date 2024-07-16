@@ -42,29 +42,19 @@ it('queues tasks that are eligible to be ran', function (): void {
         ->expectsOutputToContain('Running scheduled backup tasks...')
         ->run();
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskOne): bool {
-        return $job->backupTaskId === $taskOne->id;
-    });
+    Queue::assertPushed(RunFileBackupTaskJob::class, fn ($job): bool => $job->backupTaskId === $taskOne->id);
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskTwo): bool {
-        return $job->backupTaskId === $taskTwo->id;
-    });
+    Queue::assertPushed(RunFileBackupTaskJob::class, fn ($job): bool => $job->backupTaskId === $taskTwo->id);
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskThree): bool {
-        return $job->backupTaskId === $taskThree->id;
-    });
+    Queue::assertPushed(RunFileBackupTaskJob::class, fn ($job): bool => $job->backupTaskId === $taskThree->id);
 
-    Queue::assertPushed(RunFileBackupTaskJob::class, function ($job) use ($taskFour): bool {
-        return $job->backupTaskId === $taskFour->id;
-    });
+    Queue::assertPushed(RunFileBackupTaskJob::class, fn ($job): bool => $job->backupTaskId === $taskFour->id);
 });
 
 it('updates the weekly run at time for weekly jobs', function (): void {
     Queue::fake();
 
-    freezeTime(function () {
-        return now()->startOfWeek()->addHours(12);
-    });
+    freezeTime(fn () => now()->startOfWeek()->addHours(12));
 
     $task = BackupTask::factory()->create([
         'status' => 'ready',
@@ -97,9 +87,7 @@ it('does not queue tasks that are not eligible to be ran', function (): void {
 it('does not queue tasks that are ineligible to be ran', function (): void {
     Queue::fake();
 
-    freezeTime(function (): string {
-        return now()->format('12:00');
-    });
+    freezeTime(fn (): string => now()->format('12:00'));
 
     BackupTask::factory()->create([
         'status' => 'ready',

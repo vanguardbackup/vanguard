@@ -62,11 +62,11 @@ test('users can logout', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('layout.navigation');
+    $testable = Volt::test('layout.navigation');
 
-    $component->call('logout');
+    $testable->call('logout');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertRedirect('/');
 

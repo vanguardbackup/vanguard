@@ -62,18 +62,18 @@ class CheckRemoteServerConnection
             /** @var PrivateKey $key */
             $key = PublicKeyLoader::load(get_ssh_private_key(), config('app.ssh.passphrase'));
 
-            $ssh = new SSH2($data['host'], $data['port']);
+            $ssh2 = new SSH2($data['host'], $data['port']);
 
             // Attempt to login
-            if (! $ssh->login($data['username'], $key)) {
-                Log::debug('[Server Connection Check] Failed to connect to remote server', ['error' => $ssh->getLastError()]);
+            if (! $ssh2->login($data['username'], $key)) {
+                Log::debug('[Server Connection Check] Failed to connect to remote server', ['error' => $ssh2->getLastError()]);
 
                 $remoteServer?->update([
                     'connectivity_status' => RemoteServer::STATUS_OFFLINE,
                 ]);
 
                 return [
-                    'error' => $ssh->getLastError(),
+                    'error' => $ssh2->getLastError(),
                     'status' => 'error',
                 ];
             }

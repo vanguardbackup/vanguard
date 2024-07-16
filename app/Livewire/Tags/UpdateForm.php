@@ -15,7 +15,8 @@ use Masmerise\Toaster\Toaster;
 class UpdateForm extends Component
 {
     public string $label;
-    public ?string $description;
+
+    public ?string $description = null;
 
     public Tag $tag;
 

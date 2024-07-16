@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\BackupTask;
 use App\Models\RemoteServer;
 use App\Models\User;

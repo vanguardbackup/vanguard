@@ -26,14 +26,19 @@ use Illuminate\Support\Facades\Mail;
 
 class BackupTask extends Model
 {
-    use HasFactory, HasTags;
+    use HasFactory;
+    use HasTags;
+    public const string STATUS_READY = 'ready';
 
-    const string STATUS_READY = 'ready';
-    const string STATUS_RUNNING = 'running';
-    const string FREQUENCY_DAILY = 'daily';
-    const string FREQUENCY_WEEKLY = 'weekly';
-    const string TYPE_FILES = 'files';
-    const string TYPE_DATABASE = 'database';
+    public const string STATUS_RUNNING = 'running';
+
+    public const string FREQUENCY_DAILY = 'daily';
+
+    public const string FREQUENCY_WEEKLY = 'weekly';
+
+    public const string TYPE_FILES = 'files';
+
+    public const string TYPE_DATABASE = 'database';
 
     protected $guarded = [];
 
@@ -57,14 +62,14 @@ class BackupTask extends Model
             ->where('backup_tasks.user_id', $userId)
             ->where('backup_task_data.created_at', '>=', $startDate)
             ->where('backup_task_data.created_at', '<=', $endDate)
-            ->selectRaw('COUNT(*) as count, DATE_TRUNC(\'month\', backup_task_data.created_at) as month_date')
+            ->selectRaw("COUNT(*) as count, DATE_TRUNC('month', backup_task_data.created_at) as month_date")
             ->groupBy('month_date')
             ->orderBy('month_date')
             ->get();
 
         return $results->mapWithKeys(function ($item) use ($locale): array {
             $carbonDate = Carbon::parse($item->getAttribute('month_date'))->locale($locale);
-            $localizedMonth = ucfirst($carbonDate->isoFormat('MMM YYYY'));
+            $localizedMonth = ucfirst((string) $carbonDate->isoFormat('MMM YYYY'));
 
             return [$localizedMonth => $item->getAttribute('count')];
         })->toArray();
@@ -98,21 +103,21 @@ class BackupTask extends Model
     }
 
     /**
-     * @param  Builder<BackupTask>  $query
+     * @param  Builder<BackupTask>  $builder
      * @return Builder<BackupTask>
      */
-    public function scopeNotPaused(Builder $query): Builder
+    public function scopeNotPaused(Builder $builder): Builder
     {
-        return $query->whereNull('paused_at');
+        return $builder->whereNull('paused_at');
     }
 
     /**
-     * @param  Builder<BackupTask>  $query
+     * @param  Builder<BackupTask>  $builder
      * @return Builder<BackupTask>
      */
-    public function scopeReady(Builder $query): Builder
+    public function scopeReady(Builder $builder): Builder
     {
-        return $query->where('status', self::STATUS_READY);
+        return $builder->where('status', self::STATUS_READY);
     }
 
     /**
@@ -220,9 +225,11 @@ class BackupTask extends Model
         if ($this->isReady() && $this->usingCustomCronExpression()) {
             return $this->cronExpressionMatches();
         }
+
         if (! $this->isReady()) {
             return false;
         }
+
         if ($this->usingCustomCronExpression()) {
             return false;
         }
@@ -263,7 +270,7 @@ class BackupTask extends Model
     public function run(): void
     {
         if ($this->isPaused()) {
-            Log::debug("Task {$this->id} is paused, skipping run");
+            Log::debug(sprintf('Task %s is paused, skipping run', $this->id));
 
             return;
         }
@@ -298,9 +305,9 @@ class BackupTask extends Model
     public function calculateNextRun(): ?Carbon
     {
         if (is_null($this->frequency) && $this->custom_cron_expression) {
-            $cron = new CronExpression($this->custom_cron_expression);
+            $cronExpression = new CronExpression($this->custom_cron_expression);
 
-            return Carbon::instance($cron->getNextRunDate(Carbon::now()));
+            return Carbon::instance($cronExpression->getNextRunDate(Carbon::now()));
         }
 
         if ($this->frequency === self::FREQUENCY_DAILY) {
@@ -396,17 +403,17 @@ class BackupTask extends Model
         }
     }
 
-    public function sendEmailNotification(BackupTaskLog $latestLog): void
+    public function sendEmailNotification(BackupTaskLog $backupTaskLog): void
     {
         Mail::to($this->notify_email)
-            ->queue(new OutputMail($latestLog));
+            ->queue(new OutputMail($backupTaskLog));
     }
 
-    public function sendDiscordWebhookNotification(BackupTaskLog $latestLog): void
+    public function sendDiscordWebhookNotification(BackupTaskLog $backupTaskLog): void
     {
-        $status = $latestLog->getAttribute('successful_at') ? 'success' : 'failure';
-        $message = $latestLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
-        $color = $latestLog->getAttribute('successful_at') ? 3066993 : 15158332; // Green for success, Red for failure
+        $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
+        $message = $backupTaskLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $color = $backupTaskLog->getAttribute('successful_at') ? 3066993 : 15158332; // Green for success, Red for failure
 
         /** @var RemoteServer $remoteServer */
         $remoteServer = $this->remoteServer;
@@ -441,7 +448,7 @@ class BackupTask extends Model
                 ],
                 [
                     'name' => __('Ran at'),
-                    'value' => Carbon::parse($latestLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
+                    'value' => Carbon::parse($backupTaskLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
                     'inline' => true,
                 ],
             ],
@@ -451,22 +458,22 @@ class BackupTask extends Model
             ],
         ];
 
-        $http = Http::withHeaders([
+        $pendingRequest = Http::withHeaders([
             'Content-Type' => 'application/json',
         ]);
 
-        $http->post((string) $this->notify_discord_webhook, [
+        $pendingRequest->post((string) $this->notify_discord_webhook, [
             'username' => config('app.name'),
             'avatar_url' => asset('images/logo-on-black.png'),
             'embeds' => [$embed],
         ]);
     }
 
-    public function sendSlackWebhookNotification(BackupTaskLog $latestLog): void
+    public function sendSlackWebhookNotification(BackupTaskLog $backupTaskLog): void
     {
-        $status = $latestLog->getAttribute('successful_at') ? 'success' : 'failure';
-        $message = $latestLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
-        $color = $latestLog->getAttribute('successful_at') ? 'good' : 'danger'; // Green for success, Red for failure
+        $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
+        $message = $backupTaskLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $color = $backupTaskLog->getAttribute('successful_at') ? 'good' : 'danger'; // Green for success, Red for failure
 
         $payload = [
             'attachments' => [
@@ -497,7 +504,7 @@ class BackupTask extends Model
                         ],
                         [
                             'title' => __('Ran at'),
-                            'value' => Carbon::parse($latestLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
+                            'value' => Carbon::parse($backupTaskLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
                             'short' => true,
                         ],
                     ],
@@ -506,11 +513,11 @@ class BackupTask extends Model
             ],
         ];
 
-        $http = Http::withHeaders([
+        $pendingRequest = Http::withHeaders([
             'Content-Type' => 'application/json',
         ]);
 
-        $http->post((string) $this->notify_slack_webhook, $payload);
+        $pendingRequest->post((string) $this->notify_slack_webhook, $payload);
     }
 
     public function hasCustomStorePath(): bool
@@ -550,7 +557,7 @@ class BackupTask extends Model
             return __('Never');
         }
 
-        $user = $user ?? Auth::user();
+        $user ??= Auth::user();
 
         $locale = $user?->language ?? config('app.locale');
 

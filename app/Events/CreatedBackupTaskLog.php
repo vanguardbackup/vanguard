@@ -15,8 +15,9 @@ use Illuminate\Queue\SerializesModels;
 
 class CreatedBackupTaskLog implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
-
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
     public BackupTask $backupTask;
 
     public function __construct(public BackupTaskLog $backupTaskLog)
@@ -32,7 +33,7 @@ class CreatedBackupTaskLog implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("new-backup-task-log.{$this->backupTask->getAttribute('id')}"),
+            new PrivateChannel('new-backup-task-log.' . $this->backupTask->getAttribute('id')),
         ];
     }
 

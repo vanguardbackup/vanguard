@@ -23,37 +23,59 @@ use Toaster;
 class UpdateBackupTaskForm extends Component
 {
     public BackupTask $backupTask;
+
     public string $label = '';
+
     public ?string $description = null;
+
     public ?string $sourcePath = null;
+
     public ?int $remoteServerId = null;
+
     public ?int $backupDestinationId = null;
+
     public ?string $frequency = BackupTask::FREQUENCY_DAILY;
+
     public ?string $timeToRun = '00:00';
+
     public ?string $cronExpression = null;
+
     public int $backupsToKeep = 5;
+
     public string $backupType = BackupTask::TYPE_FILES;
+
     public ?string $databaseName = null;
+
     public ?string $appendedFileName = null;
+
     public bool $useCustomCron = false;
+
     public ?string $notifyEmail = null;
+
     public ?string $notifyDiscordWebhook = null;
+
     public ?string $notifySlackWebhook = null;
+
     public string $userTimezone;
+
     public ?string $storePath = null;
+
     public ?string $excludedDatabaseTables = null;
+
     public bool $useIsolatedCredentials = false;
+
     public ?string $isolatedUsername = null;
+
     public ?string $isolatedPassword = null;
 
     /** @var Collection<int, RemoteServer>|null */
-    public ?Collection $remoteServers;
+    public ?Collection $remoteServers = null;
 
     /** @var \Illuminate\Support\Collection<int, string> */
     public \Illuminate\Support\Collection $backupTimes;
 
     /** @var Collection<int, Tag>|null */
-    public ?Collection $availableTags;
+    public ?Collection $availableTags = null;
 
     /** @var array<int>|null */
     public ?array $selectedTags = null;
@@ -186,12 +208,15 @@ class UpdateBackupTaskForm extends Component
         } elseif ($this->timeToRun && $this->frequency) {
             $this->cronExpression = null;
         }
+
         if ($this->userTimezone === 'UTC') {
             return;
         }
+
         if (! $this->timeToRun) {
             return;
         }
+
         $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
     }
 

@@ -16,7 +16,5 @@ it('dispatches events when the script runs if the model id is passed', closure: 
     $check = new CheckRemoteServerConnection;
     $check->byRemoteServerId($remoteServer->id);
 
-    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($e) use ($remoteServer): bool {
-        return $e->remoteServer->id === $remoteServer->id;
-    });
+    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, fn ($e): bool => $e->remoteServer->id === $remoteServer->id);
 });

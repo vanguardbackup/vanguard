@@ -14,7 +14,11 @@ use Illuminate\Queue\SerializesModels;
 
 class CheckRemoteServerConnectionJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(public int $remoteServerId)
     {
@@ -23,7 +27,7 @@ class CheckRemoteServerConnectionJob implements ShouldQueue
 
     public function handle(): void
     {
-        $checkConnection = new CheckRemoteServerConnection;
-        $checkConnection->byRemoteServerId($this->remoteServerId);
+        $checkRemoteServerConnection = new CheckRemoteServerConnection;
+        $checkRemoteServerConnection->byRemoteServerId($this->remoteServerId);
     }
 }

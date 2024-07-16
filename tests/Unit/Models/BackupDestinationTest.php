@@ -125,9 +125,7 @@ it('runs the s3 connectivity check job', function (): void {
 
     $backupDestination->run();
 
-    Queue::assertPushed(CheckBackupDestinationsS3ConnectionJob::class, function ($job) use ($backupDestination) {
-        return $job->backupDestination->is($backupDestination);
-    });
+    Queue::assertPushed(CheckBackupDestinationsS3ConnectionJob::class, fn ($job) => $job->backupDestination->is($backupDestination));
 });
 
 it('returns true if the backup destination is reachable and status is reachable', function (): void {

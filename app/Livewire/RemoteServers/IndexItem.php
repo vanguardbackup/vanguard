@@ -14,19 +14,6 @@ class IndexItem extends Component
 {
     public RemoteServer $remoteServer;
 
-    /**
-     * Get the listeners array.
-     *
-     * @return array<string, string>
-     */
-    public function getListeners(): array
-    {
-        return [
-            "echo-private:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'echoReceivedEvent',
-            "connection-check-initiated-{$this->remoteServer->getAttribute('id')}" => 'updateLivewireComponents',
-        ];
-    }
-
     public function echoReceivedEvent(): void
     {
         if ($this->remoteServer->isOnline()) {
@@ -55,5 +42,18 @@ class IndexItem extends Component
     public function render(): View
     {
         return view('livewire.remote-servers.index-item');
+    }
+
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
+    protected function getListeners(): array
+    {
+        return [
+            sprintf('echo-private:remote-servers.%s,RemoteServerConnectivityStatusChanged', $this->remoteServer->getAttribute('id')) => 'echoReceivedEvent',
+            'connection-check-initiated-' . $this->remoteServer->getAttribute('id') => 'updateLivewireComponents',
+        ];
     }
 }

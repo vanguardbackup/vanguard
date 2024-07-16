@@ -105,12 +105,12 @@ it('updates logOutput with the latest data when the task is running', function (
         'status' => BackupTask::STATUS_RUNNING,
     ]);
 
-    $component = Livewire::test(LogModal::class, ['backupTask' => $backupTask]);
+    $testable = Livewire::test(LogModal::class, ['backupTask' => $backupTask]);
 
-    $component->call('handleStreamEvent', ['logOutput' => 'The first output'])
+    $testable->call('handleStreamEvent', ['logOutput' => 'The first output'])
         ->assertSet('logOutput', 'The first output');
 
-    $component->call('handleStreamEvent', ['logOutput' => 'The second output'])
+    $testable->call('handleStreamEvent', ['logOutput' => 'The second output'])
         ->assertSet('logOutput', 'The second output')
         ->assertSet('isStreaming', true)
         ->assertSet('isLoading', false);

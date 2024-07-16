@@ -12,10 +12,10 @@ use Illuminate\Http\RedirectResponse;
 
 class VerifyEmailController extends Controller
 {
-    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    public function __invoke(EmailVerificationRequest $emailVerificationRequest): RedirectResponse
     {
         /** @var MustVerifyEmail $user */
-        $user = $request->user();
+        $user = $emailVerificationRequest->user();
 
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('overview', absolute: false) . '?verified=1');

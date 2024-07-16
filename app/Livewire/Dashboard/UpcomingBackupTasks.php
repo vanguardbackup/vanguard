@@ -39,9 +39,7 @@ class UpcomingBackupTasks extends Component
                 'due_to_run' => isset($dueToRun) ? ucfirst($dueToRun) : null,
                 'type' => ucfirst(__($task->type)),
             ];
-        })->filter(function ($scheduledTask): bool {
-            return ! is_null($scheduledTask->next_run);
-        })->sortBy('next_run')->values()->take(20);
+        })->filter(fn ($scheduledTask): bool => ! is_null($scheduledTask->next_run))->sortBy('next_run')->values()->take(20);
 
         $this->scheduledBackupTasks = $tasks;
 

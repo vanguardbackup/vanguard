@@ -58,9 +58,7 @@ it('runs the server connection check', function (): void {
 
     $server->runServerConnectionCheck();
 
-    Queue::assertPushed(CheckRemoteServerConnectionJob::class, function ($job) use ($server): bool {
-        return $job->remoteServerId === $server->id;
-    });
+    Queue::assertPushed(CheckRemoteServerConnectionJob::class, fn ($job): bool => $job->remoteServerId === $server->id);
 
     expect($server->connectivity_status)->toBe(RemoteServer::STATUS_CHECKING);
 });
@@ -254,9 +252,7 @@ it('dispatches a job to remove the ssh key', function (): void {
 
     $server->removeSSHKey();
 
-    Queue::assertPushed(RemoveSSHKeyJob::class, function ($job) use ($server): bool {
-        return $job->remoteServer->id === $server->id;
-    });
+    Queue::assertPushed(RemoveSSHKeyJob::class, fn ($job): bool => $job->remoteServer->id === $server->id);
 });
 
 it('dispatches a job to delete the remote server', function (): void {
@@ -268,13 +264,9 @@ it('dispatches a job to delete the remote server', function (): void {
 
     $this->assertTrue($server->isMarkedForDeletion());
 
-    Queue::assertPushed(RemoveServerJob::class, function ($job) use ($server): bool {
-        return $job->remoteServer->id === $server->id;
-    });
+    Queue::assertPushed(RemoveServerJob::class, fn ($job): bool => $job->remoteServer->id === $server->id);
 
-    Queue::assertPushed(RemoveSSHKeyJob::class, function ($job) use ($server): bool {
-        return $job->remoteServer->id === $server->id;
-    });
+    Queue::assertPushed(RemoveSSHKeyJob::class, fn ($job): bool => $job->remoteServer->id === $server->id);
 });
 
 it('updates the marked for deletion column', function (): void {

@@ -37,6 +37,7 @@ trait BackupHelpers
             Log::error('Failed to download the remote file.', ['remote_zip_path' => $remoteZipPath, 'error' => $error]);
             throw new Exception('Failed to download the remote file: ' . $error);
         }
+
         Log::debug('Remote file downloaded.', ['temp_file' => $tempFile]);
 
         return $tempFile;
@@ -50,6 +51,7 @@ trait BackupHelpers
             Log::error('Failed to open the temporary file as a stream.', ['temp_file' => $tempFile, 'error' => $error]);
             throw new Exception('Failed to open the temporary file as a stream: ' . json_encode($error));
         }
+
         Log::debug('Temporary file opened as a stream.');
 
         return $stream;

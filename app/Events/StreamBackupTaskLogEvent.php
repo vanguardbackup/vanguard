@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\Log;
 
 class StreamBackupTaskLogEvent implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
-
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
     public BackupTaskLog $backupTaskLog;
 
     public BackupTask $backupTask;
@@ -41,7 +42,7 @@ class StreamBackupTaskLogEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("backup-task-log.{$this->backupTask->getAttribute('id')}"),
+            new PrivateChannel('backup-task-log.' . $this->backupTask->getAttribute('id')),
         ];
     }
 }

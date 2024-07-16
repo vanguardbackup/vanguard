@@ -12,9 +12,9 @@ test('the component can be rendered', function (): void {
 
     $remoteServer = RemoteServer::factory()->create();
 
-    $component = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
+    $testable = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
 
-    $component->assertOk();
+    $testable->assertOk();
 });
 
 test('the listener listens to event updates', function (): void {
@@ -25,16 +25,14 @@ test('the listener listens to event updates', function (): void {
         'connectivity_status' => 'online',
     ]);
 
-    $component = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
+    $testable = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
 
     RemoteServerConnectivityStatusChanged::dispatch($remoteServer, 'checking');
 
-    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, function ($event) use ($remoteServer): bool {
-        return $event->remoteServer->is($remoteServer) && $event->connectivityStatus === 'checking';
-    });
+    Event::assertDispatched(RemoteServerConnectivityStatusChanged::class, fn ($event): bool => $event->remoteServer->is($remoteServer) && $event->connectivityStatus === 'checking');
 
-    $component->call('echoReceivedEvent');
-    $component->assertDispatched('$refresh');
+    $testable->call('echoReceivedEvent');
+    $testable->assertDispatched('$refresh');
 
     Toaster::assertDispatched(__('The connection to the remote server has been successfully established.'));
 });
@@ -42,9 +40,9 @@ test('the listener listens to event updates', function (): void {
 test('the listener updates the Livewire components', function (): void {
     $remoteServer = RemoteServer::factory()->create();
 
-    $component = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
+    $testable = Livewire::test(IndexItem::class, ['remoteServer' => $remoteServer]);
 
-    $component->call('updateLivewireComponents');
-    $component->assertDispatched('$refresh');
-    $component->assertDispatched('update-check-button-' . $remoteServer->id);
+    $testable->call('updateLivewireComponents');
+    $testable->assertDispatched('$refresh');
+    $testable->assertDispatched('update-check-button-' . $remoteServer->id);
 });

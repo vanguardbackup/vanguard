@@ -89,7 +89,7 @@ class CreateRemoteServerForm extends Component
     {
         if (ssh_keys_exist()) {
             $key = get_ssh_public_key();
-            $this->ourPublicKey = "mkdir -p ~/.ssh && echo '{$key}' >> ~/.ssh/authorized_keys";
+            $this->ourPublicKey = sprintf("mkdir -p ~/.ssh && echo '%s' >> ~/.ssh/authorized_keys", $key);
         }
 
         return view('livewire.remote-servers.create-remote-server-form');

@@ -72,6 +72,7 @@ class Local implements BackupDestinationInterface
             if (str_starts_with($storagePath, $basePath)) {
                 $storagePath = substr($storagePath, strlen($basePath));
             }
+
             $relativePath = trim($storagePath, '/') . '/' . $fileName;
         } else {
             $relativePath = $fileName;
@@ -214,10 +215,10 @@ class Local implements BackupDestinationInterface
     {
         $stat = $this->sftp->stat($file);
         if ($stat === false || ! isset($stat['mtime'])) {
-            throw new RuntimeException("Failed to get last modified time for file: {$file}");
+            throw new RuntimeException('Failed to get last modified time for file: ' . $file);
         }
 
-        return new DateTime("@{$stat['mtime']}");
+        return new DateTime('@' . $stat['mtime']);
     }
 
     /**
@@ -225,7 +226,7 @@ class Local implements BackupDestinationInterface
      */
     private function listDirectoryContents(string $directory): array
     {
-        $result = $this->sftp->exec("find {$directory} -type f");
+        $result = $this->sftp->exec(sprintf('find %s -type f', $directory));
         if ($result === false) {
             Log::error('Failed to list directory contents', ['directory' => $directory]);
 

@@ -38,7 +38,7 @@ class EncryptBackupDestinationsCommand extends Command
 
         $newlyEncryptedCount = $this->encryptBackupDestinations($backupDestinations);
 
-        $this->components->info("{$newlyEncryptedCount} backup destinations have been updated with encrypted fields.");
+        $this->components->info($newlyEncryptedCount . ' backup destinations have been updated with encrypted fields.');
     }
 
     /**
@@ -61,8 +61,8 @@ class EncryptBackupDestinationsCommand extends Command
     {
         $updated = false;
 
-        foreach ($this->fieldsToEncrypt as $field) {
-            if ($this->encryptField($backupDestination, $field)) {
+        foreach ($this->fieldsToEncrypt as $fieldToEncrypt) {
+            if ($this->encryptField($backupDestination, $fieldToEncrypt)) {
                 $updated = true;
             }
         }
@@ -79,7 +79,7 @@ class EncryptBackupDestinationsCommand extends Command
         $value = $backupDestination->getAttribute($field);
 
         if (empty($value)) {
-            $this->components->warn("Field '{$field}' for backup destination {$backupDestination->getAttribute('label')} is empty. Skipping encryption.");
+            $this->components->warn(sprintf("Field '%s' for backup destination %s is empty. Skipping encryption.", $field, $backupDestination->getAttribute('label')));
 
             return false;
         }

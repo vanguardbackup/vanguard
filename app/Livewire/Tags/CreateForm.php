@@ -16,7 +16,8 @@ use Masmerise\Toaster\Toaster;
 class CreateForm extends Component
 {
     public string $label;
-    public ?string $description;
+
+    public ?string $description = null;
 
     public function submit(): RedirectResponse|Redirector
     {

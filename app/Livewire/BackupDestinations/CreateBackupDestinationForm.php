@@ -19,17 +19,17 @@ class CreateBackupDestinationForm extends Component
 
     public string $type = 'custom_s3';
 
-    public ?string $s3AccessKey;
+    public ?string $s3AccessKey = null;
 
-    public ?string $s3SecretKey;
+    public ?string $s3SecretKey = null;
 
-    public ?string $s3BucketName;
+    public ?string $s3BucketName = null;
 
     public bool $usePathStyleEndpoint = false;
 
-    public ?string $customS3Region;
+    public ?string $customS3Region = null;
 
-    public ?string $customS3Endpoint;
+    public ?string $customS3Endpoint = null;
 
     public function submit(): RedirectResponse|Redirector
     {

@@ -23,7 +23,7 @@ class S3 implements BackupDestinationInterface
     use BackupHelpers;
 
     public function __construct(
-        protected S3Client $client,
+        protected S3Client $s3Client,
         protected string $bucketName
     ) {}
 
@@ -32,7 +32,7 @@ class S3 implements BackupDestinationInterface
      */
     public function listFiles(string $pattern): array
     {
-        $result = $this->client->listObjects([
+        $result = $this->s3Client->listObjects([
             'Bucket' => $this->bucketName,
         ]);
 
@@ -41,7 +41,7 @@ class S3 implements BackupDestinationInterface
 
     public function deleteFile(string $filePath): void
     {
-        $this->client->deleteObject([
+        $this->s3Client->deleteObject([
             'Bucket' => $this->bucketName,
             'Key' => $filePath,
         ]);
@@ -71,13 +71,13 @@ class S3 implements BackupDestinationInterface
 
     public function getFullPath(string $fileName, ?string $storagePath): string
     {
-        return $storagePath ? "{$storagePath}/{$fileName}" : $fileName;
+        return $storagePath ? sprintf('%s/%s', $storagePath, $fileName) : $fileName;
     }
 
     public function createS3Filesystem(): Filesystem
     {
-        $adapter = new AwsS3V3Adapter($this->client, $this->bucketName);
-        $filesystem = new Filesystem($adapter);
+        $awsS3V3Adapter = new AwsS3V3Adapter($this->s3Client, $this->bucketName);
+        $filesystem = new Filesystem($awsS3V3Adapter);
         Log::debug('S3 filesystem created.');
 
         return $filesystem;

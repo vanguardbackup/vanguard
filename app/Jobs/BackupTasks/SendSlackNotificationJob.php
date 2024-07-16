@@ -14,15 +14,18 @@ use Illuminate\Queue\SerializesModels;
 
 class SendSlackNotificationJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    public function __construct(public BackupTask $backupTask, public BackupTaskLog $latestLog)
+    public function __construct(public BackupTask $backupTask, public BackupTaskLog $backupTaskLog)
     {
         //
     }
 
     public function handle(): void
     {
-        $this->backupTask->sendSlackWebhookNotification($this->latestLog);
+        $this->backupTask->sendSlackWebhookNotification($this->backupTaskLog);
     }
 }

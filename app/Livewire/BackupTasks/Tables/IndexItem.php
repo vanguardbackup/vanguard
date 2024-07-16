@@ -17,22 +17,6 @@ class IndexItem extends Component
     public ?BackupTaskLog $backupTaskLog = null;
 
     /**
-     * @return array<string, string>
-     */
-    public function getListeners(): array
-    {
-        return [
-            "echo-private:new-backup-task-log.{$this->backupTask->getAttribute('id')},CreatedBackupTaskLog" => 'echoBackupTaskLogCreatedEvent',
-            "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'echoBackupTaskStatusReceivedEvent',
-
-            // Refresh the component when the following events are dispatched, so the status of the table row changes.
-            "task-button-clicked-{$this->backupTask->getAttribute('id')}" => '$refresh',
-            "pause-button-clicked-{$this->backupTask->getAttribute('id')}" => '$refresh',
-            "log-modal-updated-{$this->backupTask->getAttribute('id')}" => '$refresh',
-        ];
-    }
-
-    /**
      * @param  array<string, mixed>  $event
      */
     public function echoBackupTaskLogCreatedEvent(array $event): void
@@ -84,5 +68,21 @@ class IndexItem extends Component
     public function render(): View
     {
         return view('livewire.backup-tasks.tables.index-item');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function getListeners(): array
+    {
+        return [
+            sprintf('echo-private:new-backup-task-log.%s,CreatedBackupTaskLog', $this->backupTask->getAttribute('id')) => 'echoBackupTaskLogCreatedEvent',
+            sprintf('echo-private:backup-tasks.%s,BackupTaskStatusChanged', $this->backupTask->getAttribute('id')) => 'echoBackupTaskStatusReceivedEvent',
+
+            // Refresh the component when the following events are dispatched, so the status of the table row changes.
+            'task-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
+            'pause-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
+            'log-modal-updated-' . $this->backupTask->getAttribute('id') => '$refresh',
+        ];
     }
 }

@@ -60,7 +60,7 @@ class GenerateSSHKeyCommand extends Command
     public function generateSSHKeys(): void
     {
         $path = storage_path('app/ssh');
-        $privateKeyPath = "{$path}/key";
+        $privateKeyPath = $path . '/key';
 
         if (! file_exists($path) && ! mkdir($path, 0700, true) && ! is_dir($path)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $path));
@@ -83,9 +83,9 @@ class GenerateSSHKeyCommand extends Command
             $process->mustRun();
             Log::info('[SSH KEYS] SSH keys generated successfully.');
             $this->components->info('SSH keys generated successfully.');
-        } catch (ProcessFailedException $exception) {
+        } catch (ProcessFailedException $processFailedException) {
             $this->components->error('Failed to generate SSH keys.');
-            Log::error('[SSH KEYS] Failed to generate SSH keys.', ['output' => $exception->getMessage()]);
+            Log::error('[SSH KEYS] Failed to generate SSH keys.', ['output' => $processFailedException->getMessage()]);
         }
     }
 }

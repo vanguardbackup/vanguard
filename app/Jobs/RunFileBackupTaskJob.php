@@ -13,8 +13,10 @@ use Illuminate\Queue\SerializesModels;
 
 class RunFileBackupTaskJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
     public int $timeout = 1800; // 30 minutes
 
     public function __construct(public int $backupTaskId)
@@ -24,7 +26,7 @@ class RunFileBackupTaskJob implements ShouldQueue
 
     public function handle(): void
     {
-        $backupTask = new FileBackupTask($this->backupTaskId);
-        $backupTask->handle();
+        $fileBackupTask = new FileBackupTask($this->backupTaskId);
+        $fileBackupTask->handle();
     }
 }

@@ -14,7 +14,9 @@ use Illuminate\Queue\SerializesModels;
 
 class RemoteServerConnectivityStatusChanged implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public readonly RemoteServer $remoteServer,
@@ -31,7 +33,7 @@ class RemoteServerConnectivityStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("remote-servers.{$this->remoteServer->getAttribute('id')}"),
+            new PrivateChannel('remote-servers.' . $this->remoteServer->getAttribute('id')),
         ];
     }
 }

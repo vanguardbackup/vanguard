@@ -30,18 +30,12 @@ it('dispatches a batch to check the connection of eligible backup destinations',
 
         return $batch->name === 'Check connection to eligible backup destinations'
             && $jobs->count() === 2
-            && $jobs->contains(function ($job) use ($S3BackupDestination): bool {
-                return $job instanceof CheckBackupDestinationsS3ConnectionJob
-                    && $job->backupDestination->is($S3BackupDestination);
-            })
-            && $jobs->contains(function ($job) use ($CustomS3BackupDestination): bool {
-                return $job instanceof CheckBackupDestinationsS3ConnectionJob
-                    && $job->backupDestination->is($CustomS3BackupDestination);
-            })
-            && ! $jobs->contains(function ($job) use ($localBackupDestination): bool {
-                return $job instanceof CheckBackupDestinationsS3ConnectionJob
-                    && $job->backupDestination->is($localBackupDestination);
-            });
+            && $jobs->contains(fn ($job): bool => $job instanceof CheckBackupDestinationsS3ConnectionJob
+                && $job->backupDestination->is($S3BackupDestination))
+            && $jobs->contains(fn ($job): bool => $job instanceof CheckBackupDestinationsS3ConnectionJob
+                && $job->backupDestination->is($CustomS3BackupDestination))
+            && ! $jobs->contains(fn ($job): bool => $job instanceof CheckBackupDestinationsS3ConnectionJob
+                && $job->backupDestination->is($localBackupDestination));
     });
 });
 

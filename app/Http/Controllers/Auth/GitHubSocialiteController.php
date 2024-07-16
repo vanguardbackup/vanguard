@@ -49,13 +49,13 @@ class GitHubSocialiteController extends Controller
             }
 
             if (($user = $this->findUserByEmailAndUpdateGitHubId($githubUser)) instanceof User) {
-                return $this->loginAndRedirect($user, 'Adding the user\'s GH ID to their account.');
+                return $this->loginAndRedirect($user, "Adding the user's GH ID to their account.");
             }
 
             return $this->createUserAndLogin($githubUser);
 
-        } catch (Exception $e) {
-            Log::error('GitHub OAuth login error: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('GitHub OAuth login error: ' . $exception->getMessage());
 
             return Redirect::route('login')->with('error', 'Authentication failed. There may be an error with GitHub. Please try again later.');
         }
@@ -66,26 +66,26 @@ class GitHubSocialiteController extends Controller
         return User::where('github_id', $githubId)->first();
     }
 
-    private function findUserByEmailAndUpdateGitHubId(SocialiteUser $githubUser): ?User
+    private function findUserByEmailAndUpdateGitHubId(SocialiteUser $socialiteUser): ?User
     {
-        $user = User::where('email', $githubUser->getEmail())->first();
+        $user = User::where('email', $socialiteUser->getEmail())->first();
 
-        $user?->update(['github_id' => $githubUser->getId()]);
+        $user?->update(['github_id' => $socialiteUser->getId()]);
 
         return $user;
     }
 
-    private function createUserAndLogin(SocialiteUser $githubUser): RedirectResponse
+    private function createUserAndLogin(SocialiteUser $socialiteUser): RedirectResponse
     {
         $user = User::create([
-            'name' => $githubUser->getName(),
-            'email' => $githubUser->getEmail(),
-            'github_id' => $githubUser->getId(),
+            'name' => $socialiteUser->getName(),
+            'email' => $socialiteUser->getEmail(),
+            'github_id' => $socialiteUser->getId(),
         ]);
 
         Mail::to($user->email)->queue(new WelcomeMail($user));
 
-        Log::debug('Creating new user with their GitHub ID and logging them in.', ['id' => $githubUser->getId()]);
+        Log::debug('Creating new user with their GitHub ID and logging them in.', ['id' => $socialiteUser->getId()]);
         Auth::login($user);
 
         Toaster::success(__('Successfully logged in via GitHub!'));

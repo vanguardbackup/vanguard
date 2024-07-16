@@ -25,17 +25,13 @@ class AppServiceProvider extends ServiceProvider
             return str_replace("\n", '', File::get($versionFile));
         });
 
-        $this->app->singleton(GreetingService::class, function ($app): GreetingService {
-            return new GreetingService;
-        });
+        $this->app->singleton(GreetingService::class, fn ($app): GreetingService => new GreetingService);
 
         $this->app->alias(GreetingService::class, 'Greeting');
     }
 
     public function boot(): void
     {
-        Gate::define('viewPulse', function (User $user): bool {
-            return $user->isAdmin();
-        });
+        Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
     }
 }

@@ -14,13 +14,18 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 abstract class AbstractBackupTask extends Backup
 {
     protected BackupTaskModel $backupTask;
+
     protected BackupTaskLog $backupTaskLog;
+
     protected string $logOutput = '';
+
     protected float $scriptRunTime;
+
     protected ?int $backupSize = null;
 
     public function __construct(int $backupTaskId)
@@ -35,7 +40,7 @@ abstract class AbstractBackupTask extends Backup
      */
     public function handle(): void
     {
-        Log::info("Starting backup task: {$this->backupTask->id}");
+        Log::info('Starting backup task: ' . $this->backupTask->id);
 
         $this->initializeBackup();
 
@@ -56,7 +61,7 @@ abstract class AbstractBackupTask extends Backup
     {
         $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
 
-        return "{$prefix}backup_{$this->backupTask->id}_" . Carbon::now()->format('YmdHis') . ".{$extension}";
+        return sprintf('%sbackup_%s_', $prefix, $this->backupTask->id) . Carbon::now()->format('YmdHis') . ('.' . $extension);
     }
 
     abstract protected function performBackup(): void;
@@ -83,11 +88,11 @@ abstract class AbstractBackupTask extends Backup
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
     }
 
-    protected function handleBackupFailure(Exception $exception): void
+    protected function handleBackupFailure(Throwable $throwable): void
     {
-        $this->logOutput .= 'Error in backup process: ' . $exception->getMessage() . "\n";
-        $this->sendEmailNotificationOfTaskFailure($this->backupTask, $exception->getMessage());
-        Log::error("Error in backup process for task {$this->backupTask->id}: " . $exception->getMessage(), ['exception' => $exception]);
+        $this->logOutput .= 'Error in backup process: ' . $throwable->getMessage() . "\n";
+        $this->sendEmailNotificationOfTaskFailure($this->backupTask, $throwable->getMessage());
+        Log::error(sprintf('Error in backup process for task %s: ', $this->backupTask->id) . $throwable->getMessage(), ['exception' => $throwable]);
     }
 
     protected function cleanupBackup(): void
@@ -105,9 +110,9 @@ abstract class AbstractBackupTask extends Backup
             'size' => $this->backupSize,
         ]);
 
-        $this->logMessage("Backup summary: Operation completed in {$elapsedTime} seconds.");
+        $this->logMessage(sprintf('Backup summary: Operation completed in %s seconds.', $elapsedTime));
 
-        Log::info("Completed backup task: {$this->backupTask->label} ({$this->backupTask->id}).");
+        Log::info(sprintf('Completed backup task: %s (%s).', $this->backupTask->label, $this->backupTask->id));
     }
 
     /**

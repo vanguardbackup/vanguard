@@ -17,18 +17,10 @@ it('dispatches batch job to check remote server connection', function (): void {
         ->expectsOutputToContain('Batch job dispatched to check remote server connection')
         ->assertExitCode(0);
 
-    Bus::assertBatched(function ($batch) use ($remoteServerOne, $remoteServerTwo, $remoteServerThree): bool {
-        return $batch->jobs->contains(function ($job) use ($remoteServerOne): bool {
-            return $job instanceof CheckRemoteServerConnectionJob
-                && $job->remoteServerId === $remoteServerOne->id;
-        }) && $batch->jobs->contains(function ($job) use ($remoteServerTwo): bool {
-            return $job instanceof CheckRemoteServerConnectionJob
-                && $job->remoteServerId === $remoteServerTwo->id;
-        }) && $batch->jobs->contains(function ($job) use ($remoteServerThree): bool {
-            return $job instanceof CheckRemoteServerConnectionJob
-                && $job->remoteServerId === $remoteServerThree->id;
-        });
-    });
+    Bus::assertBatched(fn ($batch): bool => $batch->jobs->contains(fn ($job): bool => $job instanceof CheckRemoteServerConnectionJob
+        && $job->remoteServerId === $remoteServerOne->id) && $batch->jobs->contains(fn ($job): bool => $job instanceof CheckRemoteServerConnectionJob
+        && $job->remoteServerId === $remoteServerTwo->id) && $batch->jobs->contains(fn ($job): bool => $job instanceof CheckRemoteServerConnectionJob
+        && $job->remoteServerId === $remoteServerThree->id));
 });
 
 it('exits if no remote servers found', function (): void {

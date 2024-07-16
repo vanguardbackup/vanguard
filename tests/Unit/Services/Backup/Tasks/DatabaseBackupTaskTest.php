@@ -244,13 +244,13 @@ test('generate backup file name', function (): void {
     $this->backupTask->update(['appended_file_name' => 'custom']);
 
     // Create a new mock instance for this specific scenario
-    $mockTaskWithAppend = Mockery::mock(DBBackupTaskTestClass::class, [$this->backupTask->id])
+    $legacyMock = Mockery::mock(DBBackupTaskTestClass::class, [$this->backupTask->id])
         ->makePartial()
         ->shouldAllowMockingProtectedMethods();
 
-    $mockTaskWithAppend->shouldReceive('hasFileNameAppended')->andReturn(true);
+    $legacyMock->shouldReceive('hasFileNameAppended')->andReturn(true);
 
-    $fileNameWithAppend = $mockTaskWithAppend->generateBackupFileName('sql');
+    $fileNameWithAppend = $legacyMock->generateBackupFileName('sql');
     expect($fileNameWithAppend)->toMatch('/^custom_backup_\d+_\d{14}\.sql$/');
 });
 

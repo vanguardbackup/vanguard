@@ -29,7 +29,7 @@ class EnsureConnectionToBackupDestinationsCommand extends Command
 
         $jobs = $backupDestinations->map(function (BackupDestination $backupDestination): ?CheckBackupDestinationsS3ConnectionJob {
             if ($backupDestination->isS3Connection()) {
-                $this->info("Dispatching job for backup destination ID: {$backupDestination->getAttribute('id')}");
+                $this->info('Dispatching job for backup destination ID: ' . $backupDestination->getAttribute('id'));
 
                 return new CheckBackupDestinationsS3ConnectionJob($backupDestination);
             }

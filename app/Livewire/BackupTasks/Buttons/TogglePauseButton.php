@@ -13,19 +13,6 @@ class TogglePauseButton extends Component
 {
     public BackupTask $backupTask;
 
-    /**
-     * Get the listeners array.
-     *
-     * @return array<string, string>
-     */
-    public function getListeners(): array
-    {
-        return [
-            "task-button-clicked-{$this->backupTask->getAttribute('id')}" => 'refreshSelf',
-            "echo-private:backup-tasks.{$this->backupTask->getAttribute('id')},BackupTaskStatusChanged" => 'refreshSelf',
-        ];
-    }
-
     public function refreshSelf(): void
     {
         $this->dispatch('$refresh');
@@ -47,5 +34,18 @@ class TogglePauseButton extends Component
     public function render(): View
     {
         return view('livewire.backup-tasks.buttons.toggle-pause-button');
+    }
+
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
+    protected function getListeners(): array
+    {
+        return [
+            'task-button-clicked-' . $this->backupTask->getAttribute('id') => 'refreshSelf',
+            sprintf('echo-private:backup-tasks.%s,BackupTaskStatusChanged', $this->backupTask->getAttribute('id')) => 'refreshSelf',
+        ];
     }
 }

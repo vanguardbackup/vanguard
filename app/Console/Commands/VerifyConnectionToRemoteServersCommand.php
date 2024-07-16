@@ -28,9 +28,7 @@ class VerifyConnectionToRemoteServersCommand extends Command
         }
 
         Bus::batch(
-            $remoteServers->map(function (RemoteServer $remoteServer): CheckRemoteServerConnectionJob {
-                return new CheckRemoteServerConnectionJob($remoteServer->getAttribute('id'));
-            })->toArray()
+            $remoteServers->map(fn (RemoteServer $remoteServer): CheckRemoteServerConnectionJob => new CheckRemoteServerConnectionJob($remoteServer->getAttribute('id')))->toArray()
         )->name('Check connection to remote servers')
             ->onQueue('connectivity-checks')
             ->dispatch();

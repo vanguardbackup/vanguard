@@ -36,7 +36,7 @@ class DatabaseBackupTask extends AbstractBackupTask
         $this->backupTask->setScriptUpdateTime();
 
         $dumpFileName = $this->generateBackupFileName('sql');
-        $remoteDumpPath = "/tmp/{$dumpFileName}";
+        $remoteDumpPath = '/tmp/' . $dumpFileName;
 
         $this->dumpRemoteDatabase($sftp, $databaseType, $remoteDumpPath, $databasePassword, $databaseName, $this->backupTask->getAttribute('excluded_database_tables'));
 
@@ -52,10 +52,10 @@ class DatabaseBackupTask extends AbstractBackupTask
         if ($this->backupTask->isRotatingBackups() && ! $backupDestinationModel->isLocalConnection()) {
             $backupDestination = $this->createBackupDestinationInstance($backupDestinationModel);
             $this->rotateOldBackups($backupDestination, $this->backupTask->getAttribute('id'), $this->backupTask->getAttribute('maximum_backups_to_keep'), '.sql', 'backup_');
-            $this->logMessage("Initiating backup rotation. Retention limit: {$this->backupTask->getAttribute('maximum_backups_to_keep')} backups.");
+            $this->logMessage(sprintf('Initiating backup rotation. Retention limit: %s backups.', $this->backupTask->getAttribute('maximum_backups_to_keep')));
         }
 
-        $this->logMessage("Database backup has been uploaded to {$backupDestinationModel->label} - {$backupDestinationModel->type()}: {$dumpFileName}");
+        $this->logMessage(sprintf('Database backup has been uploaded to %s - %s: %s', $backupDestinationModel->label, $backupDestinationModel->type(), $dumpFileName));
 
         $sftp->delete($remoteDumpPath);
         $this->logMessage('Temporary server file removed after successful backup operation.');

@@ -12,8 +12,8 @@ beforeEach(function (): void {
     $this->adapter = new SFTPAdapter('localhost');
 
     $reflection = new ReflectionClass($this->adapter);
-    $property = $reflection->getProperty('sftp');
-    $property->setValue($this->adapter, $this->mockSFTP);
+    $reflectionProperty = $reflection->getProperty('sftp');
+    $reflectionProperty->setValue($this->adapter, $this->mockSFTP);
 });
 
 afterEach(function (): void {

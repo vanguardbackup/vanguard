@@ -13,7 +13,9 @@ use Illuminate\Queue\SerializesModels;
 
 class BackupDestinationConnectionCheck implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         private readonly BackupDestination $backupDestination,
@@ -30,7 +32,7 @@ class BackupDestinationConnectionCheck implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("backup-destinations.{$this->backupDestination->getAttribute('id')}"),
+            new PrivateChannel('backup-destinations.' . $this->backupDestination->getAttribute('id')),
         ];
     }
 }

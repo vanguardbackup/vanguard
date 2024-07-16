@@ -715,9 +715,7 @@ it('sends a discord webhook', function (): void {
 
     $task->sendDiscordWebhookNotification($log);
 
-    Http::assertSent(function ($request): bool {
-        return $request->url() === 'https://discord.com/webhook';
-    });
+    Http::assertSent(fn ($request): bool => $request->url() === 'https://discord.com/webhook');
 });
 
 it('sends a slack webhook', function (): void {
@@ -728,9 +726,7 @@ it('sends a slack webhook', function (): void {
 
     $task->sendSlackWebhookNotification($log);
 
-    Http::assertSent(function ($request): bool {
-        return $request->url() === 'https://slack.com/webhook';
-    });
+    Http::assertSent(fn ($request): bool => $request->url() === 'https://slack.com/webhook');
 });
 
 it('returns true if there is a store path specified', function (): void {

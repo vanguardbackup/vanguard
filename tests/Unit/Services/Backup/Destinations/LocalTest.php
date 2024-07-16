@@ -25,7 +25,7 @@ describe('Local driver', function (): void {
         ];
 
         $this->mockSftp->shouldReceive('exec')
-            ->with("find {$this->basePath} -type f")
+            ->with(sprintf('find %s -type f', $this->basePath))
             ->andReturn(implode("\n", $mockFiles));
 
         $this->mockSftp->shouldReceive('stat')
@@ -64,9 +64,7 @@ describe('Local driver', function (): void {
             $this->mockLocal->shouldReceive('ensureDirectoryExists')->andReturn(true);
             $this->mockSftp->shouldReceive('mkdir')->andReturn(true);
             $this->mockSftp->shouldReceive('getLastError')->andReturn('');
-            $this->mockSftp->shouldReceive('exec')->withArgs(function ($command): bool {
-                return str_starts_with($command, 'ls -la ');
-            })->andReturn('');
+            $this->mockSftp->shouldReceive('exec')->withArgs(fn ($command): bool => str_starts_with($command, 'ls -la '))->andReturn('');
         });
 
         it('streams files successfully', function (): void {
@@ -84,9 +82,7 @@ describe('Local driver', function (): void {
 
             Log::shouldReceive('info');
             Log::shouldReceive('warning')->atLeast()->once()->withAnyArgs();
-            Log::shouldReceive('error')->atLeast()->once()->withArgs(function ($message): bool {
-                return str_contains($message, 'Failed to stream file to remote local storage');
-            });
+            Log::shouldReceive('error')->atLeast()->once()->withArgs(fn ($message): bool => str_contains($message, 'Failed to stream file to remote local storage'));
 
             $result = $this->mockLocal->streamFiles($this->mockSourceSftp, '/remote/source/path', 'file.zip', 'storage/path');
 
@@ -173,7 +169,7 @@ describe('Local driver', function (): void {
         $method = new ReflectionMethod(Local::class, 'listDirectoryContents');
 
         $this->mockSftp->shouldReceive('exec')
-            ->with("find {$this->basePath} -type f")
+            ->with(sprintf('find %s -type f', $this->basePath))
             ->andReturn("/remote/base/path/file1.txt\n/remote/base/path/file2.txt");
 
         $result = $method->invokeArgs($this->local, [$this->basePath]);

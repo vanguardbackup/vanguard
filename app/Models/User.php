@@ -12,8 +12,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-
+    use HasFactory;
+    use Notifiable;
     protected $fillable = [
         'name',
         'email',
@@ -38,7 +38,7 @@ class User extends Authenticatable
         $email = $this->gravatar_email ?? $this->email;
 
         $size = $size > 0 ? (int) $size : 80;
-        $sizeQuery = "?s={$size}";
+        $sizeQuery = '?s=' . $size;
 
         return sprintf(
             'https://www.gravatar.com/avatar/%s%s',

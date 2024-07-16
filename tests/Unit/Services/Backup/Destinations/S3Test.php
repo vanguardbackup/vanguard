@@ -50,15 +50,15 @@ it('streams files successfully', function (): void {
     $mockFilesystem = Mockery::mock(Filesystem::class);
 
     // Mock the S3 instance
-    $mockS3 = Mockery::mock(S3::class, [$this->s3Client, $this->bucketName])->makePartial();
-    $mockS3->shouldReceive('createS3Filesystem')->andReturn($mockFilesystem);
-    $mockS3->shouldAllowMockingProtectedMethods();
-    $mockS3->shouldReceive('downloadFileViaSFTP')->andReturn('/tmp/tempfile');
-    $mockS3->shouldReceive('openFileAsStream')->andReturn(fopen('php://memory', 'rb+'));
-    $mockS3->shouldReceive('writeStreamToS3');
-    $mockS3->shouldReceive('cleanUpTempFile');
+    $legacyMock = Mockery::mock(S3::class, [$this->s3Client, $this->bucketName])->makePartial();
+    $legacyMock->shouldReceive('createS3Filesystem')->andReturn($mockFilesystem);
+    $legacyMock->shouldAllowMockingProtectedMethods();
+    $legacyMock->shouldReceive('downloadFileViaSFTP')->andReturn('/tmp/tempfile');
+    $legacyMock->shouldReceive('openFileAsStream')->andReturn(fopen('php://memory', 'rb+'));
+    $legacyMock->shouldReceive('writeStreamToS3');
+    $legacyMock->shouldReceive('cleanUpTempFile');
 
-    $result = $mockS3->streamFiles($mockSftp, '/remote/path', 'file.zip', 'storage/path');
+    $result = $legacyMock->streamFiles($mockSftp, '/remote/path', 'file.zip', 'storage/path');
 
     expect($result)->toBeTrue();
 });
@@ -67,10 +67,10 @@ it('handles file streaming failure', function (): void {
     $mockSftp = Mockery::mock(SFTPInterface::class);
 
     // Mock the S3 instance
-    $mockS3 = Mockery::mock(S3::class, [$this->s3Client, $this->bucketName])->makePartial();
-    $mockS3->shouldReceive('createS3Filesystem')->andThrow(new UnableToCreateDirectory('Failed to create filesystem'));
+    $legacyMock = Mockery::mock(S3::class, [$this->s3Client, $this->bucketName])->makePartial();
+    $legacyMock->shouldReceive('createS3Filesystem')->andThrow(new UnableToCreateDirectory('Failed to create filesystem'));
 
-    $result = $mockS3->streamFiles($mockSftp, '/remote/path', 'file.zip', 'storage/path');
+    $result = $legacyMock->streamFiles($mockSftp, '/remote/path', 'file.zip', 'storage/path');
 
     expect($result)->toBeFalse();
 })->throws(UnableToCreateDirectory::class, 'Failed to create filesystem');

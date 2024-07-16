@@ -15,7 +15,7 @@ class ValidateS3ConnectionCommand extends Command
 
     protected $description = 'Validates connectivity to the specified S3 bucket.';
 
-    public function __construct(protected CheckS3Connection $checkConnection)
+    public function __construct(protected CheckS3Connection $checkS3Connection)
     {
         parent::__construct();
     }
@@ -38,7 +38,7 @@ class ValidateS3ConnectionCommand extends Command
             return;
         }
 
-        $response = $this->checkConnection->handle($backupDestination);
+        $response = $this->checkS3Connection->handle($backupDestination);
 
         if (! $response) {
             Log::debug('Connection failed.');

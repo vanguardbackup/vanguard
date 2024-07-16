@@ -21,10 +21,10 @@ class ResetInoperativeBackupTasksCommand extends Command
             ->where('last_script_update_at', '<', now()->subSeconds($timeoutPeriod))
             ->get();
 
-        $tasks->each(function (BackupTask $task): void {
-            $task->markAsReady();
-            $task->resetScriptUpdateTime();
-            $this->info("Resetting backup task with ID {$task->getAttribute('id')}.");
+        $tasks->each(function (BackupTask $backupTask): void {
+            $backupTask->markAsReady();
+            $backupTask->resetScriptUpdateTime();
+            $this->info(sprintf('Resetting backup task with ID %s.', $backupTask->getAttribute('id')));
         });
     }
 }

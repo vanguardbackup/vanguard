@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 use App\Exceptions\BackupTaskRuntimeException;
 use App\Exceptions\BackupTaskZipException;
 use App\Models\BackupDestination;
@@ -11,6 +10,7 @@ use App\Models\RemoteServer;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Destinations\S3;
+use Aws\S3\S3Client;
 use Illuminate\Support\Facades\Config;
 use Tests\Unit\Services\Backup\BackupTestClass;
 
@@ -223,17 +223,17 @@ it('deletes folder', function (): void {
 });
 
 it('creates backup destination instance', function (): void {
-    $backupDestination = Mockery::mock(BackupDestination::class);
-    $backupDestination->shouldReceive('getAttribute')->with('type')->andReturn('s3');
-    $backupDestination->shouldReceive('getAttribute')->with('s3_bucket_name')->andReturn('test-bucket');
-    $backupDestination->shouldReceive('getS3Client')->andReturn(Mockery::mock('Aws\S3\S3Client'));
+    $mock = Mockery::mock(BackupDestination::class);
+    $mock->shouldReceive('getAttribute')->with('type')->andReturn('s3');
+    $mock->shouldReceive('getAttribute')->with('s3_bucket_name')->andReturn('test-bucket');
+    $mock->shouldReceive('getS3Client')->andReturn(Mockery::mock(S3Client::class));
 
-    $s3Mock = Mockery::mock(S3::class, [Mockery::mock('Aws\S3\S3Client'), 'test-bucket']);
+    $s3Mock = Mockery::mock(S3::class, [Mockery::mock(S3Client::class), 'test-bucket']);
     $s3Mock->shouldReceive('listFiles')->andReturn([]);
     $s3Mock->shouldReceive('deleteFile')->andReturn(null);
     $s3Mock->shouldReceive('streamFiles')->andReturn(true);
 
-    $instance = $this->backup->createBackupDestinationInstance($backupDestination);
+    $instance = $this->backup->createBackupDestinationInstance($mock);
 
     expect($instance)->toBeInstanceOf(BackupDestinationInterface::class);
 });

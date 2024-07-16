@@ -13,8 +13,11 @@ use Livewire\Component;
 class LogModal extends Component
 {
     public int $backupTaskId;
+
     public ?string $logOutput = null;
+
     public bool $isStreaming = false;
+
     public bool $isLoading = true;
 
     public function mount(BackupTask|int $backupTask): void

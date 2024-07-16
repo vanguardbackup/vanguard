@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\Log;
 
 class RemoveSSHKeyJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(public RemoteServer $remoteServer)
     {
@@ -26,7 +29,7 @@ class RemoveSSHKeyJob implements ShouldQueue
     {
         Log::info('Removing SSH key from server.', ['server_id' => $this->remoteServer->getAttribute('id')]);
 
-        $action = new RemoveSSHKey;
-        $action->handle($this->remoteServer);
+        $removeSSHKey = new RemoveSSHKey;
+        $removeSSHKey->handle($this->remoteServer);
     }
 }

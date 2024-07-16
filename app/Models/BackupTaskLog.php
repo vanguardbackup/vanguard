@@ -16,12 +16,12 @@ class BackupTaskLog extends Model
     protected $guarded = [];
 
     /**
-     * @param  Builder<BackupTaskLog>  $query
+     * @param  Builder<BackupTaskLog>  $builder
      * @return Builder<BackupTaskLog>
      */
-    public function scopeFinished(Builder $query): Builder
+    public function scopeFinished(Builder $builder): Builder
     {
-        return $query->whereNotNull('finished_at');
+        return $builder->whereNotNull('finished_at');
     }
 
     /**

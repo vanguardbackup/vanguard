@@ -14,19 +14,6 @@ class IndexItem extends Component
 {
     public BackupDestination $backupDestination;
 
-    /**
-     * Get the listeners array.
-     *
-     * @return array<string, string>
-     */
-    public function getListeners(): array
-    {
-        return [
-            "echo-private:backup-destinations.{$this->backupDestination->getAttribute('id')},BackupDestinationConnectionCheck" => 'echoReceivedEvent',
-            "backup-destination-connection-check-initiated-{$this->backupDestination->getAttribute('id')}" => 'updateLivewireComponents',
-        ];
-    }
-
     public function echoReceivedEvent(): void
     {
         if ($this->backupDestination->isReachable()) {
@@ -55,5 +42,18 @@ class IndexItem extends Component
     public function render(): View
     {
         return view('livewire.backup-destinations.index-item');
+    }
+
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
+    protected function getListeners(): array
+    {
+        return [
+            sprintf('echo-private:backup-destinations.%s,BackupDestinationConnectionCheck', $this->backupDestination->getAttribute('id')) => 'echoReceivedEvent',
+            'backup-destination-connection-check-initiated-' . $this->backupDestination->getAttribute('id') => 'updateLivewireComponents',
+        ];
     }
 }

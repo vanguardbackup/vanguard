@@ -31,7 +31,7 @@ class EncryptDatabasePasswordsCommand extends Command
             if (! $remoteServer->isDatabasePasswordEncrypted()) {
 
                 if (empty($remoteServer->getAttribute('database_password'))) {
-                    $this->components->warn("Database password for remote server {$remoteServer->getAttribute('label')} is empty. Skipping encryption.");
+                    $this->components->warn(sprintf('Database password for remote server %s is empty. Skipping encryption.', $remoteServer->getAttribute('label')));
 
                     return;
                 }
@@ -46,7 +46,7 @@ class EncryptDatabasePasswordsCommand extends Command
             }
         });
 
-        $this->components->info("{$this->newlyEncryptedCount} database passwords have been encrypted.");
+        $this->components->info($this->newlyEncryptedCount . ' database passwords have been encrypted.');
 
     }
 }

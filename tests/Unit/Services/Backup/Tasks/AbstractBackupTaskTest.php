@@ -65,39 +65,39 @@ it('generates backup file name', function (): void {
 });
 
 it('checks if path exists', function (): void {
-    $sftp = Mockery::mock(SFTPInterface::class);
-    $sftp->shouldReceive('isConnected')->andReturn(true);
-    $sftp->shouldReceive('stat')->with('/path/to/source')->andReturn(['type' => 2]); // 2 for directory
+    $mock = Mockery::mock(SFTPInterface::class);
+    $mock->shouldReceive('isConnected')->andReturn(true);
+    $mock->shouldReceive('stat')->with('/path/to/source')->andReturn(['type' => 2]); // 2 for directory
 
     $method = $this->reflection->getMethod('checkPathExists');
 
-    expect($method->invoke($this->abstractBackupTask, $sftp, '/path/to/source'))->toBeTrue();
+    expect($method->invoke($this->abstractBackupTask, $mock, '/path/to/source'))->toBeTrue();
 });
 
 it('gets remote directory size', function (): void {
-    $sftp = Mockery::mock(SFTPInterface::class);
-    $sftp->shouldReceive('isConnected')->andReturn(true);
-    $sftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
-    $sftp->shouldReceive('exec')->with("du -sb '/path/to/source' | cut -f1")->andReturn('1024');
+    $mock = Mockery::mock(SFTPInterface::class);
+    $mock->shouldReceive('isConnected')->andReturn(true);
+    $mock->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
+    $mock->shouldReceive('exec')->with("du -sb '/path/to/source' | cut -f1")->andReturn('1024');
 
     $method = $this->reflection->getMethod('getRemoteDirectorySize');
 
-    expect($method->invoke($this->abstractBackupTask, $sftp, '/path/to/source'))->toBe(1024);
+    expect($method->invoke($this->abstractBackupTask, $mock, '/path/to/source'))->toBe(1024);
 });
 
 it('zips remote directory', function (): void {
-    $sftp = Mockery::mock(SFTPInterface::class);
-    $sftp->shouldReceive('isConnected')->andReturn(true);
-    $sftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
-    $sftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
-    $sftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
-    $sftp->shouldReceive('exec')->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
+    $mock = Mockery::mock(SFTPInterface::class);
+    $mock->shouldReceive('isConnected')->andReturn(true);
+    $mock->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
+    $mock->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
+    $mock->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
+    $mock->shouldReceive('exec')->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
         ->andReturn('adding: somefile (stored 0%)');
-    $sftp->shouldReceive('exec')->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")->andReturn('512');
+    $mock->shouldReceive('exec')->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")->andReturn('512');
 
     $method = $this->reflection->getMethod('zipRemoteDirectory');
 
-    $method->invoke($this->abstractBackupTask, $sftp, '/path/to/source', '/tmp/backup.zip', []);
+    $method->invoke($this->abstractBackupTask, $mock, '/path/to/source', '/tmp/backup.zip', []);
 
     // Since we can't easily verify the zip operation, we'll just check that no exception was thrown
     expect(true)->toBeTrue();

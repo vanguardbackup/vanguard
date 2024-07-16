@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 class CheckVersion extends Command
 {
     protected $signature = 'vanguard:version {--check}';
+
     protected $description = 'Check the current version of Vanguard.';
 
     public function handle(): void
@@ -28,7 +29,7 @@ class CheckVersion extends Command
     {
         $version = obtain_vanguard_version();
 
-        $this->components->info("The current version of Vanguard is: {$version}.");
+        $this->components->info(sprintf('The current version of Vanguard is: %s.', $version));
     }
 
     protected function checkForNewVersion(): void
@@ -50,7 +51,7 @@ class CheckVersion extends Command
             $this->components->info('You are using the latest version of Vanguard.');
         } else {
             $this->components->warn('There is a new version of Vanguard available.');
-            $this->components->info("You are using version {$currentVersion} and the latest version is {$latestVersion} (released on {$publishedAt}).");
+            $this->components->info(sprintf('You are using version %s and the latest version is %s (released on %s).', $currentVersion, $latestVersion, $publishedAt));
         }
     }
 

@@ -13,19 +13,6 @@ class CheckConnectionButton extends Component
 {
     public RemoteServer $remoteServer;
 
-    /**
-     * Get the listeners array.
-     *
-     * @return array<string, string>
-     */
-    public function getListeners(): array
-    {
-        return [
-            "echo-private:remote-servers.{$this->remoteServer->getAttribute('id')},RemoteServerConnectivityStatusChanged" => 'refreshSelf',
-            "update-check-button-{$this->remoteServer->getAttribute('id')}" => '$refresh',
-        ];
-    }
-
     public function refreshSelf(): void
     {
         $this->dispatch('$refresh');
@@ -44,5 +31,18 @@ class CheckConnectionButton extends Component
     public function render(): View
     {
         return view('livewire.remote-servers.check-connection-button');
+    }
+
+    /**
+     * Get the listeners array.
+     *
+     * @return array<string, string>
+     */
+    protected function getListeners(): array
+    {
+        return [
+            sprintf('echo-private:remote-servers.%s,RemoteServerConnectivityStatusChanged', $this->remoteServer->getAttribute('id')) => 'refreshSelf',
+            'update-check-button-' . $this->remoteServer->getAttribute('id') => '$refresh',
+        ];
     }
 }

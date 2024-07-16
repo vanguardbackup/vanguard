@@ -22,7 +22,7 @@ class ExecuteScheduledBackupTasksCommand extends Command
         $tasks->each(function ($task): void {
 
             if (! $task->eligibleToRunNow()) {
-                $this->components->info("Task {$task->label} is not eligible to run now.");
+                $this->components->info(sprintf('Task %s is not eligible to run now.', $task->label));
 
                 return;
             }
@@ -33,7 +33,7 @@ class ExecuteScheduledBackupTasksCommand extends Command
 
             $task->run();
 
-            $this->components->info("Dispatching job for task {$task->label}...");
+            $this->components->info(sprintf('Dispatching job for task %s...', $task->label));
         });
     }
 }

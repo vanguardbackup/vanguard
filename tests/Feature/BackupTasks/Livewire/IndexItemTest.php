@@ -11,12 +11,12 @@ it('dispatches refresh and update events on task status update', function (): vo
         'status' => BackupTask::STATUS_RUNNING,
     ]);
 
-    $component = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
+    $testable = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
 
-    $component->call('echoBackupTaskStatusReceivedEvent');
+    $testable->call('echoBackupTaskStatusReceivedEvent');
 
-    $component->assertDispatched('$refresh');
-    $component->assertDispatched('update-run-button-' . $backupTask->id);
+    $testable->assertDispatched('$refresh');
+    $testable->assertDispatched('update-run-button-' . $backupTask->id);
 });
 
 it('updates log information on log creation event', function (): void {
@@ -30,37 +30,37 @@ it('updates log information on log creation event', function (): void {
         'output' => 'New log message',
     ]);
 
-    $component = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
+    $testable = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
 
-    $component->call('echoBackupTaskLogCreatedEvent', [
+    $testable->call('echoBackupTaskLogCreatedEvent', [
         'logId' => $newLog->id,
     ]);
 
-    $component->assertDispatched('backup-task-item-updated-' . $backupTask->id);
+    $testable->assertDispatched('backup-task-item-updated-' . $backupTask->id);
 
     $backupTask->refresh();
     $newLog->refresh();
 
-    $component->assertSet('backupTaskLog.id', $newLog->id);
-    $component->assertSet('backupTaskLog.output', 'New log message');
+    $testable->assertSet('backupTaskLog.id', $newLog->id);
+    $testable->assertSet('backupTaskLog.output', 'New log message');
 
-    expect($component->get('backupTaskLog')->id)->toBe($newLog->id)
-        ->and($component->get('backupTaskLog')->output)->toBe('New log message')
-        ->and($component->get('backupTaskLog')->id)->not->toBe($oldLog->id);
+    expect($testable->get('backupTaskLog')->id)->toBe($newLog->id)
+        ->and($testable->get('backupTaskLog')->output)->toBe('New log message')
+        ->and($testable->get('backupTaskLog')->id)->not->toBe($oldLog->id);
 });
 
 it('dispatches item updated event on log creation', function (): void {
     $backupTask = BackupTask::factory()->create();
 
-    $component = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
+    $testable = Livewire::test(IndexItem::class, ['backupTask' => $backupTask]);
 
     $backupTaskLog = $backupTask->logs()->create([
         'output' => 'New log message',
     ]);
 
-    $component->call('echoBackupTaskLogCreatedEvent', [
+    $testable->call('echoBackupTaskLogCreatedEvent', [
         'logId' => $backupTaskLog->id,
     ]);
 
-    $component->assertDispatched('backup-task-item-updated-' . $backupTask->id);
+    $testable->assertDispatched('backup-task-item-updated-' . $backupTask->id);
 });

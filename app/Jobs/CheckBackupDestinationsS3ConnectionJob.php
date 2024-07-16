@@ -15,7 +15,11 @@ use Illuminate\Queue\SerializesModels;
 
 class CheckBackupDestinationsS3ConnectionJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(public BackupDestination $backupDestination)
     {
@@ -24,7 +28,7 @@ class CheckBackupDestinationsS3ConnectionJob implements ShouldQueue
 
     public function handle(): void
     {
-        $action = new CheckS3Connection;
-        $action->handle($this->backupDestination);
+        $checkS3Connection = new CheckS3Connection;
+        $checkS3Connection->handle($this->backupDestination);
     }
 }

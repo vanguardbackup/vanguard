@@ -23,38 +23,61 @@ use Toaster;
 class CreateBackupTaskForm extends Component
 {
     public string $label = '';
+
     public ?string $description = '';
+
     public ?string $sourcePath = null;
+
     public ?int $remoteServerId = null;
+
     public string $backupDestinationId = '';
+
     public ?string $frequency = BackupTask::FREQUENCY_DAILY;
+
     public ?string $timeToRun = '00:00';
+
     public bool $useCustomCron = false;
+
     public ?string $cronExpression = null;
+
     public int $backupsToKeep = 5;
+
     public string $backupType = BackupTask::TYPE_FILES;
+
     public ?string $databaseName = null;
+
     public ?string $appendedFileName = null;
+
     public ?string $notifyEmail = null;
+
     public ?string $notifyDiscordWebhook = null;
+
     public ?string $notifySlackWebhook = null;
+
     public string $userTimezone;
+
     public ?string $storePath = null;
+
     public ?string $excludedDatabaseTables = null;
+
     public bool $useIsolatedCredentials = false;
+
     public ?string $isolatedUsername = null;
+
     public ?string $isolatedPassword = null;
+
     public int $currentStep = 1;
+
     public int $totalSteps = 5;
 
     /** @var Collection<int, RemoteServer>|null */
-    public ?Collection $remoteServers;
+    public ?Collection $remoteServers = null;
 
     /** @var \Illuminate\Support\Collection<int, string> */
     public \Illuminate\Support\Collection $backupTimes;
 
     /** @var Collection<int, Tag>|null */
-    public ?Collection $availableTags;
+    public ?Collection $availableTags = null;
 
     /** @var array<int>|null */
     public ?array $selectedTags = [];
@@ -252,12 +275,15 @@ class CreateBackupTaskForm extends Component
         } elseif ($this->timeToRun && $this->frequency) {
             $this->cronExpression = null;
         }
+
         if ($this->userTimezone === 'UTC') {
             return;
         }
+
         if (! $this->timeToRun) {
             return;
         }
+
         $this->timeToRun = Carbon::createFromFormat('H:i', $this->timeToRun, $this->userTimezone)?->setTimezone('UTC')->format('H:i');
     }
 
