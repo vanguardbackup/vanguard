@@ -4,8 +4,7 @@
             <div class="mt-4">
                 <x-input-label for="label" :value="__('Label')"/>
                 <x-text-input id="label" class="block mt-1 w-full" type="text" wire:model="label" name="label"
-                              autofocus
-                              placeholder="{{ __('sunny-village') }}"/>
+                              autofocus />
                 <x-input-error :messages="$errors->get('label')" class="mt-2"/>
             </div>
             <div class="mt-4">

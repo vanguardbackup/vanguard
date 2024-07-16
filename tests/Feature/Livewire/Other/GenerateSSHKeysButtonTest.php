@@ -40,6 +40,6 @@ test('a regular user cannot click the button', function (): void {
     Livewire::test(GenerateSSHKeysButton::class)
         ->call('generateKeys');
 
-    Toaster::assertDispatched(__('You are not authorized to generate SSH keys.'));
+    Toaster::assertDispatched(__('You do not have permission to perform this action.'));
     $this->assertFalse($user->isAdmin());
 });

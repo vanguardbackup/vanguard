@@ -73,7 +73,7 @@
                 <div class="mt-4">
                     <x-input-label for="sourcePath" :value="__('Path of Directory on Remote Server to Backup')"/>
                     <x-text-input id="sourcePath" class="block mt-1 w-full" type="text" wire:model="sourcePath"
-                                  placeholder="{{ __('/path/to/backup') }}"
+                                  placeholder="/path/to/backup"
                                   name="sourcePath"/>
                     <x-input-error :messages="$errors->get('sourcePath')" class="mt-2"/>
                     <x-input-explain>{{ __('Please provide the UNIX path of the directory on your remote server that you would like to backup.') }}</x-input-explain>
@@ -89,16 +89,15 @@
                 <div class="mt-4">
                     <x-input-label for="excludedDatabaseTables" :value="__('Excluded Database Tables')"/>
                     <x-text-input id="excludedDatabaseTables" class="block mt-1 w-full" type="text"
-                                  wire:model="excludedDatabaseTables" placeholder="{{ __('table1,table2,table3') }}"
+                                  wire:model="excludedDatabaseTables" placeholder="table1,table2,table3"
                                   name="excludedDatabaseTables"/>
                     <x-input-error :messages="$errors->get('excludedDatabaseTables')" class="mt-2"/>
-                    <x-input-explain>{{ __('If you want to exclude certain tables from the backup, you can list them here, separated by commas. For example: "table1,table2,table3". This can be useful if you have large tables that you don\'t need to back up.') }}</x-input-explain>
+                    <x-input-explain>{{ __('If you want to exclude certain tables from the backup, you can list them here, separated by commas. This can be useful if you have large tables that you don\'t need to back up.') }}</x-input-explain>
                 </div>
             @endif
             <div class="mt-4">
                 <x-input-label for="appendedFileName" :value="__('Additional Filename Text')"/>
                 <x-text-input id="appendedFileName" class="block mt-1 w-full" type="text" wire:model="appendedFileName"
-                              placeholder="{{ __('laravel_app_db_backup') }}"
                               name="appendedFileName"/>
                 <x-input-error :messages="$errors->get('appendedFileName')" class="mt-2"/>
                 <x-input-explain>{{ __('You have the option to add extra characters to the filename. This can make it easier for you to identify the file later.') }}</x-input-explain>
@@ -106,7 +105,7 @@
             <div class="mt-4">
                 <x-input-label for="storePath" :value="__('Backup Destination Directory')"/>
                 <x-text-input id="storePath" class="block mt-1 w-full" type="text" wire:model="storePath"
-                              placeholder="{{ __('/save/to/path') }}"
+                              placeholder="/save/to/path"
                               name="storePath"/>
                 <x-input-error :messages="$errors->get('storePath')" class="mt-2"/>
                 <x-input-explain>

@@ -46,8 +46,8 @@
                         </div>
 
                         <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scheduledBackupTask->type === 'Files' ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
-                                @svg($scheduledBackupTask->type === 'Files' ? 'heroicon-o-document-duplicate' : 'heroicon-o-circle-stack', 'h-4 w-4 mr-1')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scheduledBackupTask->type === __('Files') ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
+                              @svg($scheduledBackupTask->type === __('Files') ? 'heroicon-o-document-duplicate' : 'heroicon-o-circle-stack', ['class' => 'h-4 w-4 mr-1'])
                                 {{ ucfirst($scheduledBackupTask->type) }}
                             </span>
                         </div>

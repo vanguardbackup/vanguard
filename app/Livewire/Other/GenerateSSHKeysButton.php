@@ -34,7 +34,7 @@ class GenerateSSHKeysButton extends Component
     private function checkAdmin(): bool
     {
         if (! Auth::user()?->isAdmin()) {
-            Toaster::error(__('You are not authorized to generate SSH keys.'));
+            Toaster::error(__('You do not have permission to perform this action.'));
             Log::error('Non-admin user attempted to generate SSH keys.', ['user_id' => Auth::id()]);
 
             return false;

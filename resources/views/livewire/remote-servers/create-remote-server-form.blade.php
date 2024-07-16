@@ -26,10 +26,10 @@
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 my-1.5">
                     <x-secondary-button type="button" wire:click="usingServerProvider('ploi')" class="w-full sm:w-auto">
-                        {{ __('Ploi') }}
+                        'Ploi
                     </x-secondary-button>
                     <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto">
-                        {{ __('Laravel Forge') }}
+                        Laravel Forge
                     </x-secondary-button>
                 </div>
             </div>
@@ -84,8 +84,7 @@
                     <div class="mt-4">
                         <x-input-label for="label" :value="__('Label')"/>
                         <x-text-input id="label" class="block mt-1 w-full" type="text" wire:model="label" name="label"
-                                      autofocus
-                                      placeholder="{{ __('sunny-village') }}"/>
+                                      autofocus />
                         <x-input-error :messages="$errors->get('label')" class="mt-2"/>
                     </div>
                     <div class="mt-4">
