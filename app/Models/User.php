@@ -22,6 +22,7 @@ class User extends Authenticatable
         'github_id',
         'preferred_backup_destination_id',
         'language',
+        'gravatar_email',
     ];
 
     protected $hidden = [
@@ -29,11 +30,21 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function gravatar(): string
+    /**
+     * Get the Gravatar URL for the user.
+     */
+    public function gravatar(int|float|null $size = 80): string
     {
-        $hash = md5(strtolower(trim($this->email)));
+        $email = $this->gravatar_email ?? $this->email;
 
-        return "https://www.gravatar.com/avatar/{$hash}";
+        $size = $size > 0 ? (int) $size : 80;
+        $sizeQuery = "?s={$size}";
+
+        return sprintf(
+            'https://www.gravatar.com/avatar/%s%s',
+            md5(strtolower(trim($email))),
+            $sizeQuery
+        );
     }
 
     public function getFirstName(): string

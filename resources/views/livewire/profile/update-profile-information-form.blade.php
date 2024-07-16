@@ -10,6 +10,7 @@ use Masmerise\Toaster\Toaster;
 new class extends Component {
     public string $name = '';
     public string $email = '';
+    public ?string $gravatar_email;
     public string $timezone = '';
     public ?int $preferred_backup_destination_id = null;
     public string $language = 'en'; // Default language is english.
@@ -18,6 +19,7 @@ new class extends Component {
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->gravatar_email = Auth::user()->gravatar_email;
         $this->timezone = Auth::user()->timezone;
         $this->preferred_backup_destination_id = Auth::user()->preferred_backup_destination_id ?? null;
         $this->language = Auth::user()->language;
@@ -30,6 +32,7 @@ new class extends Component {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'gravatar_email' => ['nullable','string', 'lowercase', 'email'],
             'timezone' => ['required', 'string', 'max:255', Rule::in(timezone_identifiers_list())],
             'preferred_backup_destination_id' => ['nullable', 'integer', Rule::exists('backup_destinations', 'id')->where('user_id', $user->id)],
             'language' => ['required', 'string', 'min:2', 'max:3', 'lowercase', 'alpha', Rule::in(array_keys(config('app.available_languages'))),
@@ -54,6 +57,7 @@ new class extends Component {
             'name.max' => __('Your name is too long. Please try a shorter name.'),
             'email.required' => __('Please enter an email address.'),
             'email.email' => __('Please enter an email address.'),
+            'gravatar_email.email' => __('Please enter an email address.'),
             'timezone.required' => __('Please specify a timezone.'),
             'language.required' => __('Please specify a language for your account.')
         ];
@@ -91,13 +95,15 @@ new class extends Component {
             <div class="my-4 bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors duration-200">
                 <div class="flex items-center justify-between max-w-md mx-auto">
                     <div class="flex items-center space-x-2 sm:space-x-3 flex-grow">
-                        <x-icons.github class="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0 text-gray-900 dark:text-white transition-colors duration-200"/>
+                        <x-icons.github
+                                class="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0 text-gray-900 dark:text-white transition-colors duration-200"/>
                         <span class="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors duration-200">
                 {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
             </span>
                     </div>
                     <div class="flex-shrink-0 ml-2">
-                        @svg('heroicon-o-check', 'w-6 h-6 sm:w-7 sm:h-7 text-green-600 dark:text-green-400 transition-colors duration-200')
+                        @svg('heroicon-o-check', 'w-6 h-6 sm:w-7 sm:h-7 text-green-600 dark:text-green-400
+                        transition-colors duration-200')
                     </div>
                 </div>
             </div>
@@ -105,7 +111,7 @@ new class extends Component {
         <div class="mt-4">
             <x-input-label for="avatar" :value="__('Avatar')"/>
             <div class="flex items-center mt-2">
-                <img class="w-20 h-20 rounded-full" src="{{ Auth::user()->gravatar() }}"
+                <img class="w-20 h-20 rounded-full" src="{{ Auth::user()->gravatar('160') }}"
                      alt="{{ Auth::user()->name }}"/>
                 <a href="https://gravatar.com" target="_blank"
                    class="ml-4 text-sm text-gray-600 dark:text-gray-400 underline hover:text-gray-900 dark:hover:text-gray-100 ease-in-out">
@@ -148,6 +154,17 @@ new class extends Component {
         </div>
 
         <div>
+            <x-input-label for="name" :value="__('Gravatar Email')"/>
+            <x-text-input wire:model="gravatar_email" id="gravatar_email" name="name" type="email"
+                          class="mt-1 block w-full"
+                          autofocus autocomplete="gravatar_email"/>
+            <x-input-explain>
+                {{ __('Enter an alternative email address to use for your Gravatar picture. If left blank, your primary email will be used.') }}
+            </x-input-explain>
+            <x-input-error class="mt-2" :messages="$errors->get('gravatar_email')"/>
+        </div>
+
+        <div>
             <x-input-label for="timezone" :value="__('Timezone')"/>
             <x-select wire:model="timezone" id="timezone" name="timezone" class="mt-1 block w-full">
                 @foreach (formatTimezones() as $identifier => $timezone)
@@ -178,29 +195,29 @@ new class extends Component {
             </div>
         @endif
 
-            <div>
-                <x-input-label for="language" :value="__('Language')"/>
-                <x-select wire:model.live="language" id="language" name="language" class="mt-1 block w-full">
-                    @foreach (config('app.available_languages') as $code => $language)
-                        <option value="{{ $code }}">{{ $language }}</option>
-                    @endforeach
-                </x-select>
-                <x-input-explain>
-                    {{ __('Please select your preferred language from the dropdown list. This will change the language used throughout the application.') }}
-                </x-input-explain>
-                <x-input-error class="mt-2" :messages="$errors->get('language')"/>
-                @if ($language !== Auth::user()->language)
-                    <div
+        <div>
+            <x-input-label for="language" :value="__('Language')"/>
+            <x-select wire:model.live="language" id="language" name="language" class="mt-1 block w-full">
+                @foreach (config('app.available_languages') as $code => $language)
+                    <option value="{{ $code }}">{{ $language }}</option>
+                @endforeach
+            </x-select>
+            <x-input-explain>
+                {{ __('Please select your preferred language from the dropdown list. This will change the language used throughout the application.') }}
+            </x-input-explain>
+            <x-input-error class="mt-2" :messages="$errors->get('language')"/>
+            @if ($language !== Auth::user()->language)
+                <div
                         x-data="{ show: false }"
                         x-show="show"
                         x-transition.opacity.duration.500ms
                         x-init="$nextTick(() => show = true)"
                         class="my-2 text-sm text-blue-600 dark:text-blue-400"
-                    >
-                        {{ __('Please refresh the page after saving to view your new language.') }}
-                    </div>
-                @endif
-            </div>
+                >
+                    {{ __('Please refresh the page after saving to view your new language.') }}
+                </div>
+            @endif
+        </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>

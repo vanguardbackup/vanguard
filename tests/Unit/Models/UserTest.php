@@ -6,12 +6,67 @@ use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
 
-it('can generate a gravatar default image', function (): void {
+it('generates a gravatar URL using the primary email with default size', function (): void {
     $user = User::factory()->create([
-        'email' => 'john.doe@email.com',
+        'email' => 'john.doe@example.com',
     ]);
 
-    expect($user->gravatar())->toBe('https://www.gravatar.com/avatar/8f6e96274c2abf617a3987e74e9e757e');
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('john.doe@example.com') . '?s=80';
+
+    expect($user->gravatar())->toBe($expectedUrl);
+});
+
+it('prioritizes gravatar_email over primary email when generating gravatar URL', function (): void {
+    $user = User::factory()->create([
+        'email' => 'john.doe@example.com',
+        'gravatar_email' => 'johndoe.gravatar@example.com',
+    ]);
+
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('johndoe.gravatar@example.com') . '?s=80';
+
+    expect($user->gravatar())->toBe($expectedUrl);
+});
+
+it('handles empty or null email addresses gracefully', function (): void {
+    $user = User::factory()->create([
+        'email' => '',
+        'gravatar_email' => null,
+    ]);
+
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('') . '?s=80';
+
+    expect($user->gravatar())->toBe($expectedUrl);
+});
+
+it('allows custom size for gravatar image', function (): void {
+    $user = User::factory()->create([
+        'email' => 'john.doe@example.com',
+    ]);
+
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('john.doe@example.com') . '?s=200';
+
+    expect($user->gravatar(200))->toBe($expectedUrl);
+});
+
+it('uses default size when provided size is zero or negative', function (): void {
+    $user = User::factory()->create([
+        'email' => 'john.doe@example.com',
+    ]);
+
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('john.doe@example.com') . '?s=80';
+
+    expect($user->gravatar(0))->toBe($expectedUrl)
+        ->and($user->gravatar(-100))->toBe($expectedUrl);
+});
+
+it('truncates size to integer', function (): void {
+    $user = User::factory()->create([
+        'email' => 'john.doe@example.com',
+    ]);
+
+    $expectedUrl = 'https://www.gravatar.com/avatar/' . md5('john.doe@example.com') . '?s=150';
+
+    expect($user->gravatar(150.75))->toBe($expectedUrl);
 });
 
 it('returns the first name', function (): void {

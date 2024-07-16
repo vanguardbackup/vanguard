@@ -49,6 +49,7 @@ test('profile information can be updated', function (): void {
     $component = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
+        ->set('gravatar_email', 'gravatar@example.com')
         ->set('timezone', 'America/New_York')
         ->set('preferred_backup_destination_id', $backupDestination->id)
         ->set('language', 'ar')
@@ -62,6 +63,7 @@ test('profile information can be updated', function (): void {
 
     $this->assertSame('Test User', $user->name);
     $this->assertSame('test@example.com', $user->email);
+    $this->assertSame('gravatar@example.com', $user->gravatar_email);
     $this->assertSame('America/New_York', $user->timezone);
     $this->assertSame($backupDestination->id, $user->preferred_backup_destination_id);
     $this->assertSame('ar', $user->language);
@@ -230,4 +232,26 @@ test('the language must exist', function (): void {
         ->assertNoRedirect();
 
     $this->assertEquals('en', $user->language);
+});
+
+test('the gravatar email must be an email address', function (): void {
+
+    $user = User::factory()->create([
+        'gravatar_email' => 'test@example.com',
+    ]);
+
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.update-profile-information-form')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('gravatar_email', 'not-an-email')
+        ->set('timezone', 'America/New_York')
+        ->call('updateProfileInformation');
+
+    $component
+        ->assertHasErrors('gravatar_email')
+        ->assertNoRedirect();
+
+    expect($user->gravatar_email)->toBe('test@example.com');
 });
