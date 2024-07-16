@@ -26,7 +26,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 my-1.5">
                     <x-secondary-button type="button" wire:click="usingServerProvider('ploi')" class="w-full sm:w-auto">
-                        'Ploi
+                        Ploi
                     </x-secondary-button>
                     <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto">
                         Laravel Forge
