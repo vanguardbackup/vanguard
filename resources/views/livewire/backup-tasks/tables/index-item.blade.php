@@ -71,7 +71,7 @@
                             @if ($backupTask->usingCustomCronExpression())
                                 {{ $backupTask->custom_cron_expression }}
                             @else
-                                {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                                {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->runTimeFormatted(Auth::user()) }}
                             @endif
                         @endif
                     </p>
@@ -175,7 +175,7 @@
                         @if ($backupTask->usingCustomCronExpression())
                             {{ $backupTask->custom_cron_expression }}
                         @else
-                            {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->time_to_run_at }}
+                            {{ ucfirst(__($backupTask->frequency)) }} {{ __('at') }} {{ $backupTask->runTimeFormatted(Auth::user()) }}
                         @endif
                     @endif
                 </p>

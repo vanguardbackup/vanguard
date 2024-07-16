@@ -856,3 +856,80 @@ it('formats last run correctly for authenticated user', function (): void {
 afterEach(function (): void {
     Carbon::setTestNow();
 });
+
+it('formats time correctly for UTC timezone', function (): void {
+    $user = User::factory()->create(['timezone' => 'UTC']);
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '04:45']);
+
+    $result = $backupTask->runTimeFormatted();
+
+    expect($result)->toBe('04:45')
+        ->and($user->timezone)->toBe('UTC');
+});
+
+it('correctly adjusts time for London timezone', function (): void {
+    $user = User::factory()->create(['timezone' => 'Europe/London']);
+    Auth::login($user);
+
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '04:15']);
+
+    Config::set('app.timezone', 'UTC');
+
+    Carbon::setTestNow(Carbon::create(2024, 7, 16, 4, 15, 0, 'UTC'));
+
+    $result = $backupTask->runTimeFormatted();
+
+    expect($result)->toBe('05:15')
+        ->and($user->timezone)->toBe('Europe/London');
+});
+
+it('handles non-DST period correctly', function (): void {
+    $user = User::factory()->create(['timezone' => 'America/New_York']);
+    Auth::login($user);
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '04:45']);
+
+    Carbon::setTestNow(Carbon::create(2023, 1, 15, 4, 45, 0, 'UTC'));
+
+    $result = $backupTask->runTimeFormatted();
+
+    expect($result)->toBe('23:45')
+        ->and($user->timezone)->toBe('America/New_York');
+});
+
+it('handles null user correctly', function (): void {
+    Auth::logout();
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '04:45']);
+
+    Config::set('app.timezone', 'UTC');
+
+    $result = $backupTask->runTimeFormatted();
+
+    expect($result)->toBe('04:45');
+});
+
+it('handles time around midnight correctly', function (): void {
+    $user = User::factory()->create(['timezone' => 'America/Los_Angeles']);
+    Auth::login($user);
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '23:45']);
+
+    Carbon::setTestNow(Carbon::create(2023, 7, 15, 23, 45, 0, 'UTC'));
+
+    $result = $backupTask->runTimeFormatted();
+
+    expect($result)->toBe('16:45')
+        ->and($user->timezone)->toBe('America/Los_Angeles');
+});
+
+it('handles explicit user parameter', function (): void {
+    $user1 = User::factory()->create(['timezone' => 'America/New_York']);
+    $user2 = User::factory()->create(['timezone' => 'Europe/London']);
+    Auth::login($user1);
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => '12:00']);
+
+    Carbon::setTestNow(Carbon::create(2023, 7, 15, 12, 0, 0, 'UTC'));
+
+    $result = $backupTask->runTimeFormatted($user2);
+
+    expect($result)->toBe('13:00')
+        ->and($user2->timezone)->toBe('Europe/London');
+});

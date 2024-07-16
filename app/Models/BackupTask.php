@@ -548,6 +548,18 @@ class BackupTask extends Model
     }
 
     /**
+     * Format the backup task's run time according to the user's timezone.
+     */
+    public function runTimeFormatted(?User $user = null): string
+    {
+        $userTimezone = $user?->timezone ?? Auth::user()?->timezone ?? config('app.timezone');
+
+        $utcTime = Carbon::parse($this->time_to_run_at, 'UTC');
+
+        return $utcTime->timezone($userTimezone)->format('H:i');
+    }
+
+    /**
      * Get the latest log for the backup task.
      *
      * @return HasOne<BackupTaskLog>
