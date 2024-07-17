@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs\RemoteServers;
 
-use App\Actions\RemoteServer\RemoveSSHKey;
 use App\Models\RemoteServer;
+use App\Services\RemoveSSHKey\RemoveSSHKeyService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,16 +21,31 @@ class RemoveSSHKeyJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct(public RemoteServer $remoteServer)
-    {
-        //
-    }
+    /**
+     * Create a new job instance.
+     *
+     * @param  RemoteServer  $remoteServer  The remote server to remove the SSH key from
+     */
+    public function __construct(public RemoteServer $remoteServer) {}
 
-    public function handle(): void
+    /**
+     * Execute the job.
+     *
+     * @param  RemoveSSHKeyService  $removeSSHKeyService  The service to remove the SSH key
+     */
+    public function handle(RemoveSSHKeyService $removeSSHKeyService): void
     {
-        Log::info('Removing SSH key from server.', ['server_id' => $this->remoteServer->getAttribute('id')]);
+        Log::info('Starting SSH key removal job.', ['server_id' => $this->remoteServer->getAttribute('id')]);
 
-        $removeSSHKey = new RemoveSSHKey;
-        $removeSSHKey->handle($this->remoteServer);
+        try {
+            $removeSSHKeyService->handle($this->remoteServer);
+            Log::info('SSH key removal job completed successfully.', ['server_id' => $this->remoteServer->getAttribute('id')]);
+        } catch (Exception $e) {
+            Log::error('SSH key removal job failed.', [
+                'server_id' => $this->remoteServer->getAttribute('id'),
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }
