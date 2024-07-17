@@ -11,27 +11,25 @@ use App\Models\Tag;
 use App\Models\User;
 use Livewire\Livewire;
 
-beforeEach(function (): void {
+beforeEach(function () {
     $this->data = createUserWithBackupTaskAndDependencies();
     $this->actingAs($this->data['user']);
 });
 
-test('form can be rendered', function (): void {
+test('form can be rendered', function () {
     Livewire::test(UpdateBackupTaskForm::class, [
         'backupTask' => $this->data['backupTask'],
         'remoteServers' => $this->data['user']->remoteServers,
     ])->assertOk();
 });
 
-describe('backup task update', function (): void {
-    test('can be updated by the owner', function (): void {
-        $tag1 = Tag::factory()->create(['label' => 'Tag 1', 'user_id' => $this->data['user']->id]);
-        $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->data['user']->id]);
-        $tagIds = [$tag1->id, $tag2->id];
+describe('backup task update', function () {
+    test('can be updated by the owner', function () {
+        $tags = Tag::factory(2)->create(['user_id' => $this->data['user']->id]);
+        $tagIds = $tags->pluck('id')->toArray();
 
-        $notificationStream1 = NotificationStream::factory()->email()->create(['label' => 'Stream 1', 'user_id' => $this->data['user']->id]);
-        $notificationStream2 = NotificationStream::factory()->email()->create(['label' => 'Stream 2', 'user_id' => $this->data['user']->id]);
-        $notificationStreamIds = [$notificationStream1->id, $notificationStream2->id];
+        $notificationStreams = NotificationStream::factory(2)->email()->create(['user_id' => $this->data['user']->id]);
+        $notificationStreamIds = $notificationStreams->pluck('id')->toArray();
 
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
@@ -40,25 +38,28 @@ describe('backup task update', function (): void {
             'availableStreams' => $this->data['user']->notificationStreams,
         ]);
 
-        $testable->set('label', 'Updated Label')
-            ->set('description', 'Updated Description')
-            ->set('remoteServerId', $this->data['remoteServer']->id)
-            ->set('backupDestinationId', $this->data['backupDestination']->id)
-            ->set('frequency', BackupTask::FREQUENCY_WEEKLY)
-            ->set('timeToRun', '12:00')
-            ->set('backupsToKeep', 10)
-            ->set('backupType', BackupTask::TYPE_DATABASE)
-            ->set('databaseName', 'database_name')
-            ->set('appendedFileName', 'appended_file_name')
-            ->set('useCustomCron', false)
-            ->set('storePath', '/my-cool-backups')
-            ->set('excludedDatabaseTables', 'table1,table2')
-            ->set('selectedTags', $tagIds)
-            ->set('selectedStreams', $notificationStreamIds)
-            ->call('submit')
-            ->assertHasNoErrors();
+        $updatedData = [
+            'label' => 'Updated Label',
+            'description' => 'Updated Description',
+            'remoteServerId' => $this->data['remoteServer']->id,
+            'backupDestinationId' => $this->data['backupDestination']->id,
+            'frequency' => BackupTask::FREQUENCY_WEEKLY,
+            'timeToRun' => '12:00',
+            'backupsToKeep' => 10,
+            'backupType' => BackupTask::TYPE_DATABASE,
+            'databaseName' => 'database_name',
+            'appendedFileName' => 'appended_file_name',
+            'useCustomCron' => false,
+            'storePath' => '/my-cool-backups',
+            'excludedDatabaseTables' => 'table1,table2',
+            'selectedTags' => $tagIds,
+            'selectedStreams' => $notificationStreamIds,
+        ];
+
+        $testable->set($updatedData)->call('submit')->assertHasNoErrors();
 
         $this->assertDatabaseHas('backup_tasks', [
+            'id' => $this->data['backupTask']->id,
             'label' => 'Updated Label',
             'description' => 'Updated Description',
             'remote_server_id' => $this->data['remoteServer']->id,
@@ -73,32 +74,27 @@ describe('backup task update', function (): void {
             'excluded_database_tables' => 'table1,table2',
         ]);
 
-        $this->assertDatabaseHas('taggables', [
-            'tag_id' => $tag1->id,
-            'taggable_id' => $this->data['backupTask']->id,
-            'taggable_type' => BackupTask::class,
-        ]);
+        foreach ($tagIds as $tagId) {
+            $this->assertDatabaseHas('taggables', [
+                'tag_id' => $tagId,
+                'taggable_id' => $this->data['backupTask']->id,
+                'taggable_type' => BackupTask::class,
+            ]);
+        }
 
-        $this->assertDatabaseHas('taggables', [
-            'tag_id' => $tag2->id,
-            'taggable_id' => $this->data['backupTask']->id,
-            'taggable_type' => BackupTask::class,
-        ]);
+        foreach ($notificationStreamIds as $streamId) {
+            $this->assertDatabaseHas('backup_task_notification_streams', [
+                'notification_stream_id' => $streamId,
+                'backup_task_id' => $this->data['backupTask']->id,
+            ]);
+        }
 
-        $this->assertDatabaseHas('backup_task_notification_streams', [
-            'id' => $notificationStream1->getAttribute('id'),
-            'notification_stream_id' => $notificationStream1->getAttribute('id'),
-            'backup_task_id' => $this->data['backupTask']->id,
-        ]);
-
-        $this->assertDatabaseHas('backup_task_notification_streams', [
-            'id' => $notificationStream2->getAttribute('id'),
-            'notification_stream_id' => $notificationStream2->getAttribute('id'),
-            'backup_task_id' => $this->data['backupTask']->id,
-        ]);
+        $updatedBackupTask = BackupTask::find($this->data['backupTask']->id);
+        expect($updatedBackupTask->tags)->toHaveCount(2)
+            ->and($updatedBackupTask->notificationStreams)->toHaveCount(2);
     });
 
-    test('can be updated by the owner with custom cron', function (): void {
+    test('can be updated by the owner with custom cron', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $this->data['user']->remoteServers,
@@ -129,7 +125,7 @@ describe('backup task update', function (): void {
         ]);
     });
 
-    test('cannot be updated by another user', function (): void {
+    test('cannot be updated by another user', function () {
         $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser);
@@ -154,8 +150,8 @@ describe('backup task update', function (): void {
     });
 });
 
-describe('validation rules', function (): void {
-    test('backup task has required validation rules', function (): void {
+describe('validation rules', function () {
+    test('backup task has required validation rules', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -172,7 +168,7 @@ describe('validation rules', function (): void {
             ]);
     });
 
-    test('the store path needs to be a valid unix path', function (): void {
+    test('the store path needs to be a valid unix path', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -185,7 +181,7 @@ describe('validation rules', function (): void {
             ]);
     });
 
-    test('the excluded database tables must be a valid comma separated list', function (): void {
+    test('the excluded database tables must be a valid comma separated list', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -201,8 +197,8 @@ describe('validation rules', function (): void {
     });
 });
 
-describe('time and timezone handling', function (): void {
-    test('the time to run at is converted from the users timezone to UTC', function (): void {
+describe('time and timezone handling', function () {
+    test('the time to run at is converted from the users timezone to UTC', function () {
         $this->data['user']->update(['timezone' => 'America/New_York']);
 
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
@@ -211,7 +207,7 @@ describe('time and timezone handling', function (): void {
         ]);
 
         $testable->set('timeToRun', '12:00') // 12:00 PM in America/New_York
-            ->set('description', '')
+        ->set('description', '')
             ->set('sourcePath', '/var/www/html')
             ->call('submit')
             ->assertHasNoErrors();
@@ -221,7 +217,7 @@ describe('time and timezone handling', function (): void {
         ]);
     });
 
-    test('a task cannot share the same time as another task on the same server', function (): void {
+    test('a task cannot share the same time as another task on the same server', function () {
         $this->withoutExceptionHandling();
         $user = User::factory()->create();
 
@@ -256,7 +252,7 @@ describe('time and timezone handling', function (): void {
             ->assertHasErrors('timeToRun');
     });
 
-    test('a task retains its set time without validation errors', function (): void {
+    test('a task retains its set time without validation errors', function () {
         $user = User::factory()->create();
 
         $remoteServer = RemoteServer::factory()->create([
@@ -287,8 +283,8 @@ describe('time and timezone handling', function (): void {
     });
 });
 
-describe('tag handling', function (): void {
-    test('users cannot set tags that do not belong them', function (): void {
+describe('tag handling', function () {
+    test('users cannot set tags that do not belong them', function () {
         $tag = Tag::factory()->create();
 
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
@@ -303,8 +299,7 @@ describe('tag handling', function (): void {
             ]);
     });
 
-    test('users cannot set tags that do not exist', function (): void {
-
+    test('users cannot set tags that do not exist', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -317,8 +312,7 @@ describe('tag handling', function (): void {
             ]);
     });
 
-    test('a user can update their already existing tags', function (): void {
-
+    test('a user can update their already existing tags', function () {
         $user = User::factory()->create();
 
         $remoteServer = RemoteServer::factory()->create([
@@ -366,11 +360,14 @@ describe('tag handling', function (): void {
             'taggable_id' => $backupTask->id,
             'taggable_type' => BackupTask::class,
         ]);
+
+        expect($backupTask->fresh()->tags)->toHaveCount(1)
+            ->and($backupTask->fresh()->tags->first()->id)->toBe($tag3->id);
     });
 });
 
-describe('notification stream handling', function (): void {
-    test('users cannot set notification streams that do not belong them', function (): void {
+describe('notification stream handling', function () {
+    test('users cannot set notification streams that do not belong to them', function () {
         $notificationStream = NotificationStream::factory()->create();
 
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
@@ -385,8 +382,7 @@ describe('notification stream handling', function (): void {
             ]);
     });
 
-    test('users cannot set streams that do not exist', function (): void {
-
+    test('users cannot set streams that do not exist', function () {
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
@@ -399,27 +395,28 @@ describe('notification stream handling', function (): void {
             ]);
     });
 
-    test('a user can update their existing backup task notification streams', function (): void {
+    test('a user can update their existing backup task notification streams', function () {
         $user = User::factory()->create();
         $remoteServer = RemoteServer::factory()->create(['user_id' => $user->id]);
 
         $streams = NotificationStream::factory()->email()->count(3)->create([
             'user_id' => $user->id,
-        ])->each(function ($stream, $index): void {
+        ])->each(function ($stream, $index) {
             $stream->update(['label' => 'Stream ' . ($index + 1)]);
         });
 
         $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
-        $backupTask->notificationStreams()->attach([$streams[0]->getAttribute('id'), $streams[1]->getAttribute('id')]);
+        $backupTask->notificationStreams()->attach([$streams[0]->id, $streams[1]->id]);
 
-        Livewire::actingAs($user)
-            ->test(UpdateBackupTaskForm::class, [
-                'backupTask' => $backupTask,
-                'remoteServers' => RemoteServer::all(),
-                'availableStreams' => $user->notificationStreams,
-            ])
+        $this->actingAs($user);
+
+        Livewire::test(UpdateBackupTaskForm::class, [
+            'backupTask' => $backupTask,
+            'remoteServers' => RemoteServer::all(),
+            'availableStreams' => $user->notificationStreams,
+        ])
             ->set('remoteServerId', $remoteServer->id)
-            ->set('selectedStreams', [$streams[2]->getAttribute('id')])
+            ->set('selectedStreams', [$streams[2]->id])
             ->set('sourcePath', '/var/www/html')
             ->set('description', 'Updated description')
             ->call('submit')
@@ -434,16 +431,19 @@ describe('notification stream handling', function (): void {
 
         $this->assertDatabaseHas('backup_task_notification_streams', [
             'backup_task_id' => $backupTask->id,
-            'notification_stream_id' => $streams[2]->getAttribute('id'),
+            'notification_stream_id' => $streams[2]->id,
         ]);
 
-        foreach ([$streams[0]->getAttribute('id'), $streams[1]->getAttribute('id')] as $detachedStreamId) {
+        foreach ([$streams[0]->id, $streams[1]->id] as $detachedStreamId) {
             $this->assertDatabaseMissing('backup_task_notification_streams', [
                 'backup_task_id' => $backupTask->id,
                 'notification_stream_id' => $detachedStreamId,
             ]);
         }
 
-        $this->assertCount(1, $backupTask->fresh()->notificationStreams);
+        expect($backupTask->fresh()->notificationStreams)->toHaveCount(1)
+            ->and($backupTask->fresh()->notificationStreams->first()->id)->toBe($streams[2]->id);
     });
 });
+
+
