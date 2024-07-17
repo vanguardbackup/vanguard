@@ -462,7 +462,7 @@ class BackupTask extends Model
                 ],
             ],
             'footer' => [
-                'icon_url' => asset('notification-streams/images/icon.png'),
+                'icon_url' => asset('notification-streams-assets/images/icon.png'),
                 'text' => __('This notification was sent by :app.', ['app' => config('app.name')]),
             ],
         ];
@@ -471,7 +471,7 @@ class BackupTask extends Model
             'Content-Type' => 'application/json',
         ])->post($webhookURL, [
             'username' => config('app.name'),
-            'avatar_url' => asset('notification-streams/images/icon.png'),
+            'avatar_url' => asset('notification-streams-assets/images/icon.png'),
             'embeds' => [$embed],
         ]);
 
