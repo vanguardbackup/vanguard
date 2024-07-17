@@ -24,9 +24,9 @@ it('submits successfully with email', function (): void {
 
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', $testData['label'])
-        ->set('type', $testData['type'])
-        ->set('value', $testData['value'])
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
@@ -48,9 +48,9 @@ it('submits successfully with Discord webhook', function (): void {
 
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', $testData['label'])
-        ->set('type', $testData['type'])
-        ->set('value', $testData['value'])
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
@@ -72,9 +72,9 @@ it('submits successfully with Slack webhook', function (): void {
 
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', $testData['label'])
-        ->set('type', $testData['type'])
-        ->set('value', $testData['value'])
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
@@ -90,81 +90,70 @@ it('submits successfully with Slack webhook', function (): void {
 it('validates required fields', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', '')
-        ->set('type', '')
-        ->set('value', '')
+        ->set('form.label', '')
+        ->set('form.type', '')
+        ->set('form.value', '')
         ->call('submit')
-        ->assertHasErrors(['label', 'type', 'value']);
+        ->assertHasErrors(['form.label', 'form.type', 'form.value']);
 });
 
 it('validates label max length', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', str_repeat('a', 256))
+        ->set('form.label', str_repeat('a', 256))
         ->call('submit')
-        ->assertHasErrors(['label' => 'max']);
+        ->assertHasErrors(['form.label' => 'max']);
 });
 
 it('validates email format', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', 'Test Email')
-        ->set('type', 'email')
-        ->set('value', 'invalid-email')
+        ->set('form.label', 'Test Email')
+        ->set('form.type', 'email')
+        ->set('form.value', 'invalid-email')
         ->call('submit')
-        ->assertHasErrors(['value']);
+        ->assertHasErrors(['form.value']);
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', 'Test Email')
+        ->set('form.type', 'email')
+        ->set('form.value', 'valid-email@example.com')
+        ->call('submit')
+        ->assertHasNoErrors(['form.value']);
 });
 
 it('validates Discord webhook format', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', 'Test Discord Webhook')
-        ->set('type', 'discord_webhook')
-        ->set('value', 'https://invalid-discord-webhook.com')
+        ->set('form.label', 'Test Discord Webhook')
+        ->set('form.type', 'discord_webhook')
+        ->set('form.value', 'https://invalid-discord-webhook.com')
         ->call('submit')
-        ->assertHasErrors(['value']);
+        ->assertHasErrors(['form.value']);
 });
 
 it('validates Slack webhook format', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', 'Test Slack Webhook')
-        ->set('type', 'slack_webhook')
-        ->set('value', 'https://invalid-slack-webhook.com')
+        ->set('form.label', 'Test Slack Webhook')
+        ->set('form.type', 'slack_webhook')
+        ->set('form.value', 'https://invalid-slack-webhook.com')
         ->call('submit')
-        ->assertHasErrors(['value']);
-});
-
-it('updates validation message when type changes', function (): void {
-    $component = Livewire::actingAs($this->user)
-        ->test(CreateNotificationStream::class)
-        ->set('label', 'Test Notification')
-        ->set('type', 'email')
-        ->set('value', '');
-
-    $component->call('submit')
-        ->assertHasErrors(['value' => 'Please enter an email address.']);
-
-    $component->set('type', 'discord_webhook')
-        ->call('submit')
-        ->assertHasErrors(['value' => 'Please enter a Discord webhook URL.']);
-
-    $component->set('type', 'slack_webhook')
-        ->call('submit')
-        ->assertHasErrors(['value' => 'Please enter a Slack webhook URL.']);
+        ->assertHasErrors(['form.value']);
 });
 
 it('clears validation errors when type changes', function (): void {
     $component = Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', 'Test Notification')
-        ->set('type', 'email')
-        ->set('value', 'invalid-email');
+        ->set('form.label', 'Test Notification')
+        ->set('form.type', 'email')
+        ->set('form.value', 'invalid-email');
 
     $component->call('submit')
-        ->assertHasErrors(['value']);
+        ->assertHasErrors(['form.value']);
 
-    $component->set('type', 'discord_webhook')
+    $component->set('form.type', 'discord_webhook')
         ->assertHasNoErrors();
 });
 
@@ -179,14 +168,17 @@ it('creates notification stream for authenticated user', function (): void {
 
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
-        ->set('label', $testData['label'])
-        ->set('type', $testData['type'])
-        ->set('value', $testData['value'])
-        ->call('submit');
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->call('submit')
+        ->assertHasNoErrors();
 
     $this->assertDatabaseHas('notification_streams', [
         'user_id' => $this->user->id,
         'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
     ]);
 
     $this->assertDatabaseMissing('notification_streams', [

@@ -83,9 +83,8 @@ class NotificationStream extends Model
             get: function (): ?string {
                 return match ((string) $this->type) {
                     self::TYPE_EMAIL => (string) __('Email'),
-                    // We're not translating product names.
-                    self::TYPE_DISCORD => 'Discord',
-                    self::TYPE_SLACK => 'Slack',
+                    self::TYPE_DISCORD => (string) __('Discord Webhook'),
+                    self::TYPE_SLACK => (string) __('Slack Webhook'),
                     default => null,
                 };
             }

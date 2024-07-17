@@ -41,12 +41,12 @@ it('returns correct formatted type for email', function (): void {
 
 it('returns correct formatted type for discord', function (): void {
     $notificationStream = NotificationStream::factory()->discord()->create();
-    expect($notificationStream->formatted_type)->toBe('Discord');
+    expect($notificationStream->formatted_type)->toBe('Discord Webhook');
 });
 
 it('returns correct formatted type for slack', function (): void {
     $notificationStream = NotificationStream::factory()->slack()->create();
-    expect($notificationStream->formatted_type)->toBe('Slack');
+    expect($notificationStream->formatted_type)->toBe('Slack Webhook');
 });
 
 it('returns correct type icon for email', function (): void {
