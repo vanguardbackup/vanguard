@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\BackupTasks\Forms;
 
 use App\Models\BackupTask;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
@@ -80,6 +81,12 @@ class UpdateBackupTaskForm extends Component
     /** @var array<int>|null */
     public ?array $selectedTags = null;
 
+    /** @var Collection<int, NotificationStream>|null */
+    public ?Collection $availableNotificationStreams = null;
+
+    /** @var array<int>|null */
+    public ?array $selectedStreams = [];
+
     public function mount(): void
     {
         $this->initializeForm();
@@ -146,6 +153,8 @@ class UpdateBackupTaskForm extends Component
 
         $this->availableTags = $user->tags;
         $this->selectedTags = $this->backupTask->getAttribute('tags')->pluck('id')->toArray();
+        $this->availableNotificationStreams = $user->notificationStreams;
+        $this->selectedStreams = $this->backupTask->getAttribute('notificationStreams')->pluck('id')->toArray();
         $this->remoteServers = $user->remoteServers->where('database_password', null);
         $this->userTimezone = $user->timezone ?? 'UTC';
 
@@ -174,9 +183,6 @@ class UpdateBackupTaskForm extends Component
             'type' => 'backupType',
             'database_name' => 'databaseName',
             'appended_file_name' => 'appendedFileName',
-            'notify_email' => 'notifyEmail',
-            'notify_discord_webhook' => 'notifyDiscordWebhook',
-            'notify_slack_webhook' => 'notifySlackWebhook',
             'store_path' => 'storePath',
             'excluded_database_tables' => 'excludedDatabaseTables',
             'isolated_username' => 'isolatedUsername',
@@ -228,12 +234,10 @@ class UpdateBackupTaskForm extends Component
         $baseRules = [
             'isolatedUsername' => ['nullable', 'string'],
             'isolatedPassword' => ['nullable', 'string'],
+            'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
-            'notifyEmail' => ['nullable', 'email'],
-            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
-            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
             'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
             'backupType' => ['required', 'string', 'in:files,database'],
             'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
@@ -271,13 +275,9 @@ class UpdateBackupTaskForm extends Component
     {
         return [
             'selectedTags.*.exists' => __('One or more of the selected tags do not exist.'),
+            'selectedStreams.*.exists' => __('One or more of the selected streams do not exist.'),
             'excludedDatabaseTables.regex' => __('Please enter a valid list of table names separated by commas.'),
             'storePath.regex' => __('The path must be a valid Unix path.'),
-            'notifyEmail.email' => __('Please enter a valid email address.'),
-            'notifySlackWebhook.url' => __('Please enter a valid URL.'),
-            'notifySlackWebhook.starts_with' => __('Please enter a valid Slack webhook URL.'),
-            'notifyDiscordWebhook.url' => __('Please enter a valid URL.'),
-            'notifyDiscordWebhook.starts_with' => __('Please enter a valid Discord webhook URL.'),
             'appendedFileName.max' => __('The appended file name must be less than 40 characters.'),
             'appendedFileName.alpha_dash' => __('The appended file name may only contain letters, numbers, dashes, and underscores.'),
             'databaseName.required_if' => __('Please enter the name of the database.'),
@@ -318,9 +318,6 @@ class UpdateBackupTaskForm extends Component
             'type' => $this->backupType,
             'database_name' => $this->databaseName,
             'appended_file_name' => $this->appendedFileName,
-            'notify_email' => $this->notifyEmail,
-            'notify_discord_webhook' => $this->notifyDiscordWebhook,
-            'notify_slack_webhook' => $this->notifySlackWebhook,
             'store_path' => $this->storePath,
             'isolated_username' => $this->isolatedUsername,
         ]);
@@ -335,5 +332,10 @@ class UpdateBackupTaskForm extends Component
         $tags = $this->selectedTags;
 
         $this->backupTask->tags()->sync($tags);
+
+        /** @var NotificationStream $notificationStreams */
+        $notificationStreams = $this->selectedStreams;
+
+        $this->backupTask->notificationStreams()->sync($notificationStreams);
     }
 }

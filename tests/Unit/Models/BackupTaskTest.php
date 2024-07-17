@@ -10,6 +10,7 @@ use App\Mail\BackupTasks\OutputMail;
 use App\Models\BackupTask;
 use App\Models\BackupTaskData;
 use App\Models\BackupTaskLog;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\User;
@@ -588,40 +589,47 @@ it('resets the last script update time', function (): void {
     expect($task->last_script_update_at)->toBeNull();
 });
 
-it('returns true if there is a notification email set', function (): void {
+it('returns true if there is a notification stream email set', function (): void {
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->email()->create();
 
-    $task = BackupTask::factory()->create(['notify_email' => 'alerts@email.com']);
+    $task->notificationStreams()->attach($stream);
 
-    expect($task->hasNotifyEmail())->toBeTrue();
+    expect($task->hasEmailNotification())->toBeTrue();
 });
 
-it('returns false if there is no notification email set', function (): void {
+it('returns false if there is no notification stream email set', function (): void {
+    $task = BackupTask::factory()->create();
 
-    $task = BackupTask::factory()->create(['notify_email' => null]);
-
-    expect($task->hasNotifyEmail())->toBeFalse();
+    expect($task->hasEmailNotification())->toBeFalse();
 });
 
-it('returns true if there is a notification discord webhook set', function (): void {
+it('returns true if there is a notification stream discord webhook set', function (): void {
 
-    $task = BackupTask::factory()->create(['notify_discord_webhook' => 'https://discord.com/webhook']);
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->discord()->create();
 
-    expect($task->hasNotifyDiscordWebhook())->toBeTrue();
+    $task->notificationStreams()->attach($stream);
+
+    expect($task->hasDiscordNotification())->toBeTrue();
 });
 
-it('returns false if there is no notification discord webhook set', function (): void {
+it('returns false if there is no notification stream discord webhook set', function (): void {
 
-    $task = BackupTask::factory()->create(['notify_discord_webhook' => null]);
+    $task = BackupTask::factory()->create();
 
-    expect($task->hasNotifyDiscordWebhook())->toBeFalse();
+    expect($task->hasDiscordNotification())->toBeFalse();
 });
 
 it('queues up a discord notification job if a discord notification has been set', function (): void {
 
     Queue::fake();
 
-    $task = BackupTask::factory()->create(['notify_discord_webhook' => 'https://discord.com/webhook']);
-    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->discord()->create();
+    $task->notificationStreams()->attach($stream);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
 
     $task->sendNotifications();
 
@@ -632,7 +640,7 @@ it('does not queue up a discord notification job if a discord notification has n
 
     Queue::fake();
 
-    $task = BackupTask::factory()->create(['notify_discord_webhook' => null]);
+    $task = BackupTask::factory()->create();
 
     $task->sendNotifications();
 
@@ -641,22 +649,25 @@ it('does not queue up a discord notification job if a discord notification has n
 
 it('returns true if there is a notification slack webhook set', function (): void {
 
-    $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->slack()->create();
 
-    expect($task->hasNotifySlackWebhook())->toBeTrue();
+    $task->notificationStreams()->attach($stream);
+
+    expect($task->hasSlackNotification())->toBeTrue();
 });
 
 it('returns false if there is no notification slack webhook set', function (): void {
 
-    $task = BackupTask::factory()->create(['notify_slack_webhook' => null]);
+    $task = BackupTask::factory()->create();
 
-    expect($task->hasNotifySlackWebhook())->toBeFalse();
+    expect($task->hasSlackNotification())->toBeFalse();
 });
 
 it('does not queue up a slack notification job if a slack notification has not been set', function (): void {
     Queue::fake();
 
-    $task = BackupTask::factory()->create(['notify_slack_webhook' => null]);
+    $task = BackupTask::factory()->create();
 
     $task->sendNotifications();
 
@@ -666,7 +677,11 @@ it('does not queue up a slack notification job if a slack notification has not b
 it('queues up a slack notification job if a slack notification has been set', function (): void {
     Queue::fake();
 
-    $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->slack()->create();
+
+    $task->notificationStreams()->attach($stream);
+
     BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
 
     $task->sendNotifications();
@@ -678,8 +693,12 @@ it('queues up an email notification job if an email notification has been set', 
 
     Mail::fake();
 
-    $task = BackupTask::factory()->create(['notify_email' => 'alerts@email.com']);
-    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->email()->create();
+
+    $task->notificationStreams()->attach($stream);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
 
     $task->sendNotifications();
 
@@ -690,43 +709,85 @@ it('does not queue up an email notification job if an email notification has not
 
     Mail::fake();
 
-    $task = BackupTask::factory()->create(['notify_email' => null]);
+    $task = BackupTask::factory()->create();
 
     $task->sendNotifications();
 
     Mail::assertNotQueued(OutputMail::class);
 });
 
-it('queues up an email notification', function (): void {
+it('can send multiple types of notifications simultaneously', function (): void {
+    Queue::fake();
     Mail::fake();
-    $user = User::factory()->create();
-    $task = BackupTask::factory()->create(['notify_email' => $user->email]);
-    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
-    $task->sendEmailNotification($log);
 
+    $task = BackupTask::factory()->create();
+    $discordStream = NotificationStream::factory()->discord()->create();
+    $slackStream = NotificationStream::factory()->slack()->create();
+    $emailStream = NotificationStream::factory()->email()->create();
+
+    $task->notificationStreams()->attach([$discordStream->id, $slackStream->id, $emailStream->id]);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class);
+    Queue::assertPushed(SendSlackNotificationJob::class);
     Mail::assertQueued(OutputMail::class);
 });
 
-it('sends a discord webhook', function (): void {
-    Http::fake();
-
-    $task = BackupTask::factory()->create(['notify_discord_webhook' => 'https://discord.com/webhook']);
+it('sends a discord webhook successfully', function (): void {
+    $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $discordURL = 'https://discord.com/api/webhooks/126608807316720786/T44a2qhUJuN6UJ92LJ2BPmh6sKt0kEaIm0QohQ8GyVSKoJOsWPtd4lQdCuLWOV6nqDcm';
 
-    $task->sendDiscordWebhookNotification($log);
+    Http::fake([
+        $discordURL => Http::response(null, 204),
+    ]);
 
-    Http::assertSent(fn ($request): bool => $request->url() === 'https://discord.com/webhook');
+    $task->sendDiscordWebhookNotification($log, $discordURL);
+
+    Http::assertSent(fn ($request): bool => $request->url() === $discordURL);
 });
 
-it('sends a slack webhook', function (): void {
-    Http::fake();
-
-    $task = BackupTask::factory()->create(['notify_slack_webhook' => 'https://slack.com/webhook']);
+it('handles discord error response', function (): void {
+    $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $discordURL = 'https://discord.com/api/webhooks/126608807316720786/T44a2qhUJuN6UJ92LJ2BPmh6sKt0kEaIm0QohQ8GyVSKoJOsWPtd4lQdCuLWOV6nqDcm';
 
-    $task->sendSlackWebhookNotification($log);
+    Http::fake([
+        $discordURL => Http::response(['message' => 'Invalid Webhook Token'], 401),
+    ]);
 
-    Http::assertSent(fn ($request): bool => $request->url() === 'https://slack.com/webhook');
+    expect(fn () => $task->sendDiscordWebhookNotification($log, $discordURL))
+        ->toThrow(RuntimeException::class, 'Discord webhook failed: Invalid Webhook Token');
+});
+
+it('sends a slack webhook successfully', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $slackURL = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+
+    Http::fake([
+        $slackURL => Http::response('ok', 200),
+    ]);
+
+    $task->sendSlackWebhookNotification($log, $slackURL);
+
+    Http::assertSent(fn ($request): bool => $request->url() === $slackURL);
+});
+
+it('handles slack error response', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $slackURL = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+
+    Http::fake([
+        $slackURL => Http::response('invalid_token', 403),
+    ]);
+
+    expect(fn () => $task->sendSlackWebhookNotification($log, $slackURL))
+        ->toThrow(RuntimeException::class, 'Slack webhook failed: invalid_token');
 });
 
 it('returns true if there is a store path specified', function (): void {

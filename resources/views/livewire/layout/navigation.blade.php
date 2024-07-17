@@ -135,6 +135,10 @@ new class extends Component
                             {{ __('Tags') }}
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
+                            {{ __('Notification Streams') }}
+                        </x-dropdown-link>
+
                         @if (Auth::user()->isAdmin())
                             <x-dropdown-link href="{{ url('/pulse') }}">
                                 Laravel Pulse
@@ -271,6 +275,10 @@ new class extends Component
 
                 <x-responsive-nav-link :href="route('tags.index')" wire:navigate>
                     {{ __('Tags') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>
+                    {{ __('Notification Streams') }}
                 </x-responsive-nav-link>
 
                 @if (Auth::user()->isAdmin())

@@ -8,6 +8,9 @@ use App\Http\Controllers\Tags;
 use App\Http\Middleware\UserLanguage;
 use App\Livewire\BackupTasks\Forms\CreateBackupTaskForm;
 use App\Livewire\BackupTasks\Index;
+use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
+use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
+use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
@@ -48,6 +51,13 @@ Route::middleware([UserLanguage::class, 'auth'])->group(function () {
         Route::get('edit/{tag}', Tags\EditController::class)
             ->name('tags.edit')
             ->middleware('can:update,tag');
+    });
+
+    Route::prefix('notification-streams')->group(function () {
+        Route::get('/', NotificationStreamIndex::class)->name('notification-streams.index');
+        Route::get('create', CreateNotificationStream::class)->name('notification-streams.create');
+        Route::get('edit/{notificationStream}', UpdateNotificationStream::class)->name('notification-streams.edit')
+            ->middleware('can:update,notificationStream');
     });
 });
 

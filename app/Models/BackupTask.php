@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
@@ -24,6 +25,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
+use RuntimeException;
 
 class BackupTask extends Model
 {
@@ -371,59 +374,61 @@ class BackupTask extends Model
         $this->save();
     }
 
-    public function hasNotifyEmail(): bool
+    public function hasEmailNotification(): bool
     {
-        return ! is_null($this->notify_email);
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_EMAIL)
+            ->exists();
     }
 
-    public function hasNotifyDiscordWebhook(): bool
+    public function hasDiscordNotification(): bool
     {
-        return ! is_null($this->notify_discord_webhook);
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_DISCORD)
+            ->exists();
     }
 
-    public function hasNotifySlackWebhook(): bool
+    public function hasSlackNotification(): bool
     {
-        return ! is_null($this->notify_slack_webhook);
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_SLACK)
+            ->exists();
     }
 
     public function sendNotifications(): void
     {
+        $jobQueue = 'backup-task-notifications';
+
         /** @var BackupTaskLog $latestLog */
         $latestLog = $this->fresh()?->logs()->latest()->first();
-        // if we want to only send notifications on failure in the future ^^
 
-        if ($this->hasNotifyEmail()) {
-            $this->sendEmailNotification($latestLog);
-        }
+        $notificationStreams = $this->notificationStreams;
 
-        if ($this->hasNotifyDiscordWebhook()) {
-            SendDiscordNotificationJob::dispatch($this, $latestLog)
-                ->onQueue('backup-task-notifications');
-        }
-
-        if ($this->hasNotifySlackWebhook()) {
-            SendSlackNotificationJob::dispatch($this, $latestLog)
-                ->onQueue('backup-task-notifications');
+        foreach ($notificationStreams as $notificationStream) {
+            match ($notificationStream->type) {
+                NotificationStream::TYPE_EMAIL => $this->sendEmailNotification($latestLog, (string) $notificationStream->value),
+                NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $latestLog, (string) $notificationStream->value)
+                    ->onQueue($jobQueue),
+                NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $latestLog, (string) $notificationStream->value)
+                    ->onQueue($jobQueue),
+                default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->type}"),
+            };
         }
     }
 
-    public function sendEmailNotification(BackupTaskLog $backupTaskLog): void
+    public function sendEmailNotification(BackupTaskLog $backupTaskLog, string $emailAddress): void
     {
-        Mail::to($this->notify_email)
+        Mail::to($emailAddress)
             ->queue(new OutputMail($backupTaskLog));
     }
 
-    public function sendDiscordWebhookNotification(BackupTaskLog $backupTaskLog): void
+    public function sendDiscordWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
     {
         $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
-        $message = $backupTaskLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $message = $backupTaskLog->getAttribute('successful_at')
+            ? 'The backup task was successful. Please see the details below for more information about this task.'
+            : 'The backup task failed. Please see the details below for more information about this task.';
         $color = $backupTaskLog->getAttribute('successful_at') ? 3066993 : 15158332; // Green for success, Red for failure
-
-        /** @var RemoteServer $remoteServer */
-        $remoteServer = $this->remoteServer;
-
-        /** @var RemoteServer $backupDestination */
-        $backupDestination = $this->backupDestination;
 
         $embed = [
             'title' => $this->label . ' Backup Task',
@@ -437,12 +442,12 @@ class BackupTask extends Model
                 ],
                 [
                     'name' => __('Remote Server'),
-                    'value' => $remoteServer->getAttribute('label'),
+                    'value' => $this->remoteServer?->getAttribute('label'),
                     'inline' => true,
                 ],
                 [
                     'name' => __('Backup Destination'),
-                    'value' => $backupDestination->getAttribute('label') . ' (' . $this->backupDestination?->type() . ')',
+                    'value' => $this->backupDestination?->getAttribute('label') . ' (' . $this->backupDestination?->type() . ')',
                     'inline' => true,
                 ],
                 [
@@ -462,21 +467,27 @@ class BackupTask extends Model
             ],
         ];
 
-        $pendingRequest = Http::withHeaders([
+        $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-        ]);
-
-        $pendingRequest->post((string) $this->notify_discord_webhook, [
+        ])->post($webhookURL, [
             'username' => config('app.name'),
             'avatar_url' => asset('images/logo-on-black.png'),
             'embeds' => [$embed],
         ]);
+
+        if ($response->status() !== 204) {
+            $errorBody = $response->json();
+            $errorMessage = $errorBody['message'] ?? 'Unknown error';
+            throw new RuntimeException("Discord webhook failed: {$errorMessage}");
+        }
     }
 
-    public function sendSlackWebhookNotification(BackupTaskLog $backupTaskLog): void
+    public function sendSlackWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
     {
         $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
-        $message = $backupTaskLog->getAttribute('successful_at') ? 'The backup task was successful. Please see the details below for more information about this task.' : 'The backup task failed. Please see the details below for more information about this task.';
+        $message = $backupTaskLog->getAttribute('successful_at')
+            ? 'The backup task was successful. Please see the details below for more information about this task.'
+            : 'The backup task failed. Please see the details below for more information about this task.';
         $color = $backupTaskLog->getAttribute('successful_at') ? 'good' : 'danger'; // Green for success, Red for failure
 
         $payload = [
@@ -517,11 +528,13 @@ class BackupTask extends Model
             ],
         ];
 
-        $pendingRequest = Http::withHeaders([
+        $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-        ]);
+        ])->post($webhookURL, $payload);
 
-        $pendingRequest->post((string) $this->notify_slack_webhook, $payload);
+        if ($response->status() !== 200 || $response->body() !== 'ok') {
+            throw new RuntimeException('Slack webhook failed: ' . $response->body());
+        }
     }
 
     public function hasCustomStorePath(): bool
@@ -593,6 +606,18 @@ class BackupTask extends Model
     public function latestLog(): HasOne
     {
         return $this->hasOne(BackupTaskLog::class)->latest();
+    }
+
+    /**
+     * Get the notifications streams linked to this backup task.
+     *
+     * @return BelongsToMany<NotificationStream>
+     */
+    public function notificationStreams(): BelongsToMany
+    {
+        return $this->belongsToMany(NotificationStream::class, 'backup_task_notification_streams')
+            ->using(BackupTaskNotificationStream::class)
+            ->withTimestamps();
     }
 
     /**

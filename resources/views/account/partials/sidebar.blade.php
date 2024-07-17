@@ -23,6 +23,17 @@
             </x-sidebar-nav-link>
         </li>
         <li class="flex-1 lg:flex-none">
+            <x-sidebar-nav-link :href="route('notification-streams.index')" :active="request()->routeIs('notification-streams.index')" wire:navigate>
+                <span class="lg:hidden flex items-center justify-center h-10">
+                    @svg('heroicon-o-bell', 'h-5 w-5')
+                </span>
+                <span class="hidden lg:inline-flex items-center w-full">
+                    @svg('heroicon-o-bell', 'h-5 w-5 mr-3')
+                    {{ __('Notifications') }}
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li class="flex-1 lg:flex-none">
             <x-sidebar-nav-link :href="route('account.remove-account')" :active="request()->routeIs('account.remove-account')" wire:navigate>
                 <span class="lg:hidden flex items-center justify-center h-10">
                     @svg('heroicon-o-trash', 'h-5 w-5')

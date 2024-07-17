@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Livewire\BackupTasks\Forms\UpdateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\User;
@@ -28,10 +29,15 @@ describe('backup task update', function (): void {
         $tag2 = Tag::factory()->create(['label' => 'Tag 2', 'user_id' => $this->data['user']->id]);
         $tagIds = [$tag1->id, $tag2->id];
 
+        $notificationStream1 = NotificationStream::factory()->email()->create(['label' => 'Stream 1', 'user_id' => $this->data['user']->id]);
+        $notificationStream2 = NotificationStream::factory()->email()->create(['label' => 'Stream 2', 'user_id' => $this->data['user']->id]);
+        $notificationStreamIds = [$notificationStream1->id, $notificationStream2->id];
+
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => $this->data['user']->remoteServers,
             'availableTags' => $this->data['user']->tags,
+            'availableStreams' => $this->data['user']->notificationStreams,
         ]);
 
         $testable->set('label', 'Updated Label')
@@ -45,12 +51,10 @@ describe('backup task update', function (): void {
             ->set('databaseName', 'database_name')
             ->set('appendedFileName', 'appended_file_name')
             ->set('useCustomCron', false)
-            ->set('notifyEmail', 'alerts@email.com')
-            ->set('notifyDiscordWebhook', 'https://discord.com/api/webhooks/1234567890/ABC123')
-            ->set('notifySlackWebhook', 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX')
             ->set('storePath', '/my-cool-backups')
             ->set('excludedDatabaseTables', 'table1,table2')
             ->set('selectedTags', $tagIds)
+            ->set('selectedStreams', $notificationStreamIds)
             ->call('submit')
             ->assertHasNoErrors();
 
@@ -65,9 +69,6 @@ describe('backup task update', function (): void {
             'type' => BackupTask::TYPE_DATABASE,
             'database_name' => 'database_name',
             'appended_file_name' => 'appended_file_name',
-            'notify_email' => 'alerts@email.com',
-            'notify_discord_webhook' => 'https://discord.com/api/webhooks/1234567890/ABC123',
-            'notify_slack_webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
             'store_path' => '/my-cool-backups',
             'excluded_database_tables' => 'table1,table2',
         ]);
@@ -82,6 +83,18 @@ describe('backup task update', function (): void {
             'tag_id' => $tag2->id,
             'taggable_id' => $this->data['backupTask']->id,
             'taggable_type' => BackupTask::class,
+        ]);
+
+        $this->assertDatabaseHas('backup_task_notification_streams', [
+            'id' => $notificationStream1->getAttribute('id'),
+            'notification_stream_id' => $notificationStream1->getAttribute('id'),
+            'backup_task_id' => $this->data['backupTask']->id,
+        ]);
+
+        $this->assertDatabaseHas('backup_task_notification_streams', [
+            'id' => $notificationStream2->getAttribute('id'),
+            'notification_stream_id' => $notificationStream2->getAttribute('id'),
+            'backup_task_id' => $this->data['backupTask']->id,
         ]);
     });
 
@@ -156,32 +169,6 @@ describe('validation rules', function (): void {
                 'label' => 'required',
                 'backupDestinationId' => 'required',
                 'backupType' => 'required',
-            ]);
-    });
-
-    test('discord webhook url must be valid', function (): void {
-        $testable = Livewire::test(UpdateBackupTaskForm::class, [
-            'backupTask' => $this->data['backupTask'],
-            'remoteServers' => RemoteServer::all(),
-        ]);
-
-        $testable->set('notifyDiscordWebhook', 'invalid-discord-url')
-            ->call('submit')
-            ->assertHasErrors([
-                'notifyDiscordWebhook' => 'starts_with:https://discord.com/api/webhooks/',
-            ]);
-    });
-
-    test('slack webhook url must be valid', function (): void {
-        $testable = Livewire::test(UpdateBackupTaskForm::class, [
-            'backupTask' => $this->data['backupTask'],
-            'remoteServers' => RemoteServer::all(),
-        ]);
-
-        $testable->set('notifySlackWebhook', 'invalid-slack-url')
-            ->call('submit')
-            ->assertHasErrors([
-                'notifySlackWebhook' => 'starts_with:https://hooks.slack.com/services/',
             ]);
     });
 
@@ -379,5 +366,84 @@ describe('tag handling', function (): void {
             'taggable_id' => $backupTask->id,
             'taggable_type' => BackupTask::class,
         ]);
+    });
+});
+
+describe('notification stream handling', function (): void {
+    test('users cannot set notification streams that do not belong them', function (): void {
+        $notificationStream = NotificationStream::factory()->create();
+
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
+            'backupTask' => $this->data['backupTask'],
+            'remoteServers' => RemoteServer::all(),
+        ]);
+
+        $testable->set('selectedStreams', [$notificationStream->id])
+            ->call('submit')
+            ->assertHasErrors([
+                'selectedStreams' => 'exists',
+            ]);
+    });
+
+    test('users cannot set streams that do not exist', function (): void {
+
+        $testable = Livewire::test(UpdateBackupTaskForm::class, [
+            'backupTask' => $this->data['backupTask'],
+            'remoteServers' => RemoteServer::all(),
+        ]);
+
+        $testable->set('selectedStreams', [999])
+            ->call('submit')
+            ->assertHasErrors([
+                'selectedStreams' => 'exists',
+            ]);
+    });
+
+    test('a user can update their existing backup task notification streams', function (): void {
+        $user = User::factory()->create();
+        $remoteServer = RemoteServer::factory()->create(['user_id' => $user->id]);
+
+        $streams = NotificationStream::factory()->email()->count(3)->create([
+            'user_id' => $user->id,
+        ])->each(function ($stream, $index): void {
+            $stream->update(['label' => 'Stream ' . ($index + 1)]);
+        });
+
+        $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
+        $backupTask->notificationStreams()->attach([$streams[0]->getAttribute('id'), $streams[1]->getAttribute('id')]);
+
+        Livewire::actingAs($user)
+            ->test(UpdateBackupTaskForm::class, [
+                'backupTask' => $backupTask,
+                'remoteServers' => RemoteServer::all(),
+                'availableStreams' => $user->notificationStreams,
+            ])
+            ->set('remoteServerId', $remoteServer->id)
+            ->set('selectedStreams', [$streams[2]->getAttribute('id')])
+            ->set('sourcePath', '/var/www/html')
+            ->set('description', 'Updated description')
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('backup_tasks', [
+            'id' => $backupTask->id,
+            'remote_server_id' => $remoteServer->id,
+            'source_path' => '/var/www/html',
+            'description' => 'Updated description',
+        ]);
+
+        $this->assertDatabaseHas('backup_task_notification_streams', [
+            'backup_task_id' => $backupTask->id,
+            'notification_stream_id' => $streams[2]->getAttribute('id'),
+        ]);
+
+        foreach ([$streams[0]->getAttribute('id'), $streams[1]->getAttribute('id')] as $detachedStreamId) {
+            $this->assertDatabaseMissing('backup_task_notification_streams', [
+                'backup_task_id' => $backupTask->id,
+                'notification_stream_id' => $detachedStreamId,
+            ]);
+        }
+
+        $this->assertCount(1, $backupTask->fresh()->notificationStreams);
     });
 });

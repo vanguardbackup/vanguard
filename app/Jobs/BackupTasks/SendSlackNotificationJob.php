@@ -19,13 +19,13 @@ class SendSlackNotificationJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct(public BackupTask $backupTask, public BackupTaskLog $backupTaskLog)
+    public function __construct(public BackupTask $backupTask, public BackupTaskLog $backupTaskLog, public string $notificationStreamValue)
     {
         //
     }
 
     public function handle(): void
     {
-        $this->backupTask->sendSlackWebhookNotification($this->backupTaskLog);
+        $this->backupTask->sendSlackWebhookNotification($this->backupTaskLog, $this->notificationStreamValue);
     }
 }

@@ -76,3 +76,17 @@ Breadcrumbs::for('tags.edit', function (BreadcrumbTrail $trail, $tag) {
     $trail->parent('tags.index');
     $trail->push(__('Update Tag'), route('tags.edit', $tag));
 });
+
+Breadcrumbs::for('notification-streams.index', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Notification Streams'), route('notification-streams.index'));
+});
+
+Breadcrumbs::for('notification-streams.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('notification-streams.index');
+    $trail->push(__('Create Notification Stream'), route('notification-streams.create'));
+});
+
+Breadcrumbs::for('notification-streams.edit', function (BreadcrumbTrail $trail, $tag) {
+    $trail->parent('notification-streams.index');
+    $trail->push(__('Update Notification Stream'), route('notification-streams.edit', $tag));
+});

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\BackupTasks\Forms;
 
 use App\Models\BackupTask;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
@@ -48,12 +49,6 @@ class CreateBackupTaskForm extends Component
 
     public ?string $appendedFileName = null;
 
-    public ?string $notifyEmail = null;
-
-    public ?string $notifyDiscordWebhook = null;
-
-    public ?string $notifySlackWebhook = null;
-
     public string $userTimezone;
 
     public ?string $storePath = null;
@@ -82,6 +77,12 @@ class CreateBackupTaskForm extends Component
     /** @var array<int>|null */
     public ?array $selectedTags = [];
 
+    /** @var Collection<int, NotificationStream>|null */
+    public ?Collection $availableNotificationStreams = null;
+
+    /** @var array<int>|null */
+    public ?array $selectedStreams = [];
+
     /** @var array<string, string> */
     protected array $validationAttributes = [
         'label' => 'Label',
@@ -98,9 +99,6 @@ class CreateBackupTaskForm extends Component
         'frequency' => 'Backup Frequency',
         'timeToRun' => 'Time to Backup',
         'cronExpression' => 'Cron Expression',
-        'notifyEmail' => 'Email Address',
-        'notifyDiscordWebhook' => 'Discord Webhook',
-        'notifySlackWebhook' => 'Slack Webhook',
     ];
 
     public function mount(): void
@@ -165,6 +163,11 @@ class CreateBackupTaskForm extends Component
 
         $backupTask->tags()->sync($tags);
 
+        /** @var NotificationStream $notificationStreams */
+        $notificationStreams = $this->selectedStreams;
+
+        $backupTask->notificationStreams()->sync($notificationStreams);
+
         Toaster::success(__('Backup task has been added.'));
 
         return Redirect::route('backup-tasks.index');
@@ -191,12 +194,10 @@ class CreateBackupTaskForm extends Component
         $baseRules = [
             'isolatedUsername' => ['nullable', 'string'],
             'isolatedPassword' => ['nullable', 'string'],
+            'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
             'storePath' => ['nullable', 'string', 'regex:/^(\/[^\/\0]+)+\/?$/'],
-            'notifyEmail' => ['nullable', 'email'],
-            'notifyDiscordWebhook' => ['nullable', 'url', 'starts_with:https://discord.com/api/webhooks/'],
-            'notifySlackWebhook' => ['nullable', 'url', 'starts_with:https://hooks.slack.com/services/'],
             'appendedFileName' => ['nullable', 'string', 'max:40', 'alpha_dash'],
             'backupType' => ['required', 'string', 'in:files,database'],
             'backupsToKeep' => ['required', 'integer', 'min:0', 'max:50'],
@@ -255,6 +256,7 @@ class CreateBackupTaskForm extends Component
 
         $this->useIsolatedCredentials = false;
         $this->availableTags = $user->tags;
+        $this->availableNotificationStreams = $user->notificationStreams;
         $this->userTimezone = $user->timezone ?? 'UTC';
         $this->remoteServers = $user->remoteServers->where('database_password', null);
         $this->remoteServerId = $this->remoteServers->first()?->id;
@@ -295,11 +297,6 @@ class CreateBackupTaskForm extends Component
         return [
             'selectedTags.*.exists' => __('One or more of the selected tags do not exist.'),
             'storePath.regex' => __('The path must be a valid Unix path.'),
-            'notifyEmail.email' => __('Please enter a valid email address.'),
-            'notifySlackWebhook.url' => __('Please enter a valid URL.'),
-            'notifySlackWebhook.starts_with' => __('Please enter a valid Slack webhook URL.'),
-            'notifyDiscordWebhook.url' => __('Please enter a valid URL.'),
-            'notifyDiscordWebhook.starts_with' => __('Please enter a valid Discord webhook URL.'),
             'appendedFileName.max' => __('The appended file name must be less than 40 characters.'),
             'appendedFileName.alpha_dash' => __('The appended file name may only contain letters, numbers, dashes, and underscores.'),
             'databaseName.required_if' => __('Please enter the name of the database.'),
@@ -343,9 +340,6 @@ class CreateBackupTaskForm extends Component
             'type' => $this->backupType,
             'database_name' => $this->databaseName,
             'appended_file_name' => $this->appendedFileName,
-            'notify_email' => $this->notifyEmail,
-            'notify_discord_webhook' => $this->notifyDiscordWebhook,
-            'notify_slack_webhook' => $this->notifySlackWebhook,
             'store_path' => $this->storePath,
             'excluded_database_tables' => $this->excludedDatabaseTables,
             'isolated_username' => $this->isolatedUsername,
@@ -361,11 +355,11 @@ class CreateBackupTaskForm extends Component
         $allRules = $this->rules();
 
         return match ($this->currentStep) {
-            1 => array_intersect_key($allRules, array_flip(['label', 'description'])),
+            1 => array_intersect_key($allRules, array_flip(['label', 'description', 'selectedTags'])),
             2 => array_intersect_key($allRules, array_flip(['remoteServerId', 'backupType', 'backupDestinationId', 'backupsToKeep'])),
             3 => array_intersect_key($allRules, array_flip(['sourcePath', 'databaseName', 'excludedDatabaseTables', 'appendedFileName', 'storePath'])),
             4 => array_intersect_key($allRules, array_flip(['frequency', 'timeToRun', 'cronExpression'])),
-            5 => array_intersect_key($allRules, array_flip(['notifyEmail', 'notifyDiscordWebhook', 'notifySlackWebhook', 'selectedTags'])),
+            5 => array_intersect_key($allRules, array_flip(['selectedNotificationStreams'])),
             default => [],
         };
     }

@@ -6,6 +6,7 @@ use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\BackupTaskData;
 use App\Models\BackupTaskLog;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\User;
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
     {
         $user = $this->createUser();
         $this->createTags($user);
+        $this->createStreams($user);
         $servers = $this->createServers($user);
         $backupDestination = $this->createBackupDestination($user);
         $backupTasks = $this->createBackupTasks($user, $servers, $backupDestination);
@@ -42,6 +44,13 @@ class DatabaseSeeder extends Seeder
     private function createTags(User $user): void
     {
         Tag::factory()->count(random_int(3, 8))->create([
+            'user_id' => $user->id,
+        ]);
+    }
+
+    private function createStreams(User $user): void
+    {
+        NotificationStream::factory()->count(random_int(3, 5))->create([
             'user_id' => $user->id,
         ]);
     }

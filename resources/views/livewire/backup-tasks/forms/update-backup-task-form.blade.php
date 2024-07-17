@@ -195,37 +195,22 @@
             <x-form-section>
                 {{ __('Notifications') }}
             </x-form-section>
-            <div class="mt-4">
-                <x-input-label for="notifyEmail" :value="__('Email Address')"/>
-                <x-text-input id="notifyEmail" class="block mt-1 w-full" type="text" wire:model="notifyEmail"
-                              name="notifyEmail"/>
-                <x-input-error :messages="$errors->get('notifyEmail')" class="mt-2"/>
-                <x-input-explain>
-                    {{ __('Input the email address to receive notifications. Regardless of this field, backup task failure notifications will always be sent to the email associated with your account.') }}
-                </x-input-explain>
-            </div>
-            <div class="mt-4">
-                <x-input-label for="notifyDiscordWebhook" :value="__('Discord Webhook')"/>
-                <x-text-input id="notifyDiscordWebhook" class="block mt-1 w-full" type="text"
-                              wire:model="notifyDiscordWebhook"
-                              placeholder="https://discord.com/api/webhooks/..."
-                              name="notifyDiscordWebhook"/>
-                <x-input-error :messages="$errors->get('notifyDiscordWebhook')" class="mt-2"/>
-                <x-input-explain>
-                    {{ __('Input the Discord webhook to receive notifications on Discord.') }}
-                </x-input-explain>
-            </div>
-            <div class="mt-4">
-                <x-input-label for="notifySlackWebhook" :value="__('Slack Webhook')"/>
-                <x-text-input id="notifySlackWebhook" class="block mt-1 w-full" type="text"
-                              wire:model="notifySlackWebhook"
-                              placeholder="https://hooks.slack.com/services/..."
-                              name="notifySlackWebhook"/>
-                <x-input-error :messages="$errors->get('notifySlackWebhook')" class="mt-2"/>
-                <x-input-explain>
-                    {{ __('Input the Slack webhook to receive notifications on Slack.') }}
-                </x-input-explain>
-            </div>
+            @if ($availableNotificationStreams->isNotEmpty())
+                <div class="mt-4">
+                    <x-input-label for="notificationStreams" :value="__('Notifications')"/>
+                    @foreach ($availableNotificationStreams as $notificationStream)
+                        <x-checkbox id="stream-{{ $notificationStream->id }}" wire:model="selectedStreams" value="{{ $notificationStream->id }}"
+                                    name="streams[]" label="{{ $notificationStream->label . '(' . $notificationStream->formatted_type . ')' }}"></x-checkbox>
+                    @endforeach
+                    <x-input-error :messages="$errors->get('selectedTags')" class="mt-2"/>
+                    <x-input-explain>
+                        {{ __('Notifications about this backup task will be sent on the notification streams you choose.') }}
+                    </x-input-explain>
+                </div>
+            @else
+                {{ __('You do not have any notification streams configured. You will by default receive backup task failure notifications to your accounts email address.') }}
+            @endif
+
             @if ($availableTags->isNotEmpty())
                 <x-form-section>
                     {{ __('Tags') }}

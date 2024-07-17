@@ -313,40 +313,21 @@
                         <x-form-section>
                             {{ __('Notifications') }}
                         </x-form-section>
-                        <div class="mt-4">
-                            <x-input-label for="notifyEmail" :value="__('Email Address')"/>
-                            <x-text-input id="notifyEmail" class="block mt-1 w-full" type="text"
-                                          wire:model="notifyEmail"
-                                          name="notifyEmail"/>
-                            <x-input-error :messages="$errors->get('notifyEmail')" class="mt-2"/>
-                            <x-input-explain>
-                                {{ __('Input the email address to receive notifications. Regardless of this field, backup task failure notifications will always be sent to the email associated with your account.') }}
-                            </x-input-explain>
-                        </div>
-                        <div class="mt-4 flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0">
-                            <div class="w-full sm:w-3/6">
-                                <x-input-label for="notifyDiscordWebhook" :value="__('Discord Webhook')"/>
-                                <x-text-input id="notifyDiscordWebhook" class="block mt-1 w-full" type="text"
-                                              wire:model="notifyDiscordWebhook"
-                                              placeholder="https://discord.com/api/webhooks/..."
-                                              name="notifyDiscordWebhook"/>
-                                <x-input-error :messages="$errors->get('notifyDiscordWebhook')" class="mt-2"/>
+                        @if ($availableNotificationStreams->isNotEmpty())
+                            <div class="mt-4">
+                                <x-input-label for="notificationStreams" :value="__('Notifications')"/>
+                                @foreach ($availableNotificationStreams as $notificationStream)
+                                    <x-checkbox id="stream-{{ $notificationStream->id }}" wire:model="selectedStreams" value="{{ $notificationStream->id }}"
+                                                name="streams[]" label="{{ $notificationStream->label . '(' . $notificationStream->formatted_type . ')' }}"></x-checkbox>
+                                @endforeach
+                                <x-input-error :messages="$errors->get('$selectedStreams')" class="mt-2"/>
                                 <x-input-explain>
-                                    {{ __('Input the Discord webhook to receive notifications on Discord.') }}
+                                    {{ __('Notifications about this backup task will be sent on the notification streams you choose.') }}
                                 </x-input-explain>
                             </div>
-                            <div class="w-full sm:w-3/6">
-                                <x-input-label for="notifySlackWebhook" :value="__('Slack Webhook')"/>
-                                <x-text-input id="notifySlackWebhook" class="block mt-1 w-full" type="text"
-                                              wire:model="notifySlackWebhook"
-                                              placeholder="https://hooks.slack.com/services/..."
-                                              name="notifySlackWebhook"/>
-                                <x-input-error :messages="$errors->get('notifySlackWebhook')" class="mt-2"/>
-                                <x-input-explain>
-                                    {{ __('Input the Slack webhook to receive notifications on Slack.') }}
-                                </x-input-explain>
-                            </div>
-                        </div>
+                        @else
+                            {{ __('You do not have any notification streams configured. You will by default receive backup task failure notifications to your accounts email address.') }}
+                        @endif
                     @endif
 
                     <div class="mt-6 max-w-3xl mx-auto" x-data="{

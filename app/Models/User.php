@@ -90,6 +90,14 @@ class User extends Authenticatable
         return $this->hasMany(BackupTask::class);
     }
 
+    /**
+     * @return HasMany<NotificationStream>
+     */
+    public function notificationStreams(): HasMany
+    {
+        return $this->hasMany(NotificationStream::class);
+    }
+
     public function isAdmin(): bool
     {
         return in_array($this->email, config('auth.admin_email_addresses'), true);

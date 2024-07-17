@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Livewire\BackupTasks\Forms\CreateBackupTaskForm;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
+use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\User;
@@ -33,7 +34,12 @@ test('users can create backup tasks', function (): void {
         ['label' => 'Tag 2', 'user_id' => $this->user->id]
     )->create();
 
-    $livewire = Livewire::test(CreateBackupTaskForm::class)
+    $notificationStreams = NotificationStream::factory()->count(2)->sequence(
+        ['label' => 'Stream 1', 'user_id' => $this->user->id, 'type' => 'email', 'value' => 'test@email.com'],
+        ['label' => 'Stream 2', 'user_id' => $this->user->id, 'type' => 'email', 'value' => 'test2@email.com'],
+    )->create();
+
+    Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
         ->set('description', 'This is a test backup task.')
         ->set('sourcePath', '/var/www/html')
@@ -42,12 +48,10 @@ test('users can create backup tasks', function (): void {
         ->set('frequency', 'daily')
         ->set('timeToRun', '00:00')
         ->set('appendedFileName', 'test-backup')
-        ->set('notifyEmail', 'alerts@email.com')
-        ->set('notifyDiscordWebhook', 'https://discord.com/api/webhooks/1234567890/ABC123')
-        ->set('notifySlackWebhook', 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX')
         ->set('storePath', '/my-cool-backups')
         ->set('excludedDatabaseTables', 'table1,table2')
         ->set('selectedTags', $tags->pluck('id')->toArray())
+        ->set('selectedStreams', $notificationStreams->pluck('id')->toArray())
         ->call('submit');
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -61,9 +65,6 @@ test('users can create backup tasks', function (): void {
         'time_to_run_at' => '00:00',
         'custom_cron_expression' => null,
         'appended_file_name' => 'test-backup',
-        'notify_email' => 'alerts@email.com',
-        'notify_discord_webhook' => 'https://discord.com/api/webhooks/1234567890/ABC123',
-        'notify_slack_webhook' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
         'store_path' => '/my-cool-backups',
         'excluded_database_tables' => 'table1,table2',
     ]);
@@ -75,6 +76,13 @@ test('users can create backup tasks', function (): void {
             'tag_id' => $tag->getAttribute('id'),
             'taggable_id' => $backupTask->id,
             'taggable_type' => BackupTask::class,
+        ]);
+    });
+
+    $notificationStreams->each(function ($notificationStream) use ($backupTask): void {
+        $this->assertDatabaseHas('backup_task_notification_streams', [
+            'notification_stream_id' => $notificationStream->getAttribute('id'),
+            'backup_task_id' => $backupTask->getAttribute('id'),
         ]);
     });
 });
@@ -140,28 +148,6 @@ test('the appended file name cannot contain spaces', function (): void {
         ->set('appendedFileName', 'test backup')
         ->call('submit')
         ->assertHasErrors(['appendedFileName' => 'alpha_dash']);
-});
-
-test('the discord webhook url must be a valid discord url', function (): void {
-    Livewire::test(CreateBackupTaskForm::class)
-        ->set('label', 'Test Backup Task')
-        ->set('sourcePath', '/var/www/html')
-        ->set('remoteServerId', $this->server->id)
-        ->set('backupDestinationId', $this->destination->id)
-        ->set('notifyDiscordWebhook', 'https://not-a-discord-url.com')
-        ->call('submit')
-        ->assertHasErrors('notifyDiscordWebhook');
-});
-
-test('the slack webhook url must be a valid slack url', function (): void {
-    Livewire::test(CreateBackupTaskForm::class)
-        ->set('label', 'Test Backup Task')
-        ->set('sourcePath', '/var/www/html')
-        ->set('remoteServerId', $this->server->id)
-        ->set('backupDestinationId', $this->destination->id)
-        ->set('notifySlackWebhook', 'https://not-a-slack-url.com')
-        ->call('submit')
-        ->assertHasErrors('notifySlackWebhook');
 });
 
 test("the time to run at is converted to the user's timezone", function (): void {
@@ -244,6 +230,30 @@ test('users cannot add a tag that does not exist', function (): void {
         ->set('selectedTags', [999])
         ->call('submit')
         ->assertHasErrors('selectedTags');
+});
+
+test('users cannot add a stream that does not belong to them', function (): void {
+    $stream = NotificationStream::factory()->create();
+
+    Livewire::test(CreateBackupTaskForm::class)
+        ->set('label', 'Test Backup Task')
+        ->set('sourcePath', '/var/www/html')
+        ->set('remoteServerId', $this->server->id)
+        ->set('backupDestinationId', $this->destination->id)
+        ->set('selectedStreams', [$stream->id])
+        ->call('submit')
+        ->assertHasErrors('selectedStreams');
+});
+
+test('users cannot add a stream that does not exist', function (): void {
+    Livewire::test(CreateBackupTaskForm::class)
+        ->set('label', 'Test Backup Task')
+        ->set('sourcePath', '/var/www/html')
+        ->set('remoteServerId', $this->server->id)
+        ->set('backupDestinationId', $this->destination->id)
+        ->set('selectedStreams', [999])
+        ->call('submit')
+        ->assertHasErrors('selectedStreams');
 });
 
 test('validation is performed at each step', function (): void {
