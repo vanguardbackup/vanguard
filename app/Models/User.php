@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'preferred_backup_destination_id',
         'language',
         'gravatar_email',
+        'weekly_summary_opt_in_at',
     ];
 
     protected $hidden = [
@@ -132,6 +135,58 @@ class User extends Authenticatable
     }
 
     /**
+     * Determine if the user is opted in to receive weekly summaries.
+     */
+    public function isOptedInForWeeklySummary(): bool
+    {
+        return $this->weekly_summary_opt_in_at !== null;
+    }
+
+    /**
+     *  Scope a query to only include users opted in to receive summary emails.
+     *
+     * @param  Builder<BackupTask>  $builder
+     * @return Builder<BackupTask>
+     */
+    public function scopeOptedInToReceiveSummaryEmails(Builder $builder): Builder
+    {
+        return $builder->whereNotNull('weekly_summary_opt_in_at');
+    }
+
+    /**
+     * Generate backup summary data for the user within a given date range.
+     *
+     * @param  array<string, Carbon>  $dateRange
+     * @return array<string, mixed>
+     */
+    public function generateBackupSummaryData(array $dateRange): array
+    {
+        $backupTasks = $this->backupTasks()
+            ->with(['logs' => function ($query) use ($dateRange): void {
+                $query->whereBetween('created_at', [$dateRange['start'], $dateRange['end']]);
+            }])
+            ->whereHas('logs', function ($query) use ($dateRange): void {
+                $query->whereBetween('created_at', [$dateRange['start'], $dateRange['end']]);
+            })
+            ->get();
+
+        $totalTasks = $backupTasks->flatMap->logs->count();
+        $successfulTasks = $backupTasks->flatMap->logs->whereNotNull('successful_at')->count();
+        $failedTasks = $totalTasks - $successfulTasks;
+
+        return [
+            'total_tasks' => $totalTasks,
+            'successful_tasks' => $successfulTasks,
+            'failed_tasks' => $failedTasks,
+            'success_rate' => $totalTasks > 0 ? ($successfulTasks / $totalTasks) * 100 : 0,
+            'date_range' => [
+                'start' => $dateRange['start']->toDateString(),
+                'end' => $dateRange['end']->toDateString(),
+            ],
+        ];
+    }
+
+    /**
      * @return Attribute<string, never>
      */
     protected function firstName(): Attribute
@@ -161,6 +216,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'weekly_summary_opt_in_at' => 'datetime',
         ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
+use Carbon\Carbon;
 
 it('generates a gravatar URL using the primary email with default size', function (): void {
     $user = User::factory()->create([
@@ -151,4 +152,135 @@ test('returns false if can not login with github', function (): void {
     $user = User::factory()->create();
 
     $this->assertFalse($user->canLoginWithGithub());
+});
+
+test('returns only the users that have opted in for backup task summaries', function (): void {
+    $userOne = User::factory()->receivesWeeklySummaries()->create();
+    $userTwo = User::factory()->doesNotReceiveWeeklySummaries()->create();
+    $userThree = User::factory()->doesNotReceiveWeeklySummaries()->create();
+
+    $optedInUsers = User::optedInToReceiveSummaryEmails()->get();
+
+    expect($optedInUsers)->toHaveCount(1)
+        ->and($optedInUsers->first()->id)->toBe($userOne->id);
+});
+
+test('excludes users who have not opted in for backup task summaries', function (): void {
+    $userOne = User::factory()->receivesWeeklySummaries()->create();
+    $userTwo = User::factory()->doesNotReceiveWeeklySummaries()->create();
+    $userThree = User::factory()->doesNotReceiveWeeklySummaries()->create();
+
+    $optedInUsers = User::optedInToReceiveSummaryEmails()->get();
+
+    expect($optedInUsers)->not->toContain($userTwo)
+        ->and($optedInUsers)->not->toContain($userThree);
+});
+
+test('returns an empty collection when no users are opted in', function (): void {
+    User::factory()->count(3)->doesNotReceiveWeeklySummaries()->create();
+
+    $optedInUsers = User::optedInToReceiveSummaryEmails()->get();
+
+    expect($optedInUsers)->toBeEmpty();
+});
+
+test('scope can be chained with other query methods', function (): void {
+    $oldUser = User::factory()->create(['weekly_summary_opt_in_at' => now()->subYears(2), 'name' => 'Old Opt-in']);
+    $recentUser = User::factory()->create(['weekly_summary_opt_in_at' => now()->subDays(7), 'name' => 'Recent Opt-in']);
+    User::factory()->doesNotReceiveWeeklySummaries()->create();
+
+    $recentOptIns = User::optedInToReceiveSummaryEmails()
+        ->where('weekly_summary_opt_in_at', '>', now()->subDays(30))
+        ->get();
+
+    expect($recentOptIns)->toHaveCount(1)
+        ->and($recentOptIns->first()->name)->toBe('Recent Opt-in');
+});
+
+test('scope works correctly with pagination', function (): void {
+    User::factory()->count(15)->receivesWeeklySummaries()->create();
+    User::factory()->count(5)->doesNotReceiveWeeklySummaries()->create();
+
+    $paginatedUsers = User::optedInToReceiveSummaryEmails()->paginate(10);
+
+    expect($paginatedUsers)->toHaveCount(10)
+        ->and($paginatedUsers->total())->toBe(15);
+});
+
+it('generates correct backup summary data', function (): void {
+    $user = User::factory()->create();
+    $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
+
+    $startDate = Carbon::create(2023, 5, 1)->startOfDay(); // A Monday
+    $endDate = Carbon::create(2023, 5, 5)->endOfDay();   // A Friday
+
+    BackupTaskLog::factory()->count(3)->create([
+        'backup_task_id' => $backupTask->id,
+        'created_at' => $startDate->copy()->addDay(),
+        'successful_at' => $startDate->copy()->addDay(),
+    ]);
+
+    BackupTaskLog::factory()->count(2)->create([
+        'backup_task_id' => $backupTask->id,
+        'created_at' => $endDate,
+        'successful_at' => null,
+    ]);
+
+    // Create a log just outside the date range (should not be counted)
+    BackupTaskLog::factory()->create([
+        'backup_task_id' => $backupTask->id,
+        'created_at' => $endDate->copy()->addSecond(),
+        'successful_at' => $endDate->copy()->addSecond(),
+    ]);
+
+    $summaryData = $user->generateBackupSummaryData([
+        'start' => $startDate,
+        'end' => $endDate,
+    ]);
+
+    expect($summaryData)->toHaveKeys(['total_tasks', 'successful_tasks', 'failed_tasks', 'success_rate', 'date_range'])
+        ->and($summaryData['total_tasks'])->toBe(5)
+        ->and($summaryData['successful_tasks'])->toBe(3)
+        ->and($summaryData['failed_tasks'])->toBe(2)
+        ->and($summaryData['success_rate'])->toBe(60.0)
+        ->and($summaryData['date_range']['start'])->toBe($startDate->toDateString())
+        ->and($summaryData['date_range']['end'])->toBe($endDate->toDateString());
+});
+
+it('handles leap years correctly', function (): void {
+    $user = User::factory()->create();
+    $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
+
+    $startDate = Carbon::create(2024, 2, 28)->startOfDay(); // Leap year
+    $endDate = Carbon::create(2024, 3, 1)->endOfDay();
+
+    BackupTaskLog::factory()->create([
+        'backup_task_id' => $backupTask->id,
+        'created_at' => Carbon::create(2024, 2, 29, 12, 0, 0),
+        'successful_at' => Carbon::create(2024, 2, 29, 12, 0, 0),
+    ]);
+
+    $summaryData = $user->generateBackupSummaryData([
+        'start' => $startDate,
+        'end' => $endDate,
+    ]);
+
+    expect($summaryData['total_tasks'])->toBe(1)
+        ->and($summaryData['successful_tasks'])->toBe(1);
+});
+
+it('returns zero tasks when no backup logs exist in the date range', function (): void {
+    $user = User::factory()->create();
+    $startDate = Carbon::create(2023, 5, 1)->startOfDay();
+    $endDate = Carbon::create(2023, 5, 5)->endOfDay();
+
+    $summaryData = $user->generateBackupSummaryData([
+        'start' => $startDate,
+        'end' => $endDate,
+    ]);
+
+    expect($summaryData['total_tasks'])->toBe(0)
+        ->and($summaryData['successful_tasks'])->toBe(0)
+        ->and($summaryData['failed_tasks'])->toBe(0)
+        ->and($summaryData['success_rate'])->toBe(0);
 });

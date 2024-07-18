@@ -38,7 +38,10 @@ test('profile information can be updated', function (): void {
         'en' => 'English',
         'ar' => 'Arabic',
     ]);
-    $user = User::factory()->create();
+
+    $user = User::factory()->create([
+        'weekly_summary_opt_in_at' => null,
+    ]);
 
     $backupDestination = BackupDestination::factory()->create([
         'user_id' => $user->id,
@@ -53,6 +56,7 @@ test('profile information can be updated', function (): void {
         ->set('timezone', 'America/New_York')
         ->set('preferred_backup_destination_id', $backupDestination->id)
         ->set('language', 'ar')
+        ->set('receiving_weekly_summary_email', true)
         ->call('updateProfileInformation');
 
     $component
@@ -68,6 +72,7 @@ test('profile information can be updated', function (): void {
     $this->assertSame($backupDestination->id, $user->preferred_backup_destination_id);
     $this->assertSame('ar', $user->language);
     $this->assertNull($user->email_verified_at);
+    $this->assertNotNull($user->weekly_summary_opt_in_at);
 
     Toaster::assertDispatched((__('Profile details saved.')));
 });

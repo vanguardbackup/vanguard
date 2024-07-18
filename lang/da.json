@@ -384,5 +384,7 @@
     "Successful Backups" : "Vellykkede backups",
     "Receive notifications when backups complete successfully.": "Modtag notifikationer, når backups gennemføres succesfuldt.",
     "Failed Backups": "Mislykkede backups",
-    "Receive notifications when backups fail to complete.": "Modtag notifikationer, når backups ikke kan gennemføres."
+    "Receive notifications when backups fail to complete.": "Modtag notifikationer, når backups ikke kan gennemføres.",
+    "Weekly Backup Summary Emails": "Ugentlige Backup Resumé Emails",
+    "Get a summary of your weekly backup tasks every Monday morning.": "Få et resumé af dine ugentlige backup-opgaver hver mandag morgen."
 }

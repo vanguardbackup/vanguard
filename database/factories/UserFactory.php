@@ -20,6 +20,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'timezone' => 'UTC',
             'language' => 'en',
+            'weekly_summary_opt_in_at' => now(),
         ];
     }
 
@@ -27,6 +28,20 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function receivesWeeklySummaries(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'weekly_summary_opt_in_at' => now(),
+        ]);
+    }
+
+    public function doesNotReceiveWeeklySummaries(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'weekly_summary_opt_in_at' => null,
         ]);
     }
 }

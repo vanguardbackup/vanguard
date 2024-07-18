@@ -5,6 +5,10 @@ parameters:
     paths:
         - app/
 
+    excludePaths:
+        - app/Mail/User/SummaryBackupMail.php
+        # So.. this is here because PHP CS Fixer keeps removing the docblock which makes PHPStan fail. Infuriating.
+
     # Level 9 is the highest level
     level: 8
 

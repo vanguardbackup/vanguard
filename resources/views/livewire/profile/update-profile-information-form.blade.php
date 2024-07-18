@@ -14,6 +14,7 @@ new class extends Component {
     public string $timezone = '';
     public ?int $preferred_backup_destination_id = null;
     public string $language = 'en'; // Default language is english.
+    public ?bool $receiving_weekly_summary_email = false;
 
     public function mount(): void
     {
@@ -23,6 +24,7 @@ new class extends Component {
         $this->timezone = Auth::user()->timezone;
         $this->preferred_backup_destination_id = Auth::user()->preferred_backup_destination_id ?? null;
         $this->language = Auth::user()->language;
+        $this->receiving_weekly_summary_email = Auth::user()->isOptedInForWeeklySummary();
     }
 
     public function updateProfileInformation(): void
@@ -35,11 +37,21 @@ new class extends Component {
             'gravatar_email' => ['nullable', 'string', 'lowercase', 'email'],
             'timezone' => ['required', 'string', 'max:255', Rule::in(timezone_identifiers_list())],
             'preferred_backup_destination_id' => ['nullable', 'integer', Rule::exists('backup_destinations', 'id')->where('user_id', $user->id)],
-            'language' => ['required', 'string', 'min:2', 'max:3', 'lowercase', 'alpha', Rule::in(array_keys(config('app.available_languages'))),
+            'receiving_weekly_summary_email' => ['required', 'boolean'],
+            'language' => [
+                'required',
+                'string',
+                'min:2',
+                'max:3',
+                'lowercase',
+                'alpha',
+                Rule::in(array_keys(config('app.available_languages')))
             ],
         ], $this->messages());
 
         $user->fill($validated);
+
+        $user->weekly_summary_opt_in_at = $validated['receiving_weekly_summary_email'] ? now() : null;
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -220,6 +232,17 @@ new class extends Component {
                 <x-input-error class="mt-2" :messages="$errors->get('preferred_backup_destination_id')"/>
             </div>
         @endif
+
+        <div>
+            <x-input-label for="weekly_summary_opt_in" :value="__('Weekly Backup Summary Emails')"/>
+            <x-toggle
+                name="receiving_weekly_summary_email"
+                model="receiving_weekly_summary_email"
+            />
+            <x-input-explain>
+                {{ __('Get a summary of your weekly backup tasks every Monday morning.') }}
+            </x-input-explain>
+        </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>
