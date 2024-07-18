@@ -790,6 +790,282 @@ it('handles slack error response', function (): void {
         ->toThrow(RuntimeException::class, 'Slack webhook failed: invalid_token');
 });
 
+it('sends notifications based on backup task outcome and user preferences', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $successOnlyDiscord = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $failureOnlySlack = NotificationStream::factory()->slack()->successDisabled()->failureEnabled()->create();
+
+    $task->notificationStreams()->saveMany([$successOnlyDiscord, $failureOnlySlack]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class);
+    Queue::assertNotPushed(SendSlackNotificationJob::class);
+});
+
+it('sends notifications for failed backups', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $failedLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => null,
+    ]);
+
+    $successOnlyDiscord = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $failureOnlySlack = NotificationStream::factory()->slack()->successDisabled()->failureEnabled()->create();
+
+    $task->notificationStreams()->saveMany([$successOnlyDiscord, $failureOnlySlack]);
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendDiscordNotificationJob::class);
+    Queue::assertPushed(SendSlackNotificationJob::class);
+});
+
+it('sends notifications based on backup task outcome and user preferences for successful backups', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $successOnlyDiscord = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $failureOnlySlack = NotificationStream::factory()->slack()->successDisabled()->failureEnabled()->create();
+    $alwaysEmail = NotificationStream::factory()->email()->successEnabled()->failureEnabled()->create();
+    $neverNotify = NotificationStream::factory()->discord()->successDisabled()->failureDisabled()->create();
+
+    $task->notificationStreams()->saveMany([$successOnlyDiscord, $failureOnlySlack, $alwaysEmail, $neverNotify]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class, 1);
+    Queue::assertNotPushed(SendSlackNotificationJob::class);
+    Mail::assertQueued(OutputMail::class, 1);
+});
+
+it('sends notifications based on backup task outcome and user preferences for failed backups', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $failedLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => null,
+    ]);
+
+    $successOnlyDiscord = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $failureOnlySlack = NotificationStream::factory()->slack()->successDisabled()->failureEnabled()->create();
+    $alwaysEmail = NotificationStream::factory()->email()->successEnabled()->failureEnabled()->create();
+    $neverNotify = NotificationStream::factory()->discord()->successDisabled()->failureDisabled()->create();
+
+    $task->notificationStreams()->saveMany([$successOnlyDiscord, $failureOnlySlack, $alwaysEmail, $neverNotify]);
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendDiscordNotificationJob::class);
+    Queue::assertPushed(SendSlackNotificationJob::class, 1);
+    Mail::assertQueued(OutputMail::class, 1);
+});
+
+it('does not send notifications when there are no logs', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $allNotifications = NotificationStream::factory()->count(3)->create();
+
+    $task->notificationStreams()->saveMany($allNotifications);
+
+    $task->sendNotifications();
+
+    Queue::assertNothingPushed();
+    Mail::assertNothingQueued();
+});
+
+it('sends notifications for all enabled channels on successful backup', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $discordSuccess = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $slackBoth = NotificationStream::factory()->slack()->successEnabled()->failureEnabled()->create();
+    $emailSuccess = NotificationStream::factory()->email()->successEnabled()->failureDisabled()->create();
+
+    $task->notificationStreams()->saveMany([$discordSuccess, $slackBoth, $emailSuccess]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class, 1);
+    Queue::assertPushed(SendSlackNotificationJob::class, 1);
+    Mail::assertQueued(OutputMail::class, 1);
+});
+
+it('sends notifications for all enabled channels on failed backup', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $failedLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => null,
+    ]);
+
+    $discordFailure = NotificationStream::factory()->discord()->successDisabled()->failureEnabled()->create();
+    $slackBoth = NotificationStream::factory()->slack()->successEnabled()->failureEnabled()->create();
+    $emailFailure = NotificationStream::factory()->email()->successDisabled()->failureEnabled()->create();
+
+    $task->notificationStreams()->saveMany([$discordFailure, $slackBoth, $emailFailure]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class, 1);
+    Queue::assertPushed(SendSlackNotificationJob::class, 1);
+    Mail::assertQueued(OutputMail::class, 1);
+});
+
+it('handles multiple notification streams of the same type correctly', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $discord1 = NotificationStream::factory()->discord()->successEnabled()->failureDisabled()->create();
+    $discord2 = NotificationStream::factory()->discord()->successEnabled()->failureEnabled()->create();
+    $slack1 = NotificationStream::factory()->slack()->successEnabled()->failureDisabled()->create();
+    $slack2 = NotificationStream::factory()->slack()->successDisabled()->failureEnabled()->create();
+
+    $task->notificationStreams()->saveMany([$discord1, $discord2, $slack1, $slack2]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class, 2);
+    Queue::assertPushed(SendSlackNotificationJob::class, 1);
+});
+
+it('does not send notifications for disabled channels', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $disabledDiscord = NotificationStream::factory()->discord()->successDisabled()->failureDisabled()->create();
+    $disabledSlack = NotificationStream::factory()->slack()->successDisabled()->failureDisabled()->create();
+    $disabledEmail = NotificationStream::factory()->email()->successDisabled()->failureDisabled()->create();
+
+    $task->notificationStreams()->saveMany([$disabledDiscord, $disabledSlack, $disabledEmail]);
+
+    $task->sendNotifications();
+
+    Queue::assertNothingPushed();
+    Mail::assertNothingQueued();
+});
+
+it('sends correct notification for each channel when all are enabled', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $successfulLog = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $discordBoth = NotificationStream::factory()->discord()->successEnabled()->failureEnabled()->create();
+    $slackBoth = NotificationStream::factory()->slack()->successEnabled()->failureEnabled()->create();
+    $emailBoth = NotificationStream::factory()->email()->successEnabled()->failureEnabled()->create();
+
+    $task->notificationStreams()->saveMany([$discordBoth, $slackBoth, $emailBoth]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendDiscordNotificationJob::class, 1);
+    Queue::assertPushed(SendSlackNotificationJob::class, 1);
+    Mail::assertQueued(OutputMail::class, 1);
+});
+
+it('handles tasks with no notification streams correctly', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => now(),
+    ]);
+
+    $task->sendNotifications();
+
+    Queue::assertNothingPushed();
+    Mail::assertNothingQueued();
+});
+
+it('correctly determines if a notification should be sent', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $successOnlyStream = NotificationStream::factory()->successEnabled()->failureDisabled()->create();
+    $failureOnlyStream = NotificationStream::factory()->successDisabled()->failureEnabled()->create();
+
+    expect($task->shouldSendNotification($successOnlyStream, true))->toBeTrue()
+        ->and($task->shouldSendNotification($successOnlyStream, false))->toBeFalse()
+        ->and($task->shouldSendNotification($failureOnlyStream, true))->toBeFalse()
+        ->and($task->shouldSendNotification($failureOnlyStream, false))->toBeTrue();
+});
+
+it('dispatches the correct notification type', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $discordStream = NotificationStream::factory()->discord()->create();
+    $slackStream = NotificationStream::factory()->slack()->create();
+    $emailStream = NotificationStream::factory()->email()->create();
+
+    $task->dispatchNotification($discordStream, $log, 'default');
+    $task->dispatchNotification($slackStream, $log, 'default');
+    $task->dispatchNotification($emailStream, $log, 'default');
+
+    Queue::assertPushed(SendDiscordNotificationJob::class);
+    Queue::assertPushed(SendSlackNotificationJob::class);
+    Mail::assertQueued(OutputMail::class);
+});
+
+it('throws an exception for unsupported notification type', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $invalidStream = NotificationStream::factory()->create(['type' => 'invalid']);
+
+    expect(fn () => $task->dispatchNotification($invalidStream, $log, 'default'))
+        ->toThrow(InvalidArgumentException::class, 'Unsupported notification type: invalid');
+});
+
 it('returns true if there is a store path specified', function (): void {
 
     $task = BackupTask::factory()->create(['store_path' => 'path/to/store']);

@@ -380,5 +380,9 @@
     "Your scheduled tasks will not be ran if you remove your account.": "Dine planlagte opgaver vil ikke blive kørt, hvis du fjerner din konto.",
     "Your timezone is used to display dates and times to you in your local time.": "Din tidszone bruges til at vise datoer og tidspunkter i din lokale tid.",
     "{0} Not Used|{1} Once|[2,*] :count Times": "{0} Ikke brugt|{1} Én gang|[2,*] :count gange",
-    "← Return to Home": "← Gå tilbage til forsiden"
+    "← Return to Home": "← Gå tilbage til forsiden",
+    "Successful Backups" : "Vellykkede backups",
+    "Receive notifications when backups complete successfully.": "Modtag notifikationer, når backups gennemføres succesfuldt.",
+    "Failed Backups": "Mislykkede backups",
+    "Receive notifications when backups fail to complete.": "Modtag notifikationer, når backups ikke kan gennemføres."
 }

@@ -45,6 +45,8 @@ class UpdateNotificationStream extends Component
             'label' => $this->form->label,
             'type' => $this->form->type,
             'value' => $this->form->value,
+            'receive_successful_backup_notifications' => $this->form->success_notification ? now() : null,
+            'receive_failed_backup_notifications' => $this->form->failed_notification ? now() : null,
         ]);
 
         Toaster::success(__('Notification stream has been updated.'));

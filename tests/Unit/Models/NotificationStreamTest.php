@@ -68,3 +68,27 @@ it('returns default type icon for unknown type', function (): void {
     $notificationStream = NotificationStream::factory()->create(['type' => 'unknown']);
     expect($notificationStream->type_icon)->toBe('M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z');
 });
+
+it('returns true when successful backup notifications are enabled', function (): void {
+    $notificationStream = NotificationStream::factory()->successEnabled()->create();
+
+    expect($notificationStream->hasSuccessfulBackupNotificationsEnabled())->toBeTrue();
+});
+
+it('returns false when successful backup notifications are disabled', function (): void {
+    $notificationStream = NotificationStream::factory()->successDisabled()->create();
+
+    expect($notificationStream->hasSuccessfulBackupNotificationsEnabled())->toBeFalse();
+});
+
+it('returns true when failed backup notifications are enabled', function (): void {
+    $notificationStream = NotificationStream::factory()->failureEnabled()->create();
+
+    expect($notificationStream->hasFailedBackupNotificationsEnabled())->toBeTrue();
+});
+
+it('returns false when failed backup notifications are disabled', function (): void {
+    $notificationStream = NotificationStream::factory()->failureDisabled()->create();
+
+    expect($notificationStream->hasFailedBackupNotificationsEnabled())->toBeFalse();
+});

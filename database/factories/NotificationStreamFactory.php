@@ -26,6 +26,8 @@ class NotificationStreamFactory extends Factory
             'type' => $type,
             'value' => $this->getValueForType($type),
             'user_id' => User::factory(),
+            'receive_successful_backup_notifications' => now(),
+            'receive_failed_backup_notifications' => now(),
         ];
     }
 
@@ -59,6 +61,46 @@ class NotificationStreamFactory extends Factory
         return $this->state([
             'type' => NotificationStream::TYPE_DISCORD,
             'value' => $this->generateDiscordWebhook(),
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream will send successful notifications.
+     */
+    public function successEnabled(): static
+    {
+        return $this->state([
+            'receive_successful_backup_notifications' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream will not send successful notifications.
+     */
+    public function successDisabled(): static
+    {
+        return $this->state([
+            'receive_successful_backup_notifications' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream will send failure notifications.
+     */
+    public function failureEnabled(): static
+    {
+        return $this->state([
+            'receive_failed_backup_notifications' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream will not send failure notifications.
+     */
+    public function failureDisabled(): static
+    {
+        return $this->state([
+            'receive_failed_backup_notifications' => null,
         ]);
     }
 

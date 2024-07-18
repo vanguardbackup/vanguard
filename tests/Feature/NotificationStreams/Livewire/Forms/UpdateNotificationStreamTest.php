@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Models\NotificationStream;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Livewire;
 
 it('renders successfully', function (): void {
@@ -16,18 +17,22 @@ it('renders successfully', function (): void {
         ->assertStatus(200);
 });
 
-it('updates successfully with email', function (): void {
+it('updates successfully with email and notification preferences', function (): void {
     $user = User::factory()->create();
     $notificationStream = NotificationStream::factory()->create([
         'user_id' => $user->id,
         'type' => 'email',
         'value' => 'old-email@example.com',
+        'receive_successful_backup_notifications' => null,
+        'receive_failed_backup_notifications' => now(),
     ]);
 
     $newData = [
         'label' => 'Updated Email Notification',
         'type' => 'email',
         'value' => 'new-email@example.com',
+        'success_notification' => true,
+        'failed_notification' => false,
     ];
 
     Livewire::actingAs($user)
@@ -35,31 +40,40 @@ it('updates successfully with email', function (): void {
         ->set('form.label', $newData['label'])
         ->set('form.type', $newData['type'])
         ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
 
-    $this->assertDatabaseHas('notification_streams', [
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
         'id' => $notificationStream->id,
         'user_id' => $user->id,
         'label' => $newData['label'],
         'type' => $newData['type'],
         'value' => $newData['value'],
-    ]);
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->not->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->toBeNull();
 });
 
-it('updates successfully with Discord webhook', function (): void {
+it('updates successfully with Discord webhook and notification preferences', function (): void {
     $user = User::factory()->create();
     $notificationStream = NotificationStream::factory()->create([
         'user_id' => $user->id,
         'type' => 'discord_webhook',
         'value' => 'https://discord.com/api/webhooks/old',
+        'receive_successful_backup_notifications' => now(),
+        'receive_failed_backup_notifications' => now(),
     ]);
 
     $newData = [
         'label' => 'Updated Discord Webhook',
         'type' => 'discord_webhook',
         'value' => 'https://discord.com/api/webhooks/123456789/abcdefghijklmnop',
+        'success_notification' => false,
+        'failed_notification' => true,
     ];
 
     Livewire::actingAs($user)
@@ -67,31 +81,40 @@ it('updates successfully with Discord webhook', function (): void {
         ->set('form.label', $newData['label'])
         ->set('form.type', $newData['type'])
         ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
 
-    $this->assertDatabaseHas('notification_streams', [
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
         'id' => $notificationStream->id,
         'user_id' => $user->id,
         'label' => $newData['label'],
         'type' => $newData['type'],
         'value' => $newData['value'],
-    ]);
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->not->toBeNull();
 });
 
-it('updates successfully with Slack webhook', function (): void {
+it('updates successfully with Slack webhook and both notification preferences enabled', function (): void {
     $user = User::factory()->create();
     $notificationStream = NotificationStream::factory()->create([
         'user_id' => $user->id,
         'type' => 'slack_webhook',
         'value' => 'https://hooks.slack.com/services/old',
+        'receive_successful_backup_notifications' => null,
+        'receive_failed_backup_notifications' => null,
     ]);
 
     $newData = [
         'label' => 'Updated Slack Webhook',
         'type' => 'slack_webhook',
         'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+        'success_notification' => true,
+        'failed_notification' => true,
     ];
 
     Livewire::actingAs($user)
@@ -99,17 +122,100 @@ it('updates successfully with Slack webhook', function (): void {
         ->set('form.label', $newData['label'])
         ->set('form.type', $newData['type'])
         ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
 
-    $this->assertDatabaseHas('notification_streams', [
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
         'id' => $notificationStream->id,
         'user_id' => $user->id,
         'label' => $newData['label'],
         'type' => $newData['type'],
         'value' => $newData['value'],
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->not->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->not->toBeNull();
+});
+
+it('updates successfully with both notification preferences disabled', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'email',
+        'value' => 'old-email@example.com',
+        'receive_successful_backup_notifications' => now(),
+        'receive_failed_backup_notifications' => now(),
     ]);
+
+    $newData = [
+        'label' => 'Updated Notification',
+        'type' => 'email',
+        'value' => 'new-email@example.com',
+        'success_notification' => false,
+        'failed_notification' => false,
+    ];
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.label', $newData['label'])
+        ->set('form.type', $newData['type'])
+        ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
+        'id' => $notificationStream->id,
+        'user_id' => $user->id,
+        'label' => $newData['label'],
+        'type' => $newData['type'],
+        'value' => $newData['value'],
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->toBeNull();
+});
+
+it('sets correct datetime for enabled notification preferences', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'email',
+        'value' => 'old-email@example.com',
+        'receive_successful_backup_notifications' => null,
+        'receive_failed_backup_notifications' => null,
+    ]);
+
+    $newData = [
+        'label' => 'Updated Notification',
+        'type' => 'email',
+        'value' => 'new-email@example.com',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Carbon::setTestNow(now());
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.label', $newData['label'])
+        ->set('form.type', $newData['type'])
+        ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream->receive_successful_backup_notifications)->toBeTrue()
+        ->and($updatedStream->receive_failed_backup_notifications)->toBeTrue();
+
+    Carbon::setTestNow();
 });
 
 it('validates required fields', function (): void {
@@ -180,6 +286,8 @@ it('allows authorized users to update', function (): void {
         'label' => 'Authorized Update',
         'type' => 'email',
         'value' => 'authorized@example.com',
+        'success_notification' => true,
+        'failed_notification' => false,
     ];
 
     Livewire::actingAs($user)
@@ -187,17 +295,22 @@ it('allows authorized users to update', function (): void {
         ->set('form.label', $newData['label'])
         ->set('form.type', $newData['type'])
         ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
 
-    $this->assertDatabaseHas('notification_streams', [
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
         'id' => $notificationStream->id,
         'user_id' => $user->id,
         'label' => $newData['label'],
         'type' => $newData['type'],
         'value' => $newData['value'],
-    ]);
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->not->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->toBeNull();
 });
 
 it('prevents unauthorized users from updating', function (): void {

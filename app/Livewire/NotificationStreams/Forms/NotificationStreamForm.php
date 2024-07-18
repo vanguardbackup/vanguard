@@ -16,6 +16,8 @@ class NotificationStreamForm extends Form
     public string $label = '';
     public string $type = NotificationStream::TYPE_EMAIL;
     public string $value = '';
+    public bool $success_notification = false;
+    public bool $failed_notification = true;
 
     /** @var Collection<string, string> */
     public Collection $availableTypes;
@@ -28,6 +30,8 @@ class NotificationStreamForm extends Form
         return [
             'label' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', Rule::in($this->availableTypes->keys())],
+            'success_notification' => ['nullable', 'boolean'],
+            'failed_notification' => ['nullable', 'boolean'],
             'value' => [
                 'required',
                 function ($attribute, $value, $fail): void {
@@ -58,6 +62,8 @@ class NotificationStreamForm extends Form
             'type.required' => __('Please select a notification type.'),
             'type.in' => __('Please select a valid notification type.'),
             'value.required' => __('Please enter a value for the selected notification type.'),
+            'success_notification.boolean' => __('The notification status must be true or false.'),
+            'failed_notification.boolean' => __('The notification status must be true or false.'),
         ];
     }
 
@@ -75,6 +81,8 @@ class NotificationStreamForm extends Form
         $this->label = $notificationStream->getAttribute('label');
         $this->type = $notificationStream->getAttribute('type');
         $this->value = $notificationStream->getAttribute('value');
+        $this->success_notification = (bool) $notificationStream->getAttribute('receive_successful_backup_notifications');
+        $this->failed_notification = (bool) $notificationStream->getAttribute('receive_failed_backup_notifications');
     }
 
     /**

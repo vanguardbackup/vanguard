@@ -23,6 +23,40 @@
             <x-text-input id="form.value" class="block mt-1 w-full" type="{{ $form->type === 'email' ? 'email' : 'text' }}" wire:model.defer="form.value" name="form.value"/>
             @error('form.value') <x-input-error :messages="$message" class="mt-2"/> @enderror
         </div>
+        <div class="mt-6">
+            <x-form-section>
+                {{ __('Notifications') }}
+            </x-form-section>
+            <div class="mt-4 mb-16 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <x-input-label for="form.success_notification" :value="__('Successful Backups')" class="mr-3"/>
+                        <x-toggle
+                            name="form.success_notification"
+                            model="form.success_notification"
+                            :aria-label="__('Notify on successful backups')"
+                        />
+                    </div>
+                    <x-input-explain class="mt-2">
+                        {{ __('Receive notifications when backups complete successfully.') }}
+                    </x-input-explain>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <x-input-label for="form.failed_notification" :value="__('Failed Backups')" class="mr-3"/>
+                        <x-toggle
+                            name="form.failed_notification"
+                            model="form.failed_notification"
+                            :aria-label="__('Notify on failed backups')"
+                        />
+                    </div>
+                    <x-input-explain class="mt-2">
+                        {{ __('Receive notifications when backups fail to complete.') }}
+                    </x-input-explain>
+                </div>
+            </div>
+        </div>
         <div class="mt-6 max-w-3xl mx-auto">
             <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
                 <div class="w-full sm:w-4/6">

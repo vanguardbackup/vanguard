@@ -395,25 +395,64 @@ class BackupTask extends Model
             ->exists();
     }
 
+    /**
+     * Send notifications for the latest backup task log.
+     *
+     * This method handles sending notifications through various streams (Email, Discord, Slack etc)
+     * based on the backup task outcome and user preferences.
+     */
     public function sendNotifications(): void
     {
         $jobQueue = 'backup-task-notifications';
 
-        /** @var BackupTaskLog $latestLog */
+        /** @var BackupTaskLog|null $latestLog */
         $latestLog = $this->fresh()?->logs()->latest()->first();
 
+        if (! $latestLog) {
+            return;
+        }
+
+        $backupTaskSuccessful = $latestLog->getAttribute('successful_at') !== null;
+
+        /** @var Collection<int, NotificationStream> $notificationStreams */
         $notificationStreams = $this->notificationStreams;
 
         foreach ($notificationStreams as $notificationStream) {
-            match ($notificationStream->type) {
-                NotificationStream::TYPE_EMAIL => $this->sendEmailNotification($latestLog, (string) $notificationStream->value),
-                NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $latestLog, (string) $notificationStream->value)
-                    ->onQueue($jobQueue),
-                NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $latestLog, (string) $notificationStream->value)
-                    ->onQueue($jobQueue),
-                default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->type}"),
-            };
+            if (! $this->shouldSendNotification($notificationStream, $backupTaskSuccessful)) {
+                continue;
+            }
+
+            $this->dispatchNotification($notificationStream, $latestLog, $jobQueue);
         }
+    }
+
+    /**
+     * Determine if a notification should be sent based on the stream settings and backup outcome.
+     */
+    public function shouldSendNotification(NotificationStream $notificationStream, bool $backupTaskSuccessful): bool
+    {
+        if ($backupTaskSuccessful && $notificationStream->hasSuccessfulBackupNotificationsEnabled()) {
+            return true;
+        }
+
+        return ! $backupTaskSuccessful && $notificationStream->hasFailedBackupNotificationsEnabled();
+    }
+
+    /**
+     * Dispatch the appropriate notification based on the stream type.
+     *
+     * @throws InvalidArgumentException If an unsupported notification type is encountered.
+     */
+    public function dispatchNotification(NotificationStream $notificationStream, BackupTaskLog $backupTaskLog, string $queue): void
+    {
+        $streamValue = (string) $notificationStream->getAttribute('value');
+
+        match ($notificationStream->getAttribute('type')) {
+            NotificationStream::TYPE_EMAIL => $this->sendEmailNotification($backupTaskLog, $streamValue),
+            NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
+            NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
+            default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->getAttribute('type')}"),
+        };
     }
 
     public function sendEmailNotification(BackupTaskLog $backupTaskLog, string $emailAddress): void

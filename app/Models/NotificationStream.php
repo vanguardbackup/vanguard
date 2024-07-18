@@ -73,6 +73,22 @@ class NotificationStream extends Model
     }
 
     /**
+     * Returns whether this stream will send backup notifications on success.
+     */
+    public function hasSuccessfulBackupNotificationsEnabled(): bool
+    {
+        return (bool) $this->getAttribute('receive_successful_backup_notifications');
+    }
+
+    /**
+     * Returns whether this stream will send backup notifications on failure.
+     */
+    public function hasFailedBackupNotificationsEnabled(): bool
+    {
+        return (bool) $this->getAttribute('receive_failed_backup_notifications');
+    }
+
+    /**
      * Get the formatted type of the notification stream.
      *
      * @return Attribute<string|null, never>
@@ -108,5 +124,16 @@ class NotificationStream extends Model
                 };
             }
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'receive_successful_backup_notifications' => 'bool',
+            'receive_failed_backup_notifications' => 'bool',
+        ];
     }
 }

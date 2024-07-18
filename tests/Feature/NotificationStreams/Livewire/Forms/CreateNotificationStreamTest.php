@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -185,4 +186,160 @@ it('creates notification stream for authenticated user', function (): void {
         'user_id' => $user2->id,
         'label' => $testData['label'],
     ]);
+});
+
+it('submits successfully with email and notification preferences', function (): void {
+    $testData = [
+        'label' => 'Test Email Notification',
+        'type' => 'email',
+        'value' => 'notification-email@example.com',
+        'success_notification' => true,
+        'failed_notification' => false,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNotNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('submits successfully with Discord webhook and notification preferences', function (): void {
+    $testData = [
+        'label' => 'Test Discord Webhook',
+        'type' => 'discord_webhook',
+        'value' => 'https://discord.com/api/webhooks/123456789/abcdefghijklmnop',
+        'success_notification' => false,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('submits successfully with Slack webhook and both notification preferences enabled', function (): void {
+    $testData = [
+        'label' => 'Test Slack Webhook',
+        'type' => 'slack_webhook',
+        'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNotNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('submits successfully with both notification preferences disabled', function (): void {
+    $testData = [
+        'label' => 'Test Notification',
+        'type' => 'email',
+        'value' => 'test@example.com',
+        'success_notification' => false,
+        'failed_notification' => false,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('sets correct datetime for enabled notification preferences', function (): void {
+    $testData = [
+        'label' => 'Test Notification',
+        'type' => 'email',
+        'value' => 'test@example.com',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Carbon::setTestNow(now());
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertTrue($notificationStream->receive_successful_backup_notifications);
+    $this->assertTrue($notificationStream->receive_failed_backup_notifications);
+
+    Carbon::setTestNow();
 });
