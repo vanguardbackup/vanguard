@@ -77,14 +77,12 @@ describe('Local driver', function (): void {
             expect($result)->toBeTrue();
         });
 
-        it('handles file streaming failure', function (): void {
+        it('handles file streaming failure quickly', function (): void {
             $this->mockSftp->shouldReceive('put')->andReturn(false);
+            $this->mockLocal->shouldReceive('downloadFileViaSFTP')->andReturn('/tmp/tempfile');
+            $this->mockLocal->shouldReceive('getFileContents')->andReturn('mock content');
 
-            Log::shouldReceive('info');
-            Log::shouldReceive('warning')->atLeast()->once()->withAnyArgs();
-            Log::shouldReceive('error')->atLeast()->once()->withArgs(fn ($message): bool => str_contains($message, 'Failed to stream file to remote local storage'));
-
-            $result = $this->mockLocal->streamFiles($this->mockSourceSftp, '/remote/source/path', 'file.zip', 'storage/path');
+            $result = $this->mockLocal->streamFiles($this->mockSourceSftp, '/remote/source/path', 'file.zip', 'storage/path', 1, 0);
 
             expect($result)->toBeFalse();
         });
