@@ -38,50 +38,84 @@
     @endif
 </head>
 <body class="font-sans antialiased">
-@if (!ssh_keys_exist())
-    <div x-data="{ copied: false }">
-        <div class="mx-auto text-center bg-red-700/85 border-none text-white px-3 py-2 sm:py-3 rounded relative"
-             role="alert">
-            <div class="flex flex-col sm:flex-row items-center justify-center sm:space-x-2 space-y-2 sm:space-y-0">
-                <div class="flex items-center space-x-1 sm:space-x-2">
-                    @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-inherit')
-                    <strong class="font-bold text-sm">{{ __('Warning!') }}</strong>
+@if (!ssh_keys_exist() || !config('app.ssh.passphrase'))
+    <div x-data="{ show: true, copied: false, showEnvHelp: false, showFull: false }" x-show="show" class="bg-gradient-to-r from-red-600 to-red-700 text-white">
+        <div class="max-w-7xl mx-auto py-2 px-2 sm:px-4 md:px-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div class="flex-1 flex items-center mb-2 sm:mb-0">
+                    <span class="flex p-1 sm:p-2 rounded-lg bg-red-800">
+                        @svg('heroicon-o-exclamation-triangle', 'h-4 w-4 sm:h-5 sm:w-5 text-white')
+                    </span>
+                    <p class="ml-2 sm:ml-3 text-sm sm:text-base font-medium">
+                        @if (!ssh_keys_exist())
+                            {{ __('Warning! SSH key missing.') }}
+                        @else
+                            {{ __('Warning! SSH passphrase not set.') }}
+                        @endif
+                    </p>
                 </div>
-                <p class="text-sm">
-                    <span class="hidden sm:inline">{{ __('Please run') }}</span>
-                    <span class="sm:hidden">{{ __('Please run:') }}</span>
-                </p>
-                <code class="text-xs bg-red-800/60 p-1 sm:px-2 font-medium rounded-lg inline-flex items-center">
-                    <span id="command">php artisan vanguard:generate-ssh-key</span>
+                <div class="flex flex-col sm:flex-row items-center sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                    @if (!ssh_keys_exist())
+                        <div class="relative w-full sm:w-auto">
+                            <button @click="showFull = !showFull" class="w-full sm:w-auto flex items-center justify-center px-3 py-1 border border-transparent rounded-md text-xs sm:text-sm leading-5 font-medium text-white bg-red-800 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-700 focus:ring-white transition ease-in-out duration-150">
+                                <span x-show="!showFull">{{ __('Show Command') }}</span>
+                                <span x-show="showFull">{{ __('Hide Command') }}</span>
+                            </button>
+                            <div x-show="showFull" @click.away="showFull = false" class="origin-top-right absolute right-0 mt-2 w-full sm:w-72 rounded-md shadow-lg z-10">
+                                <div class="rounded-md bg-white shadow-xs p-3 sm:p-4">
+                                    <div class="flex items-center justify-between bg-gray-100 p-2 rounded">
+                                        <code id="command" class="text-xs sm:text-sm text-gray-800 font-mono break-all sm:break-normal">php artisan vanguard:generate-ssh-key</code>
+                                        <button
+                                            @click="
+                                                navigator.clipboard.writeText(document.getElementById('command').textContent);
+                                                copied = true;
+                                                setTimeout(() => copied = false, 2000);
+                                            "
+                                            class="ml-2 text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            :title="copied ? '{{ __('Copied!') }}' : '{{ __('Copy') }}"
+                                        >
+                                            <span x-show="!copied">
+                                                @svg('heroicon-o-clipboard-document', 'h-4 w-4 sm:h-5 sm:w-5')
+                                            </span>
+                                            <span x-show="copied" x-cloak>
+                                                @svg('heroicon-o-clipboard-document-check', 'h-4 w-4 sm:h-5 sm:w-5')
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full sm:w-auto flex justify-center">
+                            @livewire('other.generate-ssh-keys-button')
+                        </div>
+                    @else
+                        <div class="relative w-full sm:w-auto">
+                            <button @click="showEnvHelp = !showEnvHelp" class="w-full sm:w-auto flex items-center justify-center px-3 py-1 border border-transparent rounded-md text-xs sm:text-sm leading-5 font-medium text-white bg-red-800 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-700 focus:ring-white transition ease-in-out duration-150">
+                                {{ __('How to Set Passphrase') }}
+                            </button>
+                            <div x-show="showEnvHelp" @click.away="showEnvHelp = false" class="origin-top-right absolute right-0 mt-2 w-full sm:w-80 rounded-md shadow-lg z-10">
+                                <div class="rounded-md bg-white text-gray-800 shadow-xs p-3 sm:p-4">
+                                    <p class="text-xs sm:text-sm mb-2">{{ __('To set the SSH passphrase:') }}</p>
+                                    <ol class="list-decimal list-inside text-xs sm:text-sm space-y-1">
+                                        <li>{{ __('Open your .env file') }}</li>
+                                        <li>{{ __('Add or update the following line:') }}</li>
+                                        <code class="block bg-gray-100 p-2 rounded mt-1 text-xs break-all">SSH_PASSPHRASE=your_passphrase_here</code>
+                                        <li>{{ __('Save the file and restart your application') }}</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                <div class="absolute top-1 right-1 sm:relative sm:top-auto sm:right-auto sm:ml-2">
                     <button
-                        title="{{ __('Copy') }}"
-                        x-on:click="
-                        navigator.clipboard.writeText(document.getElementById('command').textContent);
-                        copied = true;
-                        setTimeout(() => copied = false, 2000);
-                    "
-                        class="ml-1 focus:outline-none"
+                        type="button"
+                        @click="show = false"
+                        class="p-1 rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-white"
                     >
-                    <span x-show="!copied">
-                        @svg('heroicon-o-clipboard-document', 'h-3 w-3 sm:h-4 sm:w-4')
-                    </span>
-                        <span x-show="copied" x-cloak>
-                        @svg('heroicon-o-clipboard-document-check', 'h-3 w-3 sm:h-4 sm:w-4')
-                    </span>
+                        @svg('heroicon-o-x-mark', 'h-4 w-4 sm:h-5 sm:w-5')
                     </button>
-                </code>
-                <p class="text-sm hidden sm:block">
-                    {{ __('to create your SSH key.') }}
-                </p>
-                <div class="sm:hidden text-sm">
-                    {{ __('to create your SSH key.') }}
                 </div>
-                <div class="sm:hidden">
-                    @livewire('other.generate-ssh-keys-button')
-                </div>
-            </div>
-            <div class="hidden sm:block mt-2">
-                @livewire('other.generate-ssh-keys-button')
             </div>
         </div>
     </div>

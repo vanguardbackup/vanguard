@@ -19,106 +19,100 @@
             </x-slot>
         </x-no-content>
     @else
-        <div class="flex justify-center sm:justify-end">
-            <div>
-                <div class="font-medium text-sm text-gray-800 dark:text-gray-200 text-center sm:text-left">
-                    {{ __('Are you using server management?') }}
-                </div>
-                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 my-1.5">
-                    <x-secondary-button type="button" wire:click="usingServerProvider('ploi')" class="w-full sm:w-auto">
-                        Ploi
-                    </x-secondary-button>
-                    <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto">
-                        Laravel Forge
-                    </x-secondary-button>
-                </div>
-            </div>
-        </div>
         <x-form-wrapper>
             @if (!$showingConnectionView)
                 <form wire:submit="submit">
                     @if (ssh_keys_exist())
-                        <div class="mt-4">
-                            <x-input-label for="ssh_key" :value="__('Public SSH Key')"/>
-                            <x-textarea rows="10" readonly id="public_key">{{ $ourPublicKey }}</x-textarea>
-                            <div class="flex flex-col sm:flex-row justify-evenly my-3.5 space-y-4 sm:space-y-0">
-                                <div class="mt-2">
-                                    <x-secondary-button class="btn w-full sm:w-auto" data-clipboard-target="#public_key" type="button"
-                                                        id="copyButton">
-                                        <span id="copyIcon" class="inline">
-                                              @svg('heroicon-o-clipboard-document', 'h-5 w-5 mr-1')
+                        <div class="mt-4" x-data="{ copied: false }">
+                            <x-input-label for="ssh_key" :value="__('Public SSH Key')" class="mb-2"/>
+                            <div class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+                                <div class="p-4 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre-wrap break-all" x-ref="sshKey" style="max-height: 200px;">{{ $ourPublicKey }}</div>
+                                <div class="absolute top-2 right-2 flex space-x-2">
+                                    <button type="button"
+                                            class="p-1 rounded-md bg-white dark:bg-gray-600 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                                            @click="
+                                                navigator.clipboard.writeText($refs.sshKey.innerText);
+                                                copied = true;
+                                                setTimeout(() => copied = false, 2000);
+                                            "
+                                            :class="{ 'bg-green-100 dark:bg-green-800': copied }"
+                                    >
+                                        <span x-show="!copied">
+                                            @svg('heroicon-o-clipboard-document', 'h-5 w-5')
                                         </span>
-                                        <span id="copiedIcon" class="hidden">
-                                            @svg('heroicon-o-clipboard-document-check', 'h-5 w-5 inline mr-1')
+                                        <span x-show="copied" x-cloak>
+                                            @svg('heroicon-o-clipboard-document-check', 'h-5 w-5 text-green-500')
                                         </span>
-                                        <span id="copyText" class="inline">
-                                             {{ __('Copy') }}
-                                        </span>
-                                        <span id="copiedText" class="hidden">
-                                            {{ __('Copied!') }}
-                                        </span>
-                                    </x-secondary-button>
-                                    <script>
-                                        document.addEventListener('livewire:navigated', function () {
-                                            new ClipboardJS('.btn');
-                                            document.getElementById('copyButton').addEventListener('click', function () {
-                                                document.getElementById('copiedIcon').classList.remove('hidden');
-                                                document.getElementById('copyIcon').classList.add('hidden');
-                                                document.getElementById('copiedText').classList.remove('hidden');
-                                                document.getElementById('copyText').classList.add('hidden');
-                                            });
-                                        });
-                                    </script>
-                                </div>
-                                <div class="sm:ml-4">
-                                    <div
-                                        class="py-3.5 px-4 bg-gray-200 dark:bg-gray-600 dark:text-gray-200 text-gray-600 border-l-4 border-gray-600 dark:border-gray-300 font-medium">
-                                    <span>
-                                        {{ __('Copy the SSH key and run it on your intended remote server to give us secure access. We do not recommend using the root user.') }}
-                                    </span>
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Copy the SSH key and run it on your intended remote server to give us secure access. We do not recommend using the root user.') }}
+                            </p>
                         </div>
                     @endif
-                    <div class="mt-4">
-                        <x-input-label for="label" :value="__('Label')"/>
-                        <x-text-input id="label" class="block mt-1 w-full" type="text" wire:model="label" name="label"
-                                      autofocus />
-                        <x-input-error :messages="$errors->get('label')" class="mt-2"/>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                            <div class="w-full sm:w-1/2">
-                                <x-input-label for="host" :value="__('Host')"/>
-                                <x-text-input id="host" class="block mt-1 w-full" type="text" wire:model="host"
-                                              name="host"/>
-                                <x-input-error :messages="$errors->get('host')" class="mt-2"/>
-                            </div>
-                            <div class="w-full sm:w-1/2">
-                                <x-input-label for="port" :value="__('SSH Port')"/>
-                                <x-text-input id="port" class="block mt-1 w-full" type="text" wire:model="port"
-                                              name="port"/>
-                                <x-input-error :messages="$errors->get('port')" class="mt-2"/>
-                            </div>
+
+                    <div class="mt-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-800 dark:text-gray-200 mb-3">
+                            {{ __('Are you using server management?') }}
+                        </h4>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                            <x-secondary-button type="button" wire:click="usingServerProvider('ploi')" class="w-full sm:w-auto justify-center">
+                                @svg('heroicon-o-server', 'w-5 h-5 mr-2') Ploi
+                            </x-secondary-button>
+                            <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto justify-center">
+                                @svg('heroicon-o-cog', 'w-5 h-5 mr-2') Laravel Forge
+                            </x-secondary-button>
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <x-input-label for="username" :value="__('SSH Username')"/>
-                        <x-text-input id="username" class="block mt-1 w-full" type="text" wire:model="username"
-                                      name="username" placeholder="{{ __('user') }}"/>
-                        <x-input-error :messages="$errors->get('username')" class="mt-2"/>
+
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-3">
+                            <x-input-label for="label" :value="__('Label')"/>
+                            <x-text-input id="label" class="mt-1 block w-full" type="text" wire:model="label" name="label" autofocus />
+                            <x-input-error :messages="$errors->get('label')" class="mt-2"/>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <x-input-label for="host" :value="__('Host')"/>
+                            <x-text-input id="host" class="mt-1 block w-full" type="text" wire:model="host" name="host"/>
+                            <x-input-error :messages="$errors->get('host')" class="mt-2"/>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <x-input-label for="port" :value="__('SSH Port')"/>
+                            <x-text-input id="port" class="mt-1 block w-full" type="text" wire:model="port" name="port"/>
+                            <x-input-error :messages="$errors->get('port')" class="mt-2"/>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <x-input-label for="username" :value="__('SSH Username')"/>
+                            <x-text-input id="username" class="mt-1 block w-full" type="text" wire:model="username" name="username" placeholder="{{ __('user') }}"/>
+                            <x-input-error :messages="$errors->get('username')" class="mt-2"/>
+                        </div>
+
+                        <div class="sm:col-span-6" x-data="{ show: false }">
+                            <x-input-label for="databasePassword" :value="__('Database Password')"/>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <x-text-input id="databasePassword"
+                                              class="block w-full pr-10"
+                                              x-bind:type="show ? 'text' : 'password'"
+                                              wire:model="databasePassword"
+                                              name="databasePassword"/>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <button @click="show = !show" type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        <span x-show="!show">@svg('heroicon-o-eye', 'h-5 w-5')</span>
+                                        <span x-show="show">@svg('heroicon-o-eye-slash', 'h-5 w-5')</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <x-input-error :messages="$errors->get('databasePassword')" class="mt-2"/>
+                            <x-input-explain>
+                                {{ __('The password is essential for performing database backup tasks. We encrypt the password upon receiving it.') }}
+                            </x-input-explain>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <x-input-label for="databasePassword" :value="__('Database Password')"/>
-                        <x-text-input id="databasePassword" class="block mt-1 w-full" type="password"
-                                      wire:model="databasePassword"
-                                      name="databasePassword"/>
-                        <x-input-error :messages="$errors->get('databasePassword')" class="mt-2"/>
-                        <x-input-explain>
-                            {{ __('The password is essential for performing database backup tasks. We encrypt the password upon receiving it.') }}
-                        </x-input-explain>
-                    </div>
+
                     <section>
                         <div class="mt-6 max-w-3xl mx-auto">
                             <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
@@ -176,3 +170,9 @@
         </x-form-wrapper>
     @endif
 </div>
+
+<script>
+    document.addEventListener('livewire:navigated', function () {
+        Alpine.start();
+    });
+</script>
