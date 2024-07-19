@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.group:focus-within .group-hover\:opacity-10 {
+    opacity: 0.1;
+}
+.group:focus-within .group-hover\:scale-x-100 {
+    transform: scaleX(1);
+}
