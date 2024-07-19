@@ -16,6 +16,9 @@ Vanguard is a Laravel project that aims to provide an easy way to backup your fi
 
 Vanguard has official support for modern Ubuntu and Debian servers.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/vanguardbackup/assets/main/screenshots/backup-tasks.png" width="900" alt="Screenshot"></p>
+
 For detailed documentation, please visit our [official documentation site](https://docs.vanguardbackup.com/).
 
 ## Features
