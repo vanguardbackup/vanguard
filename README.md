@@ -12,9 +12,11 @@
 
 ## About Vanguard
 
-Vanguard is a Laravel project that aims to provide an easy way to back up your files and databases. It is designed to be easy to use and friendly.  
+Vanguard is a Laravel project that aims to provide an easy way to back up your files and databases. It is designed to be easy to use and friendly.
 
-Vanguard has official support for modern Ubuntu and Debian servers. There are no plans to support Windows. 
+Vanguard has official support for modern Ubuntu and Debian servers.
+
+For detailed documentation, please visit our [official documentation site](https://docs.vanguardbackup.com/).
 
 ## Features
 
@@ -23,6 +25,8 @@ Vanguard has official support for modern Ubuntu and Debian servers. There are no
 - Daily/weekly or custom via cron
 - Supports both file and database backups
 - Notifications via Email, Discord or Slack webhooks
+- Weekly backup summaries
+- Login with GitHub
 - Ability to pause/resume scheduled backup tasks as needed
 - Automatic server connection checks
 - Multi-language support
@@ -71,24 +75,6 @@ command will generate an SSH key that will be used to authenticate with your rem
 > [!NOTE]
 > You will not be allowed to generate another SSH key if you already have one configured.
 
-
-<details>
-<summary>Vanguard's terminology</summary>
-
-## Terminology
-
-### Backup Tasks
-
-Backup Tasks are where you define your directory paths pointing to your backup, the times you wish the content to be backed up and where you would like it to be backed up to
-
-### Backup Destinations
-
-Backup Destinations are where you define destinations for your data once it has been backed up. This could be on an S3 bucket or perhaps on the same server just in another directory. The choice is yours.
-
-### Remote Servers
-
-Remote Servers are the Linux servers that hold the data you want to back up.
-</details>
 
 ## Contributing
 

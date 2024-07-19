@@ -1,5 +1,13 @@
-<p align="center"><img src="https://i.imgur.com/wyPXdbX.png" width="120" alt="Vanguard Logo"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/vanguardbackup/assets/main/icon-200.png" width="120" alt="Vanguard Logo"></p>
 
-## Security Vulnerabilities
+# Reporting Security Vulnerabilities
 
-If you discover a security vulnerability within Vanguard, please send an e-mail to [lewis@larsens.dev](mailto:lewis@larsens.dev) within 24 hours of discovery. All security vulnerabilities will be promptly addressed. Thank you.
+If you discover a security vulnerability within Vanguard, please follow one of these procedures:
+
+1. Send an e-mail to [lewis@larsens.dev](mailto:lewis@larsens.dev) within 24 hours of discovery.
+
+2. Alternatively, you can use GitHub's private security advisory feature and fill in the form [here](https://github.com/vanguardbackup/vanguard/security/advisories/new).
+
+All security vulnerabilities will be promptly addressed.
+
+Thank you for your contribution, it is appreciated.
