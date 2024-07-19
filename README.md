@@ -37,29 +37,19 @@ Do you have an idea that isn't listed? [Create a post](https://github.com/vangua
 
 ## Installation and Running Vanguard
 
-As Vanguard is a Laravel project, you can install it like any other Laravel project. For detailed installation instructions, please visit our [official documentation](https://docs.vanguardbackup.com/installation).
+For detailed installation instructions and system requirements, please visit our [official documentation](https://docs.vanguardbackup.com/installation).
 
-Here's a quick overview to get you started:
+Key points to note:
 
-Vanguard requires PHP 8.2+, Redis and Composer to be installed on your system. You will also need to have Node.js and NPM installed to build the frontend assets. We recommend using Laravel Valet, but you can use any other local development environment.
+- Vanguard is a Laravel project and follows standard Laravel installation procedures.
+- System requirements include PHP 8.2+, Redis, Composer, Node.js, and NPM.
+- We recommend using Laravel Valet, but any local development environment will work.
 
-We will try our best to help you get Vanguard running, but we always recommend you read the [Laravel documentation](https://laravel.com/docs/11.x/installation) if you get stuck.
+To get started quickly:
 
 1. Clone the repository
-2. Run `composer install --no-dev --optimize-autoloader`
-3. Run `npm install && npm run build`
-4. Copy the `.env.example` file to `.env` and fill in the necessary details
-5. Run `php artisan key:generate`
-6. Run `php artisan migrate`
-7. Run `php artisan vanguard:generate-ssh-key` to generate the SSH key
-8. Run `php artisan horizon` to start the Horizon worker for job processing
-9. Run `php artisan reverb:start` to start Laravel Reverb for websockets and real-time log viewing
-10. Run `php artisan schedule:work` to start the scheduler
+2. Follow the step-by-step installation guide in our [documentation](https://docs.vanguardbackup.com/installation)
 
-> [!IMPORTANT]
-> Make sure you have set your SSH passphrase in your `.env` file. Keep it safe!
-
-For more comprehensive installation instructions and troubleshooting tips, please refer to our [detailed installation guide](https://docs.vanguardbackup.com/installation).
 
 ## Contributing
 
