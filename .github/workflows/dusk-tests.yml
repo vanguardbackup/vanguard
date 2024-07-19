@@ -1,0 +1,90 @@
+name: Dusk Tests
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  dusk-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:8.3
+
+    services:
+      postgres:
+        image: postgres:15.1
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: vanguard
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install composer dependencies
+        run: composer install --no-scripts
+
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example.ci .env
+          php artisan key:generate
+          sed -i 's/APP_URL=https:\/\/127.0.0.1/APP_URL=http:\/\/127.0.0.1:8000/' .env
+          sed -i 's/DB_HOST=postgres/DB_HOST=127.0.0.1/' .env
+
+      - name: Cache Laravel application
+        uses: actions/cache@v4
+        with:
+          path: bootstrap/cache
+          key: ${{ runner.os }}-laravel-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-laravel-
+
+      - name: Cache NPM packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Cache built assets
+        uses: actions/cache@v4
+        with:
+          path: public/build
+          key: ${{ runner.os }}-assets-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-assets-
+
+      - name: Upgrade Chrome Driver
+        run: php artisan dusk:chrome-driver --detect
+
+      - name: Start Chrome Driver
+        run: ./vendor/laravel/dusk/bin/chromedriver-linux &
+
+      - name: Run Laravel Server
+        run: php artisan serve --no-reload &
+
+      - name: Run Dusk Tests
+        env:
+          APP_URL: "http://127.0.0.1:8000"
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: vanguard
+          DB_USERNAME: postgres
+          DB_PASSWORD: password
+        run: php artisan dusk

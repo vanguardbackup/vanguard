@@ -29,6 +29,7 @@
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^2.0",
         "laravel/breeze": "^2.0",
+        "laravel/dusk": "^8.2",
         "laravel/pint": "^1.16",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",

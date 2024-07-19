@@ -44,21 +44,21 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email Address')" class="block text-sm font-medium text-gray-700 dark:text-gray-300"/>
-            <x-text-input wire:model="form.email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="email" name="email" autofocus autocomplete="email" required/>
+            <x-text-input dusk="email" wire:model="form.email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="email" name="email" autofocus autocomplete="email" required/>
             <x-input-error :messages="$errors->get('form.email')" class="mt-2"/>
         </div>
 
         <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300"/>
-            <x-text-input wire:model="form.password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="password" name="password" autocomplete="current-password" required/>
+            <x-text-input dusk="password" wire:model="form.password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="password" name="password" autocomplete="current-password" required/>
             <x-input-error :messages="$errors->get('form.password')" class="mt-2"/>
         </div>
 
         <!-- Remember Me -->
         <div class="flex items-center justify-between">
             <div class="flex items-center">
-                <x-checkbox wire:model="form.remember" id="remember" name="remember" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"/>
+                <x-checkbox dusk="remember" wire:model="form.remember" id="remember" name="remember" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"/>
                 <label for="remember" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                     {{ __('Remember me') }}
                 </label>
@@ -74,7 +74,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
 
-        <x-primary-button class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">
+        <x-primary-button dusk="login-button" class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">
             {{ __('Login') }}
             @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
         </x-primary-button>

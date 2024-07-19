@@ -20,12 +20,16 @@ jobs:
     needs: static-analysis
     uses: ./.github/workflows/run-rector.yml
 
-  test-suite:
+  pest-tests:
     needs: rector
-    uses: ./.github/workflows/test-suite.yml
+    uses: ./.github/workflows/pest-tests.yml
+
+  dusk-tests:
+    needs: pest-tests
+    uses: ./.github/workflows/dusk-tests.yml
 
   ci-passed:
-    needs: [duster, static-analysis, rector, test-suite]
+    needs: [duster, static-analysis, rector, pest-tests, dusk-tests]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI checks passed!"

@@ -94,28 +94,17 @@ run_command() {
             printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
             return 1
         fi
-    elif [ "$1" = "Running test suite" ]; then
-        if echo "$output" | grep -q "No \"dirty\" tests found"; then
+    elif [ "$1" = "Running Pest tests" ]; then
+        if echo "$output" | grep -q "No tests executed!"; then
             printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
-            printf " ${CYAN}(%.2fs) No changes requiring tests${NC}\n" "$duration"
+            printf " ${CYAN}(%.2fs) No changes requiring Pest tests${NC}\n" "$duration"
             return 0
-        elif echo "$output" | grep -q "General error"; then
+        elif echo "$output" | grep -q " FAILURES!"; then
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Test Failure (General error):${NC}\n"
-            echo "$output" | sed -n '/The test/,/Error Output:/p' | while IFS= read -r line; do
+            printf "\n${RED}PHPUnit Test Failures:${NC}\n"
+            echo "$output" | sed -n '/FAILURES!/,/ERRORS!/p' | while IFS= read -r line; do
                 printf "${RED}%s${NC}\n" "$line"
-            done
-            return 1
-        elif echo "$output" | grep -q " FAILED "; then
-            print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Test Failure:${NC}\n"
-            echo "$output" | sed -n '/ FAILED /,/^$/p' | while IFS= read -r line; do
-                printf "${RED}%s${NC}\n" "$line"
-            done
-            echo "$output" | grep "Tests:" | while IFS= read -r line; do
-                printf "${YELLOW}%s${NC}\n" "$line"
             done
             return 1
         elif [ $exit_code -eq 0 ]; then
@@ -125,7 +114,30 @@ run_command() {
         else
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Test Error:${NC}\n%s\n\n" "$output"
+            printf "\n${RED}PHPUnit Test Error:${NC}\n%s\n\n" "$output"
+            return 1
+        fi
+    elif [ "$1" = "Running Dusk tests" ]; then
+        if [ -z "$output" ]; then
+            printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
+            printf " ${CYAN}(%.2fs) No changes requiring Dusk tests${NC}\n" "$duration"
+            return 0
+        elif echo "$output" | grep -q "AssertionFailedError"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Dusk Test Failures:${NC}\n"
+            echo "$output" | grep -A 5 "AssertionFailedError" | while IFS= read -r line; do
+                printf "${RED}%s${NC}\n" "$line"
+            done
+            return 1
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Dusk Test Error:${NC}\n%s\n\n" "$output"
             return 1
         fi
     elif [ "$1" = "Checking code style" ]; then
@@ -183,11 +195,12 @@ run_command() {
 }
 
 commands=(
-    "Running static analysis:./vendor/bin/phpstan analyse --no-progress"
-    "Running test suite:./vendor/bin/pest --parallel --dirty --bail"
-    "Checking code style:./vendor/bin/duster lint"
-    "Checking for refactoring opportunities:./vendor/bin/rector --no-progress-bar --dry-run"
-    "Building assets:npm run build"
+    "Running Static Analysis:./vendor/bin/phpstan analyse --no-progress"
+    "Running Pest tests:./vendor/bin/pest --parallel --dirty --bail"
+    "Running Dusk tests:php artisan dusk --dirty --bail"
+    "Checking Code Style:./vendor/bin/duster lint"
+    "Checking for Refactoring Opportunities:./vendor/bin/rector --no-progress-bar --dry-run"
+    "Building Assets:npm run build"
 )
 
 print_vanguard_logo
@@ -233,8 +246,11 @@ else
                 "Running static analysis")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/phpstan analyse${YELLOW}' and address the issues${NC}\n"
                     ;;
-                "Running test suite")
+                "Running Pest tests")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/pest${YELLOW}' and fix failing tests${NC}\n"
+                    ;;
+                "Running Dusk tests")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}php artisan dusk${YELLOW}' and fix failing browser tests${NC}\n"
                     ;;
                 "Checking code style")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/duster fix${YELLOW}' to automatically fix style issues${NC}\n"
