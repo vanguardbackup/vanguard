@@ -61,7 +61,7 @@
                                 @svg('heroicon-o-server', 'w-5 h-5 mr-2') Ploi
                             </x-secondary-button>
                             <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto justify-center">
-                                @svg('heroicon-o-cog', 'w-5 h-5 mr-2') Laravel Forge
+                                @svg('heroicon-o-server', 'w-5 h-5 mr-2') Laravel Forge
                             </x-secondary-button>
                         </div>
                     </div>

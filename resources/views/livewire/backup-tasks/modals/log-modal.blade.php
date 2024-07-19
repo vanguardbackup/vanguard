@@ -71,9 +71,8 @@
                 @endif
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    @svg('heroicon-o-x-mark', 'w-4 h-4 mr-2')
+            <div class="mt-6">
+                <x-secondary-button x-on:click="$dispatch('close')" centered>
                     {{ __('Close') }}
                 </x-secondary-button>
             </div>
