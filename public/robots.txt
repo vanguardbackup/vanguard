@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+
+Disallow: /
+
+Allow: /login
+Allow: /register
+
+Disallow: /overview
+Disallow: /api
+Disallow: /storage
