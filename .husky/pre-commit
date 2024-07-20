@@ -95,14 +95,14 @@ run_command() {
             return 1
         fi
     elif [ "$1" = "Running Pest tests" ]; then
-        if echo "$output" | grep -q "No tests executed!"; then
-            printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
+        if echo "$output" | grep -q "INFO  No \"dirty\" tests found."; then
+            print_result 2  # Using 2 for the "CLEAN" state
             printf " ${CYAN}(%.2fs) No changes requiring Pest tests${NC}\n" "$duration"
             return 0
         elif echo "$output" | grep -q " FAILURES!"; then
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}PHPUnit Test Failures:${NC}\n"
+            printf "\n${RED}Pest Test Failures:${NC}\n"
             echo "$output" | sed -n '/FAILURES!/,/ERRORS!/p' | while IFS= read -r line; do
                 printf "${RED}%s${NC}\n" "$line"
             done
@@ -114,12 +114,12 @@ run_command() {
         else
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}PHPUnit Test Error:${NC}\n%s\n\n" "$output"
+            printf "\n${RED}Pest Test Error:${NC}\n%s\n\n" "$output"
             return 1
         fi
     elif [ "$1" = "Running Dusk tests" ]; then
-        if [ -z "$output" ]; then
-            printf "${BG_BLUE}${WHITE} CLEAN ${NC}"
+        if echo "$output" | grep -q "INFO  No \"dirty\" tests found."; then
+            print_result 2  # Using 2 for the "CLEAN" state
             printf " ${CYAN}(%.2fs) No changes requiring Dusk tests${NC}\n" "$duration"
             return 0
         elif echo "$output" | grep -q "AssertionFailedError"; then
