@@ -1,13 +1,22 @@
 name: Dusk Tests
+
 on:
   workflow_call:
   workflow_dispatch:
+  push:
 
 jobs:
   dusk-tests:
     runs-on: ubuntu-latest
-    container:
-      image: kirschbaumdevelopment/laravel-test-runner:8.3
+    env:
+      APP_URL: "http://127.0.0.1:8000"
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: vanguard
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      MAIL_MAILER: log
 
     services:
       postgres:
@@ -25,29 +34,19 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+      - name: Prepare The Environment
+        run: cp .env.example.ci .env
 
-      - name: Install composer dependencies
-        run: composer install --no-scripts
+      - name: Install Composer Dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Generate Application Key
+        run: php artisan key:generate
 
       - name: Prepare Laravel Application
         run: |
-          cp .env.example.ci .env
-          php artisan key:generate
           sed -i 's/APP_URL=https:\/\/127.0.0.1/APP_URL=http:\/\/127.0.0.1:8000/' .env
           sed -i 's/DB_HOST=postgres/DB_HOST=127.0.0.1/' .env
-
-      - name: Cache Laravel application
-        uses: actions/cache@v4
-        with:
-          path: bootstrap/cache
-          key: ${{ runner.os }}-laravel-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-laravel-
 
       - name: Cache NPM packages
         uses: actions/cache@v4
@@ -62,13 +61,6 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Cache built assets
-        uses: actions/cache@v4
-        with:
-          path: public/build
-          key: ${{ runner.os }}-assets-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-assets-
-
       - name: Upgrade Chrome Driver
         run: php artisan dusk:chrome-driver --detect
 
@@ -79,12 +71,18 @@ jobs:
         run: php artisan serve --no-reload &
 
       - name: Run Dusk Tests
-        env:
-          APP_URL: "http://127.0.0.1:8000"
-          DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
-          DB_DATABASE: vanguard
-          DB_USERNAME: postgres
-          DB_PASSWORD: password
         run: php artisan dusk
+
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: tests/Browser/screenshots
+
+      - name: Upload Console Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: console
+          path: tests/Browser/console
