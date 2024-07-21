@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use Laravel\Dusk\Browser;
 
-test('a user can register', function () {
-    $this->browse(function (Browser $browser) {
+test('a user can register', function (): void {
+    $this->browse(function (Browser $browser): void {
         $browser->visit(route('register'))
             ->type('@name', 'John Doe')
             ->type('@email', 'user@email.com')

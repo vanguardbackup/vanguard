@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use Facebook\WebDriver\Chrome\ChromeOptions;
@@ -37,31 +39,24 @@ abstract class DuskTestCase extends BaseTestCase
     {
         $connection = DB::connection()->getDriverName();
 
-        switch ($connection) {
-            case 'pgsql':
-                $this->dropPostgresTables();
-                break;
-            case 'mysql':
-                $this->dropMySQLTables();
-                break;
-            case 'sqlite':
-                $this->dropSQLiteTables();
-                break;
-            default:
-                throw new RuntimeException("Unsupported database driver: {$connection}");
-        }
+        match ($connection) {
+            'pgsql' => $this->dropPostgresTables(),
+            'mysql' => $this->dropMySQLTables(),
+            'sqlite' => $this->dropSQLiteTables(),
+            default => throw new RuntimeException("Unsupported database driver: {$connection}"),
+        };
     }
 
     protected function dropPostgresTables(): void
     {
-        DB::statement('SET session_replication_role = \'replica\';');
+        DB::statement("SET session_replication_role = 'replica';");
 
         $tables = DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
         foreach ($tables as $table) {
             DB::statement('DROP TABLE IF EXISTS "' . $table->tablename . '" CASCADE');
         }
 
-        DB::statement('SET session_replication_role = \'origin\';');
+        DB::statement("SET session_replication_role = 'origin';");
     }
 
     protected function dropMySQLTables(): void
@@ -92,7 +87,7 @@ abstract class DuskTestCase extends BaseTestCase
      */
     protected function driver(): RemoteWebDriver
     {
-        $options = (new ChromeOptions)->addArguments(collect([
+        $chromeOptions = (new ChromeOptions)->addArguments(collect([
             $this->shouldStartMaximized() ? '--start-maximized' : '--window-size=1920,1080',
         ])->unless($this->hasHeadlessDisabled(), function (Collection $items) {
             return $items->merge([
@@ -104,7 +99,7 @@ abstract class DuskTestCase extends BaseTestCase
         return RemoteWebDriver::create(
             $_ENV['DUSK_DRIVER_URL'] ?? 'http://localhost:9515',
             DesiredCapabilities::chrome()->setCapability(
-                ChromeOptions::CAPABILITY, $options
+                ChromeOptions::CAPABILITY, $chromeOptions
             )
         );
     }
