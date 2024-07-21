@@ -6,6 +6,7 @@ namespace App\Factories;
 
 use App\Contracts\ServerConnectionInterface;
 use App\Enums\ConnectionType;
+use App\Exceptions\ServerConnectionException;
 use App\Models\RemoteServer;
 use App\Services\ServerConnection;
 use App\Testing\ServerConnectionFake;
@@ -21,7 +22,7 @@ class ServerConnectionFactory
      * @param  ConnectionType  $connectionType  The type of connection (SSH or SFTP)
      * @param  int  $timeout  How long until the connection times out.
      *
-     * @throws FileNotFoundException
+     * @throws FileNotFoundException|ServerConnectionException
      */
     public function make(int $serverId, ConnectionType $connectionType, int $timeout = 10): ServerConnectionInterface
     {
@@ -44,7 +45,7 @@ class ServerConnectionFactory
      * @param  ConnectionType  $connectionType  The type of connection (SSH or SFTP)
      * @param  int  $timeout  How long until the connection times out.
      *
-     * @throws FileNotFoundException
+     * @throws FileNotFoundException|ServerConnectionException
      */
     public function makeFromModel(RemoteServer $remoteServer, ConnectionType $connectionType, int $timeout = 10): ServerConnectionInterface
     {
@@ -60,7 +61,7 @@ class ServerConnectionFactory
      *
      * @param  int  $serverId  The ID of the RemoteServer
      *
-     * @throws ModelNotFoundException|FileNotFoundException If the RemoteServer is not found
+     * @throws ModelNotFoundException|FileNotFoundException|ServerConnectionException If the RemoteServer is not found
      */
     public function makeSSH(int $serverId): ServerConnectionInterface
     {
@@ -72,7 +73,7 @@ class ServerConnectionFactory
      *
      * @param  int  $serverId  The ID of the RemoteServer
      *
-     * @throws ModelNotFoundException|FileNotFoundException If the RemoteServer is not found
+     * @throws ModelNotFoundException|FileNotFoundException|ServerConnectionException If the RemoteServer is not found
      */
     public function makeSFTP(int $serverId): ServerConnectionInterface
     {

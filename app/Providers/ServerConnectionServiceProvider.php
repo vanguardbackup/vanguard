@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Contracts\ServerConnectionInterface;
 use App\Factories\ServerConnectionFactory;
+use App\Services\ServerConnection;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -25,15 +26,7 @@ class ServerConnectionServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind the ServerConnectionInterface to the ServerConnectionFactory
-        $this->app->bind(ServerConnectionInterface::class, function ($app) {
-            return $app->make(ServerConnectionFactory::class);
-        });
-
-        // Register the ServerConnectionFactory in the service container
-        $this->app->bind(ServerConnectionFactory::class, function ($app): ServerConnectionFactory {
-            return new ServerConnectionFactory;
-        });
+        $this->app->bind(ServerConnectionInterface::class, ServerConnection::class);
     }
 
     /**
