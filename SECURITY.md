@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability within Vanguard, please follow one of these procedures:
 
-1. Send an e-mail to [lewis@larsens.dev](mailto:lewis@larsens.dev) within 24 hours of discovery.
+1. Send an e-mail to [security@vanguardbackup.com](mailto:security@vanguardbackup.com) within 24 hours of discovery.
 
 2. Alternatively, you can use GitHub's private security advisory feature and fill in the form [here](https://github.com/vanguardbackup/vanguard/security/advisories/new).
 
