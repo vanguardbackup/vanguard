@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Actions\RemoteServer;
 
-use App\Enums\ConnectionType;
 use App\Events\RemoteServerConnectivityStatusChanged;
-use App\Exceptions\ServerConnectionException;
-use App\Factories\ServerConnectionFactory;
+use App\Facades\ServerConnection;
 use App\Models\RemoteServer;
+use App\Support\ServerConnection\Exceptions\ConnectionException;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -24,19 +23,12 @@ class CheckRemoteServerConnection
     private const int CONNECTION_TIMEOUT = 3;
 
     /**
-     * @param  ServerConnectionFactory  $serverConnectionFactory  Factory for creating server connections
-     */
-    public function __construct(
-        private readonly ServerConnectionFactory $serverConnectionFactory
-    ) {}
-
-    /**
      * Check connection status of a remote server by its ID
      *
      * Retrieves the server by ID and initiates a connection check.
      *
      * @param  int  $remoteServerId  The ID of the remote server to check
-     * @return array<string, mixed> Connection check results
+     * @return array{status: string, connectivity_status: string, message?: string, error?: string} Connection check results
      *
      * @throws Exception If the server cannot be found or connection fails unexpectedly
      */
@@ -55,7 +47,7 @@ class CheckRemoteServerConnection
      * Creates a temporary RemoteServer instance and initiates a connection check.
      *
      * @param  array<string, mixed>  $remoteServerConnectionDetails  Connection details including host, port, and username
-     * @return array<string, mixed> Connection check results
+     * @return array{status: string, connectivity_status: string, message?: string, error?: string} Connection check results
      *
      * @throws Exception If required connection details are missing or connection fails unexpectedly
      */
@@ -82,25 +74,42 @@ class CheckRemoteServerConnection
      * Attempts to establish an SSH connection to the server and updates its status accordingly.
      *
      * @param  RemoteServer  $remoteServer  The server to check
-     * @return array<string, mixed> Connection check results
+     * @return array{status: string, connectivity_status: string, message?: string, error?: string} Connection check results
      *
      * @throws Exception If connection fails unexpectedly
      */
     private function checkServerConnection(RemoteServer $remoteServer): array
     {
         try {
-            $connection = $this->serverConnectionFactory->makeFromModel($remoteServer, ConnectionType::SSH, self::CONNECTION_TIMEOUT);
-            $connection->connect();
+            $connection = ServerConnection::connectFromModel($remoteServer)
+                ->timeout(self::CONNECTION_TIMEOUT)
+                ->establish();
 
-            $this->updateServerStatus($remoteServer, RemoteServer::STATUS_ONLINE);
+            if ($connection->connected()) {
+                $this->updateServerStatus($remoteServer, RemoteServer::STATUS_ONLINE);
 
-            Log::debug('[Server Connection Check] Successfully connected to remote server');
+                Log::debug('[Server Connection Check] Successfully connected to remote server');
+
+                return [
+                    'status' => 'success',
+                    'connectivity_status' => RemoteServer::STATUS_ONLINE,
+                    'message' => 'Successfully connected to remote server',
+                ];
+            }
+
+            // If we reach here, the connection was established but not explicitly connected
+            $this->updateServerStatus($remoteServer, RemoteServer::STATUS_OFFLINE);
+
+            Log::debug('[Server Connection Check] Connection established but not explicitly connected');
 
             return [
-                'connectivity_status' => RemoteServer::STATUS_ONLINE,
+                'status' => 'error',
+                'connectivity_status' => RemoteServer::STATUS_OFFLINE,
+                'message' => 'Connection established but not explicitly connected',
+                'error' => 'Connection not fully established',
             ];
 
-        } catch (ServerConnectionException $exception) {
+        } catch (ConnectionException $exception) {
             Log::info('[Server Connection Check] Unable to connect to remote server (offline)', [
                 'error' => $exception->getMessage(),
                 'server_id' => $remoteServer->getAttribute('id'),
@@ -109,10 +118,11 @@ class CheckRemoteServerConnection
             $this->updateServerStatus($remoteServer, RemoteServer::STATUS_OFFLINE);
 
             return [
+                'status' => 'error',
                 'connectivity_status' => RemoteServer::STATUS_OFFLINE,
                 'message' => 'Server is offline or unreachable',
+                'error' => $exception->getMessage(),
             ];
-
         } finally {
             if (isset($connection)) {
                 $connection->disconnect();
