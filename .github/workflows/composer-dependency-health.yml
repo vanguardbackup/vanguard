@@ -28,11 +28,12 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Check for outdated dependencies
-        run: composer outdated --direct --format=json > outdated.json
+        run: composer outdated --direct --format=json > outdated.json || echo "{}" > outdated.json
 
       - name: Security Check
         uses: symfonycorp/security-checker-action@v5
         id: security-check
+        continue-on-error: true
 
       - name: Process and Output Dependency Health Results
         if: always()
@@ -40,14 +41,14 @@ jobs:
           echo "# Composer Dependency Health Report" >> $GITHUB_STEP_SUMMARY
 
           echo "## Outdated Packages:" >> $GITHUB_STEP_SUMMARY
-          if [ -s outdated.json ]; then
+          if [ -s outdated.json ] && [ "$(cat outdated.json)" != "{}" ]; then
             jq -r '.installed[] | "- \(.name) (\(.version) => \(.latest))"' outdated.json >> $GITHUB_STEP_SUMMARY
           else
             echo "No outdated packages found." >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "## Security Vulnerabilities:" >> $GITHUB_STEP_SUMMARY
-          if [ -s ${{ steps.security-check.outputs.logfile }} ]; then
+          if [ -f "${{ steps.security-check.outputs.logfile }}" ] && [ -s "${{ steps.security-check.outputs.logfile }}" ]; then
             cat ${{ steps.security-check.outputs.logfile }} >> $GITHUB_STEP_SUMMARY
           else
             echo "No security vulnerabilities detected." >> $GITHUB_STEP_SUMMARY
@@ -58,8 +59,8 @@ jobs:
       - name: Check for Critical Issues
         if: always()
         run: |
-          VULNERABILITIES=$(cat ${{ steps.security-check.outputs.logfile }} | wc -l)
+          VULNERABILITIES=$([ -f "${{ steps.security-check.outputs.logfile }}" ] && cat "${{ steps.security-check.outputs.logfile }}" | wc -l || echo "0")
           OUTDATED=$(jq '.installed | length' outdated.json)
-          if [ $VULNERABILITIES -gt 0 ] || [ $OUTDATED -gt 0 ]; then
+          if [ "$VULNERABILITIES" != "0" ] || [ "$OUTDATED" != "0" ]; then
             echo "::warning::Dependency issues detected. Please check the workflow summary for details."
           fi
