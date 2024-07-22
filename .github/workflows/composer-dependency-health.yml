@@ -12,21 +12,14 @@ jobs:
   dependency-check:
     runs-on: ubuntu-latest
 
-    env:
-      PHP_VERSION: '8.3'
-      COMPOSER_SETUP_VERSION: 'v2'
-      CHECKOUT_VERSION: 'v4'
-      SECURITY_CHECKER_VERSION: 'v5'
-      UPLOAD_ARTIFACT_VERSION: 'v3'
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@${{ env.CHECKOUT_VERSION }}
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@${{ env.COMPOSER_SETUP_VERSION }}
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ env.PHP_VERSION }}
+          php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
 
       - name: Install dependencies
@@ -36,7 +29,7 @@ jobs:
         run: composer outdated --direct --format=json || echo '{"installed":[]}' > outdated.json
 
       - name: Security Check
-        uses: symfonycorp/security-checker-action@${{ env.SECURITY_CHECKER_VERSION }}
+        uses: symfonycorp/security-checker-action@v5
         with:
           disable-exit-code: true
         continue-on-error: true
@@ -78,7 +71,7 @@ jobs:
           fi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@${{ env.UPLOAD_ARTIFACT_VERSION }}
+        uses: actions/upload-artifact@v3
         with:
           name: composer-dependency-report
           path: |
