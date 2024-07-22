@@ -1,27 +1,46 @@
-name: Security Check
+name: CI
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 jobs:
-  security-check:
+  build-test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Run test suite
+        run: vendor/bin/phpunit
+
       - name: Security Check
         uses: symfonycorp/security-checker-action@v5
-        id: security-check
 
-      - name: Create or Update Security Issue
+      - name: Create GitHub Issue on Security Failure
         if: failure()
         uses: actions/github-script@v6
         with:
