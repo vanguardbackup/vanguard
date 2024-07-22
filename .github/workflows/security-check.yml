@@ -1,0 +1,73 @@
+name: Security Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Security Check
+        uses: symfonycorp/security-checker-action@v5
+        id: security-check
+
+      - name: Create or Update Security Issue
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const securityCheckOutput = fs.readFileSync('${{ steps.security-check.outputs.logfile }}', 'utf8');
+
+            const issueBody = `
+            # Security Vulnerabilities Detected
+
+            The security check has detected vulnerabilities in the project dependencies.
+
+            ## Details:
+
+            \`\`\`
+            ${securityCheckOutput}
+            \`\`\`
+
+            Please review these vulnerabilities and update the affected dependencies if possible.
+
+            _This issue was automatically created by the Security Check GitHub Action._
+            `;
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['security']
+            });
+
+            const existingIssue = issues.data.find(issue => issue.title.includes('Security Vulnerabilities Detected'));
+
+            if (existingIssue) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: issueBody
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Security Vulnerabilities Detected',
+                body: issueBody,
+                labels: ['security']
+              });
+            }
