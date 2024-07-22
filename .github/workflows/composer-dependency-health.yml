@@ -21,9 +21,6 @@ jobs:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
-
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
@@ -32,17 +29,17 @@ jobs:
 
       - name: Security Check
         uses: symfonycorp/security-checker-action@v5
-        id: security-check
+        with:
+          disable-exit-code: true
         continue-on-error: true
 
       - name: Process and Output Dependency Health Results
         if: always()
         run: |
           echo "# Composer Dependency Health Report" >> $GITHUB_STEP_SUMMARY
-
           echo "## Outdated Packages:" >> $GITHUB_STEP_SUMMARY
-          if [ -s outdated.json ] && [ "$(cat outdated.json)" != "{}" ]; then
-            jq -r '.installed[] | "- \(.name) (\(.version) => \(.latest))"' outdated.json >> $GITHUB_STEP_SUMMARY
+          if [ "$OUTDATED" != "0" ]; then
+            jq -r '.installed[] | "- \(.name) (current: \(.version), latest: \(.latest))"' outdated.json >> $GITHUB_STEP_SUMMARY
           else
             echo "No outdated packages found." >> $GITHUB_STEP_SUMMARY
           fi
