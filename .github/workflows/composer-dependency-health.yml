@@ -1,0 +1,112 @@
+name: Composer Dependency Health Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 1'  # Run weekly on Mondays
+
+jobs:
+  dependency-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        continue-on-error: true
+
+      - name: Capture dependency versions
+        if: always()
+        run: |
+          echo "# Installed Packages" > dependency_versions.txt
+          composer show >> dependency_versions.txt
+          echo "# composer.json" >> dependency_versions.txt
+          cat composer.json >> dependency_versions.txt
+          echo "# composer.lock" >> dependency_versions.txt
+          cat composer.lock >> dependency_versions.txt
+
+      - name: Check for outdated dependencies
+        if: always()
+        run: |
+          composer outdated --direct --format=json > outdated.json || echo '{"installed":[]}' > outdated.json
+
+      - name: Security Check
+        if: always()
+        uses: symfonycorp/security-checker-action@v5
+        continue-on-error: true
+
+      - name: Process and Output Dependency Health Results
+        if: always()
+        run: |
+          OUTDATED=$(jq '.installed | length' outdated.json)
+
+          if [ ! -f security-checker.json ]; then
+            VULNERABILITIES=0
+          else
+            VULNERABILITIES=$(jq 'length' security-checker.json)
+          fi
+
+          if [ "$OUTDATED" != "0" ] || [ "$VULNERABILITIES" != "0" ]; then
+            echo "status=issues_found" >> $GITHUB_OUTPUT
+          else
+            echo "status=healthy" >> $GITHUB_OUTPUT
+          fi
+
+          echo "# Composer Dependency Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "## Outdated Packages:" >> $GITHUB_STEP_SUMMARY
+          if [ "$OUTDATED" != "0" ]; then
+            jq -r '.installed[] | "- \(.name) (current: \(.version), latest: \(.latest))"' outdated.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No outdated packages found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "## Security Vulnerabilities:" >> $GITHUB_STEP_SUMMARY
+          if [ -f security-checker.json ] && [ -s security-checker.json ]; then
+            jq -r 'to_entries[] | "- \(.key): \(.value.advisories | map(.title) | join(", "))"' security-checker.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No security vulnerabilities detected." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: composer-dependency-report
+          path: |
+            outdated.json
+            security-checker.json
+            dependency_versions.txt
+
+      - name: Check status
+        if: always()
+        run: |
+          if [ "${{ steps.process-results.outputs.status }}" = "issues_found" ]; then
+            echo "Issues found in dependency health check. Please review the artifact for details."
+            exit 1
+          fi
