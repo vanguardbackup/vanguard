@@ -20,7 +20,7 @@ trait ManagesFiles
     public function put(string $remotePath, string $data): bool
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->put($remotePath, $data);

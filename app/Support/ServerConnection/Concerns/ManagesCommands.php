@@ -19,13 +19,13 @@ trait ManagesCommands
     public function run(string $command): string
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         $output = $this->connection->exec($command);
 
         if ($output === false) {
-            throw new ConnectionException('Failed to execute command: ' . $command);
+            throw ConnectionException::withMessage('Failed to execute command: ' . $command);
         }
 
         return $output;
@@ -42,7 +42,7 @@ trait ManagesCommands
     public function runStream(string $command, callable $callback): void
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         $this->connection->exec($command, function ($stream) use ($callback): void {
