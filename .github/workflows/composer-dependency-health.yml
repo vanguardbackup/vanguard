@@ -38,25 +38,27 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
+        continue-on-error: true
 
       - name: Capture dependency versions
-        if: failure()
+        if: always()
         run: |
           echo "# Installed Packages" > dependency_versions.txt
           composer show >> dependency_versions.txt
+          echo "# composer.json" >> dependency_versions.txt
+          cat composer.json >> dependency_versions.txt
+          echo "# composer.lock" >> dependency_versions.txt
+          cat composer.lock >> dependency_versions.txt
 
       - name: Check for outdated dependencies
+        if: always()
         run: |
-          composer outdated --direct --format=json > outdated.json || true
-          if [ ! -s outdated.json ]; then
-            echo '{"installed":[]}' > outdated.json
-          fi
+          composer outdated --direct --format=json > outdated.json || echo '{"installed":[]}' > outdated.json
 
       - name: Security Check
+        if: always()
         uses: symfonycorp/security-checker-action@v5
-        with:
-          disable-exit-code: true
         continue-on-error: true
 
       - name: Process and Output Dependency Health Results
