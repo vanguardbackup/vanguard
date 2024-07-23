@@ -68,6 +68,11 @@ class ServerConnectionFake extends PendingConnection
      */
     protected string $output = '';
 
+    /**
+     * Simulated connection timeout in seconds.
+     */
+    protected int $timeout = 30;
+
     // Connection Simulation Methods
 
     /**
@@ -149,6 +154,32 @@ class ServerConnectionFake extends PendingConnection
     public function disconnect(): void
     {
         $this->isCurrentlyConnected = false;
+    }
+
+    /**
+     * Simulate setting the connection timeout.
+     *
+     * @param  int  $seconds  The timeout in seconds
+     * @return $this
+     */
+    public function timeout(int $seconds): self
+    {
+        $this->timeout = $seconds;
+
+        return $this;
+    }
+
+    /**
+     * Simulate setting the private key for authentication.
+     *
+     * @param  string|null  $privateKeyPath  The path to the private key file
+     * @param  string|null  $passphrase  The passphrase for the private key
+     * @return $this
+     */
+    public function withPrivateKey(?string $privateKeyPath = null, ?string $passphrase = null): self
+    {
+        // Simulate setting private key
+        return $this;
     }
 
     // Action Recording Methods
@@ -319,5 +350,29 @@ class ServerConnectionFake extends PendingConnection
     public function isConnected(): bool
     {
         return $this->isCurrentlyConnected;
+    }
+
+    /**
+     * Get the default private key content.
+     */
+    public function getDefaultPrivateKey(): string
+    {
+        return 'fake_private_key_content';
+    }
+
+    /**
+     * Get the default public key content.
+     */
+    public function getDefaultPublicKey(): string
+    {
+        return 'fake_public_key_content';
+    }
+
+    /**
+     * Get the default passphrase.
+     */
+    public function getDefaultPassphrase(): string
+    {
+        return 'fake_passphrase';
     }
 }

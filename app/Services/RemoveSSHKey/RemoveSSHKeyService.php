@@ -10,43 +10,38 @@ use App\Mail\RemoteServers\SuccessfullyRemovedKey;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Connection;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
+use App\Support\ServerConnection\ServerConnectionManager;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Psr\Log\LoggerInterface;
 
+/**
+ * Handles the process of removing SSH keys from remote servers.
+ */
 class RemoveSSHKeyService
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     /**
-     * Handle the SSH key removal process for a given remote server.
+     * Orchestrates the SSH key removal process for a given remote server.
      *
-     * This method orchestrates the process of removing an SSH key from a remote server,
-     * including establishing a connection, executing the removal command, and notifying
-     * the user of the result.
-     *
-     * @param  RemoteServer  $remoteServer  The remote server to remove the SSH key from
+     * Establishes a connection, executes the removal command, and notifies the user of the result.
      */
     public function handle(RemoteServer $remoteServer): void
     {
-        $this->logger->info("Initiating SSH key removal for server: {$remoteServer->label}");
+        Log::info("Initiating SSH key removal for server: {$remoteServer->getAttribute('label')}");
 
         try {
             $connection = $this->establishConnection($remoteServer);
             $publicKey = $this->getSSHPublicKey();
 
-            if (!$this->determineKeyExistence($connection, $publicKey)) {
-                $this->logger->info("SSH key does not exist on server: {$remoteServer->label}");
-                $this->handleSuccessfulRemoval($remoteServer);
+            if (! $this->isKeyPresent($connection, $publicKey)) {
+                Log::info("SSH key not present on server: {$remoteServer->getAttribute('label')}");
+                $this->notifySuccess($remoteServer);
+
                 return;
             }
 
-            $result = $this->executeRemovalCommand($connection, $publicKey);
-            $this->processRemovalResult($remoteServer, $result);
+            $result = $this->removeKey($connection, $publicKey);
+
+            $this->processResult($remoteServer, $result);
 
         } catch (ConnectionException $e) {
             $this->handleConnectionFailure($remoteServer, $e);
@@ -54,101 +49,87 @@ class RemoveSSHKeyService
     }
 
     /**
-     * Establish a connection to the remote server.
-     *
-     * @return Connection The connection instance.
+     * Establishes a connection to the remote server.
      *
      * @throws ConnectionException
      */
     private function establishConnection(RemoteServer $remoteServer): Connection
     {
-        $this->logger->debug("Attempting to connect to server: {$remoteServer->label}");
+        Log::debug("Connecting to server: {$remoteServer->getAttribute('label')}");
 
         return ServerConnection::connectFromModel($remoteServer)->establish();
     }
 
     /**
-     * Get the SSH public key.
+     * Retrieves the SSH public key content.
      */
     private function getSSHPublicKey(): string
     {
-        //TODO: Replace with a ServerConnectionManager readonly implementation that gets the public key
-        return get_ssh_public_key();
+        return ServerConnectionManager::getDefaultPublicKey();
     }
 
     /**
-     * Check if the SSH public key exists on the remote server.
+     * Checks if the SSH public key exists on the remote server.
      */
-    private function determineKeyExistence(Connection $connection, string $publicKey): bool
+    private function isKeyPresent(Connection $connection, string $publicKey): bool
     {
-        $command = sprintf("grep -q '%s' ~/.ssh/authorized_keys", preg_quote($publicKey, '/'));
-        $this->logger->debug("Checking if SSH key exists with command: {$command}");
+        $escapedKey = preg_quote(trim($publicKey), '/');
+        $command = sprintf("grep -q '%s' ~/.ssh/authorized_keys", $escapedKey);
+        Log::debug("Checking SSH key presence: {$command}");
 
-        $result = $connection->run($command);
-
-        return $result === '';
+        return $connection->run($command) === '';
     }
 
     /**
-     * Execute the SSH key removal command on the remote server.
-     *
-     * @return string The result of the command execution
+     * Executes the SSH key removal command on the remote server.
      */
-    private function executeRemovalCommand(Connection $connection, string $publicKey): string
+    private function removeKey(Connection $connection, string $publicKey): string
     {
-        $command = sprintf("sed -i -e '/^%s/d' ~/.ssh/authorized_keys", preg_quote($publicKey, '/'));
-        $this->logger->debug("Executing removal command: {$command}");
+        $escapedKey = preg_quote(trim($publicKey), '/');
+        $command = sprintf("sed -i -e '/^%s/d' ~/.ssh/authorized_keys", $escapedKey);
+        Log::debug("Executing key removal: {$command}");
 
         return $connection->run($command);
     }
 
     /**
-     * Process the result of the key removal attempt.
+     * Processes the result of the key removal attempt.
      */
-    private function processRemovalResult(RemoteServer $remoteServer, string $result): void
+    private function processResult(RemoteServer $remoteServer, string $result): void
     {
-        if ($this->isRemovalSuccessful($result)) {
-            $this->handleSuccessfulRemoval($remoteServer);
-        } else {
-            $this->handleFailedRemoval($remoteServer, $result);
+        if ($result === '' || str_contains($result, 'Successfully removed')) {
+            $this->notifySuccess($remoteServer);
+
+            return;
         }
+
+        $this->notifyFailure($remoteServer, $result);
     }
 
     /**
-     * Determine if the key removal was successful based on the command result.
+     * Handles successful key removal notification.
      */
-    private function isRemovalSuccessful(string $result): bool
+    private function notifySuccess(RemoteServer $remoteServer): void
     {
-        return $result === '' || str_contains($result, 'Successfully removed');
+        Log::info("SSH key removed from server: {$remoteServer->getAttribute('label')}");
+        Mail::to($remoteServer->getAttribute('user'))->queue(new SuccessfullyRemovedKey($remoteServer));
     }
 
     /**
-     * Handle successful key removal.
+     * Handles failed key removal notification.
      */
-    private function handleSuccessfulRemoval(RemoteServer $remoteServer): void
+    private function notifyFailure(RemoteServer $remoteServer, string $result): void
     {
-        $this->logger->info("Successfully removed SSH key from server: {$remoteServer->label}");
-
-        Mail::to($remoteServer->user)->queue(new SuccessfullyRemovedKey($remoteServer));
+        Log::error("Failed to remove SSH key from server: {$remoteServer->getAttribute('label')}. Result: {$result}");
+        Mail::to($remoteServer->getAttribute('user'))->queue(new FailedToRemoveKey($remoteServer));
     }
 
     /**
-     * Handle failed key removal.
+     * Handles connection failure notification.
      */
-    private function handleFailedRemoval(RemoteServer $remoteServer, string $result): void
+    private function handleConnectionFailure(RemoteServer $remoteServer, ConnectionException $connectionException): void
     {
-        $this->logger->error("Failed to remove SSH key from server: {$remoteServer->label}. Result: {$result}");
-
-        Mail::to($remoteServer->user)->queue(new FailedToRemoveKey($remoteServer));
-    }
-
-    /**
-     * Handle connection failure.
-     */
-    private function handleConnectionFailure(RemoteServer $remoteServer, ConnectionException $exception): void
-    {
-        $this->logger->error("Failed to connect to server: {$remoteServer->label}. Error: {$exception->getMessage()}");
-
-        Mail::to($remoteServer->user)->queue(new FailedToRemoveKey($remoteServer));
+        Log::error("Failed to connect to server: {$remoteServer->getAttribute('label')}. Error: {$connectionException->getMessage()}");
+        Mail::to($remoteServer->getAttribute('user'))->queue(new FailedToRemoveKey($remoteServer));
     }
 }

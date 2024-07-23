@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\ServerConnection\Fakes;
 
 use App\Support\ServerConnection\Connection;
+use phpseclib3\Net\SSH2;
 use RuntimeException;
 
 /**
@@ -92,6 +93,16 @@ class ConnectionFake extends Connection
         $this->serverConnectionFake->recordDownload($remotePath, $localPath);
 
         return true;
+    }
+
+    /**
+     * Get the underlying SSH2 or SFTP instance (always null for the fake).
+     *
+     * @return SSH2|null Always returns null for the fake connection
+     */
+    public function getConnection(): ?SSH2
+    {
+        return null;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace App\Support\ServerConnection;
 
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Fakes\ServerConnectionFake;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 /**
@@ -75,7 +76,7 @@ class ServerConnectionManager
     /**
      * Set the default private key path.
      *
-     * @param  string  $path  The path to the private key
+     * @param  string  $path  The path to the private key file
      */
     public static function defaultPrivateKey(string $path): void
     {
@@ -95,11 +96,55 @@ class ServerConnectionManager
     /**
      * Get the default private key path.
      *
-     * @return string|null The default private key path
+     * @return string The full path to the default private key
+     *
+     * @throws RuntimeException If the default private key path is not set
      */
-    public static function getDefaultPrivateKey(): ?string
+    public static function getDefaultPrivateKeyPath(): string
     {
-        return static::$defaultPrivateKey;
+        if (! static::$defaultPrivateKey) {
+            throw new RuntimeException('Default private key path is not set.');
+        }
+
+        return Storage::path(static::$defaultPrivateKey);
+    }
+
+    /**
+     * Get the path to the default public key file.
+     *
+     * @return string The full path to the default public key
+     */
+    public static function getDefaultPublicKeyPath(): string
+    {
+        $publicKeyPath = static::$defaultPrivateKey . '.pub';
+
+        return Storage::path($publicKeyPath);
+    }
+
+    /**
+     * Get the content of the default private key.
+     *
+     * @return string The content of the default private key
+     *
+     * @throws RuntimeException If the private key file cannot be found
+     */
+    public static function getDefaultPrivateKey(): string
+    {
+        return static::getPrivateKeyContent((string) static::$defaultPrivateKey);
+    }
+
+    /**
+     * Get the default public key.
+     *
+     * @return string The content of the default public key
+     *
+     * @throws RuntimeException If the public key file cannot be found
+     */
+    public static function getDefaultPublicKey(): string
+    {
+        $publicKeyPath = static::$defaultPrivateKey . '.pub';
+
+        return static::getPublicKeyContent($publicKeyPath);
     }
 
     /**
@@ -110,6 +155,44 @@ class ServerConnectionManager
     public static function getDefaultPassphrase(): string
     {
         return (string) static::$defaultPassphrase;
+    }
+
+    /**
+     * Get the content of a private key file.
+     *
+     * @param  string  $path  The path to the private key file
+     * @return string The content of the private key file
+     *
+     * @throws RuntimeException If the private key file cannot be found or read
+     */
+    public static function getPrivateKeyContent(string $path): string
+    {
+        $fullPath = Storage::path($path);
+
+        if (! Storage::exists($path)) {
+            throw new RuntimeException("Private key file does not exist: {$fullPath}");
+        }
+
+        return trim((string) Storage::get($path));
+    }
+
+    /**
+     * Get the content of a public key file.
+     *
+     * @param  string  $path  The path to the public key file
+     * @return string The content of the public key file
+     *
+     * @throws RuntimeException If the public key file cannot be found or read
+     */
+    public static function getPublicKeyContent(string $path): string
+    {
+        $fullPath = Storage::path($path);
+
+        if (! Storage::exists($path)) {
+            throw new RuntimeException("Public key file does not exist: {$fullPath}");
+        }
+
+        return trim(((string) Storage::get($path)));
     }
 
     // Fake Implementation Methods
@@ -143,7 +226,7 @@ class ServerConnectionManager
             static::$fake = new ServerConnectionFake;
         }
 
-        return static::getFake()->shouldConnect();
+        return static::getFake()->shouldNotConnect();
     }
 
     // Assertion Methods

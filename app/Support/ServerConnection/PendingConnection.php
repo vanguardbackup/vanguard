@@ -34,7 +34,7 @@ class PendingConnection
     /** @var string|null The username for authentication */
     protected ?string $username = null;
 
-    /** @var string|null The path to the private key file for authentication */
+    /** @var string|null The private key content for authentication */
     protected ?string $privateKey = null;
 
     /** @var string|null The passphrase for the private key */
@@ -108,8 +108,12 @@ class PendingConnection
      */
     public function withPrivateKey(?string $privateKeyPath = null, ?string $passphrase = null): self
     {
-        $this->privateKey = $privateKeyPath ?? $this->privateKey;
-        $this->passphrase = $passphrase ?? $this->passphrase;
+        if ($privateKeyPath !== null) {
+            $this->privateKey = ServerConnectionManager::getPrivateKeyContent($privateKeyPath);
+        } else {
+            $this->privateKey = ServerConnectionManager::getDefaultPrivateKey();
+        }
+        $this->passphrase = $passphrase ?? ServerConnectionManager::getDefaultPassphrase();
         $this->useDefaultCredentials = false;
 
         return $this;
@@ -207,8 +211,7 @@ class PendingConnection
         $passphrase = (string) $this->passphrase;
 
         try {
-            $keyContent = $this->readPrivateKeyFile();
-            $privateKey = PublicKeyLoader::load($keyContent, $passphrase);
+            $privateKey = PublicKeyLoader::load((string) $this->privateKey, $passphrase);
 
             if (! $privateKey instanceof PrivateKey) {
                 throw new RuntimeException('Invalid private key format.');
@@ -218,31 +221,5 @@ class PendingConnection
         } catch (Exception $e) {
             throw ConnectionException::withMessage('Failed to load private key: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Read the private key file.
-     *
-     * @throws ConnectionException If unable to read the private key file
-     */
-    protected function readPrivateKeyFile(): string
-    {
-        $keyPath = (string) $this->privateKey;
-
-        if (! str_starts_with($keyPath, '/')) {
-            $keyPath = storage_path('app/' . $keyPath);
-        }
-
-        if (! file_exists($keyPath)) {
-            throw ConnectionException::withMessage("Private key file does not exist: {$keyPath}");
-        }
-
-        $keyContent = file_get_contents($keyPath);
-
-        if ($keyContent === false) {
-            throw ConnectionException::withMessage("Unable to read private key file: {$keyPath}");
-        }
-
-        return $keyContent;
     }
 }
