@@ -16,17 +16,19 @@ class ServerConnectionManager
     /**
      * The default private key path.
      */
-    protected ?string $defaultPrivateKey = null;
+    protected static ?string $defaultPrivateKey = null;
 
     /**
      * The default passphrase for the private key.
      */
-    protected ?string $defaultPassphrase = null;
+    protected static ?string $defaultPassphrase = null;
 
     /**
      * The fake server connection instance for testing.
      */
-    protected ?ServerConnectionFake $fake = null;
+    protected static ?ServerConnectionFake $fake = null;
+
+    // Connection Methods
 
     /**
      * Create a new PendingConnection instance.
@@ -35,16 +37,16 @@ class ServerConnectionManager
      * @param  int  $port  The port number
      * @param  string  $username  The username
      */
-    public function connect(string $host = '', int $port = 22, string $username = 'root'): PendingConnection
+    public static function connect(string $host = '', int $port = 22, string $username = 'root'): PendingConnection
     {
-        if ($this->fake instanceof ServerConnectionFake) {
-            return $this->fake->connect($host, $port, $username);
+        if (static::$fake instanceof ServerConnectionFake) {
+            return static::$fake->connect($host, $port, $username);
         }
 
         $pendingConnection = new PendingConnection;
 
-        if ($this->defaultPrivateKey) {
-            $pendingConnection->withPrivateKey($this->defaultPrivateKey, $this->defaultPassphrase);
+        if (static::$defaultPrivateKey) {
+            $pendingConnection->withPrivateKey(static::$defaultPrivateKey, static::$defaultPassphrase);
         }
 
         if ($host !== '' && $host !== '0') {
@@ -59,23 +61,25 @@ class ServerConnectionManager
      *
      * @param  RemoteServer  $remoteServer  The RemoteServer model instance
      */
-    public function connectFromModel(RemoteServer $remoteServer): PendingConnection
+    public static function connectFromModel(RemoteServer $remoteServer): PendingConnection
     {
-        if ($this->fake instanceof ServerConnectionFake) {
-            return $this->fake->connectFromModel($remoteServer);
+        if (static::$fake instanceof ServerConnectionFake) {
+            return static::$fake->connectFromModel($remoteServer);
         }
 
-        return $this->connect()->connectFromModel($remoteServer);
+        return static::connect()->connectFromModel($remoteServer);
     }
+
+    // Configuration Methods
 
     /**
      * Set the default private key path.
      *
      * @param  string  $path  The path to the private key
      */
-    public function defaultPrivateKey(string $path): void
+    public static function defaultPrivateKey(string $path): void
     {
-        $this->defaultPrivateKey = $path;
+        static::$defaultPrivateKey = $path;
     }
 
     /**
@@ -83,27 +87,75 @@ class ServerConnectionManager
      *
      * @param  string  $passphrase  The passphrase for the private key
      */
-    public function defaultPassphrase(string $passphrase): void
+    public static function defaultPassphrase(string $passphrase): void
     {
-        $this->defaultPassphrase = $passphrase;
+        static::$defaultPassphrase = $passphrase;
     }
+
+    /**
+     * Get the default private key path.
+     *
+     * @return string|null The default private key path
+     */
+    public static function getDefaultPrivateKey(): ?string
+    {
+        return static::$defaultPrivateKey;
+    }
+
+    /**
+     * Get the default passphrase for the private key.
+     *
+     * @return string The default passphrase
+     */
+    public static function getDefaultPassphrase(): string
+    {
+        return (string) static::$defaultPassphrase;
+    }
+
+    // Fake Implementation Methods
 
     /**
      * Enable fake mode for testing.
      */
-    public function fake(): ServerConnectionFake
+    public static function fake(): ServerConnectionFake
     {
-        return $this->fake = new ServerConnectionFake;
+        return static::$fake = new ServerConnectionFake;
     }
+
+    /**
+     * Set the fake connection to succeed.
+     */
+    public static function shouldConnect(): ServerConnectionFake
+    {
+        if (! static::$fake instanceof ServerConnectionFake) {
+            static::$fake = new ServerConnectionFake;
+        }
+
+        return static::getFake()->shouldConnect();
+    }
+
+    /**
+     * Set the fake connection to fail.
+     */
+    public static function shouldNotConnect(): ServerConnectionFake
+    {
+        if (! static::$fake instanceof ServerConnectionFake) {
+            static::$fake = new ServerConnectionFake;
+        }
+
+        return static::getFake()->shouldConnect();
+    }
+
+    // Assertion Methods
 
     /**
      * Assert that a connection was established.
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertConnected(): void
+    public static function assertConnected(): void
     {
-        $this->getFake()->assertConnected();
+        static::getFake()->assertConnected();
     }
 
     /**
@@ -111,9 +163,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertDisconnected(): void
+    public static function assertDisconnected(): void
     {
-        $this->getFake()->assertDisconnected();
+        static::getFake()->assertDisconnected();
     }
 
     /**
@@ -121,9 +173,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertNotConnected(): void
+    public static function assertNotConnected(): void
     {
-        $this->getFake()->assertNotConnected();
+        static::getFake()->assertNotConnected();
     }
 
     /**
@@ -133,9 +185,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertCommandRan(string $command): void
+    public static function assertCommandRan(string $command): void
     {
-        $this->getFake()->assertCommandRan($command);
+        static::getFake()->assertCommandRan($command);
     }
 
     /**
@@ -146,9 +198,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertFileUploaded(string $localPath, string $remotePath): void
+    public static function assertFileUploaded(string $localPath, string $remotePath): void
     {
-        $this->getFake()->assertFileUploaded($localPath, $remotePath);
+        static::getFake()->assertFileUploaded($localPath, $remotePath);
     }
 
     /**
@@ -159,9 +211,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertFileDownloaded(string $remotePath, string $localPath): void
+    public static function assertFileDownloaded(string $remotePath, string $localPath): void
     {
-        $this->getFake()->assertFileDownloaded($remotePath, $localPath);
+        static::getFake()->assertFileDownloaded($remotePath, $localPath);
     }
 
     /**
@@ -171,33 +223,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertOutput(string $output): void
+    public static function assertOutput(string $output): void
     {
-        $this->getFake()->assertOutput($output);
-    }
-
-    /**
-     * Set the fake connection to succeed.
-     */
-    public function shouldConnect(): ServerConnectionFake
-    {
-        if (! $this->fake instanceof ServerConnectionFake) {
-            $this->fake = new ServerConnectionFake;
-        }
-
-        return $this->getFake()->shouldConnect();
-    }
-
-    /**
-     * Set the fake connection to fail.
-     */
-    public function shouldNotConnect(): ServerConnectionFake
-    {
-        if (! $this->fake instanceof ServerConnectionFake) {
-            $this->fake = new ServerConnectionFake;
-        }
-
-        return $this->getFake()->shouldConnect();
+        static::getFake()->assertOutput($output);
     }
 
     /**
@@ -207,9 +235,9 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public function assertConnectionAttempted(array $connectionDetails): void
+    public static function assertConnectionAttempted(array $connectionDetails): void
     {
-        $this->getFake()->assertConnectionAttempted($connectionDetails);
+        static::getFake()->assertConnectionAttempted($connectionDetails);
     }
 
     /**
@@ -217,12 +245,12 @@ class ServerConnectionManager
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    protected function getFake(): ServerConnectionFake
+    protected static function getFake(): ServerConnectionFake
     {
-        if (! $this->fake instanceof ServerConnectionFake) {
+        if (! static::$fake instanceof ServerConnectionFake) {
             throw new RuntimeException('Server connection is not in fake mode.');
         }
 
-        return $this->fake;
+        return static::$fake;
     }
 }

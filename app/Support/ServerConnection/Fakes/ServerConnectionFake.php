@@ -68,6 +68,8 @@ class ServerConnectionFake extends PendingConnection
      */
     protected string $output = '';
 
+    // Connection Simulation Methods
+
     /**
      * Simulate connecting from a RemoteServer model.
      *
@@ -149,6 +151,42 @@ class ServerConnectionFake extends PendingConnection
         $this->isCurrentlyConnected = false;
     }
 
+    // Action Recording Methods
+
+    /**
+     * Record a command that was run.
+     *
+     * @param  string  $command  The command to record
+     */
+    public function recordCommand(string $command): void
+    {
+        $this->commands[] = $command;
+    }
+
+    /**
+     * Record a file upload.
+     *
+     * @param  string  $localPath  The local file path
+     * @param  string  $remotePath  The remote file path
+     */
+    public function recordUpload(string $localPath, string $remotePath): void
+    {
+        $this->uploads[] = ['localPath' => $localPath, 'remotePath' => $remotePath];
+    }
+
+    /**
+     * Record a file download.
+     *
+     * @param  string  $remotePath  The remote file path
+     * @param  string  $localPath  The local file path
+     */
+    public function recordDownload(string $remotePath, string $localPath): void
+    {
+        $this->downloads[] = ['remotePath' => $remotePath, 'localPath' => $localPath];
+    }
+
+    // Assertion Methods
+
     /**
      * Assert that a connection was established.
      *
@@ -167,6 +205,16 @@ class ServerConnectionFake extends PendingConnection
     public function assertNotConnected(): void
     {
         PHPUnit::assertFalse($this->isCurrentlyConnected, 'Failed asserting that a connection was not established.');
+    }
+
+    /**
+     * Assert that the connection was disconnected.
+     *
+     * @throws ExpectationFailedException
+     */
+    public function assertDisconnected(): void
+    {
+        PHPUnit::assertFalse($this->isCurrentlyConnected, 'Failed asserting that the connection was disconnected.');
     }
 
     /**
@@ -241,37 +289,7 @@ class ServerConnectionFake extends PendingConnection
         PHPUnit::assertEquals($output, $this->output, 'The command output does not match.');
     }
 
-    /**
-     * Record a command that was run.
-     *
-     * @param  string  $command  The command to record
-     */
-    public function recordCommand(string $command): void
-    {
-        $this->commands[] = $command;
-    }
-
-    /**
-     * Record a file upload.
-     *
-     * @param  string  $localPath  The local file path
-     * @param  string  $remotePath  The remote file path
-     */
-    public function recordUpload(string $localPath, string $remotePath): void
-    {
-        $this->uploads[] = ['localPath' => $localPath, 'remotePath' => $remotePath];
-    }
-
-    /**
-     * Record a file download.
-     *
-     * @param  string  $remotePath  The remote file path
-     * @param  string  $localPath  The local file path
-     */
-    public function recordDownload(string $remotePath, string $localPath): void
-    {
-        $this->downloads[] = ['remotePath' => $remotePath, 'localPath' => $localPath];
-    }
+    // Utility Methods
 
     /**
      * Set the simulated command output.
@@ -301,15 +319,5 @@ class ServerConnectionFake extends PendingConnection
     public function isConnected(): bool
     {
         return $this->isCurrentlyConnected;
-    }
-
-    /**
-     * Assert that the connection was disconnected.
-     *
-     * @throws ExpectationFailedException
-     */
-    public function assertDisconnected(): void
-    {
-        PHPUnit::assertFalse($this->isCurrentlyConnected, 'Failed asserting that the connection was disconnected.');
     }
 }

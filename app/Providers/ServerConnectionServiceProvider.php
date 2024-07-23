@@ -9,23 +9,39 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 
+/**
+ * Service Provider for Server Connection.
+ *
+ * This provider is responsible for setting up the ServerConnectionManager
+ * and configuring its default values for private key and passphrase.
+ */
 class ServerConnectionServiceProvider extends ServiceProvider
 {
+    /**
+     * Register services.
+     *
+     * This method binds the ServerConnectionManager to the service container
+     * as a singleton instance.
+     */
     public function register(): void
     {
-        $this->app->singleton('server.connection', function ($app): ServerConnectionManager {
+        $this->app->singleton('server.connection', function (): ServerConnectionManager {
             return new ServerConnectionManager;
         });
     }
 
+    /**
+     * Bootstrap services.
+     *
+     * This method sets up the default private key and passphrase for
+     * the ServerConnectionManager. It throws a RuntimeException if
+     * the SSH passphrase is not set in the configuration.
+     *
+     * @throws RuntimeException If the SSH passphrase is not set in the configuration
+     */
     public function boot(): void
     {
-        $manager = $this->app->make('server.connection');
-        $manager->defaultPrivateKey(Storage::disk('local')->path('app/ssh/id_rsa'));
-        $manager->defaultPassphrase(config('app.ssh.passphrase'));
-
-        if (! config('app.ssh.passphrase')) {
-            throw new RuntimeException('SSH passphrase is not set in the configuration.');
-        }
+        ServerConnectionManager::defaultPrivateKey(Storage::disk('local')->path('app/ssh/id_rsa'));
+        ServerConnectionManager::defaultPassphrase(config('app.ssh.passphrase'));
     }
 }

@@ -21,6 +21,24 @@ class Connection
     ) {}
 
     /**
+     * Check if the connection is active.
+     */
+    public function connected(): bool
+    {
+        return $this->ssh2 instanceof SSH2 && $this->ssh2->isConnected();
+    }
+
+    /**
+     * Disconnect from the server.
+     */
+    public function disconnect(): void
+    {
+        if ($this->ssh2 instanceof SSH2) {
+            $this->ssh2->disconnect();
+        }
+    }
+
+    /**
      * Run a command on the server.
      *
      * @param  string  $command  The command to execute
@@ -83,23 +101,5 @@ class Connection
         }
 
         return $result;
-    }
-
-    /**
-     * Check if the connection is active.
-     */
-    public function connected(): bool
-    {
-        return $this->ssh2 instanceof SSH2 && $this->ssh2->isConnected();
-    }
-
-    /**
-     * Disconnect from the server.
-     */
-    public function disconnect(): void
-    {
-        if ($this->ssh2 instanceof SSH2) {
-            $this->ssh2->disconnect();
-        }
     }
 }

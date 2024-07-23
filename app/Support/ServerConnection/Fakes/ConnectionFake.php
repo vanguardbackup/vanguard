@@ -27,6 +27,16 @@ class ConnectionFake extends Connection
     }
 
     /**
+     * Check if the fake connection is active.
+     *
+     * @return bool True if the fake connection is active, false otherwise
+     */
+    public function connected(): bool
+    {
+        return $this->serverConnectionFake->isConnected();
+    }
+
+    /**
      * Simulate disconnecting from the server.
      */
     public function disconnect(): void
@@ -82,16 +92,6 @@ class ConnectionFake extends Connection
         $this->serverConnectionFake->recordDownload($remotePath, $localPath);
 
         return true;
-    }
-
-    /**
-     * Check if the fake connection is active.
-     *
-     * @return bool True if the fake connection is active, false otherwise
-     */
-    public function connected(): bool
-    {
-        return $this->serverConnectionFake->isConnected();
     }
 
     /**
