@@ -20,7 +20,7 @@ use RuntimeException;
  */
 class CheckRemoteServerConnection
 {
-    private const int CONNECTION_TIMEOUT = 3;
+    private const int CONNECTION_TIMEOUT = 6;
 
     /**
      * Check connection status of a remote server by its ID
