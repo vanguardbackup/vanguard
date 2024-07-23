@@ -25,7 +25,7 @@ class Connection
      */
     public function connected(): bool
     {
-        return $this->ssh2 instanceof SSH2 && $this->ssh2->isConnected();
+        return $this->ssh2 instanceof SSH2 && $this->ssh2->isConnected() && $this->ssh2->isAuthenticated();
     }
 
     /**
@@ -52,13 +52,17 @@ class Connection
             throw new RuntimeException('Cannot execute command: Connection is null');
         }
 
+        if (! $this->ssh2->isConnected() || ! $this->ssh2->isAuthenticated()) {
+            throw new RuntimeException('Connection lost. Please re-establish the connection.');
+        }
+
         $output = $this->ssh2->exec($command);
 
-        if (! is_string($output)) {
+        if ($output === false) {
             throw new RuntimeException("Failed to execute command: {$command}");
         }
 
-        return $output;
+        return (string) $output;
     }
 
     /**

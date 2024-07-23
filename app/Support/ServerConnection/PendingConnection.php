@@ -41,7 +41,22 @@ class PendingConnection
     protected ?string $passphrase = null;
 
     /** @var int The connection timeout in seconds */
-    protected int $timeout = 10;
+    protected int $timeout = 30;
+
+    /** @var bool Flag to indicate if default credentials should be used */
+    protected bool $useDefaultCredentials = true;
+
+    /**
+     * Create a new PendingConnection instance.
+     *
+     * Initializes the connection with default private key and passphrase
+     * from the ServerConnectionManager.
+     */
+    public function __construct()
+    {
+        $this->privateKey = ServerConnectionManager::getDefaultPrivateKey();
+        $this->passphrase = ServerConnectionManager::getDefaultPassphrase();
+    }
 
     /**
      * Set the connection timeout.
@@ -65,7 +80,6 @@ class PendingConnection
         $this->host = $remoteServer->getAttribute('ip_address');
         $this->port = (int) $remoteServer->getAttribute('port');
         $this->username = $remoteServer->getAttribute('username');
-        $this->passphrase = ServerConnectionManager::getDefaultPassphrase();
 
         return $this;
     }
@@ -89,13 +103,14 @@ class PendingConnection
     /**
      * Set the private key for authentication.
      *
-     * @param  string  $privateKeyPath  The path to the private key file
+     * @param  string|null  $privateKeyPath  The path to the private key file
      * @param  string|null  $passphrase  The passphrase for the private key
      */
-    public function withPrivateKey(string $privateKeyPath, ?string $passphrase = null): self
+    public function withPrivateKey(?string $privateKeyPath = null, ?string $passphrase = null): self
     {
-        $this->privateKey = $privateKeyPath;
-        $this->passphrase = $passphrase ?? ServerConnectionManager::getDefaultPassphrase();
+        $this->privateKey = $privateKeyPath ?? $this->privateKey;
+        $this->passphrase = $passphrase ?? $this->passphrase;
+        $this->useDefaultCredentials = false;
 
         return $this;
     }
@@ -108,22 +123,27 @@ class PendingConnection
     public function establish(): Connection
     {
         $this->validateConnectionDetails();
-        $this->logConnectionAttempt();
 
         try {
             $this->createConnection();
             $this->authenticateConnection();
 
-            Log::info('Connection established successfully', [
+            if (! $this->connection instanceof SSH2 || ! $this->connection->isConnected() || ! $this->connection->isAuthenticated()) {
+                throw new RuntimeException('Connection not fully established and authenticated');
+            }
+
+            Log::info('Successfully connected to the remote server.', [
                 'host' => $this->host,
                 'port' => $this->port,
-                'type' => $this->connection instanceof SFTP ? 'SFTP' : 'SSH',
             ]);
 
             return new Connection($this->connection);
         } catch (Exception $e) {
-            $this->logConnectionFailure($e);
-            throw ConnectionException::withMessage('Unable to connect to the server. It might be offline or unreachable.');
+            Log::error('Failed to establish connection', [
+                'error' => $e->getMessage(),
+                'host' => $this->host,
+            ]);
+            throw ConnectionException::withMessage('Unable to connect to the server: ' . $e->getMessage());
         }
     }
 
@@ -137,7 +157,6 @@ class PendingConnection
         $missingDetails = array_filter([
             'host' => $this->host,
             'username' => $this->username,
-            'privateKey' => $this->privateKey,
         ], fn ($value): bool => $value === null);
 
         if ($missingDetails !== []) {
@@ -147,48 +166,16 @@ class PendingConnection
     }
 
     /**
-     * Log the connection attempt.
-     */
-    protected function logConnectionAttempt(): void
-    {
-        Log::info('Attempting to establish connection', [
-            'host' => $this->host,
-            'port' => $this->port,
-            'username' => $this->username,
-            'privateKeyPath' => $this->privateKey,
-            'hasPassphrase' => $this->passphrase !== null && $this->passphrase !== '' && $this->passphrase !== '0',
-            'timeout' => $this->timeout,
-        ]);
-    }
-
-    /**
      * Create the underlying connection object.
      *
      * @throws RuntimeException If connection creation fails
      */
     protected function createConnection(): void
     {
-        set_error_handler(function ($severity, $message, $file, $line): void {
-            throw new RuntimeException($message);
-        }, E_WARNING);
-
         try {
-            // First, try to establish an SFTP connection
-            $connection = new SFTP((string) $this->host, $this->port, $this->timeout);
-
-            if (! $connection->isConnected()) {
-
-                // If SFTP fails, fall back to SSH2
-                $connection = new SSH2((string) $this->host, $this->port, $this->timeout);
-
-                if (! $connection->isConnected()) {
-                    throw new RuntimeException("Failed to connect to {$this->host}:{$this->port}");
-                }
-            }
-
-            $this->connection = $connection;
-        } finally {
-            restore_error_handler();
+            $this->connection = new SSH2($this->host, $this->port, $this->timeout);
+        } catch (Exception $e) {
+            throw new RuntimeException('Failed to create SSH connection: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -199,11 +186,13 @@ class PendingConnection
      */
     protected function authenticateConnection(): void
     {
-        $this->ensureConnectionEstablished();
+        if (! $this->connection instanceof SSH2) {
+            throw ConnectionException::withMessage('The connection has not been established or has become invalid.');
+        }
 
         $privateKey = $this->loadPrivateKey();
 
-        if (! $this->attemptLogin($privateKey)) {
+        if (! $this->connection->login((string) $this->username, $privateKey)) {
             throw ConnectionException::authenticationFailed();
         }
     }
@@ -211,15 +200,15 @@ class PendingConnection
     /**
      * Load the private key.
      *
-     * @throws ConnectionException If we are unable to load the private key.
+     * @throws ConnectionException If unable to load the private key
      */
     protected function loadPrivateKey(): PrivateKey
     {
-        $this->validatePrivateKeyDetails();
-        $keyContent = $this->readPrivateKeyFile();
+        $passphrase = (string) $this->passphrase;
 
         try {
-            $privateKey = PublicKeyLoader::load($keyContent, (string) $this->passphrase);
+            $keyContent = $this->readPrivateKeyFile();
+            $privateKey = PublicKeyLoader::load($keyContent, $passphrase);
 
             if (! $privateKey instanceof PrivateKey) {
                 throw new RuntimeException('Invalid private key format.');
@@ -227,30 +216,8 @@ class PendingConnection
 
             return $privateKey;
         } catch (Exception $e) {
-            Log::error('Failed to load private key', ['error' => $e->getMessage()]);
             throw ConnectionException::withMessage('Failed to load private key: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Validate private key details.
-     *
-     * @throws ConnectionException If private key details are invalid
-     */
-    protected function validatePrivateKeyDetails(): void
-    {
-        if ($this->privateKey === null) {
-            throw ConnectionException::withMessage('Private key path is not set.');
-        }
-
-        if ($this->passphrase === null) {
-            throw ConnectionException::withMessage('Passphrase is not set.');
-        }
-
-        Log::debug('Loading private key', [
-            'keyPath' => $this->privateKey,
-            'hasPassphrase' => $this->passphrase !== '' && $this->passphrase !== '0',
-        ]);
     }
 
     /**
@@ -260,99 +227,22 @@ class PendingConnection
      */
     protected function readPrivateKeyFile(): string
     {
-        $keyContent = @file_get_contents((string) $this->privateKey);
+        $keyPath = (string) $this->privateKey;
+
+        if (! str_starts_with($keyPath, '/')) {
+            $keyPath = storage_path('app/' . $keyPath);
+        }
+
+        if (! file_exists($keyPath)) {
+            throw ConnectionException::withMessage("Private key file does not exist: {$keyPath}");
+        }
+
+        $keyContent = file_get_contents($keyPath);
 
         if ($keyContent === false) {
-            throw ConnectionException::withMessage('Unable to read private key file.');
+            throw ConnectionException::withMessage("Unable to read private key file: {$keyPath}");
         }
 
         return $keyContent;
-    }
-
-    /**
-     * Log connection failure with appropriate level and details.
-     *
-     * @param  Exception  $exception  The exception that caused the failure
-     */
-    protected function logConnectionFailure(Exception $exception): void
-    {
-        $context = [
-            'error' => $exception->getMessage(),
-            'host' => $this->host,
-            'port' => $this->port,
-            'username' => $this->username,
-            'timeout' => $this->timeout,
-        ];
-
-        $logMethod = $this->determineLogMethod($exception);
-        $logMessage = $this->determineLogMessage($exception);
-
-        Log::$logMethod($logMessage, $context);
-    }
-
-    /**
-     * Determine the appropriate logging method based on the exception.
-     *
-     * @param  Exception  $exception  The exception that caused the failure
-     * @return string The logging method to use
-     */
-    protected function determineLogMethod(Exception $exception): string
-    {
-        return match (true) {
-            str_contains($exception->getMessage(), 'timed out') => 'warning',
-            $exception instanceof ConnectionException && $exception->getMessage() === ConnectionException::authenticationFailed()->getMessage() => 'error',
-            default => 'error',
-        };
-    }
-
-    /**
-     * Determine the appropriate log message based on the exception.
-     *
-     * @param  Exception  $exception  The exception that caused the failure
-     * @return string The log message
-     */
-    protected function determineLogMessage(Exception $exception): string
-    {
-        return match (true) {
-            str_contains($exception->getMessage(), 'timed out') => 'Connection attempt timed out',
-            $exception instanceof ConnectionException && $exception->getMessage() === ConnectionException::authenticationFailed()->getMessage() => 'Authentication failed',
-            default => 'Connection failed',
-        };
-    }
-
-    /**
-     * Ensure that a valid connection has been established.
-     *
-     * @throws ConnectionException If no valid connection exists
-     */
-    private function ensureConnectionEstablished(): void
-    {
-        if (! $this->connection instanceof SSH2) {
-            throw ConnectionException::withMessage('The connection has not been established or has strangely become invalid.');
-        }
-    }
-
-    /**
-     * Attempt to log in to the remote server.
-     *
-     * @param  PrivateKey  $privateKey  The private key to use for authentication
-     * @return bool True if login was successful, false otherwise
-     *
-     * @throws ConnectionException
-     */
-    private function attemptLogin(PrivateKey $privateKey): bool
-    {
-        if ($this->username === null) {
-            throw ConnectionException::withMessage('Username is not set');
-        }
-
-        $this->ensureConnectionEstablished();
-
-        /** @var SSH2|SFTP $connection */
-        $connection = $this->connection;
-
-        $username = (string) $this->username;
-
-        return $connection->login($username, $privateKey);
     }
 }

@@ -20,8 +20,6 @@ use RuntimeException;
  */
 class CheckRemoteServerConnection
 {
-    private const int CONNECTION_TIMEOUT = 6;
-
     /**
      * Check connection status of a remote server by its ID
      *
@@ -82,7 +80,6 @@ class CheckRemoteServerConnection
     {
         try {
             $connection = ServerConnection::connectFromModel($remoteServer)
-                ->timeout(self::CONNECTION_TIMEOUT)
                 ->establish();
 
             if ($connection->connected()) {
