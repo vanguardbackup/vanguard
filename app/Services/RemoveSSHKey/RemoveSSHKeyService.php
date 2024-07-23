@@ -39,9 +39,10 @@ class RemoveSSHKeyService
             $connection = $this->establishConnection($remoteServer);
             $publicKey = $this->getSSHPublicKey();
 
-            if (!$this->determineKeyExistence($connection, $publicKey)) {
+            if (! $this->determineKeyExistence($connection, $publicKey)) {
                 $this->logger->info("SSH key does not exist on server: {$remoteServer->label}");
                 $this->handleSuccessfulRemoval($remoteServer);
+
                 return;
             }
 
