@@ -327,7 +327,7 @@ class PendingConnection
      */
     private function ensureConnectionEstablished(): void
     {
-        if (!$this->connection instanceof SSH2) {
+        if (! $this->connection instanceof SSH2) {
             throw ConnectionException::withMessage('The connection has not been established or has strangely become invalid.');
         }
     }
