@@ -37,7 +37,7 @@ trait ManagesFiles
     public function get(string $remotePath): false|string
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->get($remotePath);
@@ -54,7 +54,7 @@ trait ManagesFiles
     public function listDirectory(string $remotePath): false|array
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->nlist($remotePath);
@@ -71,7 +71,7 @@ trait ManagesFiles
     public function delete(string $remotePath): bool
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->delete($remotePath);
@@ -89,7 +89,7 @@ trait ManagesFiles
     public function rename(string $from, string $to): bool
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->rename($from, $to);
@@ -106,7 +106,7 @@ trait ManagesFiles
     public function stat(string $remotePath): false|array
     {
         if (! $this->isConnected()) {
-            throw new ConnectionException('No active connection. Please connect first.');
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
 
         return $this->connection->stat($remotePath);
