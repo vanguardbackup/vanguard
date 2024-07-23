@@ -36,8 +36,6 @@ class ServerConnectionServiceProvider extends ServiceProvider
      * This method sets up the default private key and passphrase for
      * the ServerConnectionManager. It throws a RuntimeException if
      * the SSH passphrase is not set in the configuration.
-     *
-     * @throws RuntimeException If the SSH passphrase is not set in the configuration
      */
     public function boot(): void
     {
