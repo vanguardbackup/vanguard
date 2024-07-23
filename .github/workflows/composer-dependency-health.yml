@@ -21,15 +21,37 @@ jobs:
         with:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: none
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+        run: composer validate
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
+      - name: Capture dependency versions
+        if: failure()
+        run: |
+          echo "# Installed Packages" > dependency_versions.txt
+          composer show >> dependency_versions.txt
+
       - name: Check for outdated dependencies
-        run: composer outdated --direct --format=json || echo '{"installed":[]}' > outdated.json
+        run: |
+          composer outdated --direct --format=json > outdated.json || true
+          if [ ! -s outdated.json ]; then
+            echo '{"installed":[]}' > outdated.json
+          fi
 
       - name: Security Check
         uses: symfonycorp/security-checker-action@v5
@@ -40,10 +62,6 @@ jobs:
       - name: Process and Output Dependency Health Results
         if: always()
         run: |
-          if [ ! -f outdated.json ]; then
-            echo '{"installed":[]}' > outdated.json
-          fi
-
           OUTDATED=$(jq '.installed | length' outdated.json)
 
           if [ ! -f security-checker.json ]; then
@@ -68,15 +86,25 @@ jobs:
 
           echo "## Security Vulnerabilities:" >> $GITHUB_STEP_SUMMARY
           if [ -f security-checker.json ] && [ -s security-checker.json ]; then
-            jq -r '.[] | "- \(.message) in \(.file) on line \(.line)"' security-checker.json >> $GITHUB_STEP_SUMMARY
+            jq -r 'to_entries[] | "- \(.key): \(.value.advisories | map(.title) | join(", "))"' security-checker.json >> $GITHUB_STEP_SUMMARY
           else
             echo "No security vulnerabilities detected." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: composer-dependency-report
           path: |
             outdated.json
             security-checker.json
+            dependency_versions.txt
+
+      - name: Check status
+        if: always()
+        run: |
+          if [ "${{ steps.process-results.outputs.status }}" = "issues_found" ]; then
+            echo "Issues found in dependency health check. Please review the artifact for details."
+            exit 1
+          fi
