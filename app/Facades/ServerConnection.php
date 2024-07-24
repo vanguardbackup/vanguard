@@ -22,7 +22,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static void assertConnected()
  * @method static void assertDisconnected()
  * @method static void assertNotConnected()
- * @method static void assertCommandRan(string $command)
+ * @method static void assertCommandRan(?string $command = null)
+ * @method static void assertAnyCommandRan()
+ * @method static void assertNoCommandsRan()
  * @method static void assertFileUploaded(string $localPath, string $remotePath)
  * @method static void assertFileDownloaded(string $remotePath, string $localPath)
  * @method static void assertOutput(string $output)
@@ -30,9 +32,16 @@ use Illuminate\Support\Facades\Facade;
  * @method static void defaultPrivateKey(string $path)
  * @method static void defaultPassphrase(string $passphrase)
  * @method static ServerConnectionFake shouldConnect()
- * @method static ServerConnectionFake shouldNotConnect()*
+ * @method static ServerConnectionFake shouldNotConnect()
+ * @method static string getPrivateKeyContent(string $path)
+ * @method static string getDefaultPrivateKey()
+ * @method static string getDefaultPassphrase()
+ * @method static string getDefaultPrivateKeyPath()
+ * @method static string getDefaultPublicKeyPath()
+ * @method static string getDefaultPublicKey()
+ * @method static string getPublicKeyContent(string $path)
  *
- * @see \App\Support\ServerConnection\ServerConnectionManager
+ * @see ServerConnectionManager
  */
 class ServerConnection extends Facade
 {

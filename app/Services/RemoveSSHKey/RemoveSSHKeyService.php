@@ -10,7 +10,6 @@ use App\Mail\RemoteServers\SuccessfullyRemovedKey;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Connection;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
-use App\Support\ServerConnection\ServerConnectionManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -65,7 +64,7 @@ class RemoveSSHKeyService
      */
     private function getSSHPublicKey(): string
     {
-        return ServerConnectionManager::getDefaultPublicKey();
+        return ServerConnection::getDefaultPublicKey();
     }
 
     /**

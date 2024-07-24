@@ -6,7 +6,8 @@ namespace App\Support\ServerConnection;
 
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Fakes\ServerConnectionFake;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\File;
 use RuntimeException;
 
 /**
@@ -29,7 +30,19 @@ class ServerConnectionManager
      */
     protected static ?ServerConnectionFake $fake = null;
 
-    // Connection Methods
+    /**
+     * Indicates whether the fake implementation should be used.
+     */
+    protected static bool $usesFake = false;
+    /**
+     *  The filename of the SSH key, both the private and public key name.
+     */
+    const string SSH_KEY_FILE_NAME = 'key';
+
+    /**
+     *  The extension of the public key file.
+     */
+    const string SSH_KEY_PUBLIC_EXT = 'pub';
 
     /**
      * Create a new PendingConnection instance.
@@ -40,7 +53,7 @@ class ServerConnectionManager
      */
     public static function connect(string $host = '', int $port = 22, string $username = 'root'): PendingConnection
     {
-        if (static::$fake instanceof ServerConnectionFake) {
+        if (static::isFake()) {
             return static::$fake->connect($host, $port, $username);
         }
 
@@ -64,14 +77,12 @@ class ServerConnectionManager
      */
     public static function connectFromModel(RemoteServer $remoteServer): PendingConnection
     {
-        if (static::$fake instanceof ServerConnectionFake) {
+        if (static::isFake()) {
             return static::$fake->connectFromModel($remoteServer);
         }
 
         return static::connect()->connectFromModel($remoteServer);
     }
-
-    // Configuration Methods
 
     /**
      * Set the default private key path.
@@ -106,7 +117,7 @@ class ServerConnectionManager
             throw new RuntimeException('Default private key path is not set.');
         }
 
-        return Storage::path(static::$defaultPrivateKey);
+        return static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME;
     }
 
     /**
@@ -116,9 +127,7 @@ class ServerConnectionManager
      */
     public static function getDefaultPublicKeyPath(): string
     {
-        $publicKeyPath = static::$defaultPrivateKey . '.pub';
-
-        return Storage::path($publicKeyPath);
+        return static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME . '.' . self::SSH_KEY_PUBLIC_EXT;
     }
 
     /**
@@ -126,11 +135,15 @@ class ServerConnectionManager
      *
      * @return string The content of the default private key
      *
-     * @throws RuntimeException If the private key file cannot be found
+     * @throws RuntimeException|FileNotFoundException If the private key file cannot be found
      */
     public static function getDefaultPrivateKey(): string
     {
-        return static::getPrivateKeyContent((string) static::$defaultPrivateKey);
+        if (static::isFake()) {
+            return static::$fake->getDefaultPrivateKey();
+        }
+
+        return static::getPrivateKeyContent(static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME);
     }
 
     /**
@@ -138,11 +151,15 @@ class ServerConnectionManager
      *
      * @return string The content of the default public key
      *
-     * @throws RuntimeException If the public key file cannot be found
+     * @throws RuntimeException|FileNotFoundException If the public key file cannot be found
      */
     public static function getDefaultPublicKey(): string
     {
-        $publicKeyPath = static::$defaultPrivateKey . '.pub';
+        if (static::isFake()) {
+            return static::$fake->getDefaultPublicKey();
+        }
+
+        $publicKeyPath = static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME . '.' . self::SSH_KEY_PUBLIC_EXT;
 
         return static::getPublicKeyContent($publicKeyPath);
     }
@@ -154,6 +171,10 @@ class ServerConnectionManager
      */
     public static function getDefaultPassphrase(): string
     {
+        if (static::isFake()) {
+            return static::$fake->getDefaultPassphrase();
+        }
+
         return (string) static::$defaultPassphrase;
     }
 
@@ -163,17 +184,19 @@ class ServerConnectionManager
      * @param  string  $path  The path to the private key file
      * @return string The content of the private key file
      *
-     * @throws RuntimeException If the private key file cannot be found or read
+     * @throws RuntimeException|FileNotFoundException If the private key file cannot be found or read
      */
     public static function getPrivateKeyContent(string $path): string
     {
-        $fullPath = Storage::path($path);
-
-        if (! Storage::exists($path)) {
-            throw new RuntimeException("Private key file does not exist: {$fullPath}");
+        if (static::isFake()) {
+            return static::$fake->getPrivateKeyContent($path);
         }
 
-        return trim((string) Storage::get($path));
+        if (File::missing($path)) {
+            throw new RuntimeException("Private key file does not exist: {$path}");
+        }
+
+        return File::get($path);
     }
 
     /**
@@ -182,54 +205,69 @@ class ServerConnectionManager
      * @param  string  $path  The path to the public key file
      * @return string The content of the public key file
      *
-     * @throws RuntimeException If the public key file cannot be found or read
+     * @throws RuntimeException|FileNotFoundException If the public key file cannot be found or read
      */
     public static function getPublicKeyContent(string $path): string
     {
-        $fullPath = Storage::path($path);
-
-        if (! Storage::exists($path)) {
-            throw new RuntimeException("Public key file does not exist: {$fullPath}");
+        if (static::isFake()) {
+            return static::$fake->getPublicKeyContent($path);
         }
 
-        return trim(((string) Storage::get($path)));
-    }
+        if (File::missing($path)) {
+            throw new RuntimeException("Public key file does not exist: {$path}");
+        }
 
-    // Fake Implementation Methods
-
-    /**
-     * Enable fake mode for testing.
-     */
-    public static function fake(): ServerConnectionFake
-    {
-        return static::$fake = new ServerConnectionFake;
+        return File::get($path);
     }
 
     /**
-     * Set the fake connection to succeed.
+     * Enable fake mode for testing with optional initial setup.
+     *
+     * @param  callable|null  $setup  A function to set up the fake
      */
-    public static function shouldConnect(): ServerConnectionFake
+    public static function fake(?callable $setup = null): ServerConnectionFake
     {
-        if (! static::$fake instanceof ServerConnectionFake) {
-            static::$fake = new ServerConnectionFake;
+        static::$fake = new ServerConnectionFake;
+
+        if ($setup) {
+            $setup(static::$fake);
         }
 
-        return static::getFake()->shouldConnect();
+        static::usesFake();
+
+        return static::$fake;
     }
 
     /**
-     * Set the fake connection to fail.
+     * Set whether to use the fake implementation.
+     *
+     * @param  bool  $use  Whether to use the fake
      */
-    public static function shouldNotConnect(): ServerConnectionFake
+    public static function usesFake(bool $use = true): void
     {
-        if (! static::$fake instanceof ServerConnectionFake) {
-            static::$fake = new ServerConnectionFake;
-        }
-
-        return static::getFake()->shouldNotConnect();
+        static::$usesFake = $use;
     }
 
-    // Assertion Methods
+    /**
+     * Check if the fake implementation is being used.
+     *
+     * @return bool Whether the fake is being used
+     */
+    public static function isFake(): bool
+    {
+        return static::$usesFake && static::$fake instanceof ServerConnectionFake;
+    }
+
+    /**
+     * Reset the manager to its initial state.
+     */
+    public static function reset(): void
+    {
+        static::$fake = null;
+        static::$usesFake = false;
+        static::$defaultPrivateKey = null;
+        static::$defaultPassphrase = null;
+    }
 
     /**
      * Assert that a connection was established.
@@ -262,15 +300,38 @@ class ServerConnectionManager
     }
 
     /**
-     * Assert that a command was run.
+     * Assert that a command was run or that any command was run.
      *
-     * @param  string  $command  The command to assert
+     * @param  string|null  $command  The command to assert, or null to check if any command was run
      *
      * @throws RuntimeException If server connection is not in fake mode
      */
-    public static function assertCommandRan(string $command): void
+    public static function assertCommandRan(?string $command = null): void
     {
         static::getFake()->assertCommandRan($command);
+    }
+
+    /**
+     * Assert that no commands were run.
+     *
+     * @throws RuntimeException If server connection is not in fake mode
+     */
+    public static function assertNoCommandsRan(): void
+    {
+        static::getFake()->assertNoCommandsRan();
+    }
+
+    /**
+     * Assert that any command was run.
+     *
+     * This is an alias for calling assertCommandRan() without arguments.
+     * It provides a more expressive way to check if any command was executed.
+     *
+     * @throws RuntimeException
+     */
+    public static function assertAnyCommandRan(): void
+    {
+        static::getFake()->assertAnyCommandRan();
     }
 
     /**
@@ -330,7 +391,7 @@ class ServerConnectionManager
      */
     protected static function getFake(): ServerConnectionFake
     {
-        if (! static::$fake instanceof ServerConnectionFake) {
+        if (! static::isFake()) {
             throw new RuntimeException('Server connection is not in fake mode.');
         }
 

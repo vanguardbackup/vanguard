@@ -12,11 +12,7 @@ use PHPUnit\Framework\Assert as PHPUnit;
 use PHPUnit\Framework\ExpectationFailedException;
 
 /**
- * Fake implementation of PendingConnection for testing purposes.
- *
- * This class simulates the behavior of a server connection for testing,
- * allowing developers to assert various connection-related actions without
- * actually connecting to a real server.
+ * Fake implementation of ServerConnection for testing purposes.
  */
 class ServerConnectionFake extends PendingConnection
 {
@@ -73,7 +69,20 @@ class ServerConnectionFake extends PendingConnection
      */
     protected int $timeout = 30;
 
-    // Connection Simulation Methods
+    /**
+     * Fake private key content.
+     */
+    protected string $fakePrivateKey = 'fake_private_key_content';
+
+    /**
+     * Fake public key content.
+     */
+    protected string $fakePublicKey = 'fake_public_key_content';
+
+    /**
+     * Fake passphrase.
+     */
+    protected string $fakePassphrase = 'fake_passphrase';
 
     /**
      * Simulate connecting from a RemoteServer model.
@@ -182,8 +191,6 @@ class ServerConnectionFake extends PendingConnection
         return $this;
     }
 
-    // Action Recording Methods
-
     /**
      * Record a command that was run.
      *
@@ -215,8 +222,6 @@ class ServerConnectionFake extends PendingConnection
     {
         $this->downloads[] = ['remotePath' => $remotePath, 'localPath' => $localPath];
     }
-
-    // Assertion Methods
 
     /**
      * Assert that a connection was established.
@@ -263,15 +268,48 @@ class ServerConnectionFake extends PendingConnection
     }
 
     /**
-     * Assert that a specific command was run.
+     * Assert that a specific command was run, or that any command was run if no specific command is provided.
      *
-     * @param  string  $command  The command to assert
+     * This method can be used in two ways:
+     * 1. To check if a specific command was run by passing the command as an argument.
+     * 2. To check if any command was run by calling the method without arguments.
+     *
+     * @param  string|null  $command  The command to assert, or null to check if any command was run
      *
      * @throws ExpectationFailedException
      */
-    public function assertCommandRan(string $command): void
+    public function assertCommandRan(?string $command = null): void
     {
-        PHPUnit::assertContains($command, $this->commands, "The command [{$command}] was not run.");
+        $message = $command === null ? 'Any command' : "The command [{$command}]";
+
+        PHPUnit::assertNotEmpty($this->commands, "{$message} was not run.");
+
+        if ($command !== null) {
+            PHPUnit::assertContains($command, $this->commands, "The command [{$command}] was not run.");
+        }
+    }
+
+    /**
+     * Assert that no commands were run.
+     *
+     * @throws ExpectationFailedException
+     */
+    public function assertNoCommandsRan(): void
+    {
+        PHPUnit::assertEmpty($this->commands, 'Commands were run when none were expected.');
+    }
+
+    /**
+     * Assert that any command was run.
+     *
+     * This is an alias for calling assertCommandRan() without arguments.
+     * It provides a more expressive way to check if any command was executed.
+     *
+     * @throws ExpectationFailedException
+     */
+    public function assertAnyCommandRan(): void
+    {
+        $this->assertCommandRan();
     }
 
     /**
@@ -320,8 +358,6 @@ class ServerConnectionFake extends PendingConnection
         PHPUnit::assertEquals($output, $this->output, 'The command output does not match.');
     }
 
-    // Utility Methods
-
     /**
      * Set the simulated command output.
      *
@@ -357,7 +393,7 @@ class ServerConnectionFake extends PendingConnection
      */
     public function getDefaultPrivateKey(): string
     {
-        return 'fake_private_key_content';
+        return $this->fakePrivateKey;
     }
 
     /**
@@ -365,7 +401,7 @@ class ServerConnectionFake extends PendingConnection
      */
     public function getDefaultPublicKey(): string
     {
-        return 'fake_public_key_content';
+        return $this->fakePublicKey;
     }
 
     /**
@@ -373,6 +409,28 @@ class ServerConnectionFake extends PendingConnection
      */
     public function getDefaultPassphrase(): string
     {
-        return 'fake_passphrase';
+        return $this->fakePassphrase;
+    }
+
+    /**
+     * Get the content of a private key file.
+     *
+     * @param  string  $path  The path to the private key file
+     * @return string The fake content of the private key file
+     */
+    public function getPrivateKeyContent(string $path): string
+    {
+        return $this->fakePrivateKey;
+    }
+
+    /**
+     * Get the content of a public key file.
+     *
+     * @param  string  $path  The path to the public key file
+     * @return string The fake content of the public key file
+     */
+    public function getPublicKeyContent(string $path): string
+    {
+        return $this->fakePublicKey;
     }
 }

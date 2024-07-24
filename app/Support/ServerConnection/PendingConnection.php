@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection;
 
+use App\Facades\ServerConnection;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
 use Exception;
@@ -50,12 +51,12 @@ class PendingConnection
      * Create a new PendingConnection instance.
      *
      * Initializes the connection with default private key and passphrase
-     * from the ServerConnectionManager.
+     * from the ServerConnection facade.
      */
     public function __construct()
     {
-        $this->privateKey = ServerConnectionManager::getDefaultPrivateKey();
-        $this->passphrase = ServerConnectionManager::getDefaultPassphrase();
+        $this->privateKey = ServerConnection::getDefaultPrivateKey();
+        $this->passphrase = ServerConnection::getDefaultPassphrase();
     }
 
     /**
@@ -109,11 +110,11 @@ class PendingConnection
     public function withPrivateKey(?string $privateKeyPath = null, ?string $passphrase = null): self
     {
         if ($privateKeyPath !== null) {
-            $this->privateKey = ServerConnectionManager::getPrivateKeyContent($privateKeyPath);
+            $this->privateKey = ServerConnection::getPrivateKeyContent($privateKeyPath);
         } else {
-            $this->privateKey = ServerConnectionManager::getDefaultPrivateKey();
+            $this->privateKey = ServerConnection::getDefaultPrivateKey();
         }
-        $this->passphrase = $passphrase ?? ServerConnectionManager::getDefaultPassphrase();
+        $this->passphrase = $passphrase ?? ServerConnection::getDefaultPassphrase();
         $this->useDefaultCredentials = false;
 
         return $this;

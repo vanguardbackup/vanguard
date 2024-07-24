@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Facades\ServerConnection;
 use App\Support\ServerConnection\ServerConnectionManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
@@ -38,10 +39,7 @@ class ServerConnectionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $privateKeyPath = Storage::path('ssh/key');
-        $passphrase = config('app.ssh.passphrase');
-
-        ServerConnectionManager::defaultPrivateKey($privateKeyPath);
-        ServerConnectionManager::defaultPassphrase($passphrase);
+        ServerConnection::defaultPrivateKey(Storage::path('ssh'));
+        ServerConnection::defaultPassphrase(config('app.ssh.passphrase'));
     }
 }
