@@ -34,6 +34,7 @@ class ServerConnectionManager
      * Indicates whether the fake implementation should be used.
      */
     protected static bool $usesFake = false;
+
     /**
      *  The filename of the SSH key, both the private and public key name.
      */
