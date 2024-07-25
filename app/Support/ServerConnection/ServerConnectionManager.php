@@ -94,7 +94,7 @@ class ServerConnectionManager
      */
     public static function defaultPrivateKey(string $path): void
     {
-        static::$defaultPrivateKey = $path;
+        static::$defaultPrivateKey = rtrim($path, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -124,8 +124,16 @@ class ServerConnectionManager
             throw new RuntimeException('Default private key path is not set.');
         }
 
-        return static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME;
+        $path = rtrim(static::$defaultPrivateKey, DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . self::SSH_KEY_FILE_NAME;
+
+        if (!file_exists($path)) {
+            throw new RuntimeException("Private key file does not exist: {$path}");
+        }
+
+        return $path;
     }
+
 
     /**
      * Get the path to the default public key file.
@@ -160,7 +168,7 @@ class ServerConnectionManager
             throw new RuntimeException('Default private key path is not set.');
         }
 
-        return static::getPrivateKeyContent(static::$defaultPrivateKey . '/' . self::SSH_KEY_FILE_NAME);
+        return static::getPrivateKeyContent(static::getDefaultPrivateKeyPath());
     }
 
     /**
@@ -215,14 +223,27 @@ class ServerConnectionManager
                 : 'fake_private_key_content_for_testing';
         }
 
-        if (! file_exists($path)) {
-            throw new RuntimeException("Private key file does not exist: {$path}");
+        $fullPath = is_dir($path) ? $path . DIRECTORY_SEPARATOR . self::SSH_KEY_FILE_NAME : $path;
+
+        if (! file_exists($fullPath)) {
+            throw new RuntimeException("Private key file does not exist: {$fullPath}");
         }
 
-        Log::debug('The private key path is:', ['path' => $path]);
+        if (is_dir($fullPath)) {
+            throw new RuntimeException("Expected file but found directory: {$fullPath}");
+        }
 
-        return (string) file_get_contents($path);
+        Log::debug('The private key path is:', ['path' => $fullPath]);
+
+        $content = file_get_contents($fullPath);
+
+        if ($content === false) {
+            throw new RuntimeException("Failed to read private key file: {$fullPath}");
+        }
+
+        return $content;
     }
+
 
     /**
      * Get the content of a public key file.
