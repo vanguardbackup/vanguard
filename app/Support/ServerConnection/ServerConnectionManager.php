@@ -9,7 +9,7 @@ use App\Support\ServerConnection\Fakes\ServerConnectionFake;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
-use Log;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
