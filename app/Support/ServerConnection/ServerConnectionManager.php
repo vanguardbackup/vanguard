@@ -127,13 +127,12 @@ class ServerConnectionManager
         $path = rtrim(static::$defaultPrivateKey, DIRECTORY_SEPARATOR)
             . DIRECTORY_SEPARATOR . self::SSH_KEY_FILE_NAME;
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new RuntimeException("Private key file does not exist: {$path}");
         }
 
         return $path;
     }
-
 
     /**
      * Get the path to the default public key file.
@@ -243,7 +242,6 @@ class ServerConnectionManager
 
         return $content;
     }
-
 
     /**
      * Get the content of a public key file.
