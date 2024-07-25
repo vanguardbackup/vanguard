@@ -16,6 +16,8 @@ function ssh_keys_exist(): bool
 }
 
 /**
+ * @deprecated Please use the ServerConnectionManager static implementation.
+ *
  * Get the contents of the SSH public key.
  *
  * @return string The contents of the SSH public key.
@@ -35,6 +37,8 @@ function get_ssh_public_key(): string
 }
 
 /**
+ * @deprecated Please use the ServerConnectionManager static implementation.
+ *
  * Get the contents of the SSH private key.
  *
  * @return string The contents of the SSH private key.

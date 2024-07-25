@@ -114,16 +114,22 @@ class CreateRemoteServerForm extends Component
     private function connectionAttempt(): bool
     {
         $checkRemoteServerConnection = new CheckRemoteServerConnection;
+
         $response = $checkRemoteServerConnection->byRemoteServerConnectionDetails([
             'host' => $this->host,
             'port' => $this->port,
             'username' => $this->username,
         ]);
 
-        if ($response['status'] === 'error') {
-            $this->connectionError = $response['error'];
+        $status = $response['status'] ?? 'error';
+        $error = $response['error'] ?? $response['message'] ?? 'Unknown error occurred';
+
+        if ($status === 'error') {
+            $this->connectionError = $error;
+
+            return false;
         }
 
-        return $response['status'] === 'success';
+        return true;
     }
 }

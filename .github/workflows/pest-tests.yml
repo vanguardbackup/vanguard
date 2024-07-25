@@ -39,6 +39,7 @@ jobs:
         run: |
           cp .env.example.ci .env
           php artisan key:generate
+          php artisan vanguard:generate-ssh-key
 
       - name: Cache Laravel application
         uses: actions/cache@v4
