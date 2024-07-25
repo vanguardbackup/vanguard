@@ -8,20 +8,27 @@ use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
 use RuntimeException;
 
+/**
+ * Represents an active connection to a remote server.
+ *
+ * This class provides methods for interacting with the remote server,
+ * including running commands and transferring files.
+ */
 class Connection
 {
     /**
      * Create a new Connection instance.
+     *
+     * @param  SSH2|SFTP|null  $ssh2  The SSH or SFTP connection instance
      */
     public function __construct(
-        /**
-         * The SSH or SFTP connection instance.
-         */
         protected SSH2|SFTP|null $ssh2
     ) {}
 
     /**
      * Check if the connection is active.
+     *
+     * @return bool True if the connection is active and authenticated, false otherwise
      */
     public function connected(): bool
     {

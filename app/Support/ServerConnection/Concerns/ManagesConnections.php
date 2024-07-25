@@ -4,13 +4,23 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection\Concerns;
 
+/**
+ * Trait ManagesConnections
+ *
+ * This trait provides methods for managing SSH connections and authentication.
+ */
 trait ManagesConnections
 {
+    /** @var string|null The default private key path */
     protected static ?string $defaultPrivateKey = null;
+
+    /** @var string|null The default passphrase for the private key */
     protected static ?string $defaultPassphrase = null;
 
     /**
      * Set the default private key path.
+     *
+     * @param  string  $path  The path to the private key file
      */
     public static function setDefaultPrivateKey(string $path): void
     {
@@ -19,6 +29,8 @@ trait ManagesConnections
 
     /**
      * Set the default passphrase.
+     *
+     * @param  string  $passphrase  The passphrase for the private key
      */
     public static function setDefaultPassphrase(string $passphrase): void
     {
@@ -27,6 +39,10 @@ trait ManagesConnections
 
     /**
      * Set connection details manually.
+     *
+     * @param  string  $host  The hostname or IP address
+     * @param  int  $port  The port number (default: 22)
+     * @param  string  $username  The username (default: 'root')
      */
     public function to(string $host, int $port = 22, string $username = 'root'): self
     {
@@ -39,6 +55,8 @@ trait ManagesConnections
 
     /**
      * Set the authentication method to password.
+     *
+     * @param  string  $password  The password for authentication
      */
     public function withPassword(string $password): self
     {
@@ -50,6 +68,9 @@ trait ManagesConnections
 
     /**
      * Set the authentication method to private key.
+     *
+     * @param  string  $privateKeyPath  The path to the private key file
+     * @param  string|null  $passphrase  The passphrase for the private key (optional)
      */
     public function withPrivateKey(string $privateKeyPath, ?string $passphrase = null): self
     {
@@ -62,6 +83,8 @@ trait ManagesConnections
 
     /**
      * Get the default private key path.
+     *
+     * @return string|null The path to the default private key file
      */
     protected function getDefaultPrivateKey(): ?string
     {
@@ -70,6 +93,8 @@ trait ManagesConnections
 
     /**
      * Get the default passphrase.
+     *
+     * @return string|null The default passphrase for the private key
      */
     protected function getDefaultPassphrase(): ?string
     {

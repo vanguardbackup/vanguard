@@ -390,6 +390,8 @@ class ServerConnectionFake extends PendingConnection
 
     /**
      * Get the default private key content.
+     *
+     * @return string The fake private key content
      */
     public function getDefaultPrivateKey(): string
     {
@@ -398,6 +400,8 @@ class ServerConnectionFake extends PendingConnection
 
     /**
      * Get the default public key content.
+     *
+     * @return string The fake public key content
      */
     public function getDefaultPublicKey(): string
     {
@@ -406,6 +410,8 @@ class ServerConnectionFake extends PendingConnection
 
     /**
      * Get the default passphrase.
+     *
+     * @return string The fake passphrase
      */
     public function getDefaultPassphrase(): string
     {
@@ -432,5 +438,15 @@ class ServerConnectionFake extends PendingConnection
     public function getPublicKeyContent(string $path): string
     {
         return $this->fakePublicKey;
+    }
+
+    /**
+     * Get the default private key path.
+     *
+     * @return string The fake path to the private key
+     */
+    public function getDefaultPrivateKeyPath(): string
+    {
+        return 'fake/path/to/private/key';
     }
 }

@@ -6,6 +6,11 @@ namespace App\Support\ServerConnection\Concerns;
 
 use App\Support\ServerConnection\Exceptions\ConnectionException;
 
+/**
+ * Trait ManagesFiles
+ *
+ * This trait provides methods for managing files on a remote server.
+ */
 trait ManagesFiles
 {
     /**
@@ -19,9 +24,7 @@ trait ManagesFiles
      */
     public function put(string $remotePath, string $data): bool
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         return $this->connection->put($remotePath, $data);
     }
@@ -34,11 +37,9 @@ trait ManagesFiles
      *
      * @throws ConnectionException If the connection is not established
      */
-    public function get(string $remotePath): false|string
+    public function get(string $remotePath): string|false
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         return $this->connection->get($remotePath);
     }
@@ -47,15 +48,13 @@ trait ManagesFiles
      * List files in a directory on the server.
      *
      * @param  string  $remotePath  The remote path of the directory
-     * @return array|false An array of files or false on error
+     * @return array<string>|false An array of files or false on error
      *
      * @throws ConnectionException If the connection is not established
      */
-    public function listDirectory(string $remotePath): false|array
+    public function listDirectory(string $remotePath): array|false
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         return $this->connection->nlist($remotePath);
     }
@@ -70,9 +69,7 @@ trait ManagesFiles
      */
     public function delete(string $remotePath): bool
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         return $this->connection->delete($remotePath);
     }
@@ -88,9 +85,7 @@ trait ManagesFiles
      */
     public function rename(string $from, string $to): bool
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         return $this->connection->rename($from, $to);
     }
@@ -99,16 +94,26 @@ trait ManagesFiles
      * Get file stats.
      *
      * @param  string  $remotePath  The remote path of the file
-     * @return array|false An array of file stats or false on error
+     * @return array<string, mixed>|false An array of file stats or false on error
      *
      * @throws ConnectionException If the connection is not established
      */
-    public function stat(string $remotePath): false|array
+    public function stat(string $remotePath): array|false
+    {
+        $this->ensureConnected();
+
+        return $this->connection->stat($remotePath);
+    }
+
+    /**
+     * Ensure that the connection is established before performing an operation.
+     *
+     * @throws ConnectionException If the connection is not established
+     */
+    private function ensureConnected(): void
     {
         if (! $this->isConnected()) {
             throw ConnectionException::withMessage('No active connection. Please connect first.');
         }
-
-        return $this->connection->stat($remotePath);
     }
 }

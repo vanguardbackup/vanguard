@@ -6,6 +6,11 @@ namespace App\Support\ServerConnection\Concerns;
 
 use App\Support\ServerConnection\Exceptions\ConnectionException;
 
+/**
+ * Trait ManagesCommands
+ *
+ * This trait provides methods for executing commands on a remote server.
+ */
 trait ManagesCommands
 {
     /**
@@ -14,13 +19,11 @@ trait ManagesCommands
      * @param  string  $command  The command to run
      * @return string The command output
      *
-     * @throws ConnectionException If the connection is not established
+     * @throws ConnectionException If the connection is not established or command execution fails
      */
     public function run(string $command): string
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         $output = $this->connection->exec($command);
 
@@ -41,9 +44,7 @@ trait ManagesCommands
      */
     public function runStream(string $command, callable $callback): void
     {
-        if (! $this->isConnected()) {
-            throw ConnectionException::withMessage('No active connection. Please connect first.');
-        }
+        $this->ensureConnected();
 
         $this->connection->exec($command, function ($stream) use ($callback): void {
             $buffer = '';
@@ -51,5 +52,17 @@ trait ManagesCommands
                 $callback($buffer);
             }
         });
+    }
+
+    /**
+     * Ensure that the connection is established before performing an operation.
+     *
+     * @throws ConnectionException If the connection is not established
+     */
+    private function ensureConnected(): void
+    {
+        if (! $this->isConnected()) {
+            throw ConnectionException::withMessage('No active connection. Please connect first.');
+        }
     }
 }

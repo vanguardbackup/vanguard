@@ -2,195 +2,229 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fakes\ServerConnection;
-
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Connection;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
-use App\Support\ServerConnection\Fakes\ServerConnectionFake;
-use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\TestCase;
-use RuntimeException;
+use App\Support\ServerConnection\PendingConnection;
+use App\Support\ServerConnection\ServerConnectionManager;
 
-class ServerConnectionFakeTest extends TestCase
-{
-    private ServerConnectionFake $serverConnectionFake;
+beforeEach(function (): void {
+    ServerConnectionManager::fake();
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->serverConnectionFake = new ServerConnectionFake;
-    }
+afterEach(function (): void {
+    ServerConnectionManager::reset();
+});
 
-    /** @test */
-    public function it_can_connect_from_model(): void
-    {
-        $remoteServer = new RemoteServer;
-        $remoteServer->getAttribute('ip_address') = 'example.com';
-        $remoteServer->getAttribute('port') = 2222;
-        $remoteServer->getAttribute('username') = 'testuser';
+it('properly sets fake mode', function (): void {
+    expect(ServerConnectionManager::isFake())->toBeTrue();
+});
 
-        $serverConnectionFake = $this->serverConnectionFake->connectFromModel($remoteServer);
+it('returns fake private key content', function (): void {
+    $privateKey = ServerConnectionManager::getDefaultPrivateKey();
+    expect($privateKey)->toBe('fake_private_key_content');
+});
 
-        $this->assertInstanceOf(ServerConnectionFake::class, $serverConnectionFake);
-        $this->serverConnectionFake->assertConnectionAttempted([
-            'host' => 'example.com',
-            'port' => 2222,
-            'username' => 'testuser',
-        ]);
-    }
+it('returns fake public key content', function (): void {
+    $publicKey = ServerConnectionManager::getDefaultPublicKey();
+    expect($publicKey)->toBe('fake_public_key_content');
+});
 
-    /** @test */
-    public function it_can_connect_with_custom_details(): void
-    {
-        $serverConnectionFake = $this->serverConnectionFake->connect('custom.com', 2222, 'customuser');
+it('returns fake passphrase', function (): void {
+    $passphrase = ServerConnectionManager::getDefaultPassphrase();
+    expect($passphrase)->toBe('fake_passphrase');
+});
 
-        $this->assertInstanceOf(ServerConnectionFake::class, $serverConnectionFake);
-        $this->serverConnectionFake->assertConnectionAttempted([
-            'host' => 'custom.com',
-            'port' => 2222,
-            'username' => 'customuser',
-        ]);
-    }
+it('returns fake private key path', function (): void {
+    $path = ServerConnectionManager::getDefaultPrivateKeyPath();
+    expect($path)->toBe('fake/path/to/private/key');
+});
 
-    /** @test */
-    public function it_can_establish_connection(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
+it('creates a PendingConnection when connecting', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    expect($pendingConnection)->toBeInstanceOf(PendingConnection::class);
+});
 
-        $this->assertInstanceOf(Connection::class, $connection);
-        $this->serverConnectionFake->assertConnected();
-    }
+it('records connection attempts', function (): void {
+    ServerConnectionManager::connect('example.com', 2222, 'user');
+    ServerConnectionManager::assertConnectionAttempted([
+        'host' => 'example.com',
+        'port' => 2222,
+        'username' => 'user',
+    ]);
+});
 
-    /** @test */
-    public function it_can_fail_to_connect(): void
-    {
-        $this->serverConnectionFake->shouldConnect();
+it('creates a PendingConnection when connecting from a model', function (): void {
+    $remoteServer = RemoteServer::factory()->create();
 
-        $this->expectException(ConnectionException::class);
-        $this->serverConnectionFake->establish();
-    }
+    $pendingConnection = ServerConnectionManager::connectFromModel($remoteServer);
+    expect($pendingConnection)->toBeInstanceOf(PendingConnection::class);
+});
 
-    /** @test */
-    public function it_can_assert_command_ran(): void
-    {
-        $this->serverConnectionFake->establish()->run('ls -la');
+it('simulates establishing a connection', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $this->serverConnectionFake->assertCommandRan('ls -la');
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertCommandRan('non-existent-command');
-    }
+    expect($connection)->toBeInstanceOf(Connection::class);
+    ServerConnectionManager::assertConnected();
+});
 
-    /** @test */
-    public function it_can_assert_file_uploaded(): void
-    {
-        $this->serverConnectionFake->establish()->upload('/local/path', '/remote/path');
+it('simulates running a command', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $this->serverConnectionFake->assertFileUploaded('/local/path', '/remote/path');
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertFileUploaded('/wrong/path', '/remote/path');
-    }
+    $connection->run('ls -la');
+    ServerConnectionManager::assertCommandRan('ls -la');
+});
 
-    /** @test */
-    public function it_can_assert_file_downloaded(): void
-    {
-        $this->serverConnectionFake->establish()->download('/remote/path', '/local/path');
+it('simulates file upload', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $this->serverConnectionFake->assertFileDownloaded('/remote/path', '/local/path');
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertFileDownloaded('/wrong/path', '/local/path');
-    }
+    $connection->upload('/local/path', '/remote/path');
+    ServerConnectionManager::assertFileUploaded('/local/path', '/remote/path');
+});
 
-    /** @test */
-    public function it_can_assert_output(): void
-    {
-        $this->serverConnectionFake->setOutput('Command output');
-        $output = $this->serverConnectionFake->establish()->run('some-command');
+it('simulates file download', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $this->assertEquals('Command output', $output);
-        $this->serverConnectionFake->assertOutput('Command output');
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertOutput('Wrong output');
-    }
+    $connection->download('/remote/path', '/local/path');
+    ServerConnectionManager::assertFileDownloaded('/remote/path', '/local/path');
+});
 
-    /** @test */
-    public function it_can_disconnect(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
-        $this->serverConnectionFake->assertConnected();
+it('simulates disconnecting', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $connection->disconnect();
-        $this->serverConnectionFake->assertDisconnected();
-    }
+    $connection->disconnect();
+    ServerConnectionManager::assertDisconnected();
+});
 
-    /** @test */
-    public function it_fails_assert_disconnected_when_still_connected(): void
-    {
-        $this->serverConnectionFake->establish();
+it('allows setting custom output for commands', function (): void {
+    ServerConnectionManager::fake(function ($fake): void {
+        $fake->setOutput('Custom output');
+    });
 
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertDisconnected();
-    }
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-    /** @test */
-    public function it_fails_assert_connected_when_disconnected(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
-        $connection->disconnect();
+    $output = $connection->run('some command');
+    expect($output)->toBe('Custom output');
+});
 
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertConnected();
-    }
+it('throws an exception when asserting on non-fake connection', function (): void {
+    ServerConnectionManager::reset();
+    ServerConnectionManager::assertConnected();
+})->throws(RuntimeException::class, 'Server connection is not in fake mode.');
 
-    /** @test */
-    public function it_cannot_run_commands_after_disconnect(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
-        $connection->disconnect();
+it('simulates connection failure', function (): void {
+    ServerConnectionManager::fake(function ($fake): void {
+        $fake->shouldNotConnect();
+    });
 
-        $this->expectException(RuntimeException::class);
-        $connection->run('ls -la');
-    }
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
 
-    /** @test */
-    public function it_cannot_upload_after_disconnect(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
-        $connection->disconnect();
+    expect(fn (): Connection => $pendingConnection->establish())->toThrow(ConnectionException::class);
+    ServerConnectionManager::assertNotConnected();
+});
 
-        $this->expectException(RuntimeException::class);
-        $connection->upload('/local/path', '/remote/path');
-    }
+it('simulates multiple command runs', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-    /** @test */
-    public function it_cannot_download_after_disconnect(): void
-    {
-        $connection = $this->serverConnectionFake->establish();
-        $connection->disconnect();
+    $connection->run('command1');
+    $connection->run('command2');
+    $connection->run('command3');
 
-        $this->expectException(RuntimeException::class);
-        $connection->download('/remote/path', '/local/path');
-    }
+    ServerConnectionManager::assertCommandRan('command1');
+    ServerConnectionManager::assertCommandRan('command2');
+    ServerConnectionManager::assertCommandRan('command3');
+    ServerConnectionManager::assertAnyCommandRan();
+});
 
-    /** @test */
-    public function it_can_assert_not_connected(): void
-    {
-        $this->serverConnectionFake->assertNotConnected();
+it('asserts no commands were run', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $pendingConnection->establish();
 
-        $this->serverConnectionFake->establish();
-        $this->expectException(ExpectationFailedException::class);
-        $this->serverConnectionFake->assertNotConnected();
-    }
+    ServerConnectionManager::assertNoCommandsRan();
+});
 
-    /** @test */
-    public function it_can_check_if_connected(): void
-    {
-        $this->assertFalse($this->serverConnectionFake->isConnected());
+it('simulates multiple file uploads', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
 
-        $this->serverConnectionFake->establish();
-        $this->assertTrue($this->serverConnectionFake->isConnected());
+    $connection->upload('/local/path1', '/remote/path1');
+    $connection->upload('/local/path2', '/remote/path2');
 
-        $this->serverConnectionFake->disconnect();
-        $this->assertFalse($this->serverConnectionFake->isConnected());
-    }
-}
+    ServerConnectionManager::assertFileUploaded('/local/path1', '/remote/path1');
+    ServerConnectionManager::assertFileUploaded('/local/path2', '/remote/path2');
+});
+
+it('simulates multiple file downloads', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
+
+    $connection->download('/remote/path1', '/local/path1');
+    $connection->download('/remote/path2', '/local/path2');
+
+    ServerConnectionManager::assertFileDownloaded('/remote/path1', '/local/path1');
+    ServerConnectionManager::assertFileDownloaded('/remote/path2', '/local/path2');
+});
+
+it('resets fake state correctly', function (): void {
+    ServerConnectionManager::connect('example.com', 2222, 'user');
+    ServerConnectionManager::reset();
+
+    expect(ServerConnectionManager::isFake())->toBeFalse();
+});
+
+it('allows custom setup of fake instance', function (): void {
+    ServerConnectionManager::fake(function ($fake): void {
+        $fake->shouldConnect()->setOutput('Custom output');
+    });
+
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
+
+    expect($connection->run('command'))->toBe('Custom output');
+});
+
+it('simulates connection from model with custom attributes', function (): void {
+    $remoteServer = RemoteServer::factory()->create([
+        'ip_address' => '127.0.0.1',
+        'port' => 2222,
+        'username' => 'customuser',
+    ]);
+
+    ServerConnectionManager::connectFromModel($remoteServer);
+    ServerConnectionManager::assertConnectionAttempted([
+        'host' => '127.0.0.1',
+        'port' => 2222,
+        'username' => 'customuser',
+    ]);
+});
+
+it('throws exception when trying to run command on closed connection', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
+    $connection->disconnect();
+
+    expect(fn (): string => $connection->run('command'))->toThrow(RuntimeException::class, 'Cannot perform operation: Connection is closed.');
+});
+
+it('throws exception when trying to upload file on closed connection', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
+    $connection->disconnect();
+
+    expect(fn (): bool => $connection->upload('/local/path', '/remote/path'))->toThrow(RuntimeException::class, 'Cannot perform operation: Connection is closed.');
+});
+
+it('throws exception when trying to download file on closed connection', function (): void {
+    $pendingConnection = ServerConnectionManager::connect('example.com', 2222, 'user');
+    $connection = $pendingConnection->establish();
+    $connection->disconnect();
+
+    expect(fn (): bool => $connection->download('/remote/path', '/local/path'))->toThrow(RuntimeException::class, 'Cannot perform operation: Connection is closed.');
+});

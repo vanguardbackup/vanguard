@@ -110,7 +110,7 @@ class ConnectionFake extends Connection
      *
      * @throws RuntimeException If the fake connection is closed
      */
-    protected function ensureConnected(): void
+    private function ensureConnected(): void
     {
         if (! $this->serverConnectionFake->isConnected()) {
             throw new RuntimeException('Cannot perform operation: Connection is closed.');

@@ -7,6 +7,11 @@ namespace App\Support\ServerConnection\Exceptions;
 use Exception;
 use Throwable;
 
+/**
+ * ConnectionException
+ *
+ * This exception is thrown when there are issues with server connections.
+ */
 final class ConnectionException extends Exception
 {
     /**
