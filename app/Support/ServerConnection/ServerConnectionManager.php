@@ -9,6 +9,7 @@ use App\Support\ServerConnection\Fakes\ServerConnectionFake;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
+use Log;
 use RuntimeException;
 
 /**
@@ -217,6 +218,8 @@ class ServerConnectionManager
         if (! file_exists($path)) {
             throw new RuntimeException("Private key file does not exist: {$path}");
         }
+
+        Log::debug('The private key path is:', ['path' => $path]);
 
         return (string) file_get_contents($path);
     }
