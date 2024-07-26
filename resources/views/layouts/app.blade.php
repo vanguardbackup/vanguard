@@ -5,9 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>
-        @yield('title', '') | {{ config('app.name') }}
-    </title>
+    <title>@yield('title', '') | {{ config('app.name') }}</title>
+
+    <!-- Basic Metadata -->
+    <meta name="description" content="{{ config('app.name') }} - Open-source backup solution for servers and applications">
+
+    <!-- Open Graph / Discord -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ config('app.name') }}">
+    <meta property="og:description" content="Open-source backup solution for servers and applications">
+    <meta property="og:image" content="{{ asset('og-image.jpg') }}">
+
+    <!-- Theme Colour -->
+    <meta name="theme-color" content="#000000">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
