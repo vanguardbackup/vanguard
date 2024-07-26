@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
+use App\Jobs\BackupTasks\SendTeamsNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
@@ -395,6 +396,13 @@ class BackupTask extends Model
             ->exists();
     }
 
+    public function hasTeamNotification(): bool
+    {
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_TEAMS)
+            ->exists();
+    }
+
     /**
      * Send notifications for the latest backup task log.
      *
@@ -451,6 +459,7 @@ class BackupTask extends Model
             NotificationStream::TYPE_EMAIL => $this->sendEmailNotification($backupTaskLog, $streamValue),
             NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
+            NotificationStream::TYPE_TEAMS => SendTeamsNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->getAttribute('type')}"),
         };
     }
@@ -573,6 +582,59 @@ class BackupTask extends Model
 
         if ($response->status() !== 200 || $response->body() !== 'ok') {
             throw new RuntimeException('Slack webhook failed: ' . $response->body());
+        }
+    }
+
+    public function sendTeamsWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
+    {
+        $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
+        $message = $backupTaskLog->getAttribute('successful_at')
+            ? 'The backup task was successful. Please see the details below for more information about this task.'
+            : 'The backup task failed. Please see the details below for more information about this task.';
+        $color = $backupTaskLog->getAttribute('successful_at') ? '00FF00' : 'FF0000'; // Green for success, Red for failure
+
+        $payload = [
+            '@type' => 'MessageCard',
+            '@context' => 'http://schema.org/extensions',
+            'themeColor' => $color,
+            'summary' => $this->label . ' Backup Task',
+            'sections' => [
+                [
+                    'activityTitle' => $this->label . ' Backup Task',
+                    'activitySubtitle' => $message,
+                    'facts' => [
+                        [
+                            'name' => __('Backup Type'),
+                            'value' => ucfirst($this->type),
+                        ],
+                        [
+                            'name' => __('Remote Server'),
+                            'value' => $this->remoteServer?->label,
+                        ],
+                        [
+                            'name' => __('Backup Destination'),
+                            'value' => $this->backupDestination?->label . ' (' . $this->backupDestination?->type() . ')',
+                        ],
+                        [
+                            'name' => __('Result'),
+                            'value' => ucfirst($status),
+                        ],
+                        [
+                            'name' => __('Ran at'),
+                            'value' => Carbon::parse($backupTaskLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
+                        ],
+                    ],
+                    'text' => __('This notification was sent by :app.', ['app' => config('app.name')]),
+                ],
+            ],
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($webhookURL, $payload);
+
+        if (!$response->successful()) {
+            throw new RuntimeException('Teams webhook failed: ' . $response->body());
         }
     }
 

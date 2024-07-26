@@ -88,6 +88,30 @@ it('submits successfully with Slack webhook', function (): void {
     ]);
 });
 
+it('submits successfully with Teams webhook', function (): void {
+    $testData = [
+        'label' => 'Test Teams Webhook',
+        'type' => 'teams_webhook',
+        'value' => 'https://outlook.webhook.office.com/webhookb2/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p@a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6/IncomingWebhook/qrstuvwxyz123456789/abcdef12-3456-7890-abcd-ef1234567890',
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+});
+
 it('validates required fields', function (): void {
     Livewire::actingAs($this->user)
         ->test(CreateNotificationStream::class)
@@ -140,6 +164,16 @@ it('validates Slack webhook format', function (): void {
         ->set('form.label', 'Test Slack Webhook')
         ->set('form.type', 'slack_webhook')
         ->set('form.value', 'https://invalid-slack-webhook.com')
+        ->call('submit')
+        ->assertHasErrors(['form.value']);
+});
+
+it('validates Teams webhook format', function (): void {
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', 'Test Teams Webhook')
+        ->set('form.type', 'teams_webhook')
+        ->set('form.value', 'https://invalid-teams-webhook.com')
         ->call('submit')
         ->assertHasErrors(['form.value']);
 });
@@ -257,6 +291,38 @@ it('submits successfully with Slack webhook and both notification preferences en
         'label' => 'Test Slack Webhook',
         'type' => 'slack_webhook',
         'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNotNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('submits successfully with Teams webhook and both notification preferences enabled', function (): void {
+    $testData = [
+        'label' => 'Test Teams Webhook',
+        'type' => 'teams_webhook',
+        'value' => 'https://outlook.webhook.office.com/webhookb2/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p@a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6/IncomingWebhook/qrstuvwxyz123456789/abcdef12-3456-7890-abcd-ef1234567890',
         'success_notification' => true,
         'failed_notification' => true,
     ];

@@ -140,6 +140,47 @@ it('updates successfully with Slack webhook and both notification preferences en
         ->and($updatedStream->receive_failed_backup_notifications)->not->toBeNull();
 });
 
+it('updates successfully with Teams webhook and both notification preferences enabled', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'teams_webhook',
+        'value' => 'https://outlook.webhook.office.com/webhookb2/old',
+        'receive_successful_backup_notifications' => null,
+        'receive_failed_backup_notifications' => null,
+    ]);
+
+    $newData = [
+        'label' => 'Updated Teams Webhook',
+        'type' => 'teams_webhook',
+        'value' => 'https://outlook.webhook.office.com/webhookb2/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p@a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6/IncomingWebhook/qrstuvwxyz123456789/abcdef12-3456-7890-abcd-ef1234567890',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.label', $newData['label'])
+        ->set('form.type', $newData['type'])
+        ->set('form.value', $newData['value'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
+        'id' => $notificationStream->id,
+        'user_id' => $user->id,
+        'label' => $newData['label'],
+        'type' => $newData['type'],
+        'value' => $newData['value'],
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->not->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->not->toBeNull();
+});
+
 it('updates successfully with both notification preferences disabled', function (): void {
     $user = User::factory()->create();
     $notificationStream = NotificationStream::factory()->create([
@@ -274,6 +315,18 @@ it('validates Slack webhook format', function (): void {
         ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
         ->set('form.type', 'slack_webhook')
         ->set('form.value', 'https://invalid-slack-webhook.com')
+        ->call('submit')
+        ->assertHasErrors(['form.value']);
+});
+
+it('validates Teams webhook format', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.type', 'teams_webhook')
+        ->set('form.value', 'https://invalid-teams-webhook.com')
         ->call('submit')
         ->assertHasErrors(['form.value']);
 });

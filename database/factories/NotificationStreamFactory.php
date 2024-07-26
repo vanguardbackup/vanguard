@@ -19,6 +19,7 @@ class NotificationStreamFactory extends Factory
             NotificationStream::TYPE_EMAIL,
             NotificationStream::TYPE_SLACK,
             NotificationStream::TYPE_DISCORD,
+            NotificationStream::TYPE_TEAMS,
         ]);
 
         return [
@@ -61,6 +62,17 @@ class NotificationStreamFactory extends Factory
         return $this->state([
             'type' => NotificationStream::TYPE_DISCORD,
             'value' => $this->generateDiscordWebhook(),
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream is for Microsoft Teams.
+     */
+    public function teams(): static
+    {
+        return $this->state([
+            'type' => NotificationStream::TYPE_TEAMS,
+            'value' => $this->generateTeamsWebhook(),
         ]);
     }
 
@@ -113,6 +125,7 @@ class NotificationStreamFactory extends Factory
             NotificationStream::TYPE_EMAIL => $this->faker->safeEmail,
             NotificationStream::TYPE_SLACK => $this->generateSlackWebhook(),
             NotificationStream::TYPE_DISCORD => $this->generateDiscordWebhook(),
+            NotificationStream::TYPE_TEAMS => $this->generateTeamsWebhook(),
             default => $this->faker->url,
         };
     }
@@ -138,5 +151,19 @@ class NotificationStreamFactory extends Factory
         $token = $this->faker->regexify('[a-zA-Z0-9_-]{68}');
 
         return "https://discord.com/api/webhooks/{$id}/{$token}";
+    }
+
+    /**
+     * Generate a realistic Teams webhook URL.
+     */
+    private function generateTeamsWebhook(): string
+    {
+        $subdomain = $this->faker->word;
+        $guid1 = $this->faker->uuid;
+        $guid2 = $this->faker->uuid;
+        $alphanumeric = $this->faker->regexify('[a-zA-Z0-9]{20}');
+        $guid3 = $this->faker->uuid;
+
+        return "https://{$subdomain}.webhook.office.com/webhookb2/{$guid1}@{$guid2}/IncomingWebhook/{$alphanumeric}/{$guid3}";
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
+use App\Jobs\BackupTasks\SendTeamsNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
@@ -621,6 +622,49 @@ it('returns false if there is no notification stream discord webhook set', funct
     expect($task->hasDiscordNotification())->toBeFalse();
 });
 
+it('returns true if there is a notification stream teams webhook set', function (): void {
+
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->teams()->create();
+
+    $task->notificationStreams()->attach($stream);
+
+    expect($task->hasTeamNotification())->toBeTrue();
+});
+
+it('returns false if there is no notification stream teams webhook set', function (): void {
+
+    $task = BackupTask::factory()->create();
+
+    expect($task->hasTeamNotification())->toBeFalse();
+});
+
+it('queues up a teams notification job if a discord notification has been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->teams()->create();
+    $task->notificationStreams()->attach($stream);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendTeamsNotificationJob::class);
+});
+
+it('does not queue up a teams notification job if a teams notification has not been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendTeamsNotificationJob::class);
+});
+
 it('queues up a discord notification job if a discord notification has been set', function (): void {
 
     Queue::fake();
@@ -723,9 +767,10 @@ it('can send multiple types of notifications simultaneously', function (): void 
     $task = BackupTask::factory()->create();
     $discordStream = NotificationStream::factory()->discord()->create();
     $slackStream = NotificationStream::factory()->slack()->create();
+    $teamsStream = NotificationStream::factory()->teams()->create();
     $emailStream = NotificationStream::factory()->email()->create();
 
-    $task->notificationStreams()->attach([$discordStream->id, $slackStream->id, $emailStream->id]);
+    $task->notificationStreams()->attach([$discordStream->id, $slackStream->id, $emailStream->id, $teamsStream->id]);
 
     BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
 
@@ -733,6 +778,7 @@ it('can send multiple types of notifications simultaneously', function (): void 
 
     Queue::assertPushed(SendDiscordNotificationJob::class);
     Queue::assertPushed(SendSlackNotificationJob::class);
+    Queue::assertPushed(SendTeamsNotificationJob::class);
     Mail::assertQueued(OutputMail::class);
 });
 
@@ -788,6 +834,33 @@ it('handles slack error response', function (): void {
 
     expect(fn () => $task->sendSlackWebhookNotification($log, $slackURL))
         ->toThrow(RuntimeException::class, 'Slack webhook failed: invalid_token');
+});
+
+it('sends a Teams webhook successfully', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $teamsURL = 'https://outlook.webhook.office.com/webhookb2/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p@a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6/IncomingWebhook/qrstuvwxyz123456789/abcdef12-3456-7890-abcd-ef1234567890';
+
+    Http::fake([
+        $teamsURL => Http::response('', 200),
+    ]);
+
+    $task->sendTeamsWebhookNotification($log, $teamsURL);
+
+    Http::assertSent(fn ($request): bool => $request->url() === $teamsURL);
+});
+
+it('handles Teams error response', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $teamsURL = 'https://outlook.webhook.office.com/webhookb2/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p@a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6/IncomingWebhook/qrstuvwxyz123456789/abcdef12-3456-7890-abcd-ef1234567890';
+
+    Http::fake([
+        $teamsURL => Http::response('Unauthorized', 401),
+    ]);
+
+    expect(fn () => $task->sendTeamsWebhookNotification($log, $teamsURL))
+        ->toThrow(RuntimeException::class, 'Teams webhook failed: Unauthorized');
 });
 
 it('sends notifications based on backup task outcome and user preferences', function (): void {
