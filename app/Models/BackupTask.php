@@ -633,7 +633,7 @@ class BackupTask extends Model
             'Content-Type' => 'application/json',
         ])->post($webhookURL, $payload);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new RuntimeException('Teams webhook failed: ' . $response->body());
         }
     }
