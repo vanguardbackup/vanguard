@@ -183,18 +183,20 @@
     </main>
 </div>
 <x-toaster-hub/>
-<footer class="py-1.5 text-xs font-medium bg-primary-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-    <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between">
-            <div>
-                {{ __(':app - v:version', ['app' => config('app.name'),'version' => obtain_vanguard_version()]) }}
+<footer class="py-3 sm:py-4 text-sm sm:text-base font-medium bg-primary-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div class="text-center sm:text-left">
+                <p>{{ __(':app - v:version', ['app' => config('app.name'), 'version' => obtain_vanguard_version()]) }}</p>
                 @if (config('app.env') === 'local')
-                    <strong class="text-purple-500 uppercase ml-1">{{ __('Local Environment') }}</strong>
+                    <span class="inline-block mt-1 px-2 py-1 text-xs font-bold text-purple-700 bg-purple-100 rounded-full dark:text-purple-300 dark:bg-purple-900">
+                        {{ __('Local Environment') }}
+                    </span>
                 @endif
             </div>
-            <div>
-                <a href="https://github.com/vanguardbackup/vanguard" title="{{ __('GitHub repository') }}" target="_blank">
-                    <x-icons.github class="h-4 w-4 fill-current ease-in-out hover:text-gray-700 dark:hover:text-gray-200 duration-150" />
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/vanguardbackup/vanguard" title="{{ __('GitHub repository') }}" target="_blank" class="hover:text-gray-800 dark:hover:text-gray-200 transition duration-150 ease-in-out">
+                    <x-icons.github class="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
                 </a>
             </div>
         </div>
