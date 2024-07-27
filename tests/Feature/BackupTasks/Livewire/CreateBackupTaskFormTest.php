@@ -24,7 +24,7 @@ beforeEach(function (): void {
 test('form is rendered', function (): void {
     Livewire::test(CreateBackupTaskForm::class)
         ->assertSet('currentStep', 1)
-        ->assertSet('totalSteps', 5)
+        ->assertSet('totalSteps', 6)
         ->assertStatus(200);
 });
 

@@ -19,7 +19,8 @@
                                 ['label' => __('Configuration'), 'icon' => 'heroicon-o-cog'],
                                 ['label' => __('Backup Info'), 'icon' => 'heroicon-o-circle-stack'],
                                 ['label' => __('Schedule'), 'icon' => 'heroicon-o-calendar'],
-                                ['label' => __('Notifications'), 'icon' => 'heroicon-o-bell']
+                                ['label' => __('Notifications'), 'icon' => 'heroicon-o-bell'],
+                                ['label' => __('Summary'), 'icon' => 'heroicon-o-clipboard-document-list']
                             ];
                         @endphp
 
@@ -328,6 +329,92 @@
                         @else
                             {{ __('You do not have any notification streams configured. You will by default receive backup task failure notifications to your accounts email address.') }}
                         @endif
+                    @elseif ($currentStep === 6)
+                        <x-form-section>
+                            {{ __('Backup Task Summary') }}
+                        </x-form-section>
+                        <div class="mt-4">
+                            <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 flex items-center">
+                                        @svg('heroicon-o-clipboard-document-check', 'w-6 h-6 mr-2 text-green-500')
+                                        {{ __('Review Your Backup Task') }}
+                                    </h3>
+                                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                                        {{ __('Please review the details of your backup task before saving.') }}
+                                    </p>
+                                </div>
+                                <div class="dark:border-gray-700 px-4 py-5 sm:px-6">
+                                    <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                        @foreach ($this->getSummary() as $key => $value)
+                                            <div x-data="{ hover: false }"
+                                                 @mouseenter="hover = true"
+                                                 @mouseleave="hover = false"
+                                                 class="relative bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-all duration-300"
+                                                 :class="{ 'shadow-md transform scale-105': hover }">
+                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 mb-1 flex items-center">
+                                                    @switch($key)
+                                                        @case(__('Label'))
+                                                            @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-blue-500')
+                                                            @break
+                                                        @case(__('Description'))
+                                                            @svg('heroicon-o-document-text', 'w-5 h-5 mr-2 text-purple-500')
+                                                            @break
+                                                        @case(__('Remote Server'))
+                                                            @svg('heroicon-o-server', 'w-5 h-5 mr-2 text-green-500')
+                                                            @break
+                                                        @case(__('Backup Type'))
+                                                            @svg('heroicon-o-archive-box', 'w-5 h-5 mr-2 text-yellow-500')
+                                                            @break
+                                                        @case(__('Backup Destination'))
+                                                            @svg('heroicon-o-cloud', 'w-5 h-5 mr-2 text-indigo-500')
+                                                            @break
+                                                        @case(__('Maximum Backups to Keep'))
+                                                            @svg('heroicon-o-archive-box-arrow-down', 'w-5 h-5 mr-2 text-red-500')
+                                                            @break
+                                                        @case(__('Source Path'))
+                                                            @svg('heroicon-o-folder', 'w-5 h-5 mr-2 text-orange-500')
+                                                            @break
+                                                        @case(__('Database Name'))
+                                                            @svg('heroicon-o-circle-stack', 'w-5 h-5 mr-2 text-cyan-500')
+                                                            @break
+                                                        @case(__('Schedule'))
+                                                            @svg('heroicon-o-calendar', 'w-5 h-5 mr-2 text-pink-500')
+                                                            @break
+                                                        @case(__('Using Isolated Environment'))
+                                                            @svg('heroicon-o-shield-check', 'w-5 h-5 mr-2 text-teal-500')
+                                                            @break
+                                                        @case(__('Tags'))
+                                                            @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-lime-500')
+                                                            @break
+                                                        @case(__('Notification Streams'))
+                                                            @svg('heroicon-o-bell', 'w-5 h-5 mr-2 text-amber-500')
+                                                            @break
+                                                        @default
+                                                            @svg('heroicon-o-information-circle', 'w-5 h-5 mr-2 text-gray-500')
+                                                    @endswitch
+                                                    {{ $key }}
+                                                </dt>
+                                                <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                    @if (strlen($value) > 50)
+                                                        <span x-data="{ expanded: false }">
+                                    <span x-show="!expanded">{{ Str::limit($value, 50) }}</span>
+                                    <span x-show="expanded">{{ $value }}</span>
+                                    <button @click="expanded = !expanded" class="text-blue-500 hover:underline focus:outline-none ml-1">
+                                        <span x-show="!expanded">{{ __('Show more') }}</span>
+                                        <span x-show="expanded">{{ __('Show less') }}</span>
+                                    </button>
+                                </span>
+                                                    @else
+                                                        {{ $value }}
+                                                    @endif
+                                                </dd>
+                                            </div>
+                                        @endforeach
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
                     @endif
 
                     <div class="mt-6 max-w-3xl mx-auto" x-data="{

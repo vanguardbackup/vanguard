@@ -8,6 +8,7 @@ use App\Models\BackupTask;
 use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
+use App\Models\User;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,11 +22,17 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Toaster;
 
+/**
+ * Class CreateBackupTaskForm
+ *
+ * This Livewire component handles the creation of a new backup task.
+ * It manages a multistep form process, including validation and submission.
+ */
 class CreateBackupTaskForm extends Component
 {
     public string $label = '';
 
-    public ?string $description = '';
+    public string $description = '';
 
     public ?string $sourcePath = null;
 
@@ -63,7 +70,7 @@ class CreateBackupTaskForm extends Component
 
     public int $currentStep = 1;
 
-    public int $totalSteps = 5;
+    public int $totalSteps = 6;
 
     /** @var Collection<int, RemoteServer>|null */
     public ?Collection $remoteServers = null;
@@ -101,6 +108,12 @@ class CreateBackupTaskForm extends Component
         'cronExpression' => 'Cron Expression',
     ];
 
+    /**
+     * Initialize the component state.
+     *
+     * This method is called when the component is first loaded.
+     * It sets up default values and initial state for the form.
+     */
     public function mount(): void
     {
         $this->initializeDefaultValues();
@@ -109,17 +122,31 @@ class CreateBackupTaskForm extends Component
         $this->updatedUseCustomCron();
     }
 
+    /**
+     * Move to the next step in the form process.
+     *
+     * This method validates the current step before proceeding to the next one.
+     */
     public function nextStep(): void
     {
         $this->validate($this->getStepRules(), $this->messages());
         $this->currentStep = min($this->currentStep + 1, $this->totalSteps);
     }
 
+    /**
+     * Move to the previous step in the form process.
+     */
     public function previousStep(): void
     {
         $this->currentStep = max($this->currentStep - 1, 1);
     }
 
+    /**
+     * Handle changes to the custom cron toggle.
+     *
+     * This method updates the form state when the user toggles between
+     * custom cron and standard scheduling options.
+     */
     public function updatedUseCustomCron(): void
     {
         if ($this->useCustomCron) {
@@ -130,6 +157,11 @@ class CreateBackupTaskForm extends Component
         }
     }
 
+    /**
+     * Handle changes to the isolated credentials toggle.
+     *
+     * This method clears isolated credential fields when toggled off.
+     */
     public function updatedUseIsolatedCredentials(): void
     {
         if (! $this->useIsolatedCredentials) {
@@ -138,6 +170,11 @@ class CreateBackupTaskForm extends Component
         }
     }
 
+    /**
+     * Handle changes to the backup type.
+     *
+     * This method updates the available remote servers based on the selected backup type.
+     */
     public function updatedBackupType(): void
     {
         $user = Auth::user();
@@ -152,6 +189,12 @@ class CreateBackupTaskForm extends Component
         $this->remoteServerId = $this->remoteServers->first()?->id;
     }
 
+    /**
+     * Submit the form and create a new backup task.
+     *
+     * This method validates the entire form, creates the backup task,
+     * and redirects to the backup tasks index page.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->validate($this->rules(), $this->messages());
@@ -168,11 +211,14 @@ class CreateBackupTaskForm extends Component
 
         $backupTask->notificationStreams()->sync($notificationStreams);
 
-        Toaster::success(__('Backup task has been added.'));
+        Toaster::success('Backup task has been added.');
 
         return Redirect::route('backup-tasks.index');
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         return view('livewire.backup-tasks.forms.create-backup-task-form', [
@@ -187,6 +233,8 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
+     * Define the validation rules for the form.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -231,9 +279,13 @@ class CreateBackupTaskForm extends Component
         return $baseRules;
     }
 
+    /**
+     * Handle changes to the remote server selection.
+     *
+     * This method checks for conflicting backup tasks when a new remote server is selected.
+     */
     public function updatedRemoteServerId(?int $value): void
     {
-
         if ($this->remoteServerId !== null && $this->timeToRun !== null) {
             $conflictingTask = BackupTask::where('remote_server_id', $this->remoteServerId)
                 ->where('time_to_run_at', $this->timeToRun)
@@ -247,6 +299,48 @@ class CreateBackupTaskForm extends Component
         }
     }
 
+    /**
+     * Get the summary of the backup task configuration.
+     *
+     * @return array<string, string>
+     */
+    public function getSummary(): array
+    {
+        $remoteServer = RemoteServer::find($this->remoteServerId);
+        $backupDestination = Auth::user()?->backupDestinations->firstWhere('id', $this->backupDestinationId);
+
+        $summary = [
+            'Label' => $this->label,
+            'Description' => $this->description ?: 'Not Set',
+            'Remote Server' => $remoteServer ? "{$remoteServer->label} ({$remoteServer->ip_address})" : 'Not Set',
+            'Backup Type' => ucfirst($this->backupType),
+            'Backup Destination' => $backupDestination
+                ? "{$backupDestination->label} - " . ucfirst((string) $backupDestination->type())
+                : 'Not Set',
+            'Maximum Backups to Keep' => (string) $this->backupsToKeep,
+            'Source Path' => $this->sourcePath ?? 'Not Set',
+            'Database Name' => $this->databaseName ?? 'Not Set',
+            'Excluded Database Tables' => $this->excludedDatabaseTables ?? 'None',
+            'Additional Filename Text' => $this->appendedFileName ?? 'Not Set',
+            'Backup Destination Directory' => $this->storePath ?? 'Root directory of backup destination',
+            'Schedule' => $this->useCustomCron
+                ? "Custom: {$this->cronExpression}"
+                : ucfirst((string) $this->frequency) . " at {$this->timeToRun}",
+            'Using Isolated Environment' => $this->useIsolatedCredentials ? 'Yes' : 'No',
+            'Tags' => $this->getSelectedTagLabels(),
+            'Notification Streams' => $this->getSelectedStreamLabels(),
+        ];
+
+        // Translate all keys and values
+        return array_combine(
+            array_map(fn ($key) => __($key), array_keys($summary)),
+            array_map(fn ($value) => __($value), $summary)
+        );
+    }
+
+    /**
+     * Initialize default values for the form.
+     */
     private function initializeDefaultValues(): void
     {
         $user = Auth::user();
@@ -263,12 +357,20 @@ class CreateBackupTaskForm extends Component
         $this->backupDestinationId = (string) ($user->preferred_backup_destination_id ?? $user->backupDestinations->first()?->id ?? '');
     }
 
+    /**
+     * Initialize the backup times collection.
+     */
     private function initializeBackupTimes(): void
     {
         $this->backupTimes = collect(range(0, 95))->map(fn ($quarterHour): string => sprintf('%02d:%02d', intdiv($quarterHour, 4), ($quarterHour % 4) * 15)
         );
     }
 
+    /**
+     * Process the schedule settings before saving.
+     *
+     * This method handles timezone conversions and sets the appropriate schedule fields.
+     */
     private function processScheduleSettings(): void
     {
         if ($this->cronExpression) {
@@ -290,6 +392,8 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
+     * Get the validation error messages.
+     *
      * @return array<string, string>
      */
     private function messages(): array
@@ -321,6 +425,8 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
+     * Prepare the data for creating a new backup task.
+     *
      * @return array<string, mixed>
      */
     private function prepareBackupTaskData(): array
@@ -348,6 +454,8 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
+     * Get the validation rules for the current step.
+     *
      * @return array<string, mixed>
      */
     private function getStepRules(): array
@@ -359,8 +467,41 @@ class CreateBackupTaskForm extends Component
             2 => array_intersect_key($allRules, array_flip(['remoteServerId', 'backupType', 'backupDestinationId', 'backupsToKeep'])),
             3 => array_intersect_key($allRules, array_flip(['sourcePath', 'databaseName', 'excludedDatabaseTables', 'appendedFileName', 'storePath'])),
             4 => array_intersect_key($allRules, array_flip(['frequency', 'timeToRun', 'cronExpression'])),
-            5 => array_intersect_key($allRules, array_flip(['selectedNotificationStreams'])),
+            5 => array_intersect_key($allRules, array_flip(['selectedStreams'])),
+            6 => [], // Summary step, no validation needed
             default => [],
         };
+    }
+
+    /**
+     * Get the labels of selected tags.
+     */
+    private function getSelectedTagLabels(): string
+    {
+        if ($this->selectedTags === null || $this->selectedTags === [] || ! $this->availableTags instanceof Collection) {
+            return 'None';
+        }
+
+        $selectedTags = $this->availableTags->whereIn('id', $this->selectedTags);
+
+        return $selectedTags->isNotEmpty()
+            ? $selectedTags->pluck('label')->implode(', ')
+            : 'None';
+    }
+
+    /**
+     * Get the labels of selected notification streams.
+     */
+    private function getSelectedStreamLabels(): string
+    {
+        if ($this->selectedStreams === null || $this->selectedStreams === [] || ! $this->availableNotificationStreams instanceof Collection) {
+            return __('None');
+        }
+
+        $selectedStreams = $this->availableNotificationStreams->whereIn('id', $this->selectedStreams);
+
+        return $selectedStreams->isNotEmpty()
+            ? $selectedStreams->pluck('label')->implode(', ')
+            : __('None');
     }
 }
