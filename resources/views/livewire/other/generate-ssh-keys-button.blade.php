@@ -1,6 +1,9 @@
-<div class="inline-flex">
-    <button wire:click="generateKeys" class="ml-2 bg-red-400/65 hover:bg-red-400/90 p-2 px-6 text-sm rounded-[.70rem] focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition ease-in-out duration-150">
-        @svg('heroicon-o-play', ['class' => 'h-4 -w-4 -mt-1 inline'])
+<div class="w-full sm:inline-flex">
+    <button
+        wire:click="generateKeys"
+        class="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-2 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
+    >
+        @svg('heroicon-o-play', ['class' => 'h-4 w-4 inline mr-2'])
         {{ __('Generate SSH Keys') }}
     </button>
 </div>
