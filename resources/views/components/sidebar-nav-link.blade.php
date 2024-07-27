@@ -1,11 +1,11 @@
 @props(['active'])
 
 @php
-    $classes = 'block rounded-md text-sm font-medium transition-colors duration-150 ease-in-out w-full ';
+    $classes = 'block rounded text-xs lg:text-sm font-medium transition-all duration-200 ease-in-out w-full ';
     $classes .= ($active ?? false)
-        ? 'bg-white dark:bg-gray-700 text-gray-950 dark:text-gray-200 shadow-none'
-        : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-400';
-    $classes .= ' py-2 px-3 lg:py-2.5 lg:px-3'; // Added padding here
+        ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 shadow-sm'
+        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100';
+    $classes .= ' px-1 py-1 lg:px-2 lg:py-1.5';
 @endphp
 
 <a {{ $attributes->merge(['class' => $classes]) }}>

@@ -29,13 +29,14 @@ new class extends Component
     open: @entangle('isMobileMenuOpen'),
     userOpen: @entangle('isUserDropdownOpen'),
     desktopDropdownOpen: false
-}" class="bg-primary-950 border-b border-gray-900">
+}" class="bg-primary-950 border-b border-gray-900 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <!-- Logo and Primary Navigation -->
-            <div class="flex items-center">
-                <a href="{{ route('overview') }}" wire:navigate class="flex-shrink-0 flex items-center">
-                    <x-application-logo class="block h-6 w-auto fill-current text-white"/>
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <div class="md:hidden flex-grow"></div>
+                <a href="{{ route('overview') }}" wire:navigate class="flex-shrink-0 flex items-center mx-auto md:mx-0 group">
+                    <x-application-logo class="block h-7 w-auto fill-current text-white transition duration-300 ease-in-out transform group-hover:scale-110"/>
                 </a>
                 <div class="hidden md:ml-6 md:flex md:space-x-1">
                     <x-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
@@ -48,6 +49,18 @@ new class extends Component
                             <span>{{ __('Backup Tasks') }}</span>
                         </x-nav-link>
                     @endif
+                </div>
+                <div class="md:hidden flex-grow flex justify-end">
+                    <!-- Mobile menu button -->
+                    <button wire:click="toggleMobileMenu" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition duration-150 ease-in-out" aria-label="Toggle mobile menu">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6 transition-opacity duration-200 ease-in-out" :class="{'opacity-0': open, 'opacity-100': !open}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="h-6 w-6 transition-opacity duration-200 ease-in-out absolute" :class="{'opacity-100': open, 'opacity-0': !open}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -71,7 +84,8 @@ new class extends Component
                     <x-theme-switcher />
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button @click="desktopDropdownOpen = !desktopDropdownOpen" class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                            <button @click="desktopDropdownOpen = !desktopDropdownOpen" class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition duration-150 ease-in-out" aria-expanded="false">
+                                <span class="sr-only">Open user menu</span>
                                 <img class="h-8 w-8 rounded-full mr-2 border border-gray-950" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}"/>
                                 <span x-data="{ name: @js(auth()->user()->first_name) }" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></span>
                                 <svg class="ml-2 h-4 w-4 transition-transform duration-200 ease-in-out" :class="{'rotate-180': desktopDropdownOpen}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -80,37 +94,45 @@ new class extends Component
                             </button>
                         </x-slot>
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('profile')" wire:navigate>{{ __('Profile') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('tags.index')" wire:navigate>{{ __('Tags') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>{{ __('Notifications') }}</x-dropdown-link>
+                            <x-dropdown-link :href="route('profile')" wire:navigate>
+                                @svg('heroicon-o-user-circle', 'h-5 w-5 mr-2 inline')
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('tags.index')" wire:navigate>
+                                @svg('heroicon-o-tag', 'h-5 w-5 mr-2 inline')
+                                {{ __('Tags') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
+                                @svg('heroicon-o-bell', 'h-5 w-5 mr-2 inline')
+                                {{ __('Notifications') }}
+                            </x-dropdown-link>
                             @if (Auth::user()->isAdmin())
-                                <x-dropdown-link href="{{ url('/pulse') }}">Laravel Pulse</x-dropdown-link>
-                                <x-dropdown-link href="{{ url('/horizon/dashboard') }}">Laravel Horizon</x-dropdown-link>
+                                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                                <x-dropdown-link href="{{ url('/pulse') }}">
+                                    @svg('heroicon-o-chart-bar', 'h-5 w-5 mr-2 inline')
+                                    Laravel Pulse
+                                </x-dropdown-link>
+                                <x-dropdown-link href="{{ url('/horizon/dashboard') }}">
+                                    @svg('heroicon-o-cpu-chip', 'h-5 w-5 mr-2 inline')
+                                    Laravel Horizon
+                                </x-dropdown-link>
                             @endif
-                            <button wire:click="logout" class="w-full text-start">
-                                <x-dropdown-link>{{ __('Log Out') }}</x-dropdown-link>
+                            <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                            <button wire:click="logout" class="w-full text-start" role="menuitem">
+                                <x-dropdown-link>
+                                    @svg('heroicon-o-arrow-left-on-rectangle', 'h-5 w-5 mr-2 inline')
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
                             </button>
                         </x-slot>
                     </x-dropdown>
                 </div>
             </div>
-
-            <!-- Mobile menu button -->
-            <div class="flex items-center md:hidden">
-                <button wire:click="toggleMobileMenu" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-700 focus:text-white transition duration-150 ease-in-out" aria-label="Toggle mobile menu">
-                    <svg class="h-6 w-6 transition-opacity duration-200 ease-in-out" :class="{'opacity-0': open, 'opacity-100': !open}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    <svg class="h-6 w-6 transition-opacity duration-200 ease-in-out absolute" :class="{'opacity-100': open, 'opacity-0': !open}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
         </div>
     </div>
 
     <!-- Mobile menu -->
-    <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden">
+    <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden" x-trap="open">
         <div class="px-2 pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
                 @svg('heroicon-o-' . (Auth::user()->backupTasks->isNotEmpty() ? 'book-open' : 'rocket-launch'), 'h-5 w-5 text-gray-50 mr-2 inline')
@@ -146,15 +168,33 @@ new class extends Component
                 </div>
             </div>
             <div class="mt-3 px-2 space-y-1">
-                <x-responsive-nav-link :href="route('profile')" wire:navigate>{{ __('Profile') }}</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('tags.index')" wire:navigate>{{ __('Tags') }}</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>{{ __('Notifications') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile')" wire:navigate>
+                    @svg('heroicon-o-user-circle', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('tags.index')" wire:navigate>
+                    @svg('heroicon-o-tag', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    {{ __('Tags') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>
+                    @svg('heroicon-o-bell', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    {{ __('Notifications') }}
+                </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
-                    <x-responsive-nav-link href="{{ url('/pulse') }}">Laravel Pulse</x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ url('/horizon/dashboard') }}">Laravel Horizon</x-responsive-nav-link>
+                    <x-responsive-nav-link href="{{ url('/pulse') }}">
+                        @svg('heroicon-o-chart-bar', 'h-5 w-5 text-gray-50 mr-2 inline')
+                        Laravel Pulse
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link href="{{ url('/horizon/dashboard') }}">
+                        @svg('heroicon-o-cpu-chip', 'h-5 w-5 text-gray-50 mr-2 inline')
+                        Laravel Horizon
+                    </x-responsive-nav-link>
                 @endif
                 <button wire:click="logout" class="w-full text-start">
-                    <x-responsive-nav-link>{{ __('Log Out') }}</x-responsive-nav-link>
+                    <x-responsive-nav-link>
+                        @svg('heroicon-o-arrow-left-on-rectangle', 'h-5 w-5 text-gray-50 mr-2 inline')
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
                 </button>
                 <div class="px-2 py-2">
                     <x-responsive-theme-switcher />
