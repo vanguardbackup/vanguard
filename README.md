@@ -1,13 +1,18 @@
 <p align="center"><img src="https://raw.githubusercontent.com/vanguardbackup/assets/main/icon-200.png" width="120" alt="Vanguard Logo"></p>
 
 <p align="center">
+  <a href="https://opensource.org/license/agpl-v3">
+    <img src="https://img.shields.io/github/license/vanguardbackup/vanguard?style=for-the-badge&logo=opensourceinitiative&logoColor=ffffff" alt="License: MIT">
+  </a>
   <a href="https://github.com/vanguardbackup/vanguard/actions/workflows/main-ci.yml">
-    <img src="https://github.com/vanguardbackup/vanguard/actions/workflows/main-ci.yml/badge.svg?branch=main" alt="CI Pipeline">
+    <img src="https://img.shields.io/github/actions/workflow/status/vanguardbackup/vanguard/main-ci.yml?style=for-the-badge&logo=githubactions&logoColor=ffffff&label=CI%20Pipeline" alt="CI Pipeline">
   </a>
-  <a href="https://opensource.org/licenses/MIT">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
-  </a>
-  <img src="https://img.shields.io/github/v/release/vanguardbackup/vanguard" alt="GitHub Release">
+<a href="https://github.com/vanguardbackup/vanguard/releases">
+  <img src="https://img.shields.io/github/v/release/vanguardbackup/vanguard?style=for-the-badge&logo=github&logoColor=ffffff" alt="GitHub Release">
+</a>
+<a href="https://laravel.com">
+<img src="https://img.shields.io/badge/laravel-%23FF2D20.svg?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+</a>
 </p>
 
 ## About Vanguard
