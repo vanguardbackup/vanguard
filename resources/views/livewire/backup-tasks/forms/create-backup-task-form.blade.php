@@ -431,6 +431,17 @@
                     <div class="mt-6 max-w-3xl mx-auto" x-data="{
     currentStep: @entangle('currentStep'),
     totalSteps: @entangle('totalSteps'),
+    focusFirstInput() {
+        this.$nextTick(() => {
+            const firstInputId = this.$wire.getFirstInputId();
+            if (firstInputId) {
+                const firstInput = document.getElementById(firstInputId);
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        });
+    },
     handleKeydown(event) {
         if (event.key === 'Enter') {
             if (this.currentStep < this.totalSteps) {
@@ -445,15 +456,15 @@
         }
     },
     nextStep() {
-        this.$wire.nextStep();
-},
+        this.$wire.nextStep().then(() => this.focusFirstInput());
+    },
     previousStep() {
-        this.$wire.previousStep();
+        this.$wire.previousStep().then(() => this.focusFirstInput());
     },
     save() {
         this.$refs.saveButton.click();
     }
-}" @keydown.window="handleKeydown">
+}" x-init="focusFirstInput" @keydown.window="handleKeydown">
                         <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-5">
                             <!-- Previous Button -->
                             <div class="w-full sm:w-2/6" x-show="currentStep > 1">

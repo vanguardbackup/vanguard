@@ -407,6 +407,23 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
+     * Retrieves the first input field on each step.
+     */
+    public function getFirstInputId(): ?string
+    {
+        return match ($this->currentStep) {
+            1 => 'label',
+            2 => 'remoteServerId',
+            3 => $this->backupType === BackupTask::TYPE_FILES ? 'sourcePath' : 'databaseName',
+            4 => $this->useCustomCron ? 'cronExpression' : 'frequency',
+            5 => $this->availableNotificationStreams instanceof Collection && $this->availableNotificationStreams->isNotEmpty()
+                ? 'stream-' . $this->availableNotificationStreams->first()->getAttribute('id')
+                : null,
+            default => null,
+        };
+    }
+
+    /**
      * Ensure the given value is a string.
      *
      * @param  string|array<string, string>  $value
