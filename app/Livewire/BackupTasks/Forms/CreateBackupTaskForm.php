@@ -8,7 +8,6 @@ use App\Models\BackupTask;
 use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
-use App\Models\User;
 use App\Rules\UniqueScheduledTimePerRemoteServer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -90,6 +89,13 @@ class CreateBackupTaskForm extends Component
     /** @var array<int>|null */
     public ?array $selectedStreams = [];
 
+    public bool $showCronPresets = false;
+    public string $cronPresetSearch = '';
+    /**
+     * @var array<string, string>
+     */
+    public array $cronPresets = [];
+
     /** @var array<string, string> */
     protected array $validationAttributes = [
         'label' => 'Label',
@@ -109,6 +115,60 @@ class CreateBackupTaskForm extends Component
     ];
 
     /**
+     * Open the cron presets modal.
+     */
+    public function openCronPresets(): void
+    {
+        $this->showCronPresets = true;
+    }
+
+    /**
+     * Close the cron presets modal.
+     */
+    public function closeCronPresets(): void
+    {
+        $this->showCronPresets = false;
+    }
+
+    /**
+     * Set the cron expression from a preset.
+     */
+    public function setPreset(string $preset): void
+    {
+        $this->cronExpression = $preset;
+        $this->dispatch('close-modal', 'cron-presets');
+        $this->cronPresetSearch = '';
+    }
+
+    /**
+     * Get filtered and grouped cron presets based on the current search term.
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function getFilteredCronPresets(): array
+    {
+        $groupedPresets = [
+            $this->ensureString(__('Daily Backups')) => [],
+            $this->ensureString(__('Weekly Backups')) => [],
+            $this->ensureString(__('Monthly Backups')) => [],
+            $this->ensureString(__('Custom Intervals')) => [],
+            $this->ensureString(__('Business Hours')) => [],
+        ];
+
+        foreach ($this->cronPresets as $expression => $description) {
+            if (! $this->matchesSearch($description)) {
+                continue;
+            }
+
+            $translatedDescription = $this->ensureString(__($description));
+            $group = $this->determinePresetGroup($translatedDescription);
+            $groupedPresets[$group][$expression] = $translatedDescription;
+        }
+
+        return $groupedPresets;
+    }
+
+    /**
      * Initialize the component state.
      *
      * This method is called when the component is first loaded.
@@ -120,6 +180,7 @@ class CreateBackupTaskForm extends Component
         $this->initializeBackupTimes();
         $this->updatedBackupType();
         $this->updatedUseCustomCron();
+        $this->initializeCronPresets();
     }
 
     /**
@@ -239,6 +300,13 @@ class CreateBackupTaskForm extends Component
      */
     public function rules(): array
     {
+        $cronRegex = '/^(\*|(\*\/)?([0-5]?[0-9])([-,]([0-5]?[0-9]))*)' // minute
+            . '\s+(\*|(\*\/)?([0-1]?[0-9]|2[0-3])([-,]([0-1]?[0-9]|2[0-3]))*)' // hour
+            . '\s+(\*|(\*\/)?([1-2]?[0-9]|3[0-1])([-,]([1-2]?[0-9]|3[0-1]))*)' // day of month
+            . '\s+(\*|(\*\/)?([1-9]|1[0-2])([-,]([1-9]|1[0-2]))*)' // month
+            . '\s+(\*|(\*\/)?([0-7])([-,]([0-7]))*)'  // day of week
+            . '$/';
+
         $baseRules = [
             'isolatedUsername' => ['nullable', 'string'],
             'isolatedPassword' => ['nullable', 'string'],
@@ -263,7 +331,7 @@ class CreateBackupTaskForm extends Component
             'cronExpression' => [
                 'nullable',
                 'string',
-                'regex:/^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([0-2]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-7]))$/',
+                'regex:' . $cronRegex,
                 'required_if:useCustomCron,true',
             ],
         ];
@@ -336,6 +404,123 @@ class CreateBackupTaskForm extends Component
             array_map(fn ($key) => __($key), array_keys($summary)),
             array_map(fn ($value) => __($value), $summary)
         );
+    }
+
+    /**
+     * Ensure the given value is a string.
+     *
+     * @param  string|array<string, string>  $value
+     */
+    private function ensureString($value): string
+    {
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Determine the group for a given cron preset description.
+     */
+    private function determinePresetGroup(string $description): string
+    {
+        $lowercaseDescription = strtolower($description);
+
+        if (str_contains($lowercaseDescription, strtolower($this->ensureString(__('Every day'))))) {
+            return $this->ensureString(__('Daily Backups'));
+        }
+
+        if (str_contains($lowercaseDescription, strtolower($this->ensureString(__('Every week'))))) {
+            return $this->ensureString(__('Weekly Backups'));
+        }
+
+        if (str_contains($lowercaseDescription, strtolower($this->ensureString(__('Every month')))) ||
+            str_contains($lowercaseDescription, strtolower($this->ensureString(__('Every 3 months'))))) {
+            return $this->ensureString(__('Monthly Backups'));
+        }
+
+        if (str_contains($lowercaseDescription, strtolower($this->ensureString(__('Monday to Friday')))) ||
+            str_contains($lowercaseDescription, strtolower($this->ensureString(__('weekday'))))) {
+            return $this->ensureString(__('Business Hours'));
+        }
+
+        return $this->ensureString(__('Custom Intervals'));
+    }
+
+    /**
+     * Check if the description matches the current search term.
+     */
+    private function matchesSearch(string $description): bool
+    {
+        if ($this->cronPresetSearch === '' || $this->cronPresetSearch === '0') {
+            return true;
+        }
+
+        return str_contains(strtolower($description), strtolower($this->cronPresetSearch));
+    }
+
+    /**
+     * Initialize the cron presets with their translated descriptions.
+     */
+    private function initializeCronPresets(): void
+    {
+        $this->cronPresets = [
+            // Daily backups
+            '0 0 * * *' => __('Every day at midnight'),
+            '0 2 * * *' => __('Every day at 2 AM'),
+            '0 4 * * *' => __('Every day at 4 AM'),
+            '0 1 * * *' => __('Every day at 1 AM (off-peak hours)'),
+            '0 23 * * *' => __('Every day at 11 PM'),
+
+            // Multiple times per day
+            '0 */6 * * *' => __('Every 6 hours'),
+            '0 */12 * * *' => __('Every 12 hours'),
+            '0 */4 * * *' => __('Every 4 hours'),
+            '0 */8 * * *' => __('Every 8 hours'),
+
+            // Specific days of the week
+            '0 0 * * 5' => __('Every Friday at midnight'),
+            '0 0 * * 1' => __('Every Monday at midnight'),
+            '0 2 * * 6' => __('Every Saturday at 2 AM'),
+
+            // Multiple days per week
+            '0 3 * * 1,4' => __('Every Monday and Thursday at 3 AM'),
+            '0 2 * * 2,5' => __('Every Tuesday and Friday at 2 AM'),
+
+            // Weekly backups
+            '0 0 * * 0' => __('Every week on Sunday at midnight'),
+            '0 1 * * 1' => __('Every week on Monday at 1 AM'),
+
+            // Monthly backups
+            '0 0 1 * *' => __('Every month on the 1st at midnight'),
+            '0 2 1 * *' => __('Every month on the 1st at 2 AM'),
+            '0 3 15 * *' => __('Every month on the 15th at 3 AM'),
+
+            // Quarterly backups
+            '0 0 1 */3 *' => __('Every 3 months on the 1st at midnight'),
+
+            // Yearly backup
+            '0 0 1 1 *' => __('Every year on Jan 1st at midnight'),
+
+            // Less frequent backups
+            '0 0 */3 * *' => __('Every 3 days at midnight'),
+            '0 0 */7 * *' => __('Every 7 days at midnight'),
+            '0 1 */5 * *' => __('Every 5 days at 1 AM'),
+
+            // Business hours
+            '0 9-17 * * 1-5' => __('Every hour from 9 AM to 5 PM, Monday to Friday'),
+            '0 8,18 * * 1-5' => __('Twice daily at 8 AM and 6 PM, Monday to Friday'),
+
+            // End of business day
+            '0 18 * * 1-5' => __('Every weekday at 6 PM'),
+
+            // First and last day of the month
+            '0 1 1,L * *' => __('On the first and last day of every month at 1 AM'),
+
+            // Every weekend
+            '0 2 * * 6,0' => __('Every Saturday and Sunday at 2 AM'),
+        ];
     }
 
     /**

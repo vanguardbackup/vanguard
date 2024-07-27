@@ -288,12 +288,23 @@
                         @else
                             <div class="mt-4">
                                 <x-input-label for="cronExpression" :value="__('Cron Expression')"/>
-                                <x-text-input id="cronExpression" class="block mt-1 w-full" type="text"
-                                              wire:model="cronExpression" name="cronExpression" placeholder="** * **"/>
+                                <div class="flex items-center mt-1">
+                                    <x-text-input id="cronExpression" class="block w-full" type="text"
+                                                  wire:model="cronExpression" name="cronExpression" placeholder="* * * * *"/>
+                                    <x-secondary-button
+                                        type="button"
+                                        class="ml-2"
+                                        x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'cron-presets')"
+                                    >
+                                        @svg('heroicon-o-clock', 'w-5 h-5 mr-1')
+                                        {{ __('Presets') }}
+                                    </x-secondary-button>
+                                </div>
                                 <x-input-error :messages="$errors->get('cronExpression')" class="mt-2"/>
                                 <x-input-explain>
                                     {{ __('We recommend using a tool such as') }}
-                                    <a href="https://crontab.guru" _target="_blank"
+                                    <a href="https://crontab.guru" target="_blank" rel="noopener noreferrer"
                                        class="text-sm text-gray-600 dark:text-gray-400 underline hover:text-gray-900 dark:hover:text-gray-100 ease-in-out">
                                         Crontab Guru
                                     </a>
@@ -480,4 +491,66 @@
             </x-form-wrapper>
         </div>
     </div>
+
+    <!-- Cron Presets Modal -->
+    <x-modal name="cron-presets" focusable>
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
+                    @svg('heroicon-o-calendar-days', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                </div>
+                {{ __('Common Cron Job Presets') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {{ __('Select a preset to quickly set up common backup schedules. The cron expression will be automatically filled in for you.') }}
+            </p>
+            <div class="mb-4">
+                <x-input-label for="cronPresetSearch" :value="__('Search Presets')" />
+                <div class="relative">
+                    @svg('heroicon-o-magnifying-glass', 'w-5 h-5 text-gray-400 absolute left-3 top-3')
+                    <x-text-input
+                        name="cronPresetSearch"
+                        id="cronPresetSearch"
+                        type="text"
+                        class="mt-1 block w-full pl-10"
+                        wire:model.live="cronPresetSearch"
+                        :placeholder="__('Type to search...')"
+                    />
+                </div>
+            </div>
+            <div class="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+                @forelse ($this->getFilteredCronPresets() as $group => $presets)
+                    <div>
+                        <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $group }}</h3>
+                        <div class="space-y-3">
+                            @foreach ($presets as $expression => $description)
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                    <div class="flex-grow mb-2 sm:mb-0">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $description }}</span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1" x-data="{ showTooltip: false }">
+                                        <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" class="cursor-help">
+                                            {{ $expression }}
+                                        </span>
+                                            <div x-show="showTooltip" class="absolute bg-black text-white p-2 rounded text-xs mt-1 z-10">
+                                                {{ __('Cron Expression') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <x-primary-button
+                                        type="button"
+                                        wire:click="setPreset('{{ $expression }}')"
+                                        class="w-full sm:w-auto justify-center"
+                                    >
+                                        {{ __('Use') }}
+                                    </x-primary-button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('No matching presets found.') }}</p>
+                @endforelse
+            </div>
+        </div>
+    </x-modal>
 </div>
