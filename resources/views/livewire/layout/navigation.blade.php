@@ -106,6 +106,10 @@ new class extends Component
                                 @svg('heroicon-o-bell', 'h-5 w-5 mr-2 inline')
                                 {{ __('Notifications') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('statistics')" wire:navigate>
+                                @svg('heroicon-o-chart-pie', 'h-5 w-5 mr-2 inline')
+                                {{ __('Statistics') }}
+                            </x-dropdown-link>
                             @if (Auth::user()->isAdmin())
                                 <div class="border-t border-gray-200 dark:border-gray-600"></div>
                                 <x-dropdown-link href="{{ url('/pulse') }}">
@@ -179,6 +183,10 @@ new class extends Component
                 <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>
                     @svg('heroicon-o-bell', 'h-5 w-5 text-gray-50 mr-2 inline')
                     {{ __('Notifications') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('statistics')" wire:navigate>
+                    @svg('heroicon-o-chart-pie', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    {{ __('Statistics') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link href="{{ url('/pulse') }}">

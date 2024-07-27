@@ -11,6 +11,7 @@ use App\Livewire\BackupTasks\Index;
 use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
+use App\Livewire\StatisticsPage;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
@@ -59,6 +60,8 @@ Route::middleware([UserLanguage::class, 'auth'])->group(function () {
         Route::get('edit/{notificationStream}', UpdateNotificationStream::class)->name('notification-streams.edit')
             ->middleware('can:update,notificationStream');
     });
+
+    Route::get('statistics', StatisticsPage::class)->name('statistics');
 });
 
 require __DIR__ . '/auth.php';

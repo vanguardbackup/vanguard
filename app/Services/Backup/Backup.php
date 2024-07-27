@@ -173,7 +173,15 @@ abstract class Backup
     }
 
     /**
-     * @throws SFTPConnectionException
+     * Get the size of a remote database in bytes.
+     *
+     * @param  SFTPInterface  $sftp  SFTP connection interface
+     * @param  string  $databaseType  Type of the database (mysql or postgresql)
+     * @param  string  $databaseName  Name of the database
+     * @param  string  $password  Database password
+     * @return int Size of the database in bytes
+     *
+     * @throws SFTPConnectionException If there's an error in connection or unsupported database type
      */
     public function getRemoteDatabaseSize(SFTPInterface $sftp, string $databaseType, string $databaseName, string $password): int
     {
@@ -181,43 +189,17 @@ abstract class Backup
 
         $this->validateSFTP($sftp);
 
-        if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-            $sizeCommand = sprintf(
-                'mysql -p%s -e "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS size_mb FROM information_schema.tables WHERE table_schema = \'%s\';"',
-                escapeshellarg($password),
-                escapeshellarg($databaseName)
-            );
-
-        } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-            $sizeCommand = sprintf(
-                'PGPASSWORD=%s psql -d %s -c "SELECT pg_size_pretty(pg_database_size(\'%s\')) AS size;" -t | awk \'{print $1}\'',
-                escapeshellarg($password),
-                escapeshellarg($databaseName),
-                escapeshellarg($databaseName)
-            );
-
-        } else {
-            $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
-            throw new SFTPConnectionException('Unsupported database type.');
-        }
+        $sizeCommand = $this->buildSizeCommand($databaseType, $databaseName, $password);
 
         $output = $sftp->exec($sizeCommand);
         $this->logDebug('Database size command output.', ['command' => $sizeCommand, 'output' => $output]);
 
-        if (is_string($output)) {
-            $size = trim($output);
-            if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
-                $sizeInMb = (float) $size;
-            } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
-                $sizeInMb = $this->convertPgSizeToMb($size);
-            }
-
-            return (int) $sizeInMb;
+        if (! is_string($output) || (trim($output) === '' || trim($output) === '0')) {
+            $this->logError('Failed to get the database size.');
+            throw new SFTPConnectionException('Failed to retrieve database size.');
         }
 
-        $this->logError('Failed to get the database size.');
-
-        return 0;
+        return $this->parseSizeOutput(trim($output));
     }
 
     /**
@@ -634,26 +616,51 @@ abstract class Backup
         $this->logError($context . ': ' . $exception->getMessage(), ['exception' => $exception]);
     }
 
-    private function convertPgSizeToMb(string $size): float
+    /**
+     * Build the appropriate size command based on database type.
+     *
+     * @param  string  $databaseType  Type of the database
+     * @param  string  $databaseName  Name of the database
+     * @param  string  $password  Database password
+     * @return string The command to execute
+     *
+     * @throws SFTPConnectionException If the database type is unsupported
+     */
+    private function buildSizeCommand(string $databaseType, string $databaseName, string $password): string
     {
-        $units = [
-            'mb' => 1,
-            'kb' => 1 / 1024,
-            'gb' => 1024,
-            'tb' => 1024 * 1024,
-        ];
+        return match ($databaseType) {
+            BackupConstants::DATABASE_TYPE_MYSQL => sprintf(
+                "mysql -p%s -e \"SELECT SUM(data_length + index_length) FROM information_schema.tables WHERE table_schema = '%s';\"",
+                escapeshellarg($password),
+                escapeshellarg($databaseName)
+            ),
+            BackupConstants::DATABASE_TYPE_POSTGRESQL => sprintf(
+                "PGPASSWORD=%s psql -d %s -c \"SELECT pg_database_size('%s');\" -t",
+                escapeshellarg($password),
+                escapeshellarg($databaseName),
+                escapeshellarg($databaseName)
+            ),
+            default => throw new SFTPConnectionException('Unsupported database type: ' . $databaseType),
+        };
+    }
 
-        $size = strtolower($size);
+    /**
+     * Parse the size output based on database type.
+     *
+     * @param  string  $output  Command output
+     * @return int Size in bytes
+     *
+     * @throws SFTPConnectionException If parsing fails
+     */
+    private function parseSizeOutput(string $output): int
+    {
+        $size = filter_var($output, FILTER_SANITIZE_NUMBER_INT);
 
-        preg_match('/([\d.]+)\s*([a-z]+)/', $size, $matches);
-
-        if (isset($matches[1]) && isset($matches[2])) {
-            $number = (float) $matches[1];
-            $unit = $matches[2];
-
-            return isset($units[$unit]) ? $number * $units[$unit] : $number / (1024 * 1024); // Assume bytes if unit is not recognized
+        if ($size === false || $size === null) {
+            $this->logError('Failed to parse database size output.', ['output' => $output]);
+            throw new SFTPConnectionException('Failed to parse database size output.');
         }
 
-        return (float) $size / (1024 * 1024);
+        return (int) $size;
     }
 }

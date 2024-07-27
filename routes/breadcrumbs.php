@@ -90,3 +90,7 @@ Breadcrumbs::for('notification-streams.edit', function (BreadcrumbTrail $trail, 
     $trail->parent('notification-streams.index');
     $trail->push(__('Update Notification Stream'), route('notification-streams.edit', $tag));
 });
+
+Breadcrumbs::for('statistics', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Statistics'), route('statistics'));
+});
