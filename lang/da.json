@@ -398,5 +398,16 @@
     "Your timezone is used to display dates and times to you in your local time.": "Din tidszone bruges til at vise datoer og tidspunkter i din lokale tid.",
     "{0} Not Used|{1} Once|[2,*] :count Times": "{0} Ikke brugt|{1} Én gang|[2,*] :count gange",
     "← Return to Home": "← Gå tilbage til forsiden",
-    "The scheduled time for this remote server is already taken. Please choose a different time.": "Det planlagte tidspunkt for denne fjernserver er allerede optaget. Vælg venligst et andet tidspunkt."
+    "The scheduled time for this remote server is already taken. Please choose a different time.": "Det planlagte tidspunkt for denne fjernserver er allerede optaget. Vælg venligst et andet tidspunkt.",
+    "Warning! SSH key missing.": "Advarsel! SSH-nøgle mangler.",
+    "Warning! SSH passphrase not set.": "Advarsel! SSH-adgangssætning er ikke indstillet.",
+    "Show Command": "Vis kommando",
+    "Hide Command": "Skjul kommando",
+    "How to Set Passphrase": "Sådan indstiller du adgangssætning",
+    "To set the SSH passphrase:": "For at indstille SSH-adgangssætningen:",
+    "Open your .env file": "Åbn din .env-fil",
+    "Add or update the following line:": "Tilføj eller opdater følgende linje:",
+    "Save the file and restart your application": "Gem filen og genstart din applikation",
+    "Destinations": "Destinationer",
+    "Servers": "Servere"
 }
