@@ -12,7 +12,7 @@
     </span>
 
     {{-- Active indicator --}}
-    @if($active ?? false)
+    @if ($active ?? false)
         <span class="absolute bottom-0 left-0 w-full h-0.5 bg-white"></span>
     @endif
 
