@@ -244,7 +244,7 @@
             <p>
                 &copy; {{ date('Y') }} {{ config('app.name') }}.
                 {{ __('This software is open source and available under the') }}
-                <a href="https://opensource.org/licenses/MIT" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300" target="_blank" rel="noopener noreferrer">{{__('MIT License')}}</a>.
+                <a href="https://opensource.org/licenses/MIT" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300" target="_blank" rel="noopener noreferrer">{{ __('MIT License') }}</a>.
             </p>
         </div>
     </div>
