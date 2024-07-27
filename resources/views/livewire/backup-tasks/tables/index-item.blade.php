@@ -80,8 +80,12 @@
                 <button @click="open = !open"
                         class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none">
                     {{ __('Details') }}
-                    <span x-show="!open">▼</span>
-                    <span x-show="open">▲</span>
+                    <span x-show="!open">
+                        @svg('heroicon-o-chevron-down', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
+                    </span>
+                    <span x-show="open">
+                         @svg('heroicon-o-chevron-up', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
+                    </span>
                 </button>
                 <div x-show="open" class="mt-2 space-y-2 text-sm">
                     <p class="text-gray-600 dark:text-gray-300">
