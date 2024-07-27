@@ -409,5 +409,7 @@
     "Add or update the following line:": "Tilføj eller opdater følgende linje:",
     "Save the file and restart your application": "Gem filen og genstart din applikation",
     "Destinations": "Destinationer",
-    "Servers": "Servere"
+    "Servers": "Servere",
+    "SSH Key Generation Command": "SSH-nøgle genererings kommando",
+    "Run this command in your terminal to generate SSH keys:": "Kør denne kommando i din terminal for at generere SSH-nøgler:"
 }
