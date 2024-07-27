@@ -146,7 +146,7 @@ test('perform backup with backup rotation', function (): void {
     $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andReturnNull();
     $this->databaseBackupTask->shouldReceive('createBackupDestinationInstance')->andReturn($this->s3Mock);
     $this->databaseBackupTask->shouldReceive('rotateOldBackups')->once()->andReturnNull();
-    $this->databaseBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn('500');
+    $this->databaseBackupTask->shouldReceive('getRemoteDatabaseSize')->andReturn('500');
 
     $this->databaseBackupTask->shouldReceive('updateBackupTaskStatus')->twice();
 

@@ -175,6 +175,54 @@ abstract class Backup
     /**
      * @throws SFTPConnectionException
      */
+    public function getRemoteDatabaseSize(SFTPInterface $sftp, string $databaseType, string $databaseName, string $password): int
+    {
+        $this->logInfo('Getting remote database size.', ['database_type' => $databaseType, 'database' => $databaseName]);
+
+        $this->validateSFTP($sftp);
+
+        if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+            $sizeCommand = sprintf(
+                'mysql -p%s -e "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS size_mb FROM information_schema.tables WHERE table_schema = \'%s\';"',
+                escapeshellarg($password),
+                escapeshellarg($databaseName)
+            );
+
+        } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
+            $sizeCommand = sprintf(
+                'PGPASSWORD=%s psql -d %s -c "SELECT pg_size_pretty(pg_database_size(\'%s\')) AS size;" -t | awk \'{print $1}\'',
+                escapeshellarg($password),
+                escapeshellarg($databaseName),
+                escapeshellarg($databaseName)
+            );
+
+        } else {
+            $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
+            throw new SFTPConnectionException('Unsupported database type.');
+        }
+
+        $output = $sftp->exec($sizeCommand);
+        $this->logDebug('Database size command output.', ['command' => $sizeCommand, 'output' => $output]);
+
+        if (is_string($output)) {
+            $size = trim($output);
+            if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+                $sizeInMb = (float) $size;
+            } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
+                $sizeInMb = $this->convertPgSizeToMb($size);
+            }
+
+            return (int) $sizeInMb;
+        }
+
+        $this->logError('Failed to get the database size.');
+
+        return 0;
+    }
+
+    /**
+     * @throws SFTPConnectionException
+     */
     public function checkPathExists(SFTPInterface $sftp, string $path): bool
     {
         $this->logInfo('Checking if path exists.', ['path' => $path]);
@@ -584,5 +632,28 @@ abstract class Backup
     protected function handleException(Exception $exception, string $context): void
     {
         $this->logError($context . ': ' . $exception->getMessage(), ['exception' => $exception]);
+    }
+
+    private function convertPgSizeToMb(string $size): float
+    {
+        $units = [
+            'mb' => 1,
+            'kb' => 1 / 1024,
+            'gb' => 1024,
+            'tb' => 1024 * 1024,
+        ];
+
+        $size = strtolower($size);
+
+        preg_match('/([\d.]+)\s*([a-z]+)/', $size, $matches);
+
+        if (isset($matches[1]) && isset($matches[2])) {
+            $number = (float) $matches[1];
+            $unit = $matches[2];
+
+            return isset($units[$unit]) ? $number * $units[$unit] : $number / (1024 * 1024); // Assume bytes if unit is not recognized
+        }
+
+        return (float) $size / (1024 * 1024);
     }
 }
