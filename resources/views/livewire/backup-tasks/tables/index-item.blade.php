@@ -64,7 +64,11 @@
                     @else
                         <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
-                            @svg($backupTask->status === 'ready' ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1')
+                            @if($backupTask->status === 'ready')
+                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 mr-1')
+                            @else
+                                @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1 animate-spin')
+                            @endif
                             {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
                         </span>
                     @endif
@@ -208,9 +212,13 @@
                 @else
                     <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
-                        @svg($backupTask->status === 'ready' ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1')
+                            @if($backupTask->status === 'ready')
+                            @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 mr-1')
+                        @else
+                            @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1 animate-spin')
+                        @endif
                         {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
-                    </span>
+                        </span>
                 @endif
             </div>
 
