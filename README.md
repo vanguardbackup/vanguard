@@ -60,4 +60,4 @@ Thank you for considering contributing to Vanguard! Please read the [CONTRIBUTIN
 
 ## License
 
-Vanguard is open-sourced software licensed under the [MIT licence](https://opensource.org/licenses/MIT).
+Vanguard is open-sourced software licensed under the [AGPLv3 licence](https://opensource.org/license/agpl-v3).
