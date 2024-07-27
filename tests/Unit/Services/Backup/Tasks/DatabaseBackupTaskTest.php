@@ -65,6 +65,7 @@ test('perform backup successfully', function (): void {
     $this->databaseBackupTask->shouldReceive('getDatabaseType')->andReturn(BackupConstants::DATABASE_TYPE_MYSQL);
     $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andReturnNull();
     $this->databaseBackupTask->shouldReceive('createBackupDestinationInstance')->andReturn($this->s3Mock);
+    $this->databaseBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn('500');
     $this->databaseBackupTask->shouldReceive('rotateOldBackups')->andReturnNull();
 
     $this->databaseBackupTask->shouldReceive('updateBackupTaskStatus')->twice();
@@ -145,6 +146,7 @@ test('perform backup with backup rotation', function (): void {
     $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andReturnNull();
     $this->databaseBackupTask->shouldReceive('createBackupDestinationInstance')->andReturn($this->s3Mock);
     $this->databaseBackupTask->shouldReceive('rotateOldBackups')->once()->andReturnNull();
+    $this->databaseBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn('500');
 
     $this->databaseBackupTask->shouldReceive('updateBackupTaskStatus')->twice();
 

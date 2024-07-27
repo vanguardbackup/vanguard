@@ -38,6 +38,9 @@ class DatabaseBackupTask extends AbstractBackupTask
         $dumpFileName = $this->generateBackupFileName('sql');
         $remoteDumpPath = '/tmp/' . $dumpFileName;
 
+        $dirSize = $this->getRemoteDirectorySize($sftp, $remoteDumpPath);
+        $this->backupSize = $dirSize;
+
         $this->dumpRemoteDatabase($sftp, $databaseType, $remoteDumpPath, $databasePassword, $databaseName, $this->backupTask->getAttribute('excluded_database_tables'));
 
         if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteDumpPath, $backupDestinationModel, $dumpFileName, $storagePath)) {
