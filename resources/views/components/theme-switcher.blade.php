@@ -42,11 +42,16 @@
     </button>
 
     <x-modal name="theme-switcher" :focusable="true" maxWidth="md">
+        <x-slot name="title">
+            {{ __('Choose Your Theme') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Pick your colour scheme.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-swatch
+        </x-slot>
         <div class="p-6 transform transition-all sm:max-w-sm sm:w-full">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4" id="theme-switcher-modal-title">
-                {{ __('Choose Your Theme') }}
-            </h2>
-
             <div class="space-y-4">
                 <button
                     @click="setTheme('light')"

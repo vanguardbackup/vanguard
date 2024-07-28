@@ -1,6 +1,14 @@
 @props(['form', 'submitLabel' => __('Save'), 'cancelRoute' => 'notification-streams.index'])
-
 <x-form-wrapper>
+    <x-slot name="title">
+        {{ __('Notification Stream') }}
+    </x-slot>
+    <x-slot name="description">
+        {{ __('Add or update a Notification Stream.') }}
+    </x-slot>
+    <x-slot name="icon">
+        heroicon-o-bell
+    </x-slot>
     <form wire:submit.prevent="submit">
         <div class="mt-4 flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
             <div class="w-full md:w-3/6">

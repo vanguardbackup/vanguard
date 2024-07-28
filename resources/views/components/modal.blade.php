@@ -1,7 +1,9 @@
 @props([
     'name',
     'show' => false,
-    'maxWidth' => '2xl'
+    'maxWidth' => '2xl',
+    'icon' => null,
+    'description' => null,
 ])
 
 @php
@@ -65,7 +67,7 @@
 
     <div
         x-show="show"
-        class="bg-white dark:bg-gray-800 rounded-[0.70rem] overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[0.70rem] overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-[-100%]"
         x-transition:enter-end="opacity-100 translate-y-0"
@@ -77,27 +79,41 @@
         aria-modal="true"
         :aria-labelledby="$id('modal-title')"
     >
-        <div class="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4">
-            <button
-                @click="show = false"
-                class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 rounded-md"
-                aria-label="{{ __('Close modal') }}"
-            >
-                <span class="sr-only">{{ __('Close') }}</span>
-                <svg class="h-5 w-5 sm:h-6 sm:w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <div class="px-4 py-3 sm:px-6 sm:py-4">
-            @if (isset($title))
-                <h2 :id="$id('modal-title')" class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {{ $title }}
-                </h2>
-            @endif
-            <div class="mt-2">
-                {{ $slot }}
+        <div class="px-6 py-5">
+            <div class="flex items-center">
+                @if ($icon)
+                    <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
+                        @svg($icon, ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                    </div>
+                @endif
+                <div>
+                    @if (isset($title))
+                        <h3 :id="$id('modal-title')" class="text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ $title }}
+                        </h3>
+                    @endif
+                    @if ($description)
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            {{ $description }}
+                        </p>
+                    @endif
+                </div>
+                <div class="ml-auto">
+                    <button
+                        @click="show = false"
+                        class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 rounded-md"
+                        aria-label="{{ __('Close modal') }}"
+                    >
+                        <span class="sr-only">{{ __('Close') }}</span>
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+            {{ $slot }}
         </div>
     </div>
 </div>

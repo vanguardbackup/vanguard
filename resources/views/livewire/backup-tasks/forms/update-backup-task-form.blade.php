@@ -1,5 +1,14 @@
 <div>
     <x-form-wrapper>
+        <x-slot name="title">
+            {{ __('Update Backup Task') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Update your backup task.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-archive-box
+        </x-slot>
         <form wire:submit.prevent="submit">
             <x-form-section>
                 {{ __('Backup Task Details') }}

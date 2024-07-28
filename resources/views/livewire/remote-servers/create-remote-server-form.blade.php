@@ -20,6 +20,15 @@
         </x-no-content>
     @else
         <x-form-wrapper>
+            <x-slot name="title">
+                {{ __('Add Remote Server') }}
+            </x-slot>
+            <x-slot name="description">
+                {{ __('Create a new remote server.') }}
+            </x-slot>
+            <x-slot name="icon">
+                heroicon-o-server-stack
+            </x-slot>
             @if (!$showingConnectionView)
                 <form wire:submit="submit">
                     @if (ssh_keys_exist())

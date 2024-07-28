@@ -1,5 +1,14 @@
 <div>
     <x-form-wrapper>
+        <x-slot name="title">
+            {{ __('Create a Tag') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Add a new tag to your account.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-tag
+        </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">
                 <x-input-label for="label" :value="__('Label')"/>

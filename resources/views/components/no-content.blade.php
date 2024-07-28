@@ -1,17 +1,17 @@
 @props(['icon', 'title', 'description', 'action' => null, 'withBackground' => false])
 
 @if ($withBackground)
-    <div class="bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border border-gray-950/5 shadow-none p-8">
+    <div class="bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border border-gray-950/5 shadow-none p-8 transition duration-300 ease-in-out hover:shadow-md">
         <div class="text-center my-10">
             {{ $icon }}
-            <div class="text-gray-900 dark:text-white text-xl font-semibold my-4">
+            <h3 class="text-gray-900 dark:text-white text-xl font-semibold my-4">
                 {{ $title }}
-            </div>
-            <div class="text-gray-700 dark:text-gray-300 text-lg font-medium">
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300 text-lg font-medium">
                 {{ $description }}
-            </div>
-           @isset($action)
-                <div class="mt-4">
+            </p>
+            @isset($action)
+                <div class="mt-6">
                     {{ $action }}
                 </div>
             @endisset
@@ -20,14 +20,14 @@
 @else
     <div class="text-center my-10">
         {{ $icon }}
-        <div class="text-gray-900 dark:text-white text-xl font-semibold my-4">
+        <h3 class="text-gray-900 dark:text-white text-xl font-semibold my-4">
             {{ $title }}
-        </div>
-        <div class="text-gray-700 dark:text-gray-300 text-lg font-medium">
+        </h3>
+        <p class="text-gray-700 dark:text-gray-300 text-lg font-medium">
             {{ $description }}
-        </div>
+        </p>
         @isset($action)
-            <div class="mt-4">
+            <div class="mt-6">
                 {{ $action }}
             </div>
         @endisset

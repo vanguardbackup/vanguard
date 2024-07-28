@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
+<div class="bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border sm:rounded-[0.70rem] shadow-none">
     <div class="px-4 py-5 sm:px-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center mb-4 sm:mb-0">

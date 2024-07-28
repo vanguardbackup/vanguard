@@ -1,5 +1,14 @@
 <div>
     <x-form-wrapper>
+        <x-slot name="title">
+            {{ __('Add Remote Server') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Create a new remote server.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-server-stack
+        </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">
                 <x-input-label for="label" :value="__('Label')"/>

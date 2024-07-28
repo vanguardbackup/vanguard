@@ -28,30 +28,28 @@ new class extends Component {
     }
 }; ?>
 
-<div x-data="{ isLoading: true }" x-init="setTimeout(() => { isLoading = false }, 1000)">
-    <div x-show="isLoading">
-        <div class="animate-pulse space-y-4">
-            <div class="h-6 bg-gray-200 rounded w-1/4"></div>
-            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div class="h-10 bg-gray-200 rounded w-1/4"></div>
-        </div>
-    </div>
+<div>
+    <x-form-wrapper>
+        <x-slot name="title">
+            {{ __('Remove your Account') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Remove your account from the application.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-trash
+        </x-slot>
 
-    <section x-show="!isLoading" x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-6">
         <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Remove Account') }}
-            </h2>
-
             @if (Auth::user()->backupTasks->count() > 0)
-                <div class="py-2 px-4 bg-amber-50 text-amber-600 border-l-4 border-amber-600 font-normal my-6">
-                    @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 inline mr-2')
-                    <span>
-                        {{ __('Your scheduled tasks will not be ran if you remove your account.') }}
-                    </span>
+                <div
+                    class="py-2 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-l-4 border-amber-600 dark:border-amber-500 font-normal my-6 rounded-r">
+                    <div class="flex items-center">
+                        @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 flex-shrink-0 mr-2')
+                        <span>
+            {{ __('Your scheduled tasks will not be ran if you remove your account.') }}
+        </span>
+                    </div>
                 </div>
             @endif
 
@@ -66,20 +64,38 @@ new class extends Component {
             </p>
         </header>
 
-        <x-danger-button
-            x-data=""
-            x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-        >
-            {{ __('Proceed') }}
-        </x-danger-button>
-
-        <a href="{{ route('overview') }}" wire:navigate>
-            <x-secondary-button class="ml-2">
-                {{ __('Get me out of here!') }}
-            </x-secondary-button>
-        </a>
+        <section>
+            <div class="mt-6 max-w-3xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
+                    <div class="w-full sm:w-3/6">
+                        <x-danger-button centered
+                                         x-data=""
+                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+                        >
+                            {{ __('Proceed') }}
+                        </x-danger-button>
+                    </div>
+                    <div class="w-full sm:w-3/6">
+                        <a href="{{ route('overview') }}" wire:navigate class="block">
+                            <x-secondary-button type="button" class="w-full justify-center" centered>
+                                {{ __('Get me out of here!') }}
+                            </x-secondary-button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
+            <x-slot name="title">
+                {{ __('Remove your Account') }}
+            </x-slot>
+            <x-slot name="description">
+                {{ __('Remove your account from the application.') }}
+            </x-slot>
+            <x-slot name="icon">
+                heroicon-o-trash
+            </x-slot>
             <form wire:submit="deleteUser" class="p-6">
 
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -130,5 +146,5 @@ new class extends Component {
                 </div>
             </form>
         </x-modal>
-    </section>
+    </x-form-wrapper>
 </div>

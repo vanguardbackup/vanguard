@@ -6,6 +6,15 @@
     <div>
         <div>
             <x-form-wrapper>
+                <x-slot name="title">
+                    {{ __('Add Backup Task') }}
+                </x-slot>
+                <x-slot name="description">
+                    {{ __('Create a new backup task.') }}
+                </x-slot>
+                <x-slot name="icon">
+                    heroicon-o-archive-box
+                </x-slot>
                 <form wire:submit.prevent="submit">
 
                     <!-- Steps Progress -->

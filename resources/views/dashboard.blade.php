@@ -44,67 +44,38 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1500)"
-                     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
-                    <div class="px-6 py-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                <svg class="h-6 w-6 text-primary-600 dark:text-primary-400"
-                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ __('Monthly Backup Task Activity') }}
-                                </h3>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ __('Overview of backup tasks performed each month') }}.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+                <x-chart-card
+                    title="{{ __('Monthly Backup Task Activity') }}"
+                    description="{{ __('Overview of backup tasks performed each month') }}."
+                    icon="heroicon-o-clock"
+                >
+                    <div
+                        x-data="{ loaded: false }"
+                        x-init="setTimeout(() => loaded = true, 1500)"
+                    >
                         <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                         <div x-show="loaded" x-transition:enter="transition-opacity duration-300"
                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
                             <canvas id="totalBackupsPerMonth"></canvas>
                         </div>
                     </div>
-                </div>
-
-                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1500)"
-                     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
-                    <div class="px-6 py-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                <svg class="h-6 w-6 text-primary-600 dark:text-primary-400"
-                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ __('Backup Tasks Categorized by Type') }}
-                                </h3>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ __('Distribution of backup tasks across different types') }}.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+                </x-chart-card>
+                <x-chart-card
+                    title="{{ __('Backup Tasks Categorized by Type') }}"
+                    description="{{ __('Distribution of backup tasks across different types') }}."
+                    icon="heroicon-o-document-duplicate"
+                >
+                    <div
+                        x-data="{ loaded: false }"
+                        x-init="setTimeout(() => loaded = true, 1500)"
+                    >
                         <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                         <div x-show="loaded" x-transition:enter="transition-opacity duration-300"
                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
                             <canvas id="backupTasksByType"></canvas>
                         </div>
                     </div>
-                </div>
+                </x-chart-card>
             </div>
             <div class="mt-6">
                 @livewire('dashboard.upcoming-backup-tasks')

@@ -1,5 +1,14 @@
 <div>
     <x-modal name="backup-task-{{ $backupTaskId }}" wire:key="backup-task-{{ $backupTaskId }}">
+        <x-slot name="title">
+            {{ __('Log Results') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Viewing a Backup Task log.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-document-text
+        </x-slot>
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                 {{ __('Viewing latest log for ":label".', ['label' => $backupTask?->label ?? __('Unknown')]) }}
