@@ -530,16 +530,16 @@
 
     <!-- Cron Presets Modal -->
     <x-modal name="cron-presets" focusable>
+        <x-slot name="title">
+            {{ __('Common Cron Job Presets') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Select a preset to quickly set up common backup schedules. The cron expression will be automatically filled in for you.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-calendar-days
+        </x-slot>
         <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                    @svg('heroicon-o-calendar-days', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
-                </div>
-                {{ __('Common Cron Job Presets') }}
-            </h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {{ __('Select a preset to quickly set up common backup schedules. The cron expression will be automatically filled in for you.') }}
-            </p>
             <div class="mb-4">
                 <x-input-label for="cronPresetSearch" :value="__('Search Presets')"/>
                 <div class="relative">
