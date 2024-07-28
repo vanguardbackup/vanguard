@@ -49,7 +49,7 @@ class UpdateNotificationStream extends Component
             'receive_failed_backup_notifications' => $this->form->failed_notification ? now() : null,
         ]);
 
-        Toaster::success(__('Notification stream has been updated.'));
+        Toaster::success('Notification stream has been updated.');
 
         return Redirect::route('notification-streams.index');
     }
@@ -58,6 +58,6 @@ class UpdateNotificationStream extends Component
     {
         return view('livewire.notification-streams.forms.update-notification-stream', [
             'notificationStream' => $this->notificationStream,
-        ]);
+        ])->layout('components.layouts.account-app');
     }
 }

@@ -45,13 +45,14 @@ class CreateNotificationStream extends Component
             'user_id' => $user->getAttribute('id'),
         ]);
 
-        Toaster::success(__('Notification stream has been added.'));
+        Toaster::success('Notification stream has been added.');
 
         return Redirect::route('notification-streams.index');
     }
 
     public function render(): View
     {
-        return view('livewire.notification-streams.forms.create-notification-stream');
+        return view('livewire.notification-streams.forms.create-notification-stream')
+            ->layout('components.layouts.account-app');
     }
 }

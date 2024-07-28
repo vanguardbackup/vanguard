@@ -11,6 +11,7 @@ class Index extends Component
 {
     public function render(): View
     {
-        return view('livewire.notification-streams.index');
+        return view('livewire.notification-streams.index')
+            ->layout('components.layouts.account-app');
     }
 }
