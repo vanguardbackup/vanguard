@@ -82,6 +82,7 @@
     "Checking": "Kontrollerer",
     "Choose the backup destination where you want to store the backup files. If you have not yet set up a backup destination, you can do so in the Backup Destinations section.": "Vælg sikkerhedskopieringsdestinationen, hvor du vil opbevare sikkerhedskopifilerne. Hvis du endnu ikke har oprettet en sikkerhedskopieringsdestination, kan du gøre det i afsnittet Sikkerhedskopieringsdestinationer.",
     "Choose the remote server from which you want to create a backup. Remember, if you plan to perform database backups on any remote server, you must set a database password for it.": "Vælg den fjernserver, hvorfra du vil oprette en sikkerhedskopi. Husk, at hvis du planlægger at udføre databasesikkerhedskopieringer på en fjernserver, skal du indstille en databaseadgangskode for den.",
+    "Choose Your Theme": "Vælg dit tema",
     "Clear All Backup Task Logs": "Ryd alle sikkerhedskopieringsopgave-logs",
     "Clear Backup Task Log - :label": "Ryd sikkerhedskopieringsopgavelog - :label",
     "Click here to re-send the verification email.": "Klik her for at gen-send verifikations-e-mailen.",
