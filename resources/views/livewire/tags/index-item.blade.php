@@ -5,13 +5,13 @@
         </div>
 
         <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-    <span class="text-xs text-gray-800 dark:text-gray-200 truncate block">
+    <span class="text-sm text-gray-800 dark:text-gray-200 truncate block">
         {{ Str::limit($tag->description ?? '—', 50) }}
     </span>
         </div>
 
         <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-            <span class="inline-flex items-center  text-xs text-gray-800 dark:text-gray-100">
+            <span class="inline-flex items-center  text-sm text-gray-800 dark:text-gray-100">
                 {{ $tag->created_at->timezone(auth()->user()->timezone)->locale(auth()->user()->language ?? app()->getLocale())->isoFormat('MMMM D, YYYY') }}
             </span>
         </div>

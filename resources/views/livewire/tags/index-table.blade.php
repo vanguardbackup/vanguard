@@ -1,4 +1,4 @@
-<div class="mt-4">
+<div>
     @if ($tags->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">

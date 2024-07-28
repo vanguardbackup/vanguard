@@ -1,13 +1,10 @@
 @section('title', __('Add Backup Task'))
 <div>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Add Backup Task') }}
-        </h2>
+        {{ __('Add Backup Task') }}
     </x-slot>
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div>
+        <div>
             <x-form-wrapper>
                 <form wire:submit.prevent="submit">
 
@@ -34,10 +31,12 @@
                                         @if ($index < $currentStep - 1)
                                             @svg('heroicon-o-check-circle', 'w-5 h-5 text-white')
                                         @else
-                                            @svg($step['icon'], 'w-5 h-5 ' . ($index <= $currentStep - 1 ? 'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
+                                            @svg($step['icon'], 'w-5 h-5 ' . ($index <= $currentStep - 1 ? 'text-white
+                                            dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
                                         @endif
                                     </div>
-                                    <div class="ml-3 text-sm font-medium {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
+                                    <div
+                                        class="ml-3 text-sm font-medium {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
                                         {{ $step['label'] }}
                                     </div>
                                 </div>
@@ -55,20 +54,24 @@
                                             @if ($index < $currentStep - 1)
                                                 @svg('heroicon-o-check-circle', 'w-6 h-6 text-white')
                                             @else
-                                                @svg($step['icon'], 'w-6 h-6 ' . ($index <= $currentStep - 1 ? 'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
+                                                @svg($step['icon'], 'w-6 h-6 ' . ($index <= $currentStep - 1 ?
+                                                'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
                                             @endif
                                         </div>
-                                        <div class="text-xs font-medium text-center {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
+                                        <div
+                                            class="text-xs font-medium text-center {{ $index <= $currentStep - 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-300' }}">
                                             {{ $step['label'] }}
                                         </div>
-                                        <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                                        <div
+                                            class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                                             Step {{ $index + 1 }}
                                         </div>
                                     </div>
                                     @if ($index < count($steps) - 1)
                                         <div class="flex-1 h-0.5 mx-2">
-                                            <div class="h-full {{ $index < $currentStep - 1 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }} rounded-full transition-all duration-500 ease-in-out"
-                                                 style="width: {{ $index < $currentStep - 1 ? '100%' : '0%' }};">
+                                            <div
+                                                class="h-full {{ $index < $currentStep - 1 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }} rounded-full transition-all duration-500 ease-in-out"
+                                                style="width: {{ $index < $currentStep - 1 ? '100%' : '0%' }};">
                                             </div>
                                         </div>
                                     @endif
@@ -290,7 +293,8 @@
                                 <x-input-label for="cronExpression" :value="__('Cron Expression')"/>
                                 <div class="flex items-center mt-1">
                                     <x-text-input id="cronExpression" class="block w-full" type="text"
-                                                  wire:model="cronExpression" name="cronExpression" placeholder="* * * * *"/>
+                                                  wire:model="cronExpression" name="cronExpression"
+                                                  placeholder="* * * * *"/>
                                     <x-secondary-button
                                         type="button"
                                         class="ml-2"
@@ -329,8 +333,10 @@
                             <div class="mt-4">
                                 <x-input-label for="notificationStreams" :value="__('Notifications')"/>
                                 @foreach ($availableNotificationStreams as $notificationStream)
-                                    <x-checkbox id="stream-{{ $notificationStream->id }}" wire:model="selectedStreams" value="{{ $notificationStream->id }}"
-                                                name="streams[]" label="{{ $notificationStream->label . '(' . $notificationStream->formatted_type . ')' }}"></x-checkbox>
+                                    <x-checkbox id="stream-{{ $notificationStream->id }}" wire:model="selectedStreams"
+                                                value="{{ $notificationStream->id }}"
+                                                name="streams[]"
+                                                label="{{ $notificationStream->label . '(' . $notificationStream->formatted_type . ')' }}"></x-checkbox>
                                 @endforeach
                                 <x-input-error :messages="$errors->get('$selectedStreams')" class="mt-2"/>
                                 <x-input-explain>
@@ -369,31 +375,36 @@
                                                             @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-blue-500')
                                                             @break
                                                         @case(__('Description'))
-                                                            @svg('heroicon-o-document-text', 'w-5 h-5 mr-2 text-purple-500')
+                                                            @svg('heroicon-o-document-text', 'w-5 h-5 mr-2
+                                                            text-purple-500')
                                                             @break
                                                         @case(__('Remote Server'))
                                                             @svg('heroicon-o-server', 'w-5 h-5 mr-2 text-green-500')
                                                             @break
                                                         @case(__('Backup Type'))
-                                                            @svg('heroicon-o-archive-box', 'w-5 h-5 mr-2 text-yellow-500')
+                                                            @svg('heroicon-o-archive-box', 'w-5 h-5 mr-2
+                                                            text-yellow-500')
                                                             @break
                                                         @case(__('Backup Destination'))
                                                             @svg('heroicon-o-cloud', 'w-5 h-5 mr-2 text-indigo-500')
                                                             @break
                                                         @case(__('Maximum Backups to Keep'))
-                                                            @svg('heroicon-o-archive-box-arrow-down', 'w-5 h-5 mr-2 text-red-500')
+                                                            @svg('heroicon-o-archive-box-arrow-down', 'w-5 h-5 mr-2
+                                                            text-red-500')
                                                             @break
                                                         @case(__('Source Path'))
                                                             @svg('heroicon-o-folder', 'w-5 h-5 mr-2 text-orange-500')
                                                             @break
                                                         @case(__('Database Name'))
-                                                            @svg('heroicon-o-circle-stack', 'w-5 h-5 mr-2 text-cyan-500')
+                                                            @svg('heroicon-o-circle-stack', 'w-5 h-5 mr-2
+                                                            text-cyan-500')
                                                             @break
                                                         @case(__('Schedule'))
                                                             @svg('heroicon-o-calendar', 'w-5 h-5 mr-2 text-pink-500')
                                                             @break
                                                         @case(__('Using Isolated Environment'))
-                                                            @svg('heroicon-o-shield-check', 'w-5 h-5 mr-2 text-teal-500')
+                                                            @svg('heroicon-o-shield-check', 'w-5 h-5 mr-2
+                                                            text-teal-500')
                                                             @break
                                                         @case(__('Tags'))
                                                             @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-lime-500')
@@ -402,7 +413,8 @@
                                                             @svg('heroicon-o-bell', 'w-5 h-5 mr-2 text-amber-500')
                                                             @break
                                                         @default
-                                                            @svg('heroicon-o-information-circle', 'w-5 h-5 mr-2 text-gray-500')
+                                                            @svg('heroicon-o-information-circle', 'w-5 h-5 mr-2
+                                                            text-gray-500')
                                                     @endswitch
                                                     {{ $key }}
                                                 </dt>
@@ -411,7 +423,8 @@
                                                         <span x-data="{ expanded: false }">
                                     <span x-show="!expanded">{{ Str::limit($value, 50) }}</span>
                                     <span x-show="expanded">{{ $value }}</span>
-                                    <button @click="expanded = !expanded" class="text-blue-500 hover:underline focus:outline-none ml-1">
+                                    <button @click="expanded = !expanded"
+                                            class="text-blue-500 hover:underline focus:outline-none ml-1">
                                         <span x-show="!expanded">{{ __('Show more') }}</span>
                                         <span x-show="expanded">{{ __('Show less') }}</span>
                                     </button>
@@ -468,7 +481,8 @@
                         <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-5">
                             <!-- Previous Button -->
                             <div class="w-full sm:w-2/6" x-show="currentStep > 1">
-                                <x-secondary-button type="button" class="w-full justify-center" centered @click="previousStep">
+                                <x-secondary-button type="button" class="w-full justify-center" centered
+                                                    @click="previousStep">
                                     {{ __('Previous') }}
                                 </x-secondary-button>
                             </div>
@@ -476,12 +490,14 @@
                             <!-- Next/Save Button -->
                             <div class="w-full" :class="currentStep > 1 ? 'sm:w-2/6' : 'sm:w-4/6'">
                                 <template x-if="currentStep < totalSteps">
-                                    <x-primary-button type="button" class="w-full justify-center" centered @click="nextStep">
+                                    <x-primary-button type="button" class="w-full justify-center" centered
+                                                      @click="nextStep">
                                         {{ __('Next') }}
                                     </x-primary-button>
                                 </template>
                                 <template x-if="currentStep >= totalSteps">
-                                    <x-primary-button type="submit" class="w-full justify-center" centered x-ref="saveButton">
+                                    <x-primary-button type="submit" class="w-full justify-center" centered
+                                                      x-ref="saveButton">
                                         {{ __('Save') }}
                                     </x-primary-button>
                                 </template>
@@ -516,7 +532,7 @@
                 {{ __('Select a preset to quickly set up common backup schedules. The cron expression will be automatically filled in for you.') }}
             </p>
             <div class="mb-4">
-                <x-input-label for="cronPresetSearch" :value="__('Search Presets')" />
+                <x-input-label for="cronPresetSearch" :value="__('Search Presets')"/>
                 <div class="relative">
                     @svg('heroicon-o-magnifying-glass', 'w-5 h-5 text-gray-400 absolute left-3 top-3')
                     <x-text-input
@@ -535,14 +551,19 @@
                         <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $group }}</h3>
                         <div class="space-y-3">
                             @foreach ($presets as $expression => $description)
-                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div
+                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                                     <div class="flex-grow mb-2 sm:mb-0">
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $description }}</span>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1" x-data="{ showTooltip: false }">
-                                        <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" class="cursor-help">
+                                        <span
+                                            class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $description }}</span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                                             x-data="{ showTooltip: false }">
+                                        <span @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"
+                                              class="cursor-help">
                                             {{ $expression }}
                                         </span>
-                                            <div x-show="showTooltip" class="absolute bg-black text-white p-2 rounded text-xs mt-1 z-10">
+                                            <div x-show="showTooltip"
+                                                 class="absolute bg-black text-white p-2 rounded text-xs mt-1 z-10">
                                                 {{ __('Cron Expression') }}
                                             </div>
                                         </div>

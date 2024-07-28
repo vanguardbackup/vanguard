@@ -8,7 +8,8 @@
     <title>@yield('title', '') | {{ config('app.name') }}</title>
 
     <!-- Basic Metadata -->
-    <meta name="description" content="{{ config('app.name') }} - Open-source backup solution for servers and applications">
+    <meta name="description"
+          content="{{ config('app.name') }} - Open-source backup solution for servers and applications">
 
     <!-- Open Graph / Discord -->
     <meta property="og:type" content="website">
@@ -53,19 +54,37 @@
 <div class="min-h-screen bg-primary-100 dark:bg-gray-900">
     <livewire:layout.navigation/>
     {{ Breadcrumbs::render() }}
-
     <!-- Page Heading -->
     @if (isset($header))
-        <header class="bg-white dark:bg-gray-800/50 dark:border-gray-800/30 shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
+        <header>
+            <div class="mx-auto">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between min-h-[48px]">
+                        <div class="font-semibold text-2xl text-gray-800 dark:text-gray-200 leading-tight">
+                            {{ $header }}
+                        </div>
+                        <div class="flex items-center">
+                            <div class="hidden md:block">
+                                @if(isset($action))
+                                    {{ $action }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
     @endif
-
     <!-- Page Content -->
     <main>
-        {{ $slot }}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+            <div class="block md:hidden w-full">
+                @if(isset($action))
+                    {{ $action }}
+                @endif
+            </div>
+            {{ $slot }}
+        </div>
     </main>
 </div>
 <x-toaster-hub/>
@@ -78,13 +97,15 @@
                 <p class="mb-2 text-gray-600 dark:text-gray-400">{{ __('Version :version', ['version' => obtain_vanguard_version()]) }}</p>
                 <div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-2">
                     @if (config('app.env') === 'local')
-                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full dark:text-purple-300 dark:bg-purple-900">
+                        <span
+                            class="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full dark:text-purple-300 dark:bg-purple-900">
                             @svg('heroicon-s-beaker', ['class' => 'h-3 w-3 mr-1'])
                             {{ __('Local') }}
                         </span>
                     @endif
                     @if (config('app.debug'))
-                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full dark:text-red-300 dark:bg-red-900">
+                        <span
+                            class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full dark:text-red-300 dark:bg-red-900">
                             @svg('heroicon-s-bug-ant', ['class' => 'h-3 w-3 mr-1'])
                             {{ __('Debug') }}
                         </span>
@@ -95,13 +116,15 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Quick Links') }}</h2>
                 <ul class="space-y-2">
                     <li>
-                        <a href="{{ route('profile') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                        <a href="{{ route('profile') }}"
+                           class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
                             @svg('heroicon-o-user-circle', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Profile') }}
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('notification-streams.index') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                        <a href="{{ route('notification-streams.index') }}"
+                           class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
                             @svg('heroicon-o-bell', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Notification Streams') }}
                         </a>
@@ -112,14 +135,16 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Resources') }}</h2>
                 <ul class="space-y-2">
                     <li>
-                        <a href="https://docs.vanguardbackup.com" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                        <a href="https://docs.vanguardbackup.com" target="_blank" rel="noopener noreferrer"
+                           class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
                             @svg('heroicon-o-book-open', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Documentation') }}
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/vanguardbackup/vanguard" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            <x-icons.github class="h-5 w-5 mr-2 fill-current" />
+                        <a href="https://github.com/vanguardbackup/vanguard" target="_blank" rel="noopener noreferrer"
+                           class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                            <x-icons.github class="h-5 w-5 mr-2 fill-current"/>
                             GitHub
                         </a>
                     </li>
@@ -129,7 +154,8 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Connect With Us') }}</h2>
                 <ul class="space-y-2">
                     <li>
-                        <a href="https://github.com/vanguardbackup/vanguard/discussions" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                        <a href="https://github.com/vanguardbackup/vanguard/discussions" target="_blank"
+                           class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
                             @svg('heroicon-o-chat-bubble-left-right', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Discussions') }}
                         </a>
@@ -141,7 +167,9 @@
             <p class="text-gray-500 dark:text-gray-400">
                 &copy; {{ date('Y') }} {{ config('app.name') }}.
                 {{ __('This software is open source and available under the') }}
-                <a href="https://opensource.org/licenses/agpl-v3" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300" target="_blank" rel="noopener noreferrer">{{ __('AGPLv3 License') }}</a>.
+                <a href="https://opensource.org/licenses/agpl-v3"
+                   class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+                   target="_blank" rel="noopener noreferrer">{{ __('AGPLv3 License') }}</a>.
             </p>
         </div>
     </div>
