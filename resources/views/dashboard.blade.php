@@ -12,31 +12,35 @@
         </x-slot>
         <div class="py-6 px-4 mx-auto max-w-full sm:max-w-6xl">
             <div class="mb-6">
-                <div class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-                    <div x-data="{ imageLoaded: false }" class="relative h-16 w-16">
+                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1000)" class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                    <div class="relative h-16 w-16">
                         <div
-                            x-show="!imageLoaded"
+                            x-show="!loaded"
                             class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
                         ></div>
                         <img
-                            x-on:load="imageLoaded = true"
-                            x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
-                            class="h-16 w-16 rounded-full border-2 border-primary-200 dark:border-primary-700 transition-opacity duration-300"
+                            x-show="loaded"
+                            x-transition:enter="transition-opacity duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="h-16 w-16 rounded-full border-2 border-primary-200 dark:border-primary-700"
                             src="{{ Auth::user()->gravatar('200') }}"
                         />
                     </div>
                     <div class="ml-4 mt-4 sm:mt-0 text-center sm:text-left">
-                        <h3 class="font-semibold text-2xl text-gray-900 dark:text-gray-100">
+                        <h3 x-show="!loaded" class="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></h3>
+                        <h3 x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="font-semibold text-2xl text-gray-900 dark:text-gray-100">
                             {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
                         </h3>
-                        <p class="text-gray-600 dark:text-gray-400 mt-1">
+                        <p x-show="!loaded" class="h-4 w-64 mt-2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></p>
+                        <p x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="text-gray-600 dark:text-gray-400 mt-1">
                             {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
                         </p>
                     </div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1500)" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                     <div class="px-6 py-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
@@ -55,11 +59,14 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
-                        <canvas id="totalBackupsPerMonth" width="auto" height="200"></canvas>
+                        <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                        <div x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                            <canvas id="totalBackupsPerMonth"></canvas>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1500)" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                     <div class="px-6 py-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
@@ -78,7 +85,10 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
-                        <canvas id="backupTasksByType" width="auto" height="200"></canvas>
+                        <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                        <div x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                            <canvas id="backupTasksByType"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,6 +118,8 @@
                             }]
                         },
                         options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     display: false
@@ -150,6 +162,8 @@
                             }]
                         },
                         options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     display: false
