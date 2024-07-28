@@ -27,7 +27,7 @@
 <div x-data="setupThemeSwitcher()" x-init="init()">
     <button
         @click="$dispatch('open-modal', 'theme-switcher')"
-        class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white rounded-md transition duration-150 ease-in-out"
+        class="mr-2.5 flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none transition duration-150 ease-in-out"
     >
         <span class="sr-only">{{ __('Toggle theme') }}</span>
         <svg x-show="theme === 'light'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

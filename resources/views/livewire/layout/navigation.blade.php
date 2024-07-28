@@ -30,13 +30,13 @@ new class extends Component
     userOpen: @entangle('isUserDropdownOpen'),
     desktopDropdownOpen: false
 }" class="bg-primary-950 border-b border-gray-900 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <!-- Logo and Primary Navigation -->
             <div class="flex items-center justify-between w-full md:w-auto">
                 <div class="md:hidden flex-grow"></div>
                 <a href="{{ route('overview') }}" wire:navigate class="flex-shrink-0 flex items-center mx-auto md:mx-0 group">
-                    <x-application-logo class="block h-7 w-auto fill-current text-white transition duration-300 ease-in-out transform group-hover:scale-110"/>
+                    <x-application-logo class="block h-6 w-auto fill-current text-white transition duration-300 ease-in-out transform mt-0.5"/>
                 </a>
                 <div class="hidden md:ml-6 md:flex md:space-x-1">
                     <x-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
