@@ -69,8 +69,8 @@
     </main>
 </div>
 <x-toaster-hub/>
-<footer class="relative py-8 sm:py-12 text-sm sm:text-base bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300">
-    <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+<footer class="relative py-8 sm:py-12 text-sm sm:text-base bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-800"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="text-center sm:text-left">
