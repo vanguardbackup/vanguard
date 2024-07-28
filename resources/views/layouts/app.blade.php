@@ -65,7 +65,7 @@
                         </div>
                         <div class="flex items-center">
                             <div class="hidden md:block">
-                                @if(isset($action))
+                                @if (isset($action))
                                     {{ $action }}
                                 @endif
                             </div>
@@ -79,7 +79,7 @@
     <main>
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
             <div class="block md:hidden w-full">
-                @if(isset($action))
+                @if (isset($action))
                     {{ $action }}
                 @endif
             </div>
