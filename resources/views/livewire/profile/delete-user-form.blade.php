@@ -136,13 +136,17 @@ new class extends Component {
                     </x-input-explain>
                 </div>
 
-                <div class="mt-6 flex justify-end">
-                    <x-danger-button>
-                        {{ __('Remove Account') }}
-                    </x-danger-button>
-                    <x-secondary-button x-on:click="$dispatch('close')" class="ms-3">
-                        {{ __('Cancel') }}
-                    </x-secondary-button>
+                <div class="flex space-x-5">
+                    <div class="w-4/6">
+                        <x-danger-button type="button" wire:click="deleteUser" class="mt-4" centered action="deleteUser" loadingText="Removing...">
+                            {{ __('Confirm Removal') }}
+                        </x-danger-button>
+                    </div>
+                    <div class="w-2/6 ml-2">
+                        <x-secondary-button type="button" class="mt-4" centered x-on:click="$dispatch('close')">
+                            {{ __('Cancel') }}
+                        </x-secondary-button>
+                    </div>
                 </div>
             </form>
         </x-modal>

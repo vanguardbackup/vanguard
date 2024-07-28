@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-800 rounded-none transition-all duration-300 overflow-hidden mb-4">
+<div class="bg-transparent rounded-none transition-all duration-300 overflow-hidden mb-4">
     <div class="p-3 space-y-4">
         <!-- Responsive View (Collapsible) -->
         <div class="md:hidden">

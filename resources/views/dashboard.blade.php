@@ -11,7 +11,7 @@
         <div>
             <div class="mb-6">
                 <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1000)"
-                     class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                     class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800/50 rounded-lg shadow-sm p-4">
                     <div class="relative h-16 w-16">
                         <div
                             x-show="!loaded"
