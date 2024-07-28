@@ -7,7 +7,7 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-            @foreach([
+            @foreach ([
                 [
                     'step' => 1,
                     'title' => __('Link your first Remote Server'),
@@ -44,9 +44,9 @@
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                             {{ $step['title'] }}
                         </h3>
-                        @if(isset($step['icons']))
+                        @if (isset($step['icons']))
                             <div class="flex justify-center space-x-4 my-6">
-                                @foreach($step['icons'] as $icon)
+                                @foreach ($step['icons'] as $icon)
                                     <x-dynamic-component :component="'icons.' . $icon" class="h-12 w-12 {{ $icon === 'upcloud' ? 'text-gray-700 dark:text-white' : 'text-gray-700 dark:text-gray-300' }}" />
                                 @endforeach
                             </div>
@@ -54,20 +54,20 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                             {{ $step['description'] }}
                         </p>
-                        @if(isset($step['additional_info']))
+                        @if (isset($step['additional_info']))
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
                                 {{ $step['additional_info'] }}
                             </p>
                         @endif
                         <div class="mt-auto">
-                            @if(Auth::user()->{$step['step'] == 1 ? 'remoteServers' : 'backupDestinations'}->isNotEmpty())
+                            @if (Auth::user()->{$step['step'] == 1 ? 'remoteServers' : 'backupDestinations'}->isNotEmpty())
                                 <div class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 p-4 mb-4 rounded-r">
                                     <p class="text-green-700 dark:text-green-200 flex items-center">
                                         @svg('heroicon-o-check-circle', 'h-5 w-5 mr-2')
                                         <span>{{ __('You have completed this step.') }}</span>
                                     </p>
                                 </div>
-                            @elseif($step['condition'])
+                            @elseif ($step['condition'])
                                 <a href="{{ route($step['route']) }}" wire:navigate class="group">
                                     <x-primary-button class="w-full justify-center group-hover:bg-primary-600 transition-colors duration-300">
                                         <span>{{ $step['buttonText'] }}</span>
