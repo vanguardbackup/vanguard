@@ -13,7 +13,18 @@
         <div class="py-6 px-4 mx-auto max-w-full sm:max-w-6xl">
             <div class="mb-6">
                 <div class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-                    <img class="h-16 w-16 rounded-full border-2 border-primary-200 dark:border-primary-700" src="{{ Auth::user()->gravatar('200') }}" alt="{{ Auth::user()->name }}" />
+                    <div x-data="{ imageLoaded: false }" class="relative h-16 w-16">
+                        <div
+                            x-show="!imageLoaded"
+                            class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
+                        ></div>
+                        <img
+                            x-on:load="imageLoaded = true"
+                            x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
+                            class="h-16 w-16 rounded-full border-2 border-primary-200 dark:border-primary-700 transition-opacity duration-300"
+                            src="{{ Auth::user()->gravatar('200') }}"
+                        />
+                    </div>
                     <div class="ml-4 mt-4 sm:mt-0 text-center sm:text-left">
                         <h3 class="font-semibold text-2xl text-gray-900 dark:text-gray-100">
                             {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!

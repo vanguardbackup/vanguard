@@ -45,7 +45,7 @@
     x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
     x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
     x-show="show"
-    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 flex items-center justify-center"
+    class="fixed inset-0 overflow-y-auto px-2 py-4 sm:px-4 sm:py-6 z-50 flex items-center justify-center"
     style="display: none;"
     x-cloak
 >
@@ -77,19 +77,19 @@
         aria-modal="true"
         :aria-labelledby="$id('modal-title')"
     >
-        <div class="absolute top-0 right-0 pt-4 pr-4">
+        <div class="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4">
             <button
                 @click="show = false"
                 class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 rounded-md"
                 aria-label="{{ __('Close modal') }}"
             >
                 <span class="sr-only">{{ __('Close') }}</span>
-                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <svg class="h-5 w-5 sm:h-6 sm:w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div class="px-6 py-4">
+        <div class="px-4 py-3 sm:px-6 sm:py-4">
             @if (isset($title))
                 <h2 :id="$id('modal-title')" class="text-lg font-medium text-gray-900 dark:text-gray-100">
                     {{ $title }}

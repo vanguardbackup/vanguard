@@ -1,123 +1,94 @@
-<div class="h-full md:h-screen bg-primary-950 bg-cover text-white">
-    <div class="max-w-7xl mx-auto">
-        <div class="container mx-auto px-4 py-16">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-1">
-                    <h2 class="text-4xl font-bold mb-8">{{ __('Steps to Get Started') }}</h2>
-                    <hr class="border-2 border-white w-20 mb-12"/>
-                </div>
-            </div>
-            <div class="grid md:grid-cols-12 gap-6 md:space-x-3">
-                <div class="bg-gray-100 rounded-[0.70rem] px-5 py-5 text-gray-950 col-span-4">
-                    <h1 class="text-2xl font-bold">
-                        {{ __('Step 1)') }}
-                    </h1>
-                    <p class="mt-2 text-lg font-medium">
-                        {{ __('Link your first Remote Server') }}
-                    </p>
-                    <div class="p-3 my-4 flex justify-between space-x-4">
-                        <x-icons.ubuntu class="h-14 w-14"/>
-                        <x-icons.debian class="h-14 w-14"/>
-                        <x-icons.tux class="h-14 w-14"/>
-                    </div>
-                    <div class="text-sm">
-                        {{ __('We support Ubuntu and Debian distributions primarily.') }}
-                    </div>
-                    <div>
-                        @if (Auth::user()->remoteServers->isNotEmpty())
-                            <div class="my-3 bg-green-50 rounded-none border-l-4 border-green-600 p-2.5">
-                                @svg('heroicon-o-check', 'h-5 w-5 text-green-600 mr-2 inline')
-                                <span
-                                    class="text-green-600 text-sm">{{ __('You have completed this step.') }}</span>
-                            </div>
-                        @endif
+<div class="min-h-screen bg-gradient-to-b from-primary-950 to-primary-900 bg-cover text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-left mb-12">
+            <h2 class="text-4xl font-bold mb-4">{{ __('Steps to Get Started') }}</h2>
+            <div class="w-20 h-1 bg-white"></div>
+            <p class="mt-4 text-lg text-gray-300">{{ __('Follow these steps to set up your backup system quickly and easily.') }}</p>
+        </div>
 
-                        @if (Auth::user()->remoteServers->isEmpty())
-                            <a href="{{ route('remote-servers.create') }}" wire:navigate>
-                                <x-primary-button class="mt-4" centered fat>
-                                    {{ __('Link Remote Server') }}
-                                    @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
-                                </x-primary-button>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-                <div class="bg-gray-100 rounded-[0.70rem] px-5 py-5 text-gray-950 col-span-4">
-                    <h1 class="text-2xl font-bold">
-                        {{ __('Step 2)') }}
-                    </h1>
-                    <p class="mt-2 text-lg font-medium">
-                        {{ __('Connect a Backup Destination') }}
-                    </p>
-                    <div class="p-3 my-4 flex justify-between space-x-4">
-                        <x-icons.aws class="h-14 w-14"/>
-                        <x-icons.upcloud class="h-14 w-14"/>
-                        <x-icons.gcp class="h-14 w-14"/>
-                    </div>
-                    <div class="text-sm">
-                        {{ __('Add your S3 bucket API details to store your backups safely.') }}
-                    </div>
-                    <div>
-                        @if (Auth::user()->backupDestinations->isNotEmpty())
-                            <div class="my-3 bg-green-50 rounded-none border-l-4 border-green-600 p-2.5">
-                                @svg('heroicon-o-check', 'h-5 w-5 text-green-600 mr-2 inline')
-                                <span
-                                    class="text-green-600 text-sm">{{ __('You have completed this step.') }}</span>
+        <div class="grid md:grid-cols-3 gap-8">
+            @foreach([
+                [
+                    'step' => 1,
+                    'title' => __('Link your first Remote Server'),
+                    'description' => __('We support Ubuntu and Debian distributions primarily.'),
+                    'icons' => ['ubuntu', 'debian', 'tux'],
+                    'route' => 'remote-servers.create',
+                    'buttonText' => __('Link Remote Server'),
+                    'condition' => Auth::user()->remoteServers->isEmpty()
+                ],
+                [
+                    'step' => 2,
+                    'title' => __('Connect a Backup Destination'),
+                    'description' => __('Add your S3 bucket API details to store your backups safely.'),
+                    'icons' => ['aws', 'upcloud', 'gcp'],
+                    'route' => 'backup-destinations.create',
+                    'buttonText' => __('Add your Backup Destination'),
+                    'condition' => Auth::user()->backupDestinations->isEmpty() && !Auth::user()->remoteServers->isEmpty()
+                ],
+                [
+                    'step' => 3,
+                    'title' => __('Make your first Backup Task'),
+                    'description' => __('Effortlessly set up your Linux server backups to secure S3 buckets. Schedule for continuous data protection.'),
+                    'additional_info' => __('Easily control when your backups run and be notified of their progress.'),
+                    'route' => 'backup-tasks.create',
+                    'buttonText' => __('Create your first Backup Task'),
+                    'condition' => Auth::user()->remoteServers->isNotEmpty() && Auth::user()->backupDestinations->isNotEmpty()
+                ]
+            ] as $index => $step)
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+                    <div class="p-6 flex flex-col h-full relative">
+                        <div class="absolute top-0 right-0 mt-4 mr-4 bg-primary-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                            {{ $index + 1 }}
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                            {{ $step['title'] }}
+                        </h3>
+                        @if(isset($step['icons']))
+                            <div class="flex justify-center space-x-4 my-6">
+                                @foreach($step['icons'] as $icon)
+                                    <x-dynamic-component :component="'icons.' . $icon" class="h-12 w-12 {{ $icon === 'upcloud' ? 'text-gray-700 dark:text-white' : 'text-gray-700 dark:text-gray-300' }}" />
+                                @endforeach
                             </div>
                         @endif
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            {{ $step['description'] }}
+                        </p>
+                        @if(isset($step['additional_info']))
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                {{ $step['additional_info'] }}
+                            </p>
+                        @endif
+                        <div class="mt-auto">
+                            @if(Auth::user()->{$step['step'] == 1 ? 'remoteServers' : 'backupDestinations'}->isNotEmpty())
+                                <div class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 p-4 mb-4 rounded-r">
+                                    <p class="text-green-700 dark:text-green-200 flex items-center">
+                                        @svg('heroicon-o-check-circle', 'h-5 w-5 mr-2')
+                                        <span>{{ __('You have completed this step.') }}</span>
+                                    </p>
+                                </div>
+                            @elseif($step['condition'])
+                                <a href="{{ route($step['route']) }}" wire:navigate class="group">
+                                    <x-primary-button class="w-full justify-center group-hover:bg-primary-600 transition-colors duration-300">
+                                        <span>{{ $step['buttonText'] }}</span>
+                                        @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1')
+                                    </x-primary-button>
+                                </a>
+                            @else
+                                <x-secondary-button class="w-full justify-center opacity-50 cursor-not-allowed" disabled>
+                                    <span>{{ $step['buttonText'] }}</span>
+                                    @svg('heroicon-o-lock-closed', 'h-5 w-5 ml-2 inline-block')
+                                </x-secondary-button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
 
-                        @if (Auth::user()->remoteServers->isEmpty())
-                            <div class="my-3 bg-red-50 rounded-lg p-2.5">
-                                @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-red-500 mr-2 inline')
-                                <span
-                                    class="text-red-500 text-sm">{{ __('You need to link a Remote Server first.') }}</span>
-                            </div>
-                        @endif
-
-                        @if (Auth::user()->remoteServers->isEmpty())
-                            <x-primary-button
-                                class="mt-4 cursor-not-allowed bg-opacity-50 hover:bg-opacity-50 focus:bg-opacity-50"
-                                centered fat disabled>
-                                {{ __('Add your Backup Destination') }}
-                                @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
-                            </x-primary-button>
-                        @endif
-                    </div>
-                </div>
-                <div class="bg-gray-100 rounded-[0.70rem] px-5 py-5 text-gray-950 col-span-4">
-                    <h1 class="text-2xl font-bold">
-                        {{ __('Step 3)') }}
-                    </h1>
-                    <p class="mt-2 text-lg font-medium">
-                        {{ __('Make your first Backup Task') }}
-                    </p>
-                    <div class="my-4 text-gray-900 text-base font-medium">
-                        {{ __('Effortlessly set up your Linux server backups to secure S3 buckets. Schedule for continuous data protection.') }}
-                    </div>
-                    <div class="text-sm">
-                        {{ __('Easily control when your backups run and be notified of their progress.') }}
-                    </div>
-                    <div>
-                        @if (Auth::user()->remoteServers->isEmpty() || Auth::user()->backupDestinations->isEmpty())
-                            <div class="my-3 bg-red-50 rounded-lg p-2.5">
-                                @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 text-red-500 mr-2 inline')
-                                <span
-                                    class="text-red-500 text-sm">{{ __('You need to link a Backup Destination first.') }}</span>
-                            </div>
-                        @else
-                            <a href="{{ route('backup-tasks.create') }}" wire:navigate>
-                                <x-primary-button class="mt-6" centered fat>
-                                    {{ __('Create your first Backup Task') }}
-                                    @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline')
-                                </x-primary-button>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            <div class="text-center md:my-16">
-                <x-application-logo class="h-32 w-32 inline"/>
-            </div>
+        <div class="text-center mt-16">
+            <x-application-logo class="h-24 w-24 mx-auto animate-pulse" />
+            <p class="mt-4 text-gray-300">{{ __("You're on your way to secure, automated backups!") }}</p>
         </div>
     </div>
 </div>

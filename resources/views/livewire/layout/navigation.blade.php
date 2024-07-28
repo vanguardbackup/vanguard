@@ -84,11 +84,31 @@ new class extends Component
                     <x-theme-switcher />
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button @click="desktopDropdownOpen = !desktopDropdownOpen" class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none transition duration-150 ease-in-out" aria-expanded="false">
+                            <button @click="desktopDropdownOpen = !desktopDropdownOpen"
+                                    class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none transition duration-150 ease-in-out"
+                                    aria-expanded="false">
                                 <span class="sr-only">Open user menu</span>
-                                <img class="h-8 w-8 rounded-full mr-2 border border-gray-950" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}"/>
-                                <span x-data="{ name: @js(auth()->user()->first_name) }" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></span>
-                                <svg class="ml-2 h-4 w-4 transition-transform duration-200 ease-in-out" :class="{'rotate-180': desktopDropdownOpen}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <div x-data="{ imageLoaded: false }" class="relative h-8 w-8 mr-2">
+                                    <div
+                                        x-show="!imageLoaded"
+                                        class="absolute inset-0 bg-gray-600 dark:bg-gray-400 rounded-full animate-pulse"
+                                    ></div>
+                                    <img
+                                        x-on:load="imageLoaded = true"
+                                        x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
+                                        class="h-8 w-8 rounded-full border border-gray-950 transition-opacity duration-300"
+                                        src="{{ Auth::user()->gravatar() }}"
+                                    />
+                                </div>
+                                <span x-data="{ name: @js(auth()->user()->first_name) }"
+                                      x-text="name"
+                                      x-on:profile-updated.window="name = $event.detail.name"
+                                ></span>
+                                <svg class="ml-2 h-4 w-4 transition-transform duration-200 ease-in-out"
+                                     :class="{'rotate-180': desktopDropdownOpen}"
+                                     xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 20 20"
+                                     fill="currentColor">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>

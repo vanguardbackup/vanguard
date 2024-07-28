@@ -111,7 +111,7 @@
     </style>
 </head>
 <body class="font-sans text-gray-900 dark:text-gray-100 antialiased h-full">
-<div class="flex min-h-full">
+<div class="flex min-h-screen">
     <!-- Left side: Form half -->
     <div class="flex flex-1 flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div class="mx-auto w-full max-w-sm lg:w-96">

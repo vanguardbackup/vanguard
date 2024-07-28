@@ -116,14 +116,13 @@
             </div>
 
             <!-- Actions - Always visible, but reorganized for responsive view -->
-            <div class="flex flex-wrap justify-start space-x-2 space-y-2 sm:space-y-0 sm:justify-end">
-                <livewire:backup-tasks.buttons.run-task-button :$backupTask
-                                                               :key="'run-task-button-' . $backupTask->id"/>
+            <div class="flex flex-wrap justify-start space-x-2 mt-3">
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
 
                 <x-secondary-button
                     x-data=""
                     x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
-                    iconOnly
+                    class="!p-2"
                     :disabled="!$backupTask->logs()->exists()"
                     :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
                 >
@@ -137,7 +136,7 @@
                 />
 
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
-                    <x-secondary-button iconOnly>
+                    <x-secondary-button class="!p-2">
                         <span class="sr-only">{{ __('Update Backup Task') }}</span>
                         <x-heroicon-o-pencil-square class="w-4 h-4"/>
                     </x-secondary-button>
@@ -248,13 +247,12 @@
 
             <!-- Actions -->
             <div class="col-span-12 md:col-span-2 flex justify-end space-x-2">
-                <livewire:backup-tasks.buttons.run-task-button :$backupTask
-                                                               :key="'run-task-button-' . $backupTask->id"/>
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
 
                 <x-secondary-button
                     x-data=""
                     x-on:click.prevent="$dispatch('open-modal', 'backup-task-{{ $backupTask->id }}')"
-                    iconOnly
+                    class="!p-2"
                     :disabled="!$backupTask->logs()->exists()"
                     :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
                 >
@@ -268,7 +266,7 @@
                 />
 
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
-                    <x-secondary-button iconOnly>
+                    <x-secondary-button class="!p-2">
                         <span class="sr-only">{{ __('Update Backup Task') }}</span>
                         <x-heroicon-o-pencil-square class="w-4 h-4"/>
                     </x-secondary-button>

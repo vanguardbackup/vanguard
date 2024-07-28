@@ -104,33 +104,49 @@ new class extends Component {
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         @if (Auth::user()->canLoginWithGithub())
-            <div
-                class="my-4 bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                <div class="flex items-center justify-between max-w-md mx-auto">
-                    <div class="flex items-center space-x-2 sm:space-x-3 flex-grow">
-                        <x-icons.github
-                            class="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0 text-gray-900 dark:text-white transition-colors duration-200"/>
-                        <span
-                            class="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors duration-200">
-                {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
-            </span>
-                    </div>
-                    <div class="flex-shrink-0 ml-2">
-                        @svg('heroicon-o-check', 'w-6 h-6 sm:w-7 sm:h-7 text-green-600 dark:text-green-400
-                        transition-colors duration-200')
+            <div class="my-4 max-w-md mx-auto">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-white dark:bg-gray-700 p-2 rounded-full shadow-sm">
+                                <x-icons.github class="w-8 h-8 text-gray-900 dark:text-white transition-colors duration-200"/>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                <span class="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors duration-200">
+                    {{ __('You can sign in to :app with GitHub.', ['app' => config('app.name')]) }}
+                </span>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="bg-green-100 dark:bg-green-800 p-1.5 rounded-full">
+                                @svg('heroicon-o-check', 'w-5 h-5 text-green-600 dark:text-green-300 transition-colors duration-200')
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         @endif
         <div class="mt-4">
-            <x-input-label for="avatar" :value="__('Avatar')"/>
-            <div class="flex items-center mt-2">
-                <img class="w-20 h-20 rounded-full" src="{{ Auth::user()->gravatar('160') }}"
-                     alt="{{ Auth::user()->name }}"/>
-                <a href="https://gravatar.com" target="_blank"
-                   class="ml-4 text-sm text-gray-600 dark:text-gray-400 underline hover:text-gray-900 dark:hover:text-gray-100 ease-in-out">
-                    {{ __('Update your avatar on Gravatar') }}
-                </a>
+            <div class="mt-4">
+                <x-input-label for="avatar" :value="__('Avatar')"/>
+                <div class="flex items-center mt-2">
+                    <div x-data="{ imageLoaded: false }" class="relative w-20 h-20">
+                        <div
+                            x-show="!imageLoaded"
+                            class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
+                        ></div>
+                        <img
+                            x-on:load="imageLoaded = true"
+                            x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
+                            class="w-20 h-20 rounded-full transition-opacity duration-300"
+                            src="{{ Auth::user()->gravatar('160') }}"
+                        />
+                    </div>
+                    <a href="https://gravatar.com" target="_blank"
+                       class="ml-4 text-sm text-gray-600 dark:text-gray-400 underline hover:text-gray-900 dark:hover:text-gray-100 transition-colors ease-in-out">
+                        {{ __('Update your avatar on Gravatar') }}
+                    </a>
+                </div>
             </div>
         </div>
 
