@@ -19,58 +19,71 @@
                 </x-no-content>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-server', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-server', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Backup Data Statistics') }}</h3>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Data backed up over different periods') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Data backed up over different periods.') }}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Last 7 days') }}: <span class="font-semibold">{{ $dataBackedUpInThePastSevenDays }}</span></p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Last month') }}: <span class="font-semibold">{{ $dataBackedUpInThePastMonth }}</span></p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Total') }}: <span class="font-semibold">{{ $dataBackedUpInTotal }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Last 7 days') }}: <span
+                                    class="font-semibold">{{ $dataBackedUpInThePastSevenDays }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Last month') }}: <span
+                                    class="font-semibold">{{ $dataBackedUpInThePastMonth }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Total') }}: <span
+                                    class="font-semibold">{{ $dataBackedUpInTotal }}</span></p>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-link', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-link', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Linked Resources') }}</h3>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Connected servers and destinations') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Connected servers and destinations.') }}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Remote Servers') }}: <span class="font-semibold">{{ $linkedServers }}</span></p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Backup Destinations') }}: <span class="font-semibold">{{ $linkedBackupDestinations }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Remote Servers') }}: <span
+                                    class="font-semibold">{{ $linkedServers }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Backup Destinations') }}: <span
+                                    class="font-semibold">{{ $linkedBackupDestinations }}</span></p>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-clipboard-document-list', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-clipboard-document-list', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Backup Tasks') }}</h3>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Status of your backup tasks') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Status of your backup tasks.') }}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Active') }}: <span class="font-semibold">{{ $activeBackupTasks }}</span></p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Paused') }}: <span class="font-semibold">{{ $pausedBackupTasks }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ __('Active') }}: <span
+                                    class="font-semibold">{{ $activeBackupTasks }}</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Paused') }}: <span
+                                    class="font-semibold">{{ $pausedBackupTasks }}</span></p>
                         </div>
                     </div>
                 </div>
@@ -103,20 +116,20 @@
                             data: {
                                 labels: {{ Js::from($backupDates) }},
                                 datasets: [
-                                    {
-                                        label: '{{ __("Files") }}',
-                                        data: {{ Js::from($fileBackupCounts) }},
-                                        backgroundColor: 'rgba(255, 159, 64, 0.8)',
-                                        borderColor: 'rgb(255, 159, 64)',
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: '{{ __("Database") }}',
-                                        data: {{ Js::from($databaseBackupCounts) }},
-                                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                                        borderColor: 'rgb(75, 192, 192)',
-                                        borderWidth: 1
-                                    }
+                                {
+                                label: '{{ __("Files") }}',
+                                data: {{ Js::from($fileBackupCounts) }},
+                                backgroundColor: isDarkMode ? 'rgba(75, 85, 99, 0.8)' : 'rgba(250, 245, 255, 0.8)',
+                                borderColor: isDarkMode ? 'rgb(156, 163, 175)' : 'rgb(192, 180, 204)',
+                                borderWidth: 1
+                                },
+                                {
+                                label: '{{ __("Database") }}',
+                                data: {{ Js::from($databaseBackupCounts) }},
+                                backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : 'rgba(237, 254, 255, 0.8)',
+                                borderColor: isDarkMode ? 'rgb(107, 114, 128)' : 'rgb(189, 220, 223)',
+                                borderWidth: 1
+                                }
                                 ]
                             },
                             options: {
@@ -148,11 +161,13 @@
                             }
                         };
                     }
-                }" x-init="init()" x-init="init()" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+                }" x-init="init()" x-init="init()"
+                         class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -231,18 +246,20 @@
             }
         };
     }
-}" x-init="init()" x-init="init()" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+}" x-init="init()" x-init="init()"
+                         class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ __('Backup Success Rate') }}
                                     </h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ __('Success rate of backups over the last 6 months') }}
+                                        {{ __('Success rate of backups over the last 6 months.') }}
                                     </p>
                                 </div>
                             </div>
@@ -330,18 +347,20 @@
                     }
                 };
             }
-        }" x-init="init()" x-init="init()" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+        }" x-init="init()" x-init="init()"
+                         class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ __('Average Backup Size by Type') }}
                                     </h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ __('Average size of backups for each type') }}
+                                        {{ __('Average size of backups for each type.') }}
                                     </p>
                                 </div>
                             </div>
@@ -422,18 +441,20 @@
                     }
                 };
             }
-        }" x-init="init()" x-init="init()" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
+        }" x-init="init()" x-init="init()"
+                         class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md">
                         <div class="px-6 py-5">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
-                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600 dark:text-primary-400'])
+                                    @svg('heroicon-o-chart-bar', ['class' => 'h-6 w-6 text-primary-600
+                                    dark:text-primary-400'])
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ __('Backup Task Completion Time Trend') }}
                                     </h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ __('Average completion time of backup tasks over the last 3 months') }}
+                                        {{ __('Average completion time of backup tasks over the last 3 months.') }}
                                     </p>
                                 </div>
                             </div>
