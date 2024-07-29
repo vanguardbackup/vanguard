@@ -1339,3 +1339,176 @@ it('handles explicit user parameter', function (): void {
     expect($result)->toBe('13:00')
         ->and($user2->timezone)->toBe('Europe/London');
 });
+
+it('retrieves backup tasks data for the past 90 days', function (): void {
+    Carbon::setTestNow('2023-07-30');
+
+    // Create some test data
+    BackupTask::factory()->count(5)->create([
+        'type' => 'Files',
+        'created_at' => now()->subDays(10),
+    ]);
+    BackupTask::factory()->count(3)->create([
+        'type' => 'Database',
+        'created_at' => now()->subDays(5),
+    ]);
+
+    $result = BackupTask::getBackupTasksData();
+
+    expect($result)->toHaveKeys(['backupDates', 'fileBackupCounts', 'databaseBackupCounts'])
+        ->and($result['backupDates'])->toHaveCount(90)
+        ->and($result['fileBackupCounts'])->toHaveCount(90)
+        ->and($result['databaseBackupCounts'])->toHaveCount(90)
+        ->and($result['fileBackupCounts'][79])->toBe(5) // 10 days ago
+        ->and($result['databaseBackupCounts'][84])->toBe(3); // 5 days ago
+
+    Carbon::setTestNow(); // Reset the mock
+});
+
+it('retrieves backup success rate data only for months with data', function (): void {
+    Carbon::setTestNow('2023-07-30');
+
+    $testMonths = [
+        now()->subMonths(2)->startOfMonth(),
+        now()->subMonths(3)->startOfMonth(),
+        now()->subMonths(4)->startOfMonth(),
+    ];
+
+    foreach ($testMonths as $date) {
+        BackupTaskLog::factory()->count(8)->create([
+            'created_at' => $date,
+            'successful_at' => $date,
+        ]);
+        BackupTaskLog::factory()->count(2)->create([
+            'created_at' => $date,
+            'successful_at' => null,
+        ]);
+    }
+
+    $result = BackupTask::getBackupSuccessRateData();
+
+    expect($result)->toHaveKeys(['labels', 'data'])
+        ->and($result['labels'])->toHaveCount(3)
+        ->and($result['data'])->toHaveCount(3);
+
+    $expectedLabels = array_map(fn ($date): string => $date->format('Y-m'), array_reverse($testMonths));
+    expect($result['labels'])->toBe($expectedLabels)
+        ->and($result['data'])->each(fn ($rate) => $rate->toBe(80.0));
+
+    Carbon::setTestNow();
+});
+
+it('retrieves average backup size data', function (): void {
+    $fileTasks = BackupTask::factory()->count(3)->create(['type' => 'Files']);
+    $dbTasks = BackupTask::factory()->count(2)->create(['type' => 'Database']);
+
+    foreach ($fileTasks as $fileTask) {
+        BackupTaskData::create([
+            'backup_task_id' => $fileTask->getAttribute('id'),
+            'size' => 1500000, // 1.5 MB
+            'duration' => 100000,
+        ]);
+        BackupTaskLog::factory()->create([
+            'backup_task_id' => $fileTask->getAttribute('id'),
+            'successful_at' => now(),
+        ]);
+    }
+
+    foreach ($dbTasks as $dbTask) {
+        BackupTaskData::create([
+            'backup_task_id' => $dbTask->getAttribute('id'),
+            'size' => 750000, // 750 KB
+            'duration' => 100000,
+        ]);
+        BackupTaskLog::factory()->create([
+            'backup_task_id' => $dbTask->getAttribute('id'),
+            'successful_at' => now(),
+        ]);
+    }
+
+    $result = BackupTask::getAverageBackupSizeData();
+
+    expect($result)->toHaveKeys(['labels', 'data'])
+        ->and($result['labels'])->toBe(['Files', 'Database']);
+
+    $expectedFileSize = Number::fileSize(1500000);
+    $expectedDbSize = Number::fileSize(750000);
+
+    expect($result['data'][0])->toBe($expectedFileSize)
+        ->and($result['data'][1])->toBe($expectedDbSize)
+        ->and($result['data'][0])->toMatch('/^\d+(\.\d+)?\s(B|KB|MB|GB|TB)$/')
+        ->and($result['data'][1])->toMatch('/^\d+(\.\d+)?\s(B|KB|MB|GB|TB)$/');
+});
+
+it('retrieves completion time data for the past 3 months', function (): void {
+    Carbon::setTestNow('2023-07-30');
+
+    // Create some test data
+    $tasks = BackupTask::factory()->count(5)->create();
+
+    foreach ($tasks as $index => $task) {
+        BackupTaskData::create([
+            'backup_task_id' => $task->getAttribute('id'),
+            'duration' => ($index + 1) * 60, // 1-5 minutes
+        ]);
+        BackupTaskLog::factory()->create([
+            'backup_task_id' => $task->getAttribute('id'),
+            'created_at' => now()->subDays($index * 15), // Spread over 2 months
+            'successful_at' => now()->subDays($index * 15),
+        ]);
+    }
+
+    $result = BackupTask::getCompletionTimeData();
+
+    expect($result)->toHaveKeys(['labels', 'data'])
+        ->and($result['labels'])->toHaveCount(5)
+        ->and($result['data'])->toHaveCount(5)
+        ->and($result['data'][0])->toBe(5.0) // 5 minutes
+        ->and($result['data'][4])->toBe(1.0); // 1 minute
+
+    Carbon::setTestNow();
+});
+
+it('correctly formats file sizes in getAverageBackupSizeData method', function (): void {
+    $sizesAndExpectedFormats = [
+        500 => '500 B',
+        1024 => '1 KB',
+        1500 => '1 KB',
+        1048576 => '1 MB',
+        1500000 => '1 MB',
+        1073741824 => '1 GB',
+        1500000000 => '1 GB',
+    ];
+
+    foreach ($sizesAndExpectedFormats as $size => $expectedFormat) {
+        $task = BackupTask::factory()->create(['type' => 'Test']);
+
+        BackupTaskData::create([
+            'backup_task_id' => $task->id,
+            'size' => $size,
+            'duration' => 100000,
+        ]);
+        BackupTaskLog::factory()->create([
+            'backup_task_id' => $task->id,
+            'successful_at' => now(),
+        ]);
+
+        $result = BackupTask::getAverageBackupSizeData();
+
+        $actualFormat = $result['data'][0];
+
+        // Check if the unit (B, KB, MB, GB) is correct
+        expect($actualFormat)->toContain(explode(' ', $expectedFormat)[1]);
+
+        // Check if the numeric part is close to what we expect
+        $actualNumber = (float) explode(' ', $actualFormat)[0];
+        $expectedNumber = (float) explode(' ', $expectedFormat)[0];
+        expect($actualNumber)->toBeGreaterThanOrEqual($expectedNumber * 0.9)
+            ->toBeLessThanOrEqual($expectedNumber * 1.1);
+
+        // Clean up for the next iteration
+        BackupTask::query()->delete();
+        BackupTaskData::query()->delete();
+        BackupTaskLog::query()->delete();
+    }
+});
