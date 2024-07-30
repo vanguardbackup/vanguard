@@ -230,6 +230,10 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Run an Artisan command and handle its output.
+     *
+     * @param string $description The description of the task
+     * @param string $command The Artisan command to run
+     * @param array<string, mixed> $parameters The parameters for the Artisan command
      */
     private function runArtisanCommand(string $description, string $command, array $parameters = []): void
     {
