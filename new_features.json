@@ -1,7 +1,7 @@
 [
     {
-        "title": "New Feature Banner!",
-        "description": "We have added a new feature banner to Vanguard.",
+        "title": "Feature Banner!",
+        "description": "The feature banner is snazzy.",
         "version": "1.4.2",
         "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.4.2"
     }
