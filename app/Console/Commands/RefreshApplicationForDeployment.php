@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Exception;
@@ -117,7 +119,7 @@ class RefreshApplicationForDeployment extends Command
      */
     private function checkAndClearVersionCache(): void
     {
-        $this->components->task('Checking version cache', function () {
+        $this->components->task('Checking version cache', function (): string|true {
             $currentVersion = $this->getCurrentVersion();
             $cachedVersion = Cache::get($this->versionCacheKey);
 
@@ -156,7 +158,7 @@ class RefreshApplicationForDeployment extends Command
 
         $version = trim(File::get($path));
 
-        if (empty($version)) {
+        if ($version === '' || $version === '0') {
             $this->components->warn("Version file is empty: {$this->versionFile}");
 
             return null;
@@ -231,13 +233,13 @@ class RefreshApplicationForDeployment extends Command
     /**
      * Run an Artisan command and handle its output.
      *
-     * @param string $description The description of the task
-     * @param string $command The Artisan command to run
-     * @param array<string, mixed> $parameters The parameters for the Artisan command
+     * @param  string  $description  The description of the task
+     * @param  string  $command  The Artisan command to run
+     * @param  array<string, mixed>  $parameters  The parameters for the Artisan command
      */
     private function runArtisanCommand(string $description, string $command, array $parameters = []): void
     {
-        $this->components->task($description, function () use ($command, $parameters) {
+        $this->components->task($description, function () use ($command, $parameters): bool {
             try {
                 $this->info("Running Artisan command: {$command}");
                 Artisan::call($command, $parameters);

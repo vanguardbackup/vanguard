@@ -70,34 +70,32 @@ print_result() {
 run_command() {
     print_task "$1"
     start_time=$(date +%s.%N)
-    output=$($2 2>&1) || true
+    output=$($2 2>&1)
     exit_code=$?
     end_time=$(date +%s.%N)
     duration=$(echo "$end_time - $start_time" | bc)
 
     # Debug: Print full command output
-#    echo "Debug: Command output for $1:" >&2
-#    echo "$output" >&2
-#    echo "Debug: End of command output for $1" >&2
+    #echo "Debug: Command output for $1:" >&2
+    #echo "$output" >&2
+    #echo "Debug: End of command output for $1" >&2
 
-    if [ "$1" = "Running static analysis" ]; then
-        if echo "$output" | grep -q "\[ERROR\]"; then
+    if [ "$1" = "Running Static Analysis" ]; then
+        if [ $exit_code -ne 0 ] || echo "$output" | grep -q "\[ERROR\]"; then
             print_result 1
             printf " ${RED}(%.2fs)${NC}\n" "$duration"
             printf "\n${RED}Static Analysis Error:${NC}\n"
+            echo "$output" | sed -n '/^-----/,/^-----/p' | while IFS= read -r line; do
+                printf "${YELLOW}%s${NC}\n" "$line"
+            done
             echo "$output" | grep "\[ERROR\]" | while IFS= read -r line; do
                 printf "${RED}%s${NC}\n" "$line"
             done
             return 1
-        elif [ $exit_code -eq 0 ]; then
+        else
             print_result 0
             printf " ${GREEN}(%.2fs) No errors found${NC}\n" "$duration"
             return 0
-        else
-            print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
-            return 1
         fi
     elif [ "$1" = "Running Pest tests" ] || [ "$1" = "Running Dusk tests" ]; then
         if echo "$output" | grep -q "No \"dirty\" tests found"; then
