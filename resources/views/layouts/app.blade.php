@@ -77,14 +77,18 @@
     @endif
     <!-- Page Content -->
     <main>
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-            <div class="block md:hidden w-full">
-                @if (isset($action))
-                    {{ $action }}
-                @endif
+        @if (isset($outsideContainer))
+            {{ $outsideContainer }}
+        @else
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+                <div class="block md:hidden w-full">
+                    @if (isset($action))
+                        {{ $action }}
+                    @endif
+                </div>
+                {{ $slot }}
             </div>
-            {{ $slot }}
-        </div>
+        @endif
     </main>
 </div>
 <x-toaster-hub/>

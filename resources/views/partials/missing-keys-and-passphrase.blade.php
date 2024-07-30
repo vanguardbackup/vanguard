@@ -42,13 +42,18 @@
                             {{ __('Show Command') }}
                         </button>
 
-                        <x-modal name="ssh-key-generation" :focusable="true">
-                            <div class="p-6">
-                                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100" id="ssh-key-modal-title">
-                                    {{ __('SSH Key Generation Command') }}
-                                </h2>
-
-                                <div class="mt-4">
+                        <x-modal name="ssh-key-generation" :focusable="true" maxWidth="lg">
+                            <x-slot name="title">
+                                {{ __('SSH Key Generation Command') }}
+                            </x-slot>
+                            <x-slot name="description">
+                                {{ __('Easy, straightforward instructions on how to generate your SSH keys.') }}
+                            </x-slot>
+                            <x-slot name="icon">
+                                heroicon-o-command-line
+                            </x-slot>
+                            <div>
+                                <div>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ __('Run this command in your terminal to generate SSH keys:') }}
                                     </p>
@@ -91,13 +96,18 @@
                             {{ __('How to Set Passphrase') }}
                         </button>
 
-                        <x-modal name="set-passphrase" :focusable="true">
-                            <div class="p-6">
-                                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100" id="set-passphrase-modal-title">
-                                    {{ __('How to Set SSH Passphrase') }}
-                                </h2>
-
-                                <div class="mt-4">
+                        <x-modal name="set-passphrase" :focusable="true"  maxWidth="lg">
+                            <x-slot name="title">
+                                {{ __('How to Set SSH Passphrase') }}
+                            </x-slot>
+                            <x-slot name="description">
+                                {{ __('Easy, straightforward instructions on how to set your passphrase.') }}
+                            </x-slot>
+                            <x-slot name="icon">
+                                heroicon-o-command-line
+                            </x-slot>
+                            <div>
+                                <div>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('To set the SSH passphrase:') }}</p>
                                     <ol class="list-decimal list-inside text-sm space-y-2 mt-2">
                                         <li>{{ __('Open your .env file') }}</li>

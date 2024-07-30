@@ -177,8 +177,9 @@
                 });
             });
         </script>
-
     @else
-        @include('partials.steps-to-get-started.view')
+        <x-slot name="outsideContainer">
+            @include('partials.steps-to-get-started.view')
+        </x-slot>
     @endif
 </x-app-layout>
