@@ -11,6 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * Represents a notification stream in the system.
+ *
+ * This model handles different types of notification streams (email, Discord, Slack, Teams)
+ * and their relationships with users and backup tasks.
+ */
 class NotificationStream extends Model
 {
     /** @use HasFactory<NotificationStreamFactory> */
@@ -21,8 +27,18 @@ class NotificationStream extends Model
     public const string TYPE_SLACK = 'slack_webhook';
     public const string TYPE_TEAMS = 'teams_webhook';
 
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $guarded = [];
 
+    /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array<int, string>
+     */
     protected $appends = [
         'formatted_type',
         'type_icon',
@@ -138,6 +154,8 @@ class NotificationStream extends Model
     }
 
     /**
+     * Get the casts array for the model's attributes.
+     *
      * @return array<string, string>
      */
     protected function casts(): array

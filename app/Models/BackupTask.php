@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -31,23 +32,23 @@ use InvalidArgumentException;
 use Number;
 use RuntimeException;
 
+/**
+ * Represents a backup task in the system.
+ *
+ * This model handles the creation, scheduling, execution, and monitoring of backup tasks.
+ * It includes methods for managing task status, notifications, and interactions with remote servers and backup destinations.
+ */
 class BackupTask extends Model
 {
     /** @use HasFactory<BackupTaskFactory> */
     use HasFactory;
-
     use HasTags;
 
     public const string STATUS_READY = 'ready';
-
     public const string STATUS_RUNNING = 'running';
-
     public const string FREQUENCY_DAILY = 'daily';
-
     public const string FREQUENCY_WEEKLY = 'weekly';
-
     public const string TYPE_FILES = 'files';
-
     public const string TYPE_DATABASE = 'database';
 
     protected $guarded = [];
@@ -55,7 +56,8 @@ class BackupTask extends Model
     /**
      * Get the count of tasks per month for the last six months for a given user.
      *
-     * @return array<string, int>
+     * @param  int  $userId  The ID of the user
+     * @return array<string, int> An array of task counts indexed by month
      */
     public static function logsCountPerMonthForLastSixMonths(int $userId): array
     {
@@ -88,7 +90,8 @@ class BackupTask extends Model
     /**
      * Get the count of backup tasks by type for a given user.
      *
-     * @return array<string, int>
+     * @param  int  $userId  The ID of the user
+     * @return array<string, int> An array of task counts indexed by type
      */
     public static function backupTasksCountByType(int $userId): array
     {
@@ -115,7 +118,7 @@ class BackupTask extends Model
     /**
      * Get backup tasks data for the past 90 days
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> An array containing backup task data
      */
     public static function getBackupTasksData(): array
     {
@@ -153,7 +156,7 @@ class BackupTask extends Model
     /**
      * Get backup success rate data for the past 6 months
      *
-     * @return array<string, array<int, string|float>>
+     * @return array<string, array<int, string|float>> An array containing success rate data
      */
     public static function getBackupSuccessRateData(): array
     {
@@ -185,7 +188,7 @@ class BackupTask extends Model
     /**
      * Get average backup size data
      *
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, string>> An array containing average backup size data
      */
     public static function getAverageBackupSizeData(): array
     {
@@ -208,7 +211,7 @@ class BackupTask extends Model
     /**
      * Get completion time data for the past 3 months
      *
-     * @return array<string, array<int, string|float>>
+     * @return array<string, array<int, string|float>> An array containing completion time data
      */
     public static function getCompletionTimeData(): array
     {
@@ -245,13 +248,20 @@ class BackupTask extends Model
 
     /**
      * Format file size using the Number facade
+     *
+     * @param  int  $bytes  The size in bytes
+     * @return string The formatted file size
      */
     private static function formatFileSize(int $bytes): string
     {
         return Number::fileSize($bytes);
     }
 
+    // ... [keeping existing static methods] ...
+
     /**
+     * Scope query to include only non-paused backup tasks.
+     *
      * @param  Builder<BackupTask>  $builder
      * @return Builder<BackupTask>
      */
@@ -261,6 +271,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Scope query to include only ready backup tasks.
+     *
      * @param  Builder<BackupTask>  $builder
      * @return Builder<BackupTask>
      */
@@ -270,6 +282,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the user that owns the backup task.
+     *
      * @return BelongsTo<User, BackupTask>
      */
     public function user(): BelongsTo
@@ -278,6 +292,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the backup destination for this task.
+     *
      * @return BelongsTo<BackupDestination, BackupTask>
      */
     public function backupDestination(): BelongsTo
@@ -286,6 +302,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the remote server for this task.
+     *
      * @return BelongsTo<RemoteServer, BackupTask>
      */
     public function remoteServer(): BelongsTo
@@ -294,6 +312,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the logs for this backup task.
+     *
      * @return HasMany<BackupTaskLog>
      */
     public function logs(): HasMany
@@ -302,6 +322,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the data associated with this backup task.
+     *
      * @return HasMany<BackupTaskData>
      */
     public function data(): HasMany
@@ -309,39 +331,60 @@ class BackupTask extends Model
         return $this->hasMany(BackupTaskData::class);
     }
 
+    /**
+     * Update the last run timestamp for this task.
+     */
     public function updateLastRanAt(): void
     {
         $this->update(['last_run_at' => now()]);
         $this->save();
     }
 
+    /**
+     * Check if the task is using a custom cron expression.
+     */
     public function usingCustomCronExpression(): bool
     {
         return ! is_null($this->custom_cron_expression);
     }
 
+    /**
+     * Check if the task is currently running.
+     */
     public function isRunning(): bool
     {
         return $this->status === self::STATUS_RUNNING;
     }
 
+    /**
+     * Check if the task is ready to run.
+     */
     public function isReady(): bool
     {
         return $this->status === self::STATUS_READY;
     }
 
+    /**
+     * Mark the task as running.
+     */
     public function markAsRunning(): void
     {
         $this->update(['status' => 'running']);
         $this->save();
     }
 
+    /**
+     * Mark the task as ready.
+     */
     public function markAsReady(): void
     {
         $this->update(['status' => 'ready']);
         $this->save();
     }
 
+    /**
+     * Check if it's the right time to run the task based on its schedule.
+     */
     public function isTheRightTimeToRun(): bool
     {
         if ($this->isDaily()) {
@@ -361,6 +404,9 @@ class BackupTask extends Model
         return false;
     }
 
+    /**
+     * Check if the task is eligible to run now.
+     */
     public function eligibleToRunNow(): bool
     {
         if ($this->isRunning()) {
@@ -386,21 +432,33 @@ class BackupTask extends Model
         return $this->isTheRightTimeToRun();
     }
 
+    /**
+     * Check if the current time matches the task's cron expression.
+     */
     public function cronExpressionMatches(): bool
     {
         return $this->cronExpression()->isDue();
     }
 
+    /**
+     * Check if the task is scheduled to run daily.
+     */
     public function isDaily(): bool
     {
         return $this->frequency === self::FREQUENCY_DAILY;
     }
 
+    /**
+     * Check if the task is scheduled to run weekly.
+     */
     public function isWeekly(): bool
     {
         return $this->frequency === self::FREQUENCY_WEEKLY;
     }
 
+    /**
+     * Update the last scheduled weekly run timestamp.
+     */
     public function updateScheduledWeeklyRun(): void
     {
         if (! $this->isWeekly()) {
@@ -411,11 +469,17 @@ class BackupTask extends Model
         $this->save();
     }
 
+    /**
+     * Check if the task is set to rotate backups.
+     */
     public function isRotatingBackups(): bool
     {
         return $this->maximum_backups_to_keep > 0;
     }
 
+    /**
+     * Run the backup task.
+     */
     public function run(): void
     {
         if ($this->isPaused()) {
@@ -441,16 +505,25 @@ class BackupTask extends Model
         }
     }
 
+    /**
+     * Check if the task is for file backup.
+     */
     public function isFilesType(): bool
     {
         return $this->type === self::TYPE_FILES;
     }
 
+    /**
+     * Check if the task is for database backup.
+     */
     public function isDatabaseType(): bool
     {
         return $this->type === self::TYPE_DATABASE;
     }
 
+    /**
+     * Calculate the next run time for the task.
+     */
     public function calculateNextRun(): ?Carbon
     {
         if (is_null($this->frequency) && $this->custom_cron_expression) {
@@ -461,7 +534,6 @@ class BackupTask extends Model
 
         if ($this->frequency === self::FREQUENCY_DAILY) {
             $nextRun = Carbon::today()->setTimeFromTimeString((string) $this->time_to_run_at);
-
             if ($nextRun->lte(Carbon::now())) {
                 $nextRun->addDay();
             }
@@ -470,7 +542,6 @@ class BackupTask extends Model
         }
 
         if ($this->frequency === self::FREQUENCY_WEEKLY) {
-
             if ($this->last_scheduled_weekly_run_at) {
                 return Carbon::parse($this->last_scheduled_weekly_run_at)->addWeek();
             }
@@ -482,40 +553,61 @@ class BackupTask extends Model
         return null;
     }
 
+    /**
+     * Pause the backup task.
+     */
     public function pause(): void
     {
         $this->update(['paused_at' => now()]);
         $this->save();
     }
 
+    /**
+     * Resume the backup task.
+     */
     public function resume(): void
     {
         $this->update(['paused_at' => null]);
         $this->save();
     }
 
+    /**
+     * Check if the task is paused.
+     */
     public function isPaused(): bool
     {
         return ! is_null($this->paused_at);
     }
 
+    /**
+     * Check if the task has a file name appended.
+     */
     public function hasFileNameAppended(): bool
     {
         return ! is_null($this->appended_file_name);
     }
 
+    /**
+     * Set the script update time.
+     */
     public function setScriptUpdateTime(): void
     {
         $this->update(['last_script_update_at' => now()]);
         $this->saveQuietly();
     }
 
+    /**
+     * Reset the script update time.
+     */
     public function resetScriptUpdateTime(): void
     {
         $this->update(['last_script_update_at' => null]);
         $this->save();
     }
 
+    /**
+     * Check if the task has email notifications enabled.
+     */
     public function hasEmailNotification(): bool
     {
         return $this->notificationStreams()
@@ -523,6 +615,9 @@ class BackupTask extends Model
             ->exists();
     }
 
+    /**
+     * Check if the task has Discord notifications enabled.
+     */
     public function hasDiscordNotification(): bool
     {
         return $this->notificationStreams()
@@ -530,6 +625,9 @@ class BackupTask extends Model
             ->exists();
     }
 
+    /**
+     * Check if the task has Slack notifications enabled.
+     */
     public function hasSlackNotification(): bool
     {
         return $this->notificationStreams()
@@ -537,6 +635,9 @@ class BackupTask extends Model
             ->exists();
     }
 
+    /**
+     * Check if the task has Microsoft Teams notifications enabled.
+     */
     public function hasTeamNotification(): bool
     {
         return $this->notificationStreams()
@@ -605,12 +706,20 @@ class BackupTask extends Model
         };
     }
 
+    /**
+     * Send an email notification for the backup task.
+     */
     public function sendEmailNotification(BackupTaskLog $backupTaskLog, string $emailAddress): void
     {
         Mail::to($emailAddress)
             ->queue(new OutputMail($backupTaskLog));
     }
 
+    /**
+     * Send a Discord webhook notification for the backup task.
+     *
+     * @throws RuntimeException|ConnectionException If the Discord webhook request fails.
+     */
     public function sendDiscordWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
     {
         $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
@@ -671,6 +780,11 @@ class BackupTask extends Model
         }
     }
 
+    /**
+     * Send a Slack webhook notification for the backup task.
+     *
+     * @throws RuntimeException|ConnectionException If the Slack webhook request fails.
+     */
     public function sendSlackWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
     {
         $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
@@ -726,6 +840,11 @@ class BackupTask extends Model
         }
     }
 
+    /**
+     * Send a Microsoft Teams webhook notification for the backup task.
+     *
+     * @throws RuntimeException|ConnectionException If the Teams webhook request fails.
+     */
     public function sendTeamsWebhookNotification(BackupTaskLog $backupTaskLog, string $webhookURL): void
     {
         $status = $backupTaskLog->getAttribute('successful_at') ? 'success' : 'failure';
@@ -779,11 +898,17 @@ class BackupTask extends Model
         }
     }
 
+    /**
+     * Check if the task has a custom store path.
+     */
     public function hasCustomStorePath(): bool
     {
         return ! is_null($this->store_path);
     }
 
+    /**
+     * Check if another task is running on the same remote server.
+     */
     public function isAnotherTaskRunningOnSameRemoteServer(): bool
     {
         return static::query()
@@ -793,6 +918,9 @@ class BackupTask extends Model
             ->exists();
     }
 
+    /**
+     * Get a comma-separated list of attached tag labels.
+     */
     public function listOfAttachedTagLabels(): ?string
     {
         if ($this->tags->isEmpty()) {
@@ -802,13 +930,16 @@ class BackupTask extends Model
         return $this->tags->pluck('label')->implode(', ');
     }
 
+    /**
+     * Check if the task has isolated credentials.
+     */
     public function hasIsolatedCredentials(): bool
     {
         return $this->getAttribute('isolated_username') !== null && $this->getAttribute('isolated_password') !== null;
     }
 
     /**
-     * Format the backup task's last run time according to their locale preferences.
+     * Format the backup task's last run time according to the user's locale preferences.
      */
     public function lastRunFormatted(?User $user = null): string
     {
@@ -863,6 +994,8 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the casts array for the model's attributes.
+     *
      * @return string[]
      */
     protected function casts(): array
@@ -874,7 +1007,7 @@ class BackupTask extends Model
     }
 
     /**
-     *  Returns the cron expression.
+     * Returns the cron expression for the task.
      */
     private function cronExpression(): CronExpression
     {

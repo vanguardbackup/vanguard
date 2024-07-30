@@ -7,6 +7,12 @@ namespace App\Traits;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
+/**
+ * Trait for models that can be tagged.
+ *
+ * Provides methods for managing tags on a model, including
+ * retrieving, adding, and removing tags.
+ */
 trait HasTags
 {
     /**
@@ -39,8 +45,10 @@ trait HasTags
     {
         $tag = Tag::where('label', $label)->first();
 
-        if ($tag) {
-            $this->tags()->detach([$tag->id]);
+        if (! $tag) {
+            return;
         }
+
+        $this->tags()->detach([$tag->id]);
     }
 }

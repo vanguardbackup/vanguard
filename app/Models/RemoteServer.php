@@ -16,22 +16,32 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Represents a remote server in the system.
+ *
+ * This model handles remote server connections, status management,
+ * and associated backup tasks.
+ */
 class RemoteServer extends Model
 {
     /** @use HasFactory<RemoteServerFactory> */
     use HasFactory;
 
     public const string STATUS_ONLINE = 'online';
-
     public const string STATUS_OFFLINE = 'offline';
-
     public const string STATUS_UNKNOWN = 'unknown';
-
     public const string STATUS_CHECKING = 'checking';
 
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array<int, string>
+     */
     public $guarded = [];
 
     /**
+     * Get the user that owns the remote server.
+     *
      * @return BelongsTo<User, RemoteServer>
      */
     public function user(): BelongsTo
@@ -40,6 +50,8 @@ class RemoteServer extends Model
     }
 
     /**
+     * Get the backup tasks for the remote server.
+     *
      * @return HasMany<BackupTask>
      */
     public function backupTasks(): HasMany
@@ -47,17 +59,26 @@ class RemoteServer extends Model
         return $this->hasMany(BackupTask::class);
     }
 
+    /**
+     * Update the last connected timestamp for the server.
+     */
     public function updateLastConnectedAt(): void
     {
         $this->update(['last_connected_at' => now()]);
         $this->save();
     }
 
+    /**
+     * Check if the server has a database password.
+     */
     public function hasDatabasePassword(): bool
     {
         return ! empty($this->database_password);
     }
 
+    /**
+     * Get the decrypted database password for the server.
+     */
     public function getDecryptedDatabasePassword(): ?string
     {
         if (! $this->hasDatabasePassword()) {
@@ -72,6 +93,9 @@ class RemoteServer extends Model
         return Crypt::decryptString($databasePassword);
     }
 
+    /**
+     * Check if the database password is encrypted.
+     */
     public function isDatabasePasswordEncrypted(): bool
     {
         if (empty($this->database_password)) {
@@ -87,6 +111,9 @@ class RemoteServer extends Model
         }
     }
 
+    /**
+     * Mark the server status as checking.
+     */
     public function markAsChecking(): void
     {
         $this->update(['connectivity_status' => self::STATUS_CHECKING]);
@@ -94,6 +121,9 @@ class RemoteServer extends Model
         $this->refresh();
     }
 
+    /**
+     * Mark the server status as online.
+     */
     public function markAsOnline(): void
     {
         $this->update(['connectivity_status' => self::STATUS_ONLINE]);
@@ -101,6 +131,9 @@ class RemoteServer extends Model
         $this->refresh();
     }
 
+    /**
+     * Mark the server as online if its status is not already online.
+     */
     public function markAsOnlineIfStatusIsNotOnline(): void
     {
         if ($this->isOnline()) {
@@ -112,6 +145,9 @@ class RemoteServer extends Model
         }
     }
 
+    /**
+     * Run a server connection check.
+     */
     public function runServerConnectionCheck(): void
     {
         $this->markAsChecking();
@@ -120,31 +156,49 @@ class RemoteServer extends Model
             ->onQueue('connectivity-checks');
     }
 
+    /**
+     * Check if the server status is online.
+     */
     public function isOnline(): bool
     {
         return $this->connectivity_status === self::STATUS_ONLINE;
     }
 
+    /**
+     * Check if the server status is offline.
+     */
     public function isOffline(): bool
     {
         return $this->connectivity_status === self::STATUS_OFFLINE;
     }
 
+    /**
+     * Check if the server status is checking.
+     */
     public function isChecking(): bool
     {
         return $this->connectivity_status === self::STATUS_CHECKING;
     }
 
+    /**
+     * Check if the server status is unknown.
+     */
     public function isUnknown(): bool
     {
         return $this->connectivity_status === self::STATUS_UNKNOWN;
     }
 
+    /**
+     * Check if the server is marked for deletion.
+     */
     public function isMarkedForDeletion(): bool
     {
         return ! empty($this->marked_for_deletion_at);
     }
 
+    /**
+     * Mark the server for deletion.
+     */
     public function setMarkedForDeletion(): void
     {
         $this->update(['marked_for_deletion_at' => now()]);
@@ -152,6 +206,9 @@ class RemoteServer extends Model
         $this->refresh();
     }
 
+    /**
+     * Remove the server.
+     */
     public function removeServer(): void
     {
         $this->setMarkedForDeletion();
@@ -162,6 +219,9 @@ class RemoteServer extends Model
             ->delay(now()->addMinutes(2));
     }
 
+    /**
+     * Remove the SSH key for the server.
+     */
     public function removeSSHKey(): void
     {
         RemoveSSHKeyJob::dispatch($this);

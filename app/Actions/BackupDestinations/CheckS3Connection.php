@@ -9,8 +9,20 @@ use App\Models\BackupDestination;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Checks the connection to an S3 backup destination.
+ *
+ * This action verifies the reachability of an S3 backup destination
+ * and updates its status accordingly.
+ */
 class CheckS3Connection
 {
+    /**
+     * Attempt to connect to the S3 backup destination.
+     *
+     * @param  BackupDestination  $backupDestination  The backup destination to check
+     * @return bool True if connection is successful, false otherwise
+     */
     public function handle(BackupDestination $backupDestination): bool
     {
         if (! $backupDestination->isS3Connection()) {
