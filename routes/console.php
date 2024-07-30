@@ -2,6 +2,7 @@
 
 use App\Console\Commands\EnsureConnectionToBackupDestinationsCommand;
 use App\Console\Commands\ExecuteScheduledBackupTasksCommand;
+use App\Console\Commands\FetchNewFeatures;
 use App\Console\Commands\ResetInoperativeBackupTasksCommand;
 use App\Console\Commands\SendSummaryBackupTaskEmails;
 use App\Console\Commands\VerifyConnectionToRemoteServersCommand;
@@ -20,3 +21,6 @@ Schedule::command(ResetInoperativeBackupTasksCommand::class)
 
 Schedule::command(SendSummaryBackupTaskEmails::class)
     ->mondays()->at('07:00');
+
+Schedule::command(FetchNewFeatures::class)
+    ->dailyAt('02:00');

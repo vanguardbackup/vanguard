@@ -92,6 +92,27 @@ bump_version() {
     echo "${parts[0]}.${parts[1]}.${parts[2]}"
 }
 
+update_feature_banner() {
+    local version="$1"
+    local title
+    local description
+
+    read -p "Enter the feature title: " title
+    read -p "Enter the feature description: " description
+
+    local json_content="[
+    {
+        \"title\": \"$title\",
+        \"description\": \"$description\",
+        \"version\": \"$version\",
+        \"github_url\": \"https://github.com/vanguardbackup/vanguard/releases/tag/$version\"
+    }
+]"
+
+    echo "$json_content" > new_features.json
+    log "INFO" "Updated new_features.json with the latest feature information."
+}
+
 show_usage() {
     echo "Usage: $0 [-v] <major|minor|patch>"
     echo "  -v: Enable verbose mode"
@@ -169,6 +190,13 @@ esac
 
 log "INFO" "Bumping version to $NEW_VERSION ..."
 echo "$NEW_VERSION" > VERSION
+
+# Ask if the user wants to update the feature banner
+read -p "Do you want to update the feature banner? (y/n): " update_banner
+if [[ $update_banner =~ ^[Yy]$ ]]; then
+    update_feature_banner "$NEW_VERSION"
+    git add new_features.json
+fi
 
 log "INFO" "Committing version bump..."
 git add VERSION

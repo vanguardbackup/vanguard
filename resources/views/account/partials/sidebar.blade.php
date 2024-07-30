@@ -1,4 +1,4 @@
-<nav class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-2 w-full">
+<nav class="bg-white dark:bg-gray-800/50 rounded-[0.70rem] shadow-none border border-gray-200 dark:border-gray-800/30 p-2 w-full">
     <ul class="flex lg:flex-col space-x-1 lg:space-x-0 lg:space-y-1 justify-around lg:justify-start">
         <li class="flex-1 lg:flex-initial">
             <x-sidebar-nav-link :href="route('profile')" :active="request()->routeIs('profile')" wire:navigate>
