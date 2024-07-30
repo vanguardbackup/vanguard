@@ -26,6 +26,7 @@ class NewFeatureBanner extends Component
      * @var string
      */
     private const string SESSION_KEY = 'dismissed_feature_version';
+
     /**
      * The latest feature to be displayed in the banner.
      *
