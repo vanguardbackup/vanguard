@@ -44,7 +44,7 @@ class FileBackupTask extends AbstractBackupTask
         $laravelProject = $this->isLaravelDirectory($sftp, $sourcePath);
 
         if ($laravelProject) {
-            $this->logInfo('Laravel project detected. Optimizing backup process for Laravel-specific structure.');
+            $this->logMessage('Laravel project detected. Optimizing backup process for Laravel-specific structure.');
         }
 
         $excludeDirs = $laravelProject ? ['node_modules', 'vendor'] : [];
