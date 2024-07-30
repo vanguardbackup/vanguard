@@ -38,27 +38,22 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * The path to the version file.
-     *
-     * @var string
      */
     private string $versionFile = 'VERSION';
 
     /**
      * The cache key for storing the application version.
-     *
-     * @var string
      */
     private string $versionCacheKey = 'vanguard_version';
 
     /**
      * Execute the console command.
      *
-     * @return int
      * @throws FileNotFoundException
      */
     public function handle(): int
     {
-        if (!$this->checkDebugMode()) {
+        if (! $this->checkDebugMode()) {
             return CommandAlias::FAILURE;
         }
 
@@ -78,12 +73,10 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Check if the application is in debug mode and handle accordingly.
-     *
-     * @return bool
      */
     private function checkDebugMode(): bool
     {
-        if (!config('app.debug')) {
+        if (! config('app.debug')) {
             return true;
         }
 
@@ -95,13 +88,12 @@ class RefreshApplicationForDeployment extends Command
         }
 
         $this->components->info('Use --force to override this check and proceed anyway.');
+
         return false;
     }
 
     /**
      * Perform all refresh steps in sequence.
-     *
-     * @return void
      */
     private function performRefreshSteps(): void
     {
@@ -122,8 +114,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Check and clear the version cache if necessary.
-     *
-     * @return void
      */
     private function checkAndClearVersionCache(): void
     {
@@ -131,11 +121,11 @@ class RefreshApplicationForDeployment extends Command
             $currentVersion = $this->getCurrentVersion();
             $cachedVersion = Cache::get($this->versionCacheKey);
 
-            if (!$currentVersion) {
+            if (! $currentVersion) {
                 return 'Version file not found or empty';
             }
 
-            if (!$cachedVersion) {
+            if (! $cachedVersion) {
                 return 'Cache not set';
             }
 
@@ -144,6 +134,7 @@ class RefreshApplicationForDeployment extends Command
             }
 
             Cache::forget($this->versionCacheKey);
+
             return true;
         });
     }
@@ -151,15 +142,15 @@ class RefreshApplicationForDeployment extends Command
     /**
      * Get the current version from the VERSION file.
      *
-     * @return string|null
      * @throws FileNotFoundException
      */
     private function getCurrentVersion(): ?string
     {
         $path = base_path($this->versionFile);
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             $this->components->warn("Version file not found: {$this->versionFile}");
+
             return null;
         }
 
@@ -167,6 +158,7 @@ class RefreshApplicationForDeployment extends Command
 
         if (empty($version)) {
             $this->components->warn("Version file is empty: {$this->versionFile}");
+
             return null;
         }
 
@@ -175,8 +167,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Terminate the Horizon process.
-     *
-     * @return void
      */
     private function terminateHorizon(): void
     {
@@ -185,8 +175,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Restart Reverb and Pulse services.
-     *
-     * @return void
      */
     private function restartServices(): void
     {
@@ -196,13 +184,12 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Cache application configuration, routes, and views if not skipped.
-     *
-     * @return void
      */
     private function cacheApplication(): void
     {
         if ($this->option('skip-cache')) {
             $this->components->info('Skipping cache operations.');
+
             return;
         }
 
@@ -213,13 +200,12 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Run database migrations if not skipped.
-     *
-     * @return void
      */
     private function runMigrations(): void
     {
         if ($this->option('skip-migrations')) {
             $this->components->info('Skipping migrations.');
+
             return;
         }
 
@@ -228,8 +214,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Fetch new features for the application.
-     *
-     * @return void
      */
     private function fetchNewFeatures(): void
     {
@@ -238,8 +222,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Optimize the application.
-     *
-     * @return void
      */
     private function optimizeApplication(): void
     {
@@ -248,11 +230,6 @@ class RefreshApplicationForDeployment extends Command
 
     /**
      * Run an Artisan command and handle its output.
-     *
-     * @param string $description
-     * @param string $command
-     * @param array $parameters
-     * @return void
      */
     private function runArtisanCommand(string $description, string $command, array $parameters = []): void
     {
@@ -260,9 +237,11 @@ class RefreshApplicationForDeployment extends Command
             try {
                 $this->info("Running Artisan command: {$command}");
                 Artisan::call($command, $parameters);
+
                 return true;
             } catch (Exception $e) {
                 $this->components->error("Error in {$command}: " . $e->getMessage());
+
                 return false;
             }
         });
@@ -271,8 +250,6 @@ class RefreshApplicationForDeployment extends Command
     /**
      * Log the deployment details.
      *
-     * @param float $duration
-     * @return void
      * @throws FileNotFoundException
      */
     private function logDeployment(float $duration): void

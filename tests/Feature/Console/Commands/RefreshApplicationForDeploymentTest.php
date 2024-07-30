@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 beforeEach(function () {
-    $this->command = new RefreshApplicationForDeployment();
+    $this->command = new RefreshApplicationForDeployment;
 
     // Create a new array cache store for testing
     $this->cache = Cache::store('array');
