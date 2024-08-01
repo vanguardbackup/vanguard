@@ -9,11 +9,31 @@ use App\Exceptions\SFTPConnectionException;
 use App\Services\Backup\BackupConstants;
 use RuntimeException;
 
+/**
+ * FileBackupTask
+ *
+ * This class extends AbstractBackupTask to provide specific implementation
+ * for backing up files and directories. It handles the process of connecting to a remote server,
+ * compressing the specified directory, and storing the backup in a specified destination.
+ */
 class FileBackupTask extends AbstractBackupTask
 {
     /**
-     * @throws BackupTaskZipException
-     * @throws SFTPConnectionException
+     * Perform the file backup.
+     *
+     * This method executes the following steps:
+     * 1. Establishes an SFTP connection to the remote server.
+     * 2. Checks if the specified source path exists.
+     * 3. Calculates the size of the directory to be backed up.
+     * 4. Detects if the source is a Laravel project and optimizes accordingly.
+     * 5. Compresses the remote directory into a zip file.
+     * 6. Uploads the zip file to the specified backup destination.
+     * 7. Optionally rotates old backups based on configuration.
+     * 8. Cleans up temporary files.
+     *
+     * @throws BackupTaskZipException If there's an error during the zip compression process
+     * @throws SFTPConnectionException If there's an error establishing the SFTP connection
+     * @throws RuntimeException If there's a failure in the backup process, if the path doesn't exist, or if the directory size exceeds the limit
      */
     protected function performBackup(): void
     {

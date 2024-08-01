@@ -12,6 +12,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending backup task output notifications.
+ *
+ * This class is responsible for constructing and sending an email
+ * with the output of a backup task, indicating whether it was successful or failed.
+ */
 class OutputMail extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -22,6 +28,11 @@ class OutputMail extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     *
+     * The subject of the email is determined by the success status of the backup task.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -29,6 +40,9 @@ class OutputMail extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(

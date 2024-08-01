@@ -8,11 +8,30 @@ use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use RuntimeException;
 
+/**
+ * DatabaseBackupTask
+ *
+ * This class extends AbstractBackupTask to provide specific implementation
+ * for backing up databases. It handles the process of connecting to a remote server,
+ * dumping the database, and storing the backup in a specified destination.
+ */
 class DatabaseBackupTask extends AbstractBackupTask
 {
     /**
-     * @throws DatabaseDumpException
-     * @throws SFTPConnectionException
+     * Perform the database backup.
+     *
+     * This method executes the following steps:
+     * 1. Establishes an SFTP connection to the remote server.
+     * 2. Detects the database type.
+     * 3. Determines the size of the database.
+     * 4. Dumps the remote database to a temporary file.
+     * 5. Uploads the dump file to the specified backup destination.
+     * 6. Optionally rotates old backups based on configuration.
+     * 7. Cleans up temporary files.
+     *
+     * @throws DatabaseDumpException If there's an error during the database dump process
+     * @throws SFTPConnectionException If there's an error establishing the SFTP connection
+     * @throws RuntimeException If there's a failure in the backup process or if the database password is missing
      */
     protected function performBackup(): void
     {

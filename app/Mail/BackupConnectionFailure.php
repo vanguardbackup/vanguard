@@ -13,6 +13,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending emails when a backup destination connection fails.
+ *
+ * This class is responsible for constructing and sending an email
+ * notification to a user when there's an error connecting to a backup destination.
+ */
 class BackupConnectionFailure extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -23,6 +29,9 @@ class BackupConnectionFailure extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -30,6 +39,9 @@ class BackupConnectionFailure extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(

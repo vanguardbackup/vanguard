@@ -12,6 +12,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending notifications when an SSH key is successfully removed.
+ *
+ * This class is responsible for constructing and sending an email
+ * when the system successfully removes an SSH key from a remote server.
+ */
 class SuccessfullyRemovedKey extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -22,6 +28,9 @@ class SuccessfullyRemovedKey extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -29,11 +38,17 @@ class SuccessfullyRemovedKey extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(
             markdown: 'mail.remote-servers.successfully-removed-key',
-            with: ['remoteServer' => $this->remoteServer, 'user' => $this->remoteServer->getAttribute('user')],
+            with: [
+                'remoteServer' => $this->remoteServer,
+                'user' => $this->remoteServer->getAttribute('user'),
+            ],
         );
     }
 }

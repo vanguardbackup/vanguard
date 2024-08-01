@@ -14,6 +14,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Job to remove an SSH key from a remote server.
+ *
+ * This job is responsible for initiating the removal of an SSH key
+ * from a specified remote server using the RemoveSSHKeyService.
+ */
 class RemoveSSHKeyJob implements ShouldQueue
 {
     use Dispatchable;
@@ -31,7 +37,12 @@ class RemoveSSHKeyJob implements ShouldQueue
     /**
      * Execute the job.
      *
+     * Attempts to remove the SSH key from the remote server and logs the outcome.
+     * If an exception occurs, it's logged and re-thrown.
+     *
      * @param  RemoveSSHKeyService  $removeSSHKeyService  The service to remove the SSH key
+     *
+     * @throws Exception If the SSH key removal fails
      */
     public function handle(RemoveSSHKeyService $removeSSHKeyService): void
     {

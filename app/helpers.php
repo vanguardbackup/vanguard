@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
 /**
  * Check if SSH keys exist.
+ *
+ * This function checks for the existence of both private and public SSH key files.
  *
  * @return bool True if both private and public SSH keys exist, false otherwise.
  */
@@ -16,9 +19,9 @@ function ssh_keys_exist(): bool
 }
 
 /**
- * @deprecated Please use the ServerConnectionManager static implementation.
- *
  * Get the contents of the SSH public key.
+ *
+ * @deprecated Please use the ServerConnectionManager static implementation.
  *
  * @return string The contents of the SSH public key.
  *
@@ -37,9 +40,9 @@ function get_ssh_public_key(): string
 }
 
 /**
- * @deprecated Please use the ServerConnectionManager static implementation.
- *
  * Get the contents of the SSH private key.
+ *
+ * @deprecated Please use the ServerConnectionManager static implementation.
  *
  * @return string The contents of the SSH private key.
  *
@@ -60,9 +63,12 @@ function get_ssh_private_key(): string
 /**
  * Format timezones into a user-friendly format.
  *
+ * This function creates an array of formatted timezone strings, including GMT offset,
+ * city name, and region.
+ *
  * @return array<string, string> Formatted timezones with keys as timezone identifiers and values as formatted strings.
  *
- * @throws Exception
+ * @throws Exception If there's an error creating DateTime objects.
  */
 function formatTimezones(): array
 {
@@ -80,6 +86,14 @@ function formatTimezones(): array
     return $formattedTimezones;
 }
 
+/**
+ * Obtain the Vanguard version.
+ *
+ * This function reads the version from a file and caches it for a day.
+ * If the version file doesn't exist, it returns 'Unknown'.
+ *
+ * @return string The Vanguard version or 'Unknown' if the version file is not found.
+ */
 function obtain_vanguard_version(): string
 {
     $versionFile = base_path('VERSION');

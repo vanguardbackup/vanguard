@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
+/**
+ * AbstractBackupTask
+ *
+ * This abstract class provides a framework for implementing backup tasks.
+ * It handles the core functionality of initializing, executing, and cleaning up backup operations.
+ */
 abstract class AbstractBackupTask extends Backup
 {
     protected BackupTaskModel $backupTask;
@@ -28,6 +34,11 @@ abstract class AbstractBackupTask extends Backup
 
     protected ?int $backupSize = null;
 
+    /**
+     * Constructor for AbstractBackupTask.
+     *
+     * @param  int  $backupTaskId  The ID of the backup task to be executed
+     */
     public function __construct(int $backupTaskId)
     {
         parent::__construct();
@@ -36,7 +47,12 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @throws Exception
+     * Main method to handle the backup process.
+     *
+     * This method orchestrates the entire backup process, including initialization,
+     * execution, finalization, and cleanup.
+     *
+     * @throws Exception If an unexpected error occurs during the backup process
      */
     public function handle(): void
     {
@@ -57,6 +73,12 @@ abstract class AbstractBackupTask extends Backup
         }
     }
 
+    /**
+     * Generate a filename for the backup.
+     *
+     * @param  string  $extension  The file extension to be used
+     * @return string The generated filename
+     */
     public function generateBackupFileName(string $extension): string
     {
         $prefix = $this->backupTask->hasFileNameAppended() ? $this->backupTask->appended_file_name . '_' : '';
@@ -64,10 +86,18 @@ abstract class AbstractBackupTask extends Backup
         return sprintf('%sbackup_%s_', $prefix, $this->backupTask->id) . Carbon::now()->format('YmdHis') . ('.' . $extension);
     }
 
+    /**
+     * Abstract method to perform the actual backup.
+     * This method should be implemented by concrete backup task classes.
+     */
     abstract protected function performBackup(): void;
 
     /**
-     * @throws Exception
+     * Initialize the backup process.
+     *
+     * This method sets up the necessary logs and updates the backup task status.
+     *
+     * @throws Exception If an error occurs during initialization
      */
     protected function initializeBackup(): void
     {
@@ -79,7 +109,11 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @throws Exception
+     * Finalize a successful backup.
+     *
+     * This method updates logs and marks the backup as successful.
+     *
+     * @throws Exception If an error occurs during finalization
      */
     protected function finalizeSuccessfulBackup(): void
     {
@@ -88,6 +122,13 @@ abstract class AbstractBackupTask extends Backup
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
     }
 
+    /**
+     * Handle backup failure.
+     *
+     * This method logs the error, sends notifications, and updates the backup status.
+     *
+     * @param  Throwable  $throwable  The exception that caused the backup failure
+     */
     protected function handleBackupFailure(Throwable $throwable): void
     {
         $this->logOutput .= 'Error in backup process: ' . $throwable->getMessage() . "\n";
@@ -95,6 +136,11 @@ abstract class AbstractBackupTask extends Backup
         Log::error(sprintf('Error in backup process for task %s: ', $this->backupTask->id) . $throwable->getMessage(), ['exception' => $throwable]);
     }
 
+    /**
+     * Clean up after the backup process.
+     *
+     * This method updates logs, resets statuses, sends notifications, and records backup metrics.
+     */
     protected function cleanupBackup(): void
     {
         $this->updateBackupTaskLogOutput($this->backupTaskLog, $this->logOutput);
@@ -116,7 +162,13 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @throws Exception
+     * Log a message with a timestamp.
+     *
+     * @param  string  $message  The message to log
+     * @param  string  $timezone  The timezone to use for the timestamp
+     * @return string The timestamped message
+     *
+     * @throws Exception If an error occurs during timestamp generation
      */
     protected function logWithTimestamp(string $message, string $timezone): string
     {
@@ -127,7 +179,11 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
-     * @throws Exception
+     * Log a message using the user's timezone.
+     *
+     * @param  string  $message  The message to log
+     *
+     * @throws Exception If an error occurs during logging
      */
     protected function logMessage(string $message): void
     {

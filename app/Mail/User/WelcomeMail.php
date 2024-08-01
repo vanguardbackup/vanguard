@@ -12,6 +12,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending welcome emails to new users.
+ *
+ * This class is responsible for constructing and sending a welcome email
+ * to newly registered users, introducing them to the application.
+ */
 class WelcomeMail extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -22,6 +28,9 @@ class WelcomeMail extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -29,6 +38,9 @@ class WelcomeMail extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(

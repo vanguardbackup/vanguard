@@ -8,8 +8,22 @@ use App\Services\Backup\Contracts\SFTPInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * BackupHelpers Trait
+ *
+ * This trait provides utility methods for backup operations, including
+ * command retries, SFTP operations, file management, and logging.
+ */
 trait BackupHelpers
 {
+    /**
+     * Retry a command multiple times with a delay between attempts.
+     *
+     * @param  callable  $command  The command to execute
+     * @param  int  $maxRetries  Maximum number of retry attempts
+     * @param  int  $retryDelay  Delay in seconds between retry attempts
+     * @return mixed The result of the command if successful, false otherwise
+     */
     public function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
@@ -29,6 +43,15 @@ trait BackupHelpers
         return $result;
     }
 
+    /**
+     * Download a file via SFTP.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface to use
+     * @param  string  $remoteZipPath  The path of the remote file to download
+     * @return string The path to the downloaded temporary file
+     *
+     * @throws Exception If the download fails
+     */
     protected function downloadFileViaSFTP(SFTPInterface $sftp, string $remoteZipPath): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'sftp');
@@ -43,6 +66,14 @@ trait BackupHelpers
         return $tempFile;
     }
 
+    /**
+     * Open a file as a stream.
+     *
+     * @param  string  $tempFile  The path to the file to open
+     * @return resource The opened file stream
+     *
+     * @throws Exception If the file cannot be opened as a stream
+     */
     protected function openFileAsStream(string $tempFile): mixed
     {
         $stream = fopen($tempFile, 'rb+');
@@ -57,6 +88,11 @@ trait BackupHelpers
         return $stream;
     }
 
+    /**
+     * Clean up a temporary file.
+     *
+     * @param  string  $tempFile  The path to the temporary file to delete
+     */
     protected function cleanUpTempFile(string $tempFile): void
     {
         if (file_exists($tempFile)) {
@@ -66,7 +102,10 @@ trait BackupHelpers
     }
 
     /**
-     * @param  array<string, mixed>  $context
+     * Log an info message.
+     *
+     * @param  string  $message  The message to log
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logInfo(string $message, array $context = []): void
     {
@@ -74,7 +113,10 @@ trait BackupHelpers
     }
 
     /**
-     * @param  array<string, mixed>  $context
+     * Log a debug message.
+     *
+     * @param  string  $message  The message to log
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logDebug(string $message, array $context = []): void
     {
@@ -82,7 +124,10 @@ trait BackupHelpers
     }
 
     /**
-     * @param  array<string, mixed>  $context
+     * Log a warning message.
+     *
+     * @param  string  $message  The message to log
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logWarning(string $message, array $context = []): void
     {
@@ -90,7 +135,10 @@ trait BackupHelpers
     }
 
     /**
-     * @param  array<string, mixed>  $context
+     * Log an error message.
+     *
+     * @param  string  $message  The message to log
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logError(string $message, array $context = []): void
     {
@@ -98,7 +146,10 @@ trait BackupHelpers
     }
 
     /**
-     * @param  array<string, mixed>  $context
+     * Log a critical message.
+     *
+     * @param  string  $message  The message to log
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logCritical(string $message, array $context = []): void
     {

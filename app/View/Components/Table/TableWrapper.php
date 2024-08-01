@@ -9,6 +9,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * TableWrapper Component
+ *
+ * This component represents a wrapper for a table in the application's UI.
+ * It encapsulates the table's title, description, and an optional action,
+ * providing a consistent structure for table presentation.
+ */
 class TableWrapper extends Component
 {
     /**
@@ -27,9 +34,9 @@ class TableWrapper extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return Factory|\Illuminate\Contracts\View\View|Application
+     * @return Factory|\Illuminate\Contracts\View\View|Application The view instance for the table wrapper
      */
-    public function render()
+    public function render(): Factory|\Illuminate\Contracts\View\View|Application
     {
         return view('components.table.table-wrapper');
     }

@@ -13,6 +13,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending backup performance summary emails to users.
+ *
+ * This class is responsible for constructing and sending an email
+ * containing a recap of the user's backup performance over a specified date range.
+ */
 class SummaryBackupMail extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -23,6 +29,9 @@ class SummaryBackupMail extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -32,6 +41,9 @@ class SummaryBackupMail extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(
@@ -43,6 +55,11 @@ class SummaryBackupMail extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get a formatted string representation of the date range.
+     *
+     * @return string The formatted date range string (e.g., "Aug 01 - Aug 07, 2023")
+     */
     private function getDateRangeString(): string
     {
         $startDate = Carbon::parse($this->data['date_range']['start']);

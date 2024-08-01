@@ -12,6 +12,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Mailable class for sending emails when a backup task fails.
+ *
+ * This class is responsible for constructing and sending an email
+ * notification to a user when a backup task encounters an error.
+ */
 class BackupTaskFailed extends Mailable implements ShouldQueue
 {
     use Queueable;
@@ -22,6 +28,9 @@ class BackupTaskFailed extends Mailable implements ShouldQueue
         //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -29,6 +38,9 @@ class BackupTaskFailed extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(

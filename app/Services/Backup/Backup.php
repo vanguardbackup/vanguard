@@ -27,10 +27,18 @@ use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use League\Flysystem\FilesystemException;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use RuntimeException;
 
+/**
+ * Abstract Backup Class
+ *
+ * This abstract class provides the core functionality for backup operations.
+ * It includes methods for handling different backup destinations, SFTP operations,
+ * database operations, file operations, and various utility functions.
+ */
 abstract class Backup
 {
     use BackupHelpers;
@@ -40,6 +48,14 @@ abstract class Backup
      */
     private $sftpFactory;
 
+    /**
+     * Constructor for the Backup class.
+     *
+     * Initializes the backup process, validates the configuration,
+     * and sets up the SFTP factory.
+     *
+     * @param  callable|null  $sftpFactory  Optional factory for creating SFTP instances
+     */
     public function __construct(?callable $sftpFactory = null)
     {
         $this->logInfo('Initializing Backup class.');
@@ -48,6 +64,19 @@ abstract class Backup
         $this->sftpFactory = $sftpFactory ?? fn (string $host, int $port, int $timeout): SFTPInterface => new SFTPAdapter($host, $port, $timeout);
     }
 
+    /**
+     * Handle backup to different destination drivers.
+     *
+     * @param  string  $destinationDriver  The type of destination driver
+     * @param  SFTPInterface  $sftp  SFTP interface for file operations
+     * @param  string  $remotePath  Path to the remote file
+     * @param  BackupDestination  $backupDestination  Backup destination model
+     * @param  string  $fileName  Name of the file to be backed up
+     * @param  string  $storagePath  Storage path for the backup
+     * @return bool True if backup was successful, false otherwise
+     *
+     * @throws RuntimeException|FilesystemException If an unsupported destination driver is specified
+     */
     public function backupDestinationDriver(
         string $destinationDriver,
         SFTPInterface $sftp,
@@ -71,7 +100,9 @@ abstract class Backup
     }
 
     /**
-     * @throws BackupTaskRuntimeException
+     * Validate the backup configuration.
+     *
+     * @throws BackupTaskRuntimeException If the configuration is invalid
      */
     public function validateConfiguration(): void
     {
@@ -89,6 +120,12 @@ abstract class Backup
         $this->logInfo('Configuration validation passed.');
     }
 
+    /**
+     * Retrieve a BackupTask model instance by ID.
+     *
+     * @param  int  $backupTaskId  The ID of the backup task
+     * @return BackupTask The BackupTask model instance
+     */
     public function obtainBackupTask(int $backupTaskId): BackupTask
     {
         $this->logInfo('Obtaining backup task.', ['backup_task_id' => $backupTaskId]);
@@ -96,6 +133,13 @@ abstract class Backup
         return BackupTask::findOrFail($backupTaskId);
     }
 
+    /**
+     * Create a new BackupTaskLog record.
+     *
+     * @param  int  $backupTaskId  The ID of the associated backup task
+     * @param  string  $logOutput  The initial log output
+     * @return BackupTaskLog The created BackupTaskLog instance
+     */
     public function recordBackupTaskLog(int $backupTaskId, string $logOutput): BackupTaskLog
     {
         $this->logInfo('Recording backup task log.', ['backup_task_id' => $backupTaskId]);
@@ -111,6 +155,12 @@ abstract class Backup
         return $backupTaskLog;
     }
 
+    /**
+     * Update the output of a BackupTaskLog.
+     *
+     * @param  BackupTaskLog  $backupTaskLog  The BackupTaskLog to update
+     * @param  string  $logOutput  The new log output
+     */
     public function updateBackupTaskLogOutput(BackupTaskLog $backupTaskLog, string $logOutput): void
     {
         $this->logInfo('Updating backup task log output.', ['log_id' => $backupTaskLog->getAttribute('id')]);
@@ -127,6 +177,12 @@ abstract class Backup
         $this->logDebug('Backup task log output updated.', ['log_id' => $backupTaskLog->getAttribute('id'), 'output' => $logOutput]);
     }
 
+    /**
+     * Update the status of a BackupTask.
+     *
+     * @param  BackupTask  $backupTask  The BackupTask to update
+     * @param  string  $status  The new status
+     */
     public function updateBackupTaskStatus(BackupTask $backupTask, string $status): void
     {
         $this->logInfo('Updating backup task status.', ['backup_task_id' => $backupTask->getAttribute('id'), 'status' => $status]);
@@ -137,6 +193,12 @@ abstract class Backup
         BackupTaskStatusChanged::dispatch($backupTask, $status);
     }
 
+    /**
+     * Send an email notification for a failed backup task.
+     *
+     * @param  BackupTask  $backupTask  The failed BackupTask
+     * @param  string  $errorMessage  The error message
+     */
     public function sendEmailNotificationOfTaskFailure(BackupTask $backupTask, string $errorMessage): void
     {
         $this->logInfo('Sending failure notification email.', ['backup_task_id' => $backupTask->getAttribute('id'), 'error' => $errorMessage]);
@@ -150,7 +212,13 @@ abstract class Backup
     }
 
     /**
-     * @throws SFTPConnectionException
+     * Get the size of a remote directory.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $path  The path to the directory
+     * @return int The size of the directory in bytes
+     *
+     * @throws SFTPConnectionException If there's an error in connection or command execution
      */
     public function getRemoteDirectorySize(SFTPInterface $sftp, string $path): int
     {
@@ -203,7 +271,13 @@ abstract class Backup
     }
 
     /**
-     * @throws SFTPConnectionException
+     * Check if a path exists on the remote server.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $path  The path to check
+     * @return bool True if the path exists, false otherwise
+     *
+     * @throws SFTPConnectionException If there's an error in the SFTP connection
      */
     public function checkPathExists(SFTPInterface $sftp, string $path): bool
     {
@@ -219,7 +293,12 @@ abstract class Backup
     }
 
     /**
-     * @throws SFTPConnectionException
+     * Establish an SFTP connection for a backup task.
+     *
+     * @param  BackupTask  $backupTask  The backup task
+     * @return SFTPInterface The established SFTP connection
+     *
+     * @throws SFTPConnectionException If unable to establish the connection
      */
     public function establishSFTPConnection(BackupTask $backupTask): SFTPInterface
     {
@@ -248,10 +327,13 @@ abstract class Backup
     /**
      * Zip a remote directory, excluding specified directories.
      *
-     * @param  array<string>  $excludeDirs
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $sourcePath  The source path to zip
+     * @param  string  $remoteZipPath  The path where the zip file will be created
+     * @param  array<string>  $excludeDirs  Directories to exclude from the zip
      *
-     * @throws BackupTaskZipException
-     * @throws SFTPConnectionException
+     * @throws BackupTaskZipException If there's an error during the zip process
+     * @throws SFTPConnectionException If there's an error in the SFTP connection
      */
     public function zipRemoteDirectory(SFTPInterface $sftp, string $sourcePath, string $remoteZipPath, array $excludeDirs = []): void
     {
@@ -262,11 +344,6 @@ abstract class Backup
         $dirSizeCommand = 'du -sb ' . escapeshellarg($sourcePath) . ' | cut -f1';
         $dirSizeOutput = $sftp->exec($dirSizeCommand);
         $dirSize = is_string($dirSizeOutput) ? trim($dirSizeOutput) : '';
-
-        if (! is_numeric($dirSize)) {
-            $this->logError('Failed to get directory size.', ['source_path' => $sourcePath, 'dir_size_output' => $dirSizeOutput]);
-            throw new BackupTaskZipException('Failed to get directory size.');
-        }
 
         if (! is_numeric($dirSize)) {
             $this->logError('Failed to get directory size.', ['source_path' => $sourcePath, 'dir_size_output' => $dirSizeOutput]);
@@ -324,8 +401,13 @@ abstract class Backup
     }
 
     /**
-     * @throws DatabaseDumpException
-     * @throws SFTPConnectionException
+     * Determine the database type on the remote server.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @return string The detected database type
+     *
+     * @throws DatabaseDumpException If no supported database is found
+     * @throws SFTPConnectionException If there's an error in the SFTP connection
      */
     public function getDatabaseType(SFTPInterface $sftp): string
     {
@@ -352,8 +434,17 @@ abstract class Backup
     }
 
     /**
-     * @throws DatabaseDumpException
-     * @throws SFTPConnectionException
+     * Dump a remote database to a file.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $databaseType  The type of the database (mysql or postgresql)
+     * @param  string  $remoteDumpPath  The path where the dump file will be created
+     * @param  string  $databasePassword  The database password
+     * @param  string  $databaseName  The name of the database
+     * @param  string|null  $databaseTablesToExcludeInTheBackup  Comma-separated list of tables to exclude
+     *
+     * @throws DatabaseDumpException If there's an error during the database dump
+     * @throws SFTPConnectionException If there's an error in the SFTP connection
      */
     public function dumpRemoteDatabase(
         SFTPInterface $sftp,
@@ -433,7 +524,11 @@ abstract class Backup
     }
 
     /**
-     * @throws SFTPConnectionException
+     * Validate the SFTP connection.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface to validate
+     *
+     * @throws SFTPConnectionException If the SFTP connection is not active
      */
     public function validateSFTP(SFTPInterface $sftp): void
     {
@@ -443,6 +538,14 @@ abstract class Backup
         }
     }
 
+    /**
+     * Retry a command multiple times.
+     *
+     * @param  callable  $command  The command to retry
+     * @param  int  $maxRetries  Maximum number of retries
+     * @param  int  $retryDelay  Delay between retries in seconds
+     * @return mixed The result of the command if successful, false otherwise
+     */
     public function retryCommand(callable $command, int $maxRetries, int $retryDelay): mixed
     {
         $attempt = 0;
@@ -462,6 +565,13 @@ abstract class Backup
         return $result;
     }
 
+    /**
+     * Check if a directory is a Laravel project.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $sourcePath  The path to check
+     * @return bool True if it's a Laravel project, false otherwise
+     */
     public function isLaravelDirectory(SFTPInterface $sftp, string $sourcePath): bool
     {
         $this->logInfo('Checking if the directory is a Laravel project.', ['source_path' => $sourcePath]);
@@ -481,6 +591,12 @@ abstract class Backup
         return $isLaravel;
     }
 
+    /**
+     * Delete a folder on the remote server.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $folderPath  The path of the folder to delete
+     */
     public function deleteFolder(SFTPInterface $sftp, string $folderPath): void
     {
         $this->logInfo('Deleting folder.', ['folder_path' => $folderPath]);
@@ -495,6 +611,14 @@ abstract class Backup
         }
     }
 
+    /**
+     * Create an instance of BackupDestinationInterface based on the backup destination type.
+     *
+     * @param  BackupDestination  $backupDestination  The backup destination model
+     * @return BackupDestinationInterface The created backup destination instance
+     *
+     * @throws RuntimeException If the backup destination type is unsupported
+     */
     public function createBackupDestinationInstance(BackupDestination $backupDestination): BackupDestinationInterface
     {
         switch ($backupDestination->getAttribute('type')) {
@@ -508,13 +632,27 @@ abstract class Backup
         }
     }
 
+    /**
+     * Create an SFTP interface instance.
+     *
+     * @param  string  $host  The host to connect to
+     * @param  int  $port  The port to connect to
+     * @param  int  $timeout  The connection timeout in seconds
+     * @return SFTPInterface The created SFTP interface instance
+     */
     protected function createSFTP(string $host, int $port, int $timeout = 120): SFTPInterface
     {
         return ($this->sftpFactory)($host, $port, $timeout);
     }
 
     /**
-     * @throws Exception
+     * Download a file via SFTP.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $remoteZipPath  The path of the remote file to download
+     * @return string The path to the downloaded temporary file
+     *
+     * @throws Exception If the download fails
      */
     protected function downloadFileViaSFTP(SFTPInterface $sftp, string $remoteZipPath): string
     {
@@ -531,6 +669,10 @@ abstract class Backup
     }
 
     /**
+     *  It opens the file content as a stream.
+     *
+     * @param  string  $tempFile  The temporary file.
+     *
      * @throws Exception
      */
     protected function openFileAsStream(string $tempFile): mixed
@@ -547,6 +689,11 @@ abstract class Backup
         return $stream;
     }
 
+    /**
+     *  It cleans up the temporary file that is created during a backup.
+     *
+     * @param  string  $tempFile  The temporary file itself
+     */
     protected function cleanUpTempFile(string $tempFile): void
     {
         if (file_exists($tempFile)) {
@@ -556,6 +703,12 @@ abstract class Backup
     }
 
     /**
+     *  It creates a log message for the user on the front-end, informing them of the current step.
+     *
+     * @param  string  $message  The message itself
+     * @param  string  $timezone  The timezone it should be set in
+     * @return string The message formatted
+     *
      * @throws Exception
      */
     protected function logWithTimestamp(string $message, string $timezone): string
@@ -567,6 +720,15 @@ abstract class Backup
         return '[' . $timestamp . '] ' . $message . "\n";
     }
 
+    /**
+     *  Handles the rotation of backup files depending on the specific configuration setting.
+     *
+     * @param  BackupDestinationInterface  $backupDestination  The backup destination
+     * @param  int  $backupTaskId  The id of the backup task
+     * @param  int  $backupLimit  The rotation limit
+     * @param  string  $fileExtension  The file extension, it could be a zip or database file
+     * @param  string  $pattern  The beginning string of the file name
+     */
     protected function rotateOldBackups(
         BackupDestinationInterface $backupDestination,
         int $backupTaskId,
@@ -611,6 +773,12 @@ abstract class Backup
         }
     }
 
+    /**
+     *  Logs the exception as an error in the Laravel log file.
+     *
+     * @param  Exception  $exception  The exception message
+     * @param  string  $context  The context of the exception
+     */
     protected function handleException(Exception $exception, string $context): void
     {
         $this->logError($context . ': ' . $exception->getMessage(), ['exception' => $exception]);
