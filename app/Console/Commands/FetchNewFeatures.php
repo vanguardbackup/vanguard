@@ -196,6 +196,7 @@ class FetchNewFeatures extends Command
      * If the file doesn't exist, it returns '0.0.0' as a default version.
      *
      * @return string The current version or '0.0.0' if not found
+     *
      * @throws FileNotFoundException
      */
     private function getCurrentVersion(): string
