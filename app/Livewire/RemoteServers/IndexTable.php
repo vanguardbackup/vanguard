@@ -19,7 +19,7 @@ class IndexTable extends Component
         $remoteServers = RemoteServer::where('user_id', Auth::id())
             ->whereNull('marked_for_deletion_at')
             ->orderBy('created_at', 'desc')
-            ->paginate(30, pageName: 'remote-servers');
+            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'remote-servers');
 
         return view('livewire.remote-servers.index-table', ['remoteServers' => $remoteServers]);
     }

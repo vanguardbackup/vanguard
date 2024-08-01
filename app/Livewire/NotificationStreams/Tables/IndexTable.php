@@ -15,7 +15,7 @@ class IndexTable extends Component
     {
         $notificationStreams = NotificationStream::where('user_id', Auth::id())
             ->orderBy('id', 'desc')
-            ->paginate(10, pageName: 'notification-streams');
+            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'notification-streams');
 
         return view('livewire.notification-streams.tables.index-table', [
             'notificationStreams' => $notificationStreams,

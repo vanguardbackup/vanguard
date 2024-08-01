@@ -35,6 +35,7 @@ class User extends Authenticatable
         'language',
         'gravatar_email',
         'weekly_summary_opt_in_at',
+        'pagination_count',
     ];
 
     protected $hidden = [

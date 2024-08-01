@@ -18,7 +18,7 @@ class IndexTable extends Component
     {
         $backupDestinations = BackupDestination::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->paginate(30, pageName: 'backup-destinations');
+            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'backup-destinations');
 
         return view('livewire.backup-destinations.index-table', ['backupDestinations' => $backupDestinations]);
     }

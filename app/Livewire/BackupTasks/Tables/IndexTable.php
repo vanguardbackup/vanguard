@@ -20,7 +20,7 @@ class IndexTable extends Component
             ->with(['remoteServer', 'backupDestination'])
             ->withAggregate('latestLog', 'created_at')
             ->orderBy('id', 'desc')
-            ->paginate(10, pageName: 'backup-tasks');
+            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'backup-tasks');
 
         return view('livewire.backup-tasks.tables.index-table', ['backupTasks' => $backupTasks]);
     }

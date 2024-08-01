@@ -19,6 +19,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'timezone' => 'UTC',
+            'pagination_count' => '25',
             'language' => 'en',
             'weekly_summary_opt_in_at' => now(),
         ];

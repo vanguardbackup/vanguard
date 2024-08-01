@@ -18,7 +18,7 @@ class IndexTable extends Component
     {
         $tags = Tag::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->paginate(30, pageName: 'tags');
+            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'tags');
 
         return view('livewire.tags.index-table', ['tags' => $tags]);
     }
