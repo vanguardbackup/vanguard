@@ -10,8 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Handles the overview page of the application.
+ * Provides data for the dashboard, including backup task statistics.
+ */
 class OverviewController extends Controller
 {
+    /**
+     * Handle the incoming request and return the dashboard view.
+     *
+     * Retrieves backup task statistics for the authenticated user
+     * and prepares data for the dashboard charts.
+     */
     public function __invoke(Request $request): View
     {
         /** @var User $user */

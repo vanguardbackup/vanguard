@@ -7,12 +7,22 @@ namespace App\Console\Commands;
 use App\Models\BackupTask;
 use Illuminate\Console\Command;
 
+/**
+ * Command to execute scheduled backup tasks.
+ *
+ * This command runs all eligible scheduled backup tasks.
+ */
 class ExecuteScheduledBackupTasksCommand extends Command
 {
     protected $signature = 'vanguard:execute-scheduled-backup-tasks';
 
     protected $description = 'Executes scheduled backup tasks.';
 
+    /**
+     * Execute the console command.
+     *
+     * Fetches and runs all eligible backup tasks.
+     */
     public function handle(): void
     {
         $this->components->info('Running scheduled backup tasks...');

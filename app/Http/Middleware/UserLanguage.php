@@ -12,10 +12,20 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware to set the application language based on user preferences.
+ * Falls back to a default language if the user is not authenticated or has an invalid language setting.
+ */
 class UserLanguage
 {
     protected string $fallbackLanguage = 'en';
 
+    /**
+     * Handle an incoming request.
+     *
+     * Sets the application locale based on the authenticated user's language preference.
+     * If no user is authenticated or the user's language is invalid, the fallback language is used.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         App::setLocale($this->fallbackLanguage);

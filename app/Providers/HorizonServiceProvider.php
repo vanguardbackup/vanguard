@@ -9,8 +9,17 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
+/**
+ * Service provider for Laravel Horizon configuration.
+ * Handles Horizon access control and notification routing.
+ */
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
+    /**
+     * Bootstrap any application services for Horizon.
+     *
+     * Configures notification routes for Horizon (currently commented out).
+     */
     public function boot(): void
     {
         parent::boot();
@@ -20,6 +29,11 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
     }
 
+    /**
+     * Define the Horizon access gate.
+     *
+     * Allows access via a bearer token or for authenticated admin users.
+     */
     protected function gate(): void
     {
         Gate::define('viewHorizon', function (): bool {

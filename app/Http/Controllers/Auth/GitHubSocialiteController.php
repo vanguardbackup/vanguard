@@ -18,6 +18,12 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GithubProvider;
 use Toaster;
 
+/**
+ * Handles GitHub OAuth authentication for the application.
+ *
+ * This controller manages the GitHub authentication flow, including
+ * redirecting users to GitHub, handling callbacks, and user creation/login.
+ */
 class GitHubSocialiteController extends Controller
 {
     /**
@@ -39,6 +45,9 @@ class GitHubSocialiteController extends Controller
             ->redirect();
     }
 
+    /**
+     * Handle the callback from GitHub after authentication.
+     */
     public function handleProviderCallback(): RedirectResponse
     {
         try {
@@ -61,11 +70,17 @@ class GitHubSocialiteController extends Controller
         }
     }
 
+    /**
+     * Find a user by their GitHub ID.
+     */
     private function findUserByGitHubId(int $githubId): ?User
     {
         return User::where('github_id', $githubId)->first();
     }
 
+    /**
+     * Find a user by email and update their GitHub ID if found.
+     */
     private function findUserByEmailAndUpdateGitHubId(SocialiteUser $socialiteUser): ?User
     {
         $user = User::where('email', $socialiteUser->getEmail())->first();
@@ -75,6 +90,9 @@ class GitHubSocialiteController extends Controller
         return $user;
     }
 
+    /**
+     * Create a new user with GitHub data and log them in.
+     */
     private function createUserAndLogin(SocialiteUser $socialiteUser): RedirectResponse
     {
         $user = User::create([
@@ -93,6 +111,9 @@ class GitHubSocialiteController extends Controller
         return Redirect::route('overview');
     }
 
+    /**
+     * Log in the user and redirect to the overview page.
+     */
     private function loginAndRedirect(User $user, string $message): RedirectResponse
     {
         Log::debug($message, ['id' => $user->getAttribute('github_id')]);

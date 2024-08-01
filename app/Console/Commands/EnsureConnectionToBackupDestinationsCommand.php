@@ -9,12 +9,22 @@ use App\Models\BackupDestination;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 
+/**
+ * Command to ensure connectivity to all available backup destinations.
+ *
+ * This command checks and initiates connection tests for S3 backup destinations.
+ */
 class EnsureConnectionToBackupDestinationsCommand extends Command
 {
     protected $signature = 'vanguard:ensure-connection-to-backup-destinations';
 
     protected $description = 'Ensure connectivity to available backup destinations.';
 
+    /**
+     * Execute the console command.
+     *
+     * Dispatches jobs to check connections for eligible S3 backup destinations.
+     */
     public function handle(): void
     {
         $this->components->info('Checking connection to eligible backup destinations...');

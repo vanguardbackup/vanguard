@@ -10,8 +10,20 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 
+/**
+ * Handles email verification for users.
+ *
+ * This controller is responsible for verifying user emails
+ * and redirecting them to the appropriate page after verification.
+ */
 class VerifyEmailController extends Controller
 {
+    /**
+     * Handle the email verification process.
+     *
+     * This method verifies the user's email if not already verified,
+     * triggers a Verified event, and redirects to the overview page.
+     */
     public function __invoke(EmailVerificationRequest $emailVerificationRequest): RedirectResponse
     {
         /** @var MustVerifyEmail $user */

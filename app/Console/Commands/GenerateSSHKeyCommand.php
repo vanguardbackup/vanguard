@@ -10,12 +10,23 @@ use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
+/**
+ * Command to generate SSH keys for secure communication with remote servers.
+ *
+ * This command creates a new SSH key pair for Vanguard, used in remote server operations.
+ * It includes checks for environment, existing keys, and required configuration.
+ */
 class GenerateSSHKeyCommand extends Command
 {
     protected $signature = 'vanguard:generate-ssh-key';
 
     protected $description = 'This command will generate the SSH key needed for secure communication between Vanguard and remote servers.';
 
+    /**
+     * Execute the console command.
+     *
+     * Generates SSH keys after validating the environment, existing keys, and passphrase.
+     */
     public function handle(): void
     {
         if ($this->appEnvironmentNotAllowed()) {
@@ -39,6 +50,11 @@ class GenerateSSHKeyCommand extends Command
         $this->generateSSHKeys();
     }
 
+    /**
+     * Check if SSH keys already exist.
+     *
+     * @return bool True if either private or public key exists, false otherwise.
+     */
     public function doSSHKeysAlreadyExist(): bool
     {
         $privateKeyPath = storage_path('app/ssh/key');
@@ -47,16 +63,34 @@ class GenerateSSHKeyCommand extends Command
         return file_exists($privateKeyPath) || file_exists($publicKeyPath);
     }
 
+    /**
+     * Check if the current environment is production.
+     *
+     * @return bool True if the environment is production, false otherwise.
+     */
     public function appEnvironmentNotAllowed(): bool
     {
         return app()->environment('production');
     }
 
+    /**
+     * Check if the SSH passphrase is missing from the configuration.
+     *
+     * @return bool True if the passphrase is missing, false otherwise.
+     */
     public function passphraseMissing(): bool
     {
         return ! config('app.ssh.passphrase');
     }
 
+    /**
+     * Generate SSH keys using ssh-keygen.
+     *
+     * This method creates the necessary directory, builds the ssh-keygen command,
+     * and executes it to generate the SSH key pair.
+     *
+     * @throws RuntimeException If unable to create the SSH directory.
+     */
     public function generateSSHKeys(): void
     {
         $path = storage_path('app/ssh');

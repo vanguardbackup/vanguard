@@ -8,12 +8,21 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Artisan command to check and display Vanguard version information.
+ *
+ * This command allows users to view the current version of Vanguard
+ * and check for available updates.
+ */
 class CheckVersion extends Command
 {
     protected $signature = 'vanguard:version {--check}';
 
     protected $description = 'Check the current version of Vanguard.';
 
+    /**
+     * Handle the command execution.
+     */
     public function handle(): void
     {
         if ($this->option('check')) {
@@ -25,6 +34,9 @@ class CheckVersion extends Command
         $this->showCurrentVersion();
     }
 
+    /**
+     * Display the current version of Vanguard.
+     */
     protected function showCurrentVersion(): void
     {
         $version = obtain_vanguard_version();
@@ -32,6 +44,9 @@ class CheckVersion extends Command
         $this->components->info(sprintf('The current version of Vanguard is: %s.', $version));
     }
 
+    /**
+     * Check for a new version of Vanguard and display the result.
+     */
     protected function checkForNewVersion(): void
     {
         $latestVersionInfo = $this->getLatestVersion();
@@ -56,7 +71,7 @@ class CheckVersion extends Command
     }
 
     /**
-     * Get the latest version from the GitHub API.
+     * Fetch the latest version information from the GitHub API.
      *
      * @return array<string, string|null>|null
      */

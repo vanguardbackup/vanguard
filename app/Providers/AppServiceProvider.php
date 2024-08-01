@@ -11,8 +11,18 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Application service provider for core functionality.
+ * Handles version determination, service binding, and authorization gates.
+ */
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     *
+     * Sets up version determination for Flare, binds the GreetingService,
+     * and creates an alias for it.
+     */
     public function register(): void
     {
         Flare::determineVersionUsing(function () {
@@ -30,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->alias(GreetingService::class, 'Greeting');
     }
 
+    /**
+     * Bootstrap any application services.
+     *
+     * Defines the 'viewPulse' gate for admin access.
+     */
     public function boot(): void
     {
         Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());

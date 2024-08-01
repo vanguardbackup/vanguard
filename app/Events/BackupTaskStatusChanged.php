@@ -12,12 +12,24 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Event for broadcasting changes in backup task status.
+ *
+ * This event is dispatched when the status of a backup task changes.
+ * It broadcasts the new status to a private channel specific to the backup task.
+ */
 class BackupTaskStatusChanged implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
     use SerializesModels;
 
+    /**
+     * Create a new event instance.
+     *
+     * @param  BackupTask  $backupTask  The backup task whose status has changed
+     * @param  string|null  $status  The new status of the backup task. If null, it uses the backup task's current status.
+     */
     public function __construct(
         private readonly BackupTask $backupTask,
         public ?string $status = null
