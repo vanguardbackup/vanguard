@@ -91,13 +91,12 @@ new class extends Component {
                 {{ __('Remove your Account') }}
             </x-slot>
             <x-slot name="description">
-                {{ __('Remove your account from the application.') }}
+                {{ __('Please read this carefully before confirming this action.') }}
             </x-slot>
             <x-slot name="icon">
                 heroicon-o-trash
             </x-slot>
-            <form wire:submit="deleteUser" class="p-6">
-
+            <form wire:submit="deleteUser">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                     {{ __('Are you certain you want to proceed with removing your account?') }}
                 </h2>
@@ -138,7 +137,8 @@ new class extends Component {
 
                 <div class="flex space-x-5">
                     <div class="w-4/6">
-                        <x-danger-button type="button" wire:click="deleteUser" class="mt-4" centered action="deleteUser" loadingText="Removing...">
+                        <x-danger-button type="button" wire:click="deleteUser" class="mt-4" centered action="deleteUser"
+                                         loadingText="Removing...">
                             {{ __('Confirm Removal') }}
                         </x-danger-button>
                     </div>

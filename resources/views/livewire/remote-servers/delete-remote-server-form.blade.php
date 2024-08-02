@@ -7,11 +7,17 @@
         </a>
     </div>
     <x-modal name="remove-remote-server-{{ $remoteServer->id }}">
-        <div class="p-6">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Remove Remote Server') }}
-            </h2>
-            <p class="text-gray-800 dark:text-gray-200 my-3">
+        <x-slot name="title">
+            {{ __('Remove Remote Server') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Please read this carefully before confirming this action.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-trash
+        </x-slot>
+        <div>
+            <p class="text-gray-800 dark:text-gray-200 mb-3">
                 {{ __('Are you sure you want to remove the remote server ":label"?', ['label' => $remoteServer->label]) }}
             </p>
             <p class="text-gray-800 dark:text-gray-200 my-3">
