@@ -13,24 +13,28 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Toaster;
 
+/**
+ * Livewire component for creating a new backup destination.
+ *
+ * This component handles the form submission and validation for creating
+ * various types of backup destinations, including custom S3, S3, and local.
+ */
 class CreateBackupDestinationForm extends Component
 {
     public string $label;
-
     public string $type = 'custom_s3';
-
     public ?string $s3AccessKey = null;
-
     public ?string $s3SecretKey = null;
-
     public ?string $s3BucketName = null;
-
     public bool $usePathStyleEndpoint = false;
-
     public ?string $customS3Region = null;
-
     public ?string $customS3Endpoint = null;
 
+    /**
+     * Handle the form submission.
+     *
+     * Validates the input, creates a new BackupDestination, and redirects to the index page.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->validate([
@@ -66,11 +70,14 @@ class CreateBackupDestinationForm extends Component
             'path_style_endpoint' => $this->usePathStyleEndpoint ?? false,
         ]);
 
-        Toaster::success(__('Backup destination has been added.'));
+        Toaster::success('Backup destination has been added.');
 
         return Redirect::route('backup-destinations.index');
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         return view('livewire.backup-destinations.create-backup-destination-form');

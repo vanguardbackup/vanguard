@@ -14,21 +14,39 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Manages the form for creating a new notification stream.
+ *
+ * This component handles the UI and logic for adding a new notification stream,
+ * including form validation and submission.
+ */
 class CreateNotificationStream extends Component
 {
+    /** @var NotificationStreamForm The form object for creating a notification stream */
     public NotificationStreamForm $form;
 
+    /**
+     * Initialize the component state.
+     */
     public function mount(): void
     {
         $this->form = new NotificationStreamForm($this, 'form');
         $this->form->initialize();
     }
 
+    /**
+     * Handle changes to the notification stream type.
+     *
+     * Resets validation for the value field when the type changes.
+     */
     public function updatedFormType(): void
     {
         $this->resetValidation('form.value');
     }
 
+    /**
+     * Submit the form and create a new notification stream.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->form->validate();
@@ -50,6 +68,9 @@ class CreateNotificationStream extends Component
         return Redirect::route('notification-streams.index');
     }
 
+    /**
+     * Render the create notification stream form.
+     */
     public function render(): View
     {
         return view('livewire.notification-streams.forms.create-notification-stream')

@@ -10,10 +10,22 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Manages the display of remote servers in a table format.
+ *
+ * This component handles the rendering and pagination of remote servers
+ * for the authenticated user, excluding those marked for deletion.
+ */
 class IndexTable extends Component
 {
-    use withPagination;
+    use WithPagination;
 
+    /**
+     * Render the remote servers index table.
+     *
+     * Fetches and paginates remote servers for the authenticated user,
+     * excluding those marked for deletion.
+     */
     public function render(): View
     {
         $remoteServers = RemoteServer::where('user_id', Auth::id())

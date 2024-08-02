@@ -12,14 +12,27 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Livewire component for updating an existing tag.
+ *
+ * This component handles the form submission and validation for updating a tag.
+ */
 class UpdateForm extends Component
 {
+    /** @var string The updated label for the tag. */
     public string $label;
 
+    /** @var string|null The updated description for the tag. */
     public ?string $description = null;
 
+    /** @var Tag The tag instance being updated. */
     public Tag $tag;
 
+    /**
+     * Initialize the component with the given tag.
+     *
+     * Populates the component properties with the tag's current attributes.
+     */
     public function mount(Tag $tag): void
     {
         $this->tag = $tag;
@@ -27,6 +40,11 @@ class UpdateForm extends Component
         $this->description = $tag->getAttribute('description') ?? null;
     }
 
+    /**
+     * Handle the form submission for updating the tag.
+     *
+     * Validates the input, updates the Tag, and redirects to the index page.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->authorize('update', $this->tag);
@@ -45,11 +63,14 @@ class UpdateForm extends Component
 
         $this->tag->save();
 
-        Toaster::success(__('The tag :label has been updated.', ['label' => $this->tag->getAttribute('label')]));
+        Toaster::success('The tag :label has been updated.', ['label' => $this->tag->getAttribute('label')]);
 
         return Redirect::route('tags.index');
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         return view('livewire.tags.update-form');

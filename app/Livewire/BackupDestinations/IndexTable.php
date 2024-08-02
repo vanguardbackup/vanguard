@@ -10,10 +10,22 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Livewire component for displaying a table of backup destinations.
+ *
+ * This component handles the pagination and rendering of backup destinations
+ * for the authenticated user.
+ */
 class IndexTable extends Component
 {
     use WithPagination;
 
+    /**
+     * Render the component.
+     *
+     * Fetches paginated backup destinations for the authenticated user
+     * and passes them to the view.
+     */
     public function render(): View
     {
         $backupDestinations = BackupDestination::where('user_id', Auth::id())

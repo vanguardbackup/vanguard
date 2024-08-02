@@ -9,15 +9,31 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Manages the button for running a backup task.
+ *
+ * This component handles the UI and logic for initiating a backup task
+ * and updating its status.
+ */
 class RunTaskButton extends Component
 {
+    /** @var BackupTask The backup task to be run */
     public BackupTask $backupTask;
 
+    /**
+     * Refresh the component.
+     */
     public function refreshSelf(): void
     {
         $this->dispatch('$refresh');
     }
 
+    /**
+     * Run the backup task.
+     *
+     * Marks the task as running, initiates the backup process,
+     * and dispatches events to update related components.
+     */
     public function runTask(): void
     {
         $this->backupTask->markAsRunning();
@@ -28,16 +44,19 @@ class RunTaskButton extends Component
 
         $this->dispatch('refresh-backup-tasks-table');
 
-        Toaster::success(__('Backup task is running.'));
+        Toaster::success('Backup task is running.');
     }
 
+    /**
+     * Render the run task button component.
+     */
     public function render(): View
     {
         return view('livewire.backup-tasks.buttons.run-task-button');
     }
 
     /**
-     * Get the listeners array.
+     * Get the event listeners for the component.
      *
      * @return array<string, string>
      */

@@ -12,26 +12,29 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Toaster;
 
+/**
+ * Livewire component for updating a backup destination.
+ *
+ * This component handles the form submission and validation for updating
+ * various types of backup destinations, including custom S3, S3, and local.
+ */
 class UpdateBackupDestinationForm extends Component
 {
     public string $label;
-
     public string $type = 'custom_s3';
-
     public ?string $s3AccessKey = null;
-
     public ?string $s3SecretKey = null;
-
     public ?string $s3BucketName = null;
-
     public bool $usePathStyleEndpoint = false;
-
     public ?string $customS3Region = null;
-
     public ?string $customS3Endpoint = null;
-
     public BackupDestination $backupDestination;
 
+    /**
+     * Handle the form submission for updating a backup destination.
+     *
+     * Validates the input, updates the BackupDestination, and redirects to the index page.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->authorize('update', $this->backupDestination);
@@ -69,11 +72,16 @@ class UpdateBackupDestinationForm extends Component
 
         $this->backupDestination->save();
 
-        Toaster::success(__('Backup destination has been updated.'));
+        Toaster::success('Backup destination has been updated.');
 
         return Redirect::route('backup-destinations.index');
     }
 
+    /**
+     * Initialize the component with the given backup destination.
+     *
+     * Populates the component properties with the backup destination's attributes.
+     */
     public function mount(BackupDestination $backupDestination): void
     {
         $this->backupDestination = $backupDestination;
@@ -87,6 +95,9 @@ class UpdateBackupDestinationForm extends Component
         $this->usePathStyleEndpoint = $backupDestination->getAttribute('path_style_endpoint') ?? false;
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         return view('livewire.backup-destinations.update-backup-destination-form');

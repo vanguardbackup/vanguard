@@ -10,16 +10,28 @@ use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+/**
+ * Manages the display of backup task logs in a modal.
+ *
+ * This component handles the rendering and real-time updates of backup task logs.
+ */
 class LogModal extends Component
 {
+    /** @var int The ID of the backup task */
     public int $backupTaskId;
 
+    /** @var string|null The current log output */
     public ?string $logOutput = null;
 
+    /** @var bool Indicates if the log is currently streaming */
     public bool $isStreaming = false;
 
+    /** @var bool Indicates if the log is currently loading */
     public bool $isLoading = true;
 
+    /**
+     * Initialize the component with a backup task.
+     */
     public function mount(BackupTask|int $backupTask): void
     {
         $this->backupTaskId = $backupTask instanceof BackupTask ? $backupTask->getAttribute('id') : $backupTask;
@@ -27,7 +39,7 @@ class LogModal extends Component
     }
 
     /**
-     * Handle the stream event.
+     * Handle the stream event for real-time log updates.
      *
      * @param  array{logOutput: string}  $event
      */
@@ -41,11 +53,17 @@ class LogModal extends Component
         $this->isLoading = false;
     }
 
+    /**
+     * Refresh the log output.
+     */
     public function refresh(): void
     {
         $this->loadLatestLog();
     }
 
+    /**
+     * Render the log modal component.
+     */
     public function render(): View
     {
         return view('livewire.backup-tasks.modals.log-modal', [
@@ -53,6 +71,9 @@ class LogModal extends Component
         ]);
     }
 
+    /**
+     * Load the latest log for the backup task.
+     */
     private function loadLatestLog(): void
     {
         $this->isLoading = true;

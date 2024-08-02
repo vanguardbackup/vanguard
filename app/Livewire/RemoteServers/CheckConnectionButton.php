@@ -9,32 +9,49 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Manages the connection check button for remote servers.
+ *
+ * This component handles the UI and logic for initiating
+ * connection checks to remote servers.
+ */
 class CheckConnectionButton extends Component
 {
+    /** @var RemoteServer The remote server to check */
     public RemoteServer $remoteServer;
 
+    /**
+     * Refresh the component.
+     */
     public function refreshSelf(): void
     {
         $this->dispatch('$refresh');
     }
 
+    /**
+     * Initiate a connection check for the remote server.
+     *
+     * Dispatches events and displays a notification.
+     */
     public function checkConnection(): void
     {
         $this->remoteServer->runServerConnectionCheck();
 
-        // This will call the "markAsChecking" method on the "IndexItem" component.
         $this->dispatch('connection-check-initiated-' . $this->remoteServer->getAttribute('id'));
 
-        Toaster::info(__('Performing a connectivity check.'));
+        Toaster::info('Performing a connectivity check.');
     }
 
+    /**
+     * Render the connection check button.
+     */
     public function render(): View
     {
         return view('livewire.remote-servers.check-connection-button');
     }
 
     /**
-     * Get the listeners array.
+     * Get the event listeners for the component.
      *
      * @return array<string, string>
      */

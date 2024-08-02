@@ -113,5 +113,5 @@ test('username is set correctly after provider method called', function (): void
 
     $component->assertSet('username', 'ploi');
 
-    Toaster::assertDispatched(__('The username has been updated to ":username".', ['username' => 'ploi']));
+    Toaster::assertDispatched('The username has been updated to ":username".', ['username' => 'ploi']);
 });

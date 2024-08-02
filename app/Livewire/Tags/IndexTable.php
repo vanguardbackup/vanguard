@@ -10,10 +10,21 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Livewire component for displaying a paginated table of tags.
+ *
+ * This component handles the retrieval and rendering of tags for the current user.
+ */
 class IndexTable extends Component
 {
-    use withPagination;
+    use WithPagination;
 
+    /**
+     * Render the component.
+     *
+     * Retrieves a paginated list of tags for the authenticated user
+     * and passes them to the view for rendering.
+     */
     public function render(): View
     {
         $tags = Tag::where('user_id', Auth::id())

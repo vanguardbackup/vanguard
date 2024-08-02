@@ -13,12 +13,24 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Livewire component for creating a new tag.
+ *
+ * This component handles the form submission and validation for creating a new tag.
+ */
 class CreateForm extends Component
 {
+    /** @var string The label for the new tag. */
     public string $label;
 
+    /** @var string|null The optional description for the new tag. */
     public ?string $description = null;
 
+    /**
+     * Handle the form submission for creating a new tag.
+     *
+     * Validates the input, creates a new Tag, and redirects to the index page.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->validate([
@@ -34,11 +46,14 @@ class CreateForm extends Component
             'description' => $this->description ?? null,
         ]);
 
-        Toaster::success(__('The tag :label has been added.', ['label' => $tag->label]));
+        Toaster::success('The tag :label has been added.', ['label' => $tag->label]);
 
         return Redirect::route('tags.index');
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         return view('livewire.tags.create-form');

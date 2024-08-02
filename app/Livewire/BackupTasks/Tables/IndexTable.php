@@ -10,10 +10,20 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Manages the display of backup tasks in a table format.
+ *
+ * This component handles the rendering and pagination of backup tasks for the authenticated user.
+ */
 class IndexTable extends Component
 {
     use WithPagination;
 
+    /**
+     * Render the backup tasks index table.
+     *
+     * Fetches and paginates backup tasks for the authenticated user, including related data.
+     */
     public function render(): View
     {
         $backupTasks = BackupTask::where('user_id', Auth::id())

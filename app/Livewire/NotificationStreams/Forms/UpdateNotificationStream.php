@@ -13,13 +13,25 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Masmerise\Toaster\Toaster;
 
+/**
+ * Manages the form for updating an existing notification stream.
+ *
+ * This component handles the UI and logic for modifying notification stream details,
+ * including authorization, form validation, and submission.
+ */
 class UpdateNotificationStream extends Component
 {
     use AuthorizesRequests;
 
+    /** @var NotificationStream The notification stream being updated */
     public NotificationStream $notificationStream;
+
+    /** @var NotificationStreamForm The form object for updating a notification stream */
     public NotificationStreamForm $form;
 
+    /**
+     * Initialize the component state.
+     */
     public function mount(NotificationStream $notificationStream): void
     {
         $this->authorize('update', $notificationStream);
@@ -30,11 +42,19 @@ class UpdateNotificationStream extends Component
         $this->form->setNotificationStream($notificationStream);
     }
 
+    /**
+     * Handle changes to the notification stream type.
+     *
+     * Resets validation for the value field when the type changes.
+     */
     public function updatedFormType(): void
     {
         $this->resetValidation('form.value');
     }
 
+    /**
+     * Submit the form and update the notification stream.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->authorize('update', $this->notificationStream);
@@ -54,6 +74,9 @@ class UpdateNotificationStream extends Component
         return Redirect::route('notification-streams.index');
     }
 
+    /**
+     * Render the update notification stream form.
+     */
     public function render(): View
     {
         return view('livewire.notification-streams.forms.update-notification-stream', [

@@ -13,28 +13,49 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Toaster;
 
+/**
+ * Manages the form for creating a new remote server.
+ *
+ * This component handles the UI and logic for adding a new remote server,
+ * including connection testing and data validation.
+ */
 class CreateRemoteServerForm extends Component
 {
+    /** @var bool Indicates if a connection to the remote server can be established */
     public bool $canConnectToRemoteServer = false;
 
+    /** @var bool Controls the visibility of the connection view */
     public bool $showingConnectionView = false;
 
-    public bool $testOverride = false;  // This is a test override to allow the test to bypass the connection check
+    /** @var bool Test override flag for bypassing connection checks in tests */
+    public bool $testOverride = false;
 
+    /** @var string Label for the remote server */
     public string $label = '';
 
+    /** @var string Host address of the remote server */
     public string $host = '';
 
+    /** @var string Username for the remote server connection */
     public string $username = '';
 
+    /** @var int Port number for the remote server connection */
     public int $port = 22;
 
+    /** @var string Stores any connection error messages */
     public string $connectionError = '';
 
+    /** @var string Public key for SSH connection */
     public string $ourPublicKey = '';
 
+    /** @var string|null Optional database password for the remote server */
     public ?string $databasePassword = '';
 
+    /**
+     * Handle form submission.
+     *
+     * Validates input, tests connection, and creates a new RemoteServer if successful.
+     */
     public function submit(): void
     {
         $this->validate([
@@ -80,11 +101,14 @@ class CreateRemoteServerForm extends Component
 
         $remoteServer->updateLastConnectedAt();
 
-        Toaster::success(__('Remote server has been added.'));
+        Toaster::success('Remote server has been added.');
 
         $this->dispatch('serverAdded');
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         if (ssh_keys_exist()) {
@@ -95,20 +119,28 @@ class CreateRemoteServerForm extends Component
         return view('livewire.remote-servers.create-remote-server-form');
     }
 
+    /**
+     * Return to the form view from the connection view.
+     */
     public function returnToForm(): void
     {
         $this->showingConnectionView = false;
     }
 
+    /**
+     * Set the username based on the selected server provider.
+     */
     public function usingServerProvider(string $provider): void
     {
-        Toaster::success(__('The username has been updated to ":username".', ['username' => $provider]));
+        Toaster::success('The username has been updated to ":username".', ['username' => $provider]);
 
         $this->username = $provider;
         $this->port = 22;
     }
 
     /**
+     * Attempt to connect to the remote server.
+     *
      * @throws Exception
      */
     private function connectionAttempt(): bool

@@ -13,20 +13,35 @@ use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Toaster;
 
+/**
+ * Manages the form for updating an existing remote server.
+ *
+ * This component handles the UI and logic for modifying remote server details,
+ * including validation, update process, and optional database password encryption.
+ */
 class UpdateRemoteServerForm extends Component
 {
+    /** @var RemoteServer The remote server being updated */
     public RemoteServer $remoteServer;
 
+    /** @var string Label for the remote server */
     public string $label = '';
 
+    /** @var string Host address of the remote server */
     public string $host = '';
 
+    /** @var string Username for the remote server connection */
     public string $username = '';
 
+    /** @var int Port number for the remote server connection */
     public int $port = 22;
 
+    /** @var string|null Optional database password for the remote server */
     public ?string $databasePassword = '';
 
+    /**
+     * Initialize the component with existing remote server data.
+     */
     public function mount(): void
     {
         $this->label = $this->remoteServer->getAttribute('label');
@@ -36,6 +51,11 @@ class UpdateRemoteServerForm extends Component
         $this->databasePassword = '';
     }
 
+    /**
+     * Submit the form and update the remote server.
+     *
+     * Validates input, updates the remote server, and optionally encrypts the database password.
+     */
     public function submit(): RedirectResponse|Redirector
     {
         $this->authorize('update', $this->remoteServer);
@@ -71,11 +91,14 @@ class UpdateRemoteServerForm extends Component
 
         $this->remoteServer->save();
 
-        Toaster::success(__('Remote server details saved.'));
+        Toaster::success('Remote server details saved.');
 
         return Redirect::route('remote-servers.index');
     }
 
+    /**
+     * Render the update remote server form.
+     */
     public function render(): View
     {
         return view('livewire.remote-servers.update-remote-server-form');
