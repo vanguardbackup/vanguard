@@ -74,22 +74,16 @@
                             @livewire('backup-tasks.buttons.delete-backup-task-log-button', ['backupTaskLog' => $backupTaskLog])
                             <x-modal name="backup-task-historic-log-{{ $backupTaskLog->id }}">
                                 <x-slot name="title">
-                                    {{ __('Log Results') }}
+                                    {{ __('Viewing log for finished task: ":label".', ['label' => $backupTaskLog->backupTask->label]) }}
                                 </x-slot>
                                 <x-slot name="description">
-                                    {{ __('Viewing a Backup Task log.') }}
+                                    {{ __('This log was generated :date.', ['date' => $backupTaskLog->created_at->timezone(Auth::user()->timezone ?? config('app.timezone'))->format('l, d F Y H:i')]) }}
                                 </x-slot>
                                 <x-slot name="icon">
                                     heroicon-o-document-text
                                 </x-slot>
-                                <div class="p-6 text-center">
-                                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        {{ __('Viewing log for finished task: ":label".', ['label' => $backupTaskLog->backupTask->label]) }}
-                                    </h2>
-                                    <p class="text-gray-800 dark:text-gray-200 my-3">
-                                        {{ __('This log was generated :date.', ['date' => $backupTaskLog->created_at->timezone(Auth::user()->timezone ?? config('app.timezone'))->format('l, d F Y H:i')]) }}
-                                    </p>
-                                    <div class="my-5">
+                                <div class="text-center">
+                                    <div class="mb-5">
                                         <x-textarea id="logOutput" readonly
                                                     class="pre text-sm text-gray-800 bg-gray-50 font-mono" rows="16" wrap>
                                             {{ $backupTaskLog->output }}
