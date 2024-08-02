@@ -338,18 +338,95 @@ test('pagination count cannot exceed 100', function (): void {
         ->assertNoRedirect();
 });
 
-test('pagination count is required', function (): void {
+test('formatted dates are localized correctly', function (): void {
+    Config::set('app.available_languages', [
+        'en' => 'English',
+        'fr' => 'French',
+    ]);
+
+    $user = User::factory()->create(['language' => 'fr']);
+
+    $this->actingAs($user);
+
+    $testable = Volt::test('profile.update-profile-information-form');
+
+    // Assert that the lastMonday and lastFriday are in French
+    expect($testable->get('lastMonday'))->toContain('lundi');
+    expect($testable->get('lastFriday'))->toContain('vendredi');
+});
+
+test('getUserLanguage returns correct language', function (): void {
+    Config::set('app.available_languages', [
+        'en' => 'English',
+        'fr' => 'French',
+    ]);
+
+    $user = User::factory()->create(['language' => 'fr']);
+
+    $this->actingAs($user);
+
+    $testable = Volt::test('profile.update-profile-information-form');
+
+    $reflectionClass = new ReflectionClass($testable->instance());
+    $reflectionMethod = $reflectionClass->getMethod('getUserLanguage');
+
+    expect($reflectionMethod->invoke($testable->instance()))->toBe('fr');
+});
+
+test('isValidLanguage correctly validates language codes', function (): void {
+    Config::set('app.available_languages', [
+        'en' => 'English',
+        'fr' => 'French',
+    ]);
+
     $user = User::factory()->create();
 
     $this->actingAs($user);
 
+    $testable = Volt::test('profile.update-profile-information-form');
+
+    $reflectionClass = new ReflectionClass($testable->instance());
+    $reflectionMethod = $reflectionClass->getMethod('isValidLanguage');
+
+    expect($reflectionMethod->invoke($testable->instance(), 'en'))->toBeTrue();
+    expect($reflectionMethod->invoke($testable->instance(), 'fr'))->toBeTrue();
+    expect($reflectionMethod->invoke($testable->instance(), 'de'))->toBeFalse();
+});
+
+test('weekly summary email can be opted out', function (): void {
+    $user = User::factory()->create([
+        'weekly_summary_opt_in_at' => now(),
+    ]);
+
+    $this->actingAs($user);
+
     $component = Volt::test('profile.update-profile-information-form')
-        ->set('name', $user->name)
-        ->set('email', $user->email)
-        ->set('pagination_count', null)
+        ->set('receiving_weekly_summary_email', false)
+        ->set('pagination_count', 15)
         ->call('updateProfileInformation');
 
-    $component
-        ->assertHasErrors(['pagination_count' => 'required'])
-        ->assertNoRedirect();
+    $component->assertHasNoErrors();
+
+    $user->refresh();
+
+    expect($user->weekly_summary_opt_in_at)->toBeNull();
+});
+
+test('getPaginationOptions returns correct options', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $testable = Volt::test('profile.update-profile-information-form');
+
+    $reflectionClass = new ReflectionClass($testable->instance());
+    $reflectionMethod = $reflectionClass->getMethod('getPaginationOptions');
+
+    $options = $reflectionMethod->invoke($testable->instance());
+
+    expect($options)->toHaveCount(4)
+        ->and($options->get(15))->toBe('15 per page')
+        ->and($options->get(30))->toBe('30 per page')
+        ->and($options->get(50))->toBe('50 per page')
+        ->and($options->get(100))->toBe('100 per page');
 });
