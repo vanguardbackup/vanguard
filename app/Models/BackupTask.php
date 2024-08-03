@@ -133,7 +133,7 @@ class BackupTask extends Model
             ->get();
 
         $dates = Collection::make($startDate->daysUntil($endDate)->toArray())
-            ->map(fn (CarbonInterface $date): string => $date->format('Y-m-d'));
+            ->map(fn (CarbonInterface $carbon): string => $carbon->format('Y-m-d'));
 
         $fileBackups = $databaseBackups = array_fill_keys($dates->toArray(), 0);
 
@@ -706,12 +706,15 @@ class BackupTask extends Model
     {
         $streamValue = (string) $notificationStream->getAttribute('value');
 
+        /* This is one of the additional fields, out of two, to supply additional data for the external service to operate. */
+        $additionalStreamValueOne = (string) $notificationStream->getAttribute('additional_field_one');
+
         match ($notificationStream->getAttribute('type')) {
             NotificationStream::TYPE_EMAIL => $this->sendEmailNotification($backupTaskLog, $streamValue),
             NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_TEAMS => SendTeamsNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
-            NotificationStream::TYPE_PUSHOVER => SendPushoverNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
+            NotificationStream::TYPE_PUSHOVER => SendPushoverNotificationJob::dispatch($this, $backupTaskLog, $streamValue, $additionalStreamValueOne)->onQueue($queue),
             default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->getAttribute('type')}"),
         };
     }
@@ -914,7 +917,7 @@ class BackupTask extends Model
      * @param  BackupTaskLog  $backupTaskLog  The log entry for the backup task
      * @param  string  $pushoverToken  The Pushover API token
      */
-    public function sendPushoverNotification(BackupTaskLog $backupTaskLog, string $pushoverToken): void
+    public function sendPushoverNotification(BackupTaskLog $backupTaskLog, string $pushoverToken, string $userToken): void
     {
         $isSuccessful = $backupTaskLog->getAttribute('successful_at') !== null;
         $status = $isSuccessful ? 'success' : 'failure';
@@ -925,6 +928,7 @@ class BackupTask extends Model
 
         $payload = [
             'token' => $pushoverToken,
+            'user' => $userToken,
             'title' => "{$this->label} Backup Task: " . ucfirst($status),
             'message' => $message . " Details:\n" .
                 'Backup Type: ' . ucfirst($this->type) . "\n" .

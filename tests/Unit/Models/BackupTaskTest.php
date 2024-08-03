@@ -911,12 +911,13 @@ it('sends a Pushover notification successfully', function (): void {
     $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
     $pushoverToken = 'abc123';
+    $userToken = 'def456';
 
     Http::fake([
         'https://api.pushover.net/1/messages.json' => Http::response('', 200),
     ]);
 
-    $task->sendPushoverNotification($log, $pushoverToken);
+    $task->sendPushoverNotification($log, $pushoverToken, $userToken);
 
     Http::assertSent(fn ($request): bool => $request->url() === 'https://api.pushover.net/1/messages.json');
 });
@@ -925,12 +926,13 @@ it('throws an exception when Pushover notification fails', function (): void {
     $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
     $pushoverToken = 'abc123';
+    $userToken = 'def456';
 
     Http::fake([
         'https://api.pushover.net/1/messages.json' => Http::response('Error', 500),
     ]);
 
-    expect(fn () => $task->sendPushoverNotification($log, $pushoverToken))
+    expect(fn () => $task->sendPushoverNotification($log, $pushoverToken, $userToken))
         ->toThrow(RuntimeException::class, 'Pushover notification failed: Error');
 });
 

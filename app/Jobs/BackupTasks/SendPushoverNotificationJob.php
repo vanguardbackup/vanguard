@@ -31,11 +31,13 @@ class SendPushoverNotificationJob implements ShouldQueue
      * @param  BackupTask  $backupTask  The backup task associated with the notification
      * @param  BackupTaskLog  $backupTaskLog  The log entry for the backup task
      * @param  string  $notificationStreamValue  The value of the notification stream
+     * @param  string  $additionalNotificationStreamValue  An additional token needed for Pushover
      */
     public function __construct(
         public BackupTask $backupTask,
         public BackupTaskLog $backupTaskLog,
-        public string $notificationStreamValue
+        public string $notificationStreamValue,
+        public string $additionalNotificationStreamValue,
     ) {
         //
     }
@@ -47,6 +49,6 @@ class SendPushoverNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->backupTask->sendPushoverNotification($this->backupTaskLog, $this->notificationStreamValue);
+        $this->backupTask->sendPushoverNotification($this->backupTaskLog, $this->notificationStreamValue, $this->additionalNotificationStreamValue);
     }
 }
