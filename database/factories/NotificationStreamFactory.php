@@ -20,6 +20,7 @@ class NotificationStreamFactory extends Factory
             NotificationStream::TYPE_SLACK,
             NotificationStream::TYPE_DISCORD,
             NotificationStream::TYPE_TEAMS,
+            NotificationStream::TYPE_PUSHOVER,
         ]);
 
         return [
@@ -73,6 +74,17 @@ class NotificationStreamFactory extends Factory
         return $this->state([
             'type' => NotificationStream::TYPE_TEAMS,
             'value' => $this->generateTeamsWebhook(),
+        ]);
+    }
+
+    /**
+     * Indicate that the notification stream is for Pushover.
+     */
+    public function pushover(): static
+    {
+        return $this->state([
+            'type' => NotificationStream::TYPE_PUSHOVER,
+            'value' => $this->generatePushover(),
         ]);
     }
 
@@ -165,5 +177,13 @@ class NotificationStreamFactory extends Factory
         $guid3 = $this->faker->uuid;
 
         return "https://{$subdomain}.webhook.office.com/webhookb2/{$guid1}@{$guid2}/IncomingWebhook/{$alphanumeric}/{$guid3}";
+    }
+
+    /**
+     * Generate a realistic Pushover API token.
+     */
+    private function generatePushover(): string
+    {
+        return $this->faker->regexify('[a-zA-Z0-9]{30}');
     }
 }

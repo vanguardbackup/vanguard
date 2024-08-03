@@ -74,6 +74,7 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_SLACK => __('Slack Webhook'),
             NotificationStream::TYPE_TEAMS => __('Microsoft Teams Webhook'),
             NotificationStream::TYPE_EMAIL => __('Email'),
+            NotificationStream::TYPE_PUSHOVER => __('Pushover'),
         ]);
     }
 
@@ -95,6 +96,7 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_DISCORD => ['url', 'regex:/^https:\/\/discord\.com\/api\/webhooks\//'],
             NotificationStream::TYPE_SLACK => ['url', 'regex:/^https:\/\/hooks\.slack\.com\/services\//'],
             NotificationStream::TYPE_TEAMS => ['url', 'regex:/^https:\/\/.*\.webhook\.office\.com\/webhookb2\/.+/i'],
+            NotificationStream::TYPE_PUSHOVER => ['string'],
             NotificationStream::TYPE_EMAIL => ['email'],
             default => 'string',
         };
@@ -107,6 +109,7 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_SLACK => __('Please enter a Slack webhook URL.'),
             NotificationStream::TYPE_TEAMS => __('Please enter a Microsoft Teams Webhook URL.'),
             NotificationStream::TYPE_EMAIL => __('Please enter an email address.'),
+            NotificationStream::TYPE_PUSHOVER => __('Please enter a Pushover token.'),
             default => __('Please enter a valid value for the selected notification type.'),
         };
     }

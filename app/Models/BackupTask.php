@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
+use App\Jobs\BackupTasks\SendPushoverNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
 use App\Jobs\BackupTasks\SendTeamsNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
@@ -256,8 +257,6 @@ class BackupTask extends Model
     {
         return Number::fileSize($bytes);
     }
-
-    // ... [keeping existing static methods] ...
 
     /**
      * Scope query to include only non-paused backup tasks.
@@ -646,6 +645,16 @@ class BackupTask extends Model
     }
 
     /**
+     * Check if the task has Pushover notifications enabled.
+     */
+    public function hasPushoverNotification(): bool
+    {
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_PUSHOVER)
+            ->exists();
+    }
+
+    /**
      * Send notifications for the latest backup task log.
      *
      * This method handles sending notifications through various streams (Email, Discord, Slack etc)
@@ -702,6 +711,7 @@ class BackupTask extends Model
             NotificationStream::TYPE_DISCORD => SendDiscordNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_TEAMS => SendTeamsNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
+            NotificationStream::TYPE_PUSHOVER => SendPushoverNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->getAttribute('type')}"),
         };
     }
@@ -895,6 +905,40 @@ class BackupTask extends Model
 
         if (! $response->successful()) {
             throw new RuntimeException('Teams webhook failed: ' . $response->body());
+        }
+    }
+
+    /**
+     * Send a Pushover notification for a backup task.
+     *
+     * @param  BackupTaskLog  $backupTaskLog  The log entry for the backup task
+     * @param  string  $pushoverToken  The Pushover API token
+     */
+    public function sendPushoverNotification(BackupTaskLog $backupTaskLog, string $pushoverToken): void
+    {
+        $isSuccessful = $backupTaskLog->getAttribute('successful_at') !== null;
+        $status = $isSuccessful ? 'success' : 'failure';
+        $message = $isSuccessful
+            ? 'The backup task was successful.'
+            : 'The backup task failed.';
+        $priority = $isSuccessful ? 0 : 1; // Normal priority for success, high priority for failure
+
+        $payload = [
+            'token' => $pushoverToken,
+            'title' => "{$this->label} Backup Task: " . ucfirst($status),
+            'message' => $message . " Details:\n" .
+                'Backup Type: ' . ucfirst($this->type) . "\n" .
+                'Remote Server: ' . ($this->remoteServer?->label ?? 'N/A') . "\n" .
+                'Backup Destination: ' . ($this->backupDestination?->label ?? 'N/A') .
+                ' (' . ($this->backupDestination?->type() ?? 'N/A') . ")\n" .
+                'Ran at: ' . Carbon::parse($backupTaskLog->getAttribute('created_at'))->format('jS F Y, H:i:s'),
+            'priority' => $priority,
+        ];
+
+        $response = Http::post('https://api.pushover.net/1/messages.json', $payload);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('Pushover notification failed: ' . $response->body());
         }
     }
 

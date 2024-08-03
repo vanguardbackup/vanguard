@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
+use App\Jobs\BackupTasks\SendPushoverNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
 use App\Jobs\BackupTasks\SendTeamsNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
@@ -639,7 +640,24 @@ it('returns false if there is no notification stream teams webhook set', functio
     expect($task->hasTeamNotification())->toBeFalse();
 });
 
-it('queues up a teams notification job if a discord notification has been set', function (): void {
+it('returns true if there is a notification stream pushover set', function (): void {
+
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->pushover()->create();
+
+    $task->notificationStreams()->attach($stream);
+
+    expect($task->hasPushoverNotification())->toBeTrue();
+});
+
+it('returns false if there is no notification stream pushover set', function (): void {
+
+    $task = BackupTask::factory()->create();
+
+    expect($task->hasPushoverNotification())->toBeFalse();
+});
+
+it('queues up a teams notification job if a teams notification has been set', function (): void {
 
     Queue::fake();
 
@@ -663,6 +681,32 @@ it('does not queue up a teams notification job if a teams notification has not b
     $task->sendNotifications();
 
     Queue::assertNotPushed(SendTeamsNotificationJob::class);
+});
+
+it('queues up a pushover notification job if a pushover notification has been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->pushover()->create();
+    $task->notificationStreams()->attach($stream);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendPushoverNotificationJob::class);
+});
+
+it('does not queue up a pushover notification job if a pushover notification has not been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendPushoverNotificationJob::class);
 });
 
 it('queues up a discord notification job if a discord notification has been set', function (): void {
@@ -861,6 +905,56 @@ it('handles Teams error response', function (): void {
 
     expect(fn () => $task->sendTeamsWebhookNotification($log, $teamsURL))
         ->toThrow(RuntimeException::class, 'Teams webhook failed: Unauthorized');
+});
+
+it('sends a Pushover notification successfully', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $pushoverToken = 'abc123';
+
+    Http::fake([
+        'https://api.pushover.net/1/messages.json' => Http::response('', 200),
+    ]);
+
+    $task->sendPushoverNotification($log, $pushoverToken);
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'https://api.pushover.net/1/messages.json');
+});
+
+it('sends a Pushover notification for failed backup', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create([
+        'backup_task_id' => $task->id,
+        'successful_at' => null,
+    ]);
+    $pushoverToken = 'abc123';
+
+    Http::fake([
+        'https://api.pushover.net/1/messages.json' => Http::response('', 200),
+    ]);
+
+    $task->sendPushoverNotification($log, $pushoverToken);
+
+    Http::assertSent(function (array $request) use ($pushoverToken, $task): bool {
+        return $request->url() === 'https://api.pushover.net/1/messages.json'
+            && $request['token'] === $pushoverToken
+            && $request['title'] === "{$task->label} Backup Task: Failure"
+            && str_contains((string) $request['message'], 'The backup task failed.')
+            && $request['priority'] === 1;
+    });
+});
+
+it('throws an exception when Pushover notification fails', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $pushoverToken = 'abc123';
+
+    Http::fake([
+        'https://api.pushover.net/1/messages.json' => Http::response('Error', 500),
+    ]);
+
+    expect(fn () => $task->sendPushoverNotification($log, $pushoverToken))
+        ->toThrow(RuntimeException::class, 'Pushover notification failed: Error');
 });
 
 it('sends notifications based on backup task outcome and user preferences', function (): void {

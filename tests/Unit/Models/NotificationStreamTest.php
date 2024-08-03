@@ -44,6 +44,16 @@ it('returns false if the stream type is not teams', function (): void {
     expect($notificationStream->isTeams())->toBeFalse();
 });
 
+it('returns true if stream type is pushover', function (): void {
+    $notificationStream = NotificationStream::factory()->pushover()->create();
+    expect($notificationStream->isPushover())->toBeTrue();
+});
+
+it('returns false if the stream type is not pushover', function (): void {
+    $notificationStream = NotificationStream::factory()->email()->create();
+    expect($notificationStream->isPushover())->toBeFalse();
+});
+
 it('returns correct formatted type for email', function (): void {
     $notificationStream = NotificationStream::factory()->email()->create();
     expect($notificationStream->formatted_type)->toBe('Email');
@@ -64,6 +74,11 @@ it('returns correct formatted type for microsoft teams', function (): void {
     expect($notificationStream->formatted_type)->toBe('Teams Webhook');
 });
 
+it('returns correct formatted type for pushover', function (): void {
+    $notificationStream = NotificationStream::factory()->pushover()->create();
+    expect($notificationStream->formatted_type)->toBe('Pushover');
+});
+
 it('returns correct type icon for email', function (): void {
     $notificationStream = NotificationStream::factory()->email()->create();
     expect($notificationStream->type_icon)->toBe('M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z');
@@ -82,6 +97,11 @@ it('returns correct type icon for slack', function (): void {
 it('returns correct type icon for teams', function (): void {
     $notificationStream = NotificationStream::factory()->teams()->create();
     expect($notificationStream->type_icon)->toBe('M 12.5 2 A 3 3 0 0 0 9.7089844 6.09375 C 9.4804148 6.0378189 9.2455412 6 9 6 L 4 6 C 2.346 6 1 7.346 1 9 L 1 14 C 1 15.654 2.346 17 4 17 L 9 17 C 10.654 17 12 15.654 12 14 L 12 9 C 12 8.6159715 11.921192 8.2518913 11.789062 7.9140625 A 3 3 0 0 0 12.5 8 A 3 3 0 0 0 12.5 2 z M 19 4 A 2 2 0 0 0 19 8 A 2 2 0 0 0 19 4 z M 4.5 9 L 8.5 9 C 8.776 9 9 9.224 9 9.5 C 9 9.776 8.776 10 8.5 10 L 7 10 L 7 14 C 7 14.276 6.776 14.5 6.5 14.5 C 6.224 14.5 6 14.276 6 14 L 6 10 L 4.5 10 C 4.224 10 4 9.776 4 9.5 C 4 9.224 4.224 9 4.5 9 z M 15 9 C 14.448 9 14 9.448 14 10 L 14 14 C 14 16.761 11.761 19 9 19 C 8.369 19 8.0339375 19.755703 8.4609375 20.220703 C 9.4649375 21.313703 10.903 22 12.5 22 C 15.24 22 17.529453 20.040312 17.939453 17.320312 C 17.979453 17.050312 18 16.78 18 16.5 L 18 11 C 18 9.9 17.1 9 16 9 L 15 9 z M 20.888672 9 C 20.322672 9 19.870625 9.46625 19.890625 10.03125 C 19.963625 12.09325 20 16.5 20 16.5 C 20 16.618 19.974547 16.859438 19.935547 17.148438 C 19.812547 18.048438 20.859594 18.653266 21.558594 18.072266 C 22.439594 17.340266 23 16.237 23 15 L 23 11 C 23 9.9 22.1 9 21 9 L 20.888672 9 z');
+});
+
+it('returns correct type icon for pushover', function (): void {
+    $notificationStream = NotificationStream::factory()->pushover()->create();
+    expect($notificationStream->type_icon)->toBe('M11.6685 21.0473c5.2435.1831 9.6426-3.9191 9.8257-9.1627.1831-5.24355-3.9191-9.64267-9.1626-9.82578-5.24355-.18311-9.64265 3.91918-9.82576 9.16268-.18311 5.2435 3.91916 9.6427 9.16266 9.8258zM11.8206 8.47095l1.9374-.1867-2.0265 4.17345c.331-.0144.6576-.1144.9816-.3018.324-.1873.6257-.4274.9014-.7186.2775-.291.5191-.6168.7267-.9791.2075-.3603.3593-.7189.457-1.0701.0577-.2189.0892-.4295.0926-.6317s-.0442-.3822-.1409-.5378c-.0967-.1556-.2463-.2834-.4508-.3833-.2044-.1-.4828-.1561-.8389-.1686-.4153-.0145-.8256.038-1.2309.1594-.4071.1213-.7848.3049-1.1369.5507-.352.2458-.66.5562-.9274.933-.2676.3769-.4646.8082-.5911 1.2939-.0483.1598-.0768.2869-.0895.3849s-.0174.1776-.014.2408c.0015.0632.009.1136.0208.1474.0119.0339.0218.0676.028.1031-.4321-.015-.7443-.1132-.9366-.2926-.1924-.1794-.23-.4852-.1149-.9119.1177-.4452.3625-.8637.7364-1.2572.374-.3936.8129-.73655 1.3188-1.02705.5059-.29055 1.0559-.51825 1.6501-.67945.5942-.1612 1.1704-.2321 1.7285-.2126.4914.0172.9006.102 1.2295.2527.329.1508.5839.3453.7614.5799.1775.2346.2849.5057.3207.8114.0358.3057.0099.6223-.0777.9497-.1066.3936-.2967.7879-.5685 1.18135s-.609.7455-1.0079 1.0565c-.4008.3128-.8551.5605-1.3666.7469-.5096.1846-1.049.2679-1.6164.248l-.0631-.0022-1.7377 3.5597-1.82655-.0638z');
 });
 
 it('returns default type icon for unknown type', function (): void {
