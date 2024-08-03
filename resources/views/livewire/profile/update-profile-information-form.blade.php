@@ -318,7 +318,7 @@ new class extends Component
                     model="receiving_weekly_summary_email"
                 />
                 <x-input-explain>
-                    {{ __('Get a summary of your weekly backup tasks every Monday morning, this will be the task logs from :lastMonday to :lastFriday.', ['lastMonday' => $lastMonday, 'lastFriday' => $lastFriday]) }}
+                    {{ __('Receive a summary of your weekly backup activities every Monday morning. The upcoming summary will cover all backup tasks from :lastMonday through :lastFriday.', ['lastMonday' => $lastMonday, 'lastFriday' => $lastFriday]) }}
                 </x-input-explain>
             </div>
 
