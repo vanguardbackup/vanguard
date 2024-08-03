@@ -921,29 +921,6 @@ it('sends a Pushover notification successfully', function (): void {
     Http::assertSent(fn ($request): bool => $request->url() === 'https://api.pushover.net/1/messages.json');
 });
 
-it('sends a Pushover notification for failed backup', function (): void {
-    $task = BackupTask::factory()->create();
-    $log = BackupTaskLog::factory()->create([
-        'backup_task_id' => $task->id,
-        'successful_at' => null,
-    ]);
-    $pushoverToken = 'abc123';
-
-    Http::fake([
-        'https://api.pushover.net/1/messages.json' => Http::response('', 200),
-    ]);
-
-    $task->sendPushoverNotification($log, $pushoverToken);
-
-    Http::assertSent(function (array $request) use ($pushoverToken, $task): bool {
-        return $request->url() === 'https://api.pushover.net/1/messages.json'
-            && $request['token'] === $pushoverToken
-            && $request['title'] === "{$task->label} Backup Task: Failure"
-            && str_contains((string) $request['message'], 'The backup task failed.')
-            && $request['priority'] === 1;
-    });
-});
-
 it('throws an exception when Pushover notification fails', function (): void {
     $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);

@@ -409,3 +409,49 @@ it('sets correct datetime for enabled notification preferences', function (): vo
 
     Carbon::setTestNow();
 });
+
+it('submits successfully with Pushover and additional fields', function (): void {
+    $testData = [
+        'label' => 'Test Pushover Notification',
+        'type' => 'pushover',
+        'value' => 'azGDORePK8gMaC0QOYAMyEEuzJnyUi', // Example Pushover API Token
+        'additional_field_one' => 'uQiRzpo4DXghDmr9QzzfQu27cmVRsG', // Example User Key
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.additional_field_one', $testData['additional_field_one'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+        'additional_field_one' => $testData['additional_field_one'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNotNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
+});
+
+it('validates Pushover additional fields', function (): void {
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', 'Test Pushover')
+        ->set('form.type', 'pushover')
+        ->set('form.value', 'validApiToken')
+        ->set('form.additional_field_one', '') // Empty User Key
+        ->call('submit')
+        ->assertHasErrors(['form.additional_field_one']);
+});

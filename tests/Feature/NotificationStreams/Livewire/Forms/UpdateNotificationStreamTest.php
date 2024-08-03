@@ -375,3 +375,64 @@ it('prevents unauthorized users from updating', function (): void {
         ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
         ->assertStatus(403);
 });
+
+it('updates successfully with Pushover and additional fields', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'pushover',
+        'value' => 'oldApiToken',
+        'additional_field_one' => 'oldUserKey',
+        'receive_successful_backup_notifications' => null,
+        'receive_failed_backup_notifications' => now(),
+    ]);
+
+    $newData = [
+        'label' => 'Updated Pushover Notification',
+        'type' => 'pushover',
+        'value' => 'newApiToken',
+        'additional_field_one' => 'newUserKey',
+        'success_notification' => true,
+        'failed_notification' => false,
+    ];
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.label', $newData['label'])
+        ->set('form.type', $newData['type'])
+        ->set('form.value', $newData['value'])
+        ->set('form.additional_field_one', $newData['additional_field_one'])
+        ->set('form.success_notification', $newData['success_notification'])
+        ->set('form.failed_notification', $newData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $updatedStream = $notificationStream->fresh();
+    expect($updatedStream)->toMatchArray([
+        'id' => $notificationStream->id,
+        'user_id' => $user->id,
+        'label' => $newData['label'],
+        'type' => $newData['type'],
+        'value' => $newData['value'],
+        'additional_field_one' => $newData['additional_field_one'],
+    ])
+        ->and($updatedStream->receive_successful_backup_notifications)->not->toBeNull()
+        ->and($updatedStream->receive_failed_backup_notifications)->toBeNull();
+});
+
+it('validates Pushover additional fields during update', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'pushover',
+        'value' => 'validApiToken',
+        'additional_field_one' => 'validUserKey',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->set('form.additional_field_one', '') // Empty User Key
+        ->call('submit')
+        ->assertHasErrors(['form.additional_field_one']);
+});

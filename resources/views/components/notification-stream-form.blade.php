@@ -27,10 +27,19 @@
             </div>
         </div>
         <div class="mt-4">
-            <x-input-label for="form.value" :value="__($form->availableTypes[$form->type] ?? 'Value')"/>
-            <x-text-input id="form.value" class="block mt-1 w-full" type="{{ $form->type === 'email' ? 'email' : 'text' }}" wire:model.defer="form.value" name="form.value"/>
+            <x-input-label for="form.value" :value="__($form->getValueLabel())"/>
+            <x-text-input id="form.value" class="block mt-1 w-full" type="{{ $form->getValueInputType() }}" wire:model.defer="form.value" name="form.value"/>
             @error('form.value') <x-input-error :messages="$message" class="mt-2"/> @enderror
         </div>
+
+        @foreach ($form->getAdditionalFieldsConfig() as $field => $config)
+            <div class="mt-4">
+                <x-input-label for="form.{{ $field }}" :value="__($config['label'])"/>
+                <x-text-input id="form.{{ $field }}" class="block mt-1 w-full" type="text" wire:model.defer="form.{{ $field }}" name="form.{{ $field }}"/>
+                @error('form.' . $field) <x-input-error :messages="$message" class="mt-2"/> @enderror
+            </div>
+        @endforeach
+
         <div class="mt-6">
             <x-form-section>
                 {{ __('Notifications') }}

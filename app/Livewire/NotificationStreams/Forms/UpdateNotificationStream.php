@@ -45,11 +45,11 @@ class UpdateNotificationStream extends Component
     /**
      * Handle changes to the notification stream type.
      *
-     * Resets validation for the value field when the type changes.
+     * Resets validation for the value field and additional fields when the type changes.
      */
     public function updatedFormType(): void
     {
-        $this->resetValidation('form.value');
+        $this->resetValidation(['form.value', 'form.additional_field_one', 'form.additional_field_two']);
     }
 
     /**
@@ -61,13 +61,25 @@ class UpdateNotificationStream extends Component
 
         $this->form->validate();
 
-        $this->notificationStream->update([
+        $data = [
             'label' => $this->form->label,
             'type' => $this->form->type,
             'value' => $this->form->value,
             'receive_successful_backup_notifications' => $this->form->success_notification ? now() : null,
             'receive_failed_backup_notifications' => $this->form->failed_notification ? now() : null,
-        ]);
+        ];
+
+        // Handle additional fields
+        if ($this->form->getAdditionalFieldsConfig()) {
+            $data['additional_field_one'] = $this->form->additional_field_one;
+            $data['additional_field_two'] = $this->form->additional_field_two;
+        } else {
+            // If the type doesn't use additional fields, set them to null
+            $data['additional_field_one'] = null;
+            $data['additional_field_two'] = null;
+        }
+
+        $this->notificationStream->update($data);
 
         Toaster::success('Notification stream has been updated.');
 
