@@ -2,4 +2,4 @@
 
 # Contributing to Vanguard
 
-To read more about how you can contribute to Vanguard, please read the [development guide](https://docs.vanguardbackup.com/development) on our docs site for the latest information.
+To read more about how you can contribute to Vanguard, please read the [development guide](https://docs.vanguardbackup.com/development-handbook) on our docs site for the latest information.
