@@ -139,22 +139,6 @@ class APITokenManager extends Component
     public function getPermissions(): array
     {
         return [
-            'read' => [
-                'name' => 'Read Access',
-                'description' => 'Allows reading data from the API',
-            ],
-            'create' => [
-                'name' => 'Create Access',
-                'description' => 'Allows creating new resources via the API',
-            ],
-            'update' => [
-                'name' => 'Update Access',
-                'description' => 'Allows updating existing resources via the API',
-            ],
-            'delete' => [
-                'name' => 'Delete Access',
-                'description' => 'Allows deleting resources via the API',
-            ],
             'manage-tags' => [
                 'name' => 'Manage Tags',
                 'description' => 'Allows managing of your tags',
