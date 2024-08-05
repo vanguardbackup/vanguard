@@ -191,6 +191,22 @@ class APITokenManager extends Component
                 'name' => 'Delete Remote Servers',
                 'description' => 'Allows deleting remote servers',
             ],
+            'view-notification-streams' => [
+                'name' => 'View Notification Streams',
+                'description' => 'Allows viewing notification streams',
+            ],
+            'create-notification-streams' => [
+                'name' => 'Create Notification Streams',
+                'description' => 'Allows creating new notification streams',
+            ],
+            'update-notification-streams' => [
+                'name' => 'Update Notification Streams',
+                'description' => 'Allows updating existing notification streams',
+            ],
+            'delete-notification-streams' => [
+                'name' => 'Delete Notification Notification',
+                'description' => 'Allows deleting notification streams',
+            ],
         ];
     }
 
