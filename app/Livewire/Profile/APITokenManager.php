@@ -14,9 +14,7 @@ use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
 /**
- * Class APITokenManager
- *
- * This Livewire component manages API tokens for the user.
+ * Manages API tokens for users, including granular permissions for backup destinations.
  *
  * @property-read User|Authenticatable $user
  */
@@ -157,13 +155,25 @@ class APITokenManager extends Component
                 'name' => 'Delete Access',
                 'description' => 'Allows deleting resources via the API',
             ],
-            'manage_backups' => [
+            'manage-backups' => [
                 'name' => 'Manage Backups',
                 'description' => 'Allows initiating and managing backup operations',
             ],
-            'view_logs' => [
-                'name' => 'View Logs',
-                'description' => 'Allows access to system and backup logs',
+            'view-backup-destinations' => [
+                'name' => 'View Backup Destinations',
+                'description' => 'Allows viewing backup destinations',
+            ],
+            'create-backup-destinations' => [
+                'name' => 'Create Backup Destinations',
+                'description' => 'Allows creating new backup destinations',
+            ],
+            'update-backup-destinations' => [
+                'name' => 'Update Backup Destinations',
+                'description' => 'Allows updating existing backup destinations',
+            ],
+            'delete-backup-destinations' => [
+                'name' => 'Delete Backup Destinations',
+                'description' => 'Allows deleting backup destinations',
             ],
         ];
     }
