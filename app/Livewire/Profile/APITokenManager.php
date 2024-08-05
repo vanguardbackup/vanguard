@@ -207,6 +207,22 @@ class APITokenManager extends Component
                 'name' => 'Delete Notification Notification',
                 'description' => 'Allows deleting notification streams',
             ],
+            'view-backup-tasks' => [
+                'name' => 'View Backup Tasks',
+                'description' => 'Allows viewing backup tasks',
+            ],
+            'create-backup-tasks' => [
+                'name' => 'Create Backup Tasks',
+                'description' => 'Allows creating new backup tasks',
+            ],
+            'update-backup-tasks' => [
+                'name' => 'Update Backup Tasks',
+                'description' => 'Allows updating existing backup tasks',
+            ],
+            'delete-backup-tasks' => [
+                'name' => 'Delete Backup Tasks',
+                'description' => 'Allows deleting backup tasks',
+            ],
         ];
     }
 
