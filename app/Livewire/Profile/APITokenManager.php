@@ -175,6 +175,22 @@ class APITokenManager extends Component
                 'name' => 'Delete Backup Destinations',
                 'description' => 'Allows deleting backup destinations',
             ],
+            'view-remote-servers' => [
+                'name' => 'View Remote Servers',
+                'description' => 'Allows viewing remote servers',
+            ],
+            'create-remote-servers' => [
+                'name' => 'Create Remote Servers',
+                'description' => 'Allows creating new remote servers',
+            ],
+            'update-remote-servers' => [
+                'name' => 'Update Remote Servers',
+                'description' => 'Allows updating existing remote servers',
+            ],
+            'delete-remote-servers' => [
+                'name' => 'Delete Remote Servers',
+                'description' => 'Allows deleting remote servers',
+            ],
         ];
     }
 
