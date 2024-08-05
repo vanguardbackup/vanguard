@@ -155,9 +155,9 @@ class APITokenManager extends Component
                 'name' => 'Delete Access',
                 'description' => 'Allows deleting resources via the API',
             ],
-            'manage-backups' => [
-                'name' => 'Manage Backups',
-                'description' => 'Allows initiating and managing backup operations',
+            'manage-tags' => [
+                'name' => 'Manage Tags',
+                'description' => 'Allows managing of your tags',
             ],
             'view-backup-destinations' => [
                 'name' => 'View Backup Destinations',

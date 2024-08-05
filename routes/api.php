@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BackupDestinationController;
+use App\Http\Controllers\Api\TagController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,4 +17,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('backup-destinations', BackupDestinationController::class);
+    Route::apiResource('tags', TagController::class);
 });
