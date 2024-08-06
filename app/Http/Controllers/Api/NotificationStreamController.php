@@ -61,8 +61,12 @@ class NotificationStreamController extends Controller
 
         $validated['user_id'] = $user->id;
 
-        $validated['receive_successful_backup_notifications'] = $validated['receive_successful_backup_notifications'] ? now() : null;
-        $validated['receive_failed_backup_notifications'] = $validated['receive_failed_backup_notifications'] ? now() : null;
+        // Process the nested notifications data
+        $validated['receive_successful_backup_notifications'] = $validated['notifications']['on_success'] ? now() : null;
+        $validated['receive_failed_backup_notifications'] = $validated['notifications']['on_failure'] ? now() : null;
+
+        // Remove the notifications key as it's not a direct field in the model
+        unset($validated['notifications']);
 
         $notificationStream = NotificationStream::create($validated);
 
@@ -113,8 +117,12 @@ class NotificationStreamController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validated['receive_successful_backup_notifications'] = $validated['receive_successful_backup_notifications'] ? now() : null;
-        $validated['receive_failed_backup_notifications'] = $validated['receive_failed_backup_notifications'] ? now() : null;
+        // Process the nested notifications data
+        $validated['receive_successful_backup_notifications'] = $validated['notifications']['on_success'] ? now() : null;
+        $validated['receive_failed_backup_notifications'] = $validated['notifications']['on_failure'] ? now() : null;
+
+        // Remove the notifications key as it's not a direct field in the model
+        unset($validated['notifications']);
 
         $notificationStream->update($validated);
 
@@ -176,10 +184,9 @@ class NotificationStreamController extends Controller
                 NotificationStream::TYPE_PUSHOVER,
             ])],
             'value' => ['required', 'string', 'max:255'],
-            'receive_successful_backup_notifications' => ['nullable', 'boolean'],
-            'receive_failed_backup_notifications' => ['nullable', 'boolean'],
-            'additional_field_one' => ['nullable', 'string', 'max:255'],
-            'additional_field_two' => ['nullable', 'string', 'max:255'],
+            'notifications' => ['required', 'array'],
+            'notifications.on_success' => ['required', 'boolean'],
+            'notifications.on_failure' => ['required', 'boolean'],
         ]);
     }
 

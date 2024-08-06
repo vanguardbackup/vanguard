@@ -60,7 +60,7 @@ test('user with create permission can create a backup destination', function ():
             'label' => 'Test Backup',
             'type' => 's3',
             's3_bucket_name' => 'test-bucket',
-            'custom_s3_region' => 'us-west-2',
+            's3_region' => 'us-west-2',
             'path_style_endpoint' => false,
         ])
         ->assertJsonMissing(['s3_access_key', 's3_secret_key']);
@@ -150,7 +150,7 @@ test('user with update permission can update a backup destination', function ():
             'label' => 'Updated Backup',
             'type' => 'custom_s3',
             's3_bucket_name' => 'updated-bucket',
-            'custom_s3_endpoint' => 'https://custom-s3.example.com',
+            's3_endpoint' => 'https://custom-s3.example.com',
             'path_style_endpoint' => true,
         ])
         ->assertJsonMissing(['s3_access_key', 's3_secret_key']);

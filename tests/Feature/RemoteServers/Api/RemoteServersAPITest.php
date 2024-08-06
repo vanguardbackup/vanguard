@@ -22,7 +22,23 @@ test('user can list their remote servers', function (): void {
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'user_id', 'label', 'ip_address', 'username', 'port', 'connectivity_status', 'last_connected_at', 'is_password_set', 'created_at', 'updated_at'],
+                '*' => [
+                    'id',
+                    'user_id',
+                    'label',
+                    'connection' => [
+                        'ip_address',
+                        'username',
+                        'port',
+                        'is_database_password_set',
+                    ],
+                    'status' => [
+                        'connectivity',
+                        'last_connected_at',
+                    ],
+                    'created_at',
+                    'updated_at',
+                ],
             ],
             'links',
             'meta',
@@ -53,10 +69,12 @@ test('user can create a new remote server', function (): void {
     $response->assertStatus(201)
         ->assertJsonFragment([
             'label' => 'Test Server',
-            'ip_address' => '192.168.1.1',
-            'username' => 'testuser',
-            'port' => 22,
-            'is_password_set' => true,
+            'connection' => [
+                'ip_address' => '192.168.1.1',
+                'username' => 'testuser',
+                'port' => 22,
+                'is_database_password_set' => true,
+            ],
         ]);
 
     $this->assertDatabaseHas('remote_servers', [
@@ -94,7 +112,12 @@ test('user can view a specific remote server', function (): void {
         ->assertJsonFragment([
             'id' => $server->id,
             'label' => $server->label,
-            'ip_address' => $server->ip_address,
+            'connection' => [
+                'ip_address' => $server->ip_address,
+                'username' => $server->username,
+                'port' => $server->port,
+                'is_database_password_set' => true,
+            ],
         ]);
 });
 
@@ -126,10 +149,12 @@ test('user can update their remote server', function (): void {
     $response->assertStatus(200)
         ->assertJsonFragment([
             'label' => 'Updated Server',
-            'ip_address' => '192.168.1.2',
-            'username' => 'updateduser',
-            'port' => 2222,
-            'is_password_set' => true,
+            'connection' => [
+                'ip_address' => '192.168.1.2',
+                'username' => 'updateduser',
+                'port' => 2222,
+                'is_database_password_set' => true,
+            ],
         ]);
 
     $updatedServer = $server->fresh();
@@ -156,10 +181,12 @@ test('user can update their remote server without changing password', function (
     $response->assertStatus(200)
         ->assertJsonFragment([
             'label' => 'Updated Server',
-            'ip_address' => '192.168.1.2',
-            'username' => 'updateduser',
-            'port' => 2222,
-            'is_password_set' => true,
+            'connection' => [
+                'ip_address' => '192.168.1.2',
+                'username' => 'updateduser',
+                'port' => 2222,
+                'is_database_password_set' => true,
+            ],
         ]);
 
     $updatedServer = $server->fresh();

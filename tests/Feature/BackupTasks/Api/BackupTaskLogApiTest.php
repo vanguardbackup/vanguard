@@ -21,7 +21,7 @@ it('lists backup task logs for authenticated user', function (): void {
     $response->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'backup_task_id', 'output', 'finished_at', 'successful_at', 'created_at'],
+                '*' => ['id', 'backup_task_id', 'output', 'finished_at', 'status', 'created_at'],
             ],
             'links',
             'meta',

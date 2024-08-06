@@ -21,7 +21,7 @@ class BackupTaskLogResource extends JsonResource
             'backup_task_id' => $this->resource->backup_task_id,
             'output' => $this->resource->output,
             'finished_at' => $this->resource->finished_at,
-            'successful_at' => $this->resource->successful_at,
+            'status' => $this->resource->successful_at ? 'successful' : 'failed',
             'created_at' => $this->resource->created_at,
         ];
     }

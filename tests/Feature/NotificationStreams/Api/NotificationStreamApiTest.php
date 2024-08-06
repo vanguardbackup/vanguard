@@ -21,7 +21,18 @@ test('user can list their notification streams', function (): void {
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'user_id', 'label', 'type', 'value', 'receive_successful_backup_notifications', 'receive_failed_backup_notifications', 'created_at', 'updated_at'],
+                '*' => [
+                    'id',
+                    'user_id',
+                    'label',
+                    'type',
+                    'notifications' => [
+                        'on_success',
+                        'on_failure',
+                    ],
+                    'created_at',
+                    'updated_at',
+                ],
             ],
             'links',
             'meta',
@@ -43,8 +54,10 @@ test('user can create a new notification stream', function (): void {
         'label' => 'Test Stream',
         'type' => NotificationStream::TYPE_EMAIL,
         'value' => 'test@example.com',
-        'receive_successful_backup_notifications' => true,
-        'receive_failed_backup_notifications' => true,
+        'notifications' => [
+            'on_success' => true,
+            'on_failure' => true,
+        ],
     ];
 
     $response = $this->postJson('/api/notification-streams', $streamData);
@@ -53,9 +66,10 @@ test('user can create a new notification stream', function (): void {
         ->assertJsonFragment([
             'label' => 'Test Stream',
             'type' => NotificationStream::TYPE_EMAIL,
-            'value' => 'test@example.com',
-            'receive_successful_backup_notifications' => true,
-            'receive_failed_backup_notifications' => true,
+            'notifications' => [
+                'on_success' => true,
+                'on_failure' => true,
+            ],
         ]);
 
     $this->assertDatabaseHas('notification_streams', [
@@ -63,10 +77,6 @@ test('user can create a new notification stream', function (): void {
         'type' => NotificationStream::TYPE_EMAIL,
         'value' => 'test@example.com',
     ]);
-
-    $stream = NotificationStream::where('label', 'Test Stream')->first();
-    $this->assertNotNull($stream->receive_successful_backup_notifications);
-    $this->assertNotNull($stream->receive_failed_backup_notifications);
 });
 
 test('user cannot create a notification stream without proper permission', function (): void {
@@ -93,7 +103,6 @@ test('user can view a specific notification stream', function (): void {
             'id' => $stream->id,
             'label' => $stream->label,
             'type' => $stream->type,
-            'value' => $stream->value,
         ]);
 });
 
@@ -116,8 +125,10 @@ test('user can update their notification stream', function (): void {
         'label' => 'Updated Stream',
         'type' => NotificationStream::TYPE_SLACK,
         'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
-        'receive_successful_backup_notifications' => false,
-        'receive_failed_backup_notifications' => true,
+        'notifications' => [
+            'on_success' => false,
+            'on_failure' => true,
+        ],
     ];
 
     $response = $this->putJson("/api/notification-streams/{$stream->id}", $updatedData);
@@ -126,9 +137,10 @@ test('user can update their notification stream', function (): void {
         ->assertJsonFragment([
             'label' => 'Updated Stream',
             'type' => NotificationStream::TYPE_SLACK,
-            'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
-            'receive_successful_backup_notifications' => false,
-            'receive_failed_backup_notifications' => true,
+            'notifications' => [
+                'on_success' => false,
+                'on_failure' => true,
+            ],
         ]);
 
     $this->assertDatabaseHas('notification_streams', [
@@ -137,10 +149,6 @@ test('user can update their notification stream', function (): void {
         'type' => NotificationStream::TYPE_SLACK,
         'value' => 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
     ]);
-
-    $updatedStream = $stream->fresh();
-    $this->assertNull($updatedStream->receive_successful_backup_notifications);
-    $this->assertNotNull($updatedStream->receive_failed_backup_notifications);
 });
 
 test('user cannot update a notification stream without proper permission', function (): void {

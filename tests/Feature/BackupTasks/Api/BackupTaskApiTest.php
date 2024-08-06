@@ -23,7 +23,33 @@ test('user can list their backup tasks', function (): void {
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'user_id', 'remote_server_id', 'backup_destination_id', 'label', 'type', 'has_isolated_credentials'],
+                '*' => [
+                    'id',
+                    'user_id',
+                    'remote_server_id',
+                    'backup_destination_id',
+                    'label',
+                    'source' => [
+                        'path',
+                        'type',
+                        'database_name',
+                        'excluded_tables',
+                    ],
+                    'schedule' => [
+                        'frequency',
+                        'time',
+                        'custom_cron',
+                    ],
+                    'storage' => [
+                        'max_backups',
+                        'appended_filename',
+                        'path',
+                    ],
+                    'status',
+                    'has_isolated_credentials',
+                    'created_at',
+                    'updated_at',
+                ],
             ],
             'links',
             'meta',
@@ -50,6 +76,8 @@ test('user can create a new backup task', function (): void {
         'backup_destination_id' => $backupDestination->id,
         'time_to_run_at' => '12:00',
         'custom_cron_expression' => null,
+        'store_path' => '/blah/blah',
+        'status' => 'ready',
     ]);
 
     $response = $this->postJson('/api/backup-tasks', $taskData);
@@ -57,8 +85,24 @@ test('user can create a new backup task', function (): void {
     $response->assertStatus(201)
         ->assertJsonFragment([
             'label' => $taskData['label'],
-            'type' => $taskData['type'],
-            'time_to_run_at' => $taskData['time_to_run_at'],
+            'description' => $taskData['description'],
+            'source' => [
+                'path' => $taskData['source_path'],
+                'type' => $taskData['type'],
+                'database_name' => $taskData['database_name'] ?? null,
+                'excluded_tables' => $taskData['excluded_database_tables'] ?? null,
+            ],
+            'schedule' => [
+                'frequency' => $taskData['frequency'],
+                'time' => $taskData['time_to_run_at'],
+                'custom_cron' => $taskData['custom_cron_expression'],
+            ],
+            'storage' => [
+                'max_backups' => $taskData['maximum_backups_to_keep'],
+                'appended_filename' => $taskData['appended_filename'] ?? null,
+                'path' => $taskData['store_path'],
+            ],
+            'status' => $taskData['status'],
         ]);
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -80,6 +124,8 @@ test('user can create a new backup task with custom cron expression', function (
         'backup_destination_id' => $backupDestination->id,
         'time_to_run_at' => null,
         'custom_cron_expression' => '0 0 * * *',
+        'store_path' => '/blah/blah',
+        'status' => 'ready',
     ]);
 
     $response = $this->postJson('/api/backup-tasks', $taskData);
@@ -87,8 +133,23 @@ test('user can create a new backup task with custom cron expression', function (
     $response->assertStatus(201)
         ->assertJsonFragment([
             'label' => $taskData['label'],
-            'type' => $taskData['type'],
-            'custom_cron_expression' => $taskData['custom_cron_expression'],
+            'source' => [
+                'path' => $taskData['source_path'],
+                'type' => $taskData['type'],
+                'database_name' => $taskData['database_name'] ?? null,
+                'excluded_tables' => $taskData['excluded_database_tables'] ?? null,
+            ],
+            'schedule' => [
+                'frequency' => $taskData['frequency'],
+                'time' => $taskData['time_to_run_at'],
+                'custom_cron' => $taskData['custom_cron_expression'],
+            ],
+            'storage' => [
+                'max_backups' => $taskData['maximum_backups_to_keep'],
+                'appended_filename' => $taskData['appended_filename'] ?? null,
+                'path' => $taskData['store_path'],
+            ],
+            'status' => $taskData['status'] ?? 'ready',
         ]);
 
     $this->assertDatabaseHas('backup_tasks', [
@@ -111,7 +172,8 @@ test('user cannot create a backup task without proper permission', function (): 
 test('user can view a specific backup task', function (): void {
     Sanctum::actingAs($this->user, ['view-backup-tasks']);
 
-    $task = BackupTask::factory()->create(['user_id' => $this->user->id]);
+    $task = BackupTask::factory()
+        ->create(['user_id' => $this->user->id]);
 
     $response = $this->getJson("/api/backup-tasks/{$task->id}");
 
@@ -119,7 +181,24 @@ test('user can view a specific backup task', function (): void {
         ->assertJsonFragment([
             'id' => $task->id,
             'label' => $task->label,
-            'type' => $task->type,
+            'source' => [
+                'path' => $task->source_path,
+                'type' => $task->type,
+                'database_name' => $task->database_name,
+                'excluded_tables' => $task->excluded_database_tables,
+            ],
+            'schedule' => [
+                'frequency' => $task->frequency,
+                'time' => $task->time_to_run_at,
+                'custom_cron' => $task->custom_cron_expression,
+            ],
+            'storage' => [
+                'max_backups' => $task->maximum_backups_to_keep,
+                'appended_filename' => $task->appended_filename,
+                'path' => $task->store_path,
+            ],
+            'status' => $task->status,
+            'has_isolated_credentials' => ! is_null($task->isolated_username) && ! is_null($task->isolated_password),
         ]);
 });
 
@@ -152,7 +231,15 @@ test('user can update their backup task', function (): void {
     $response = $this->putJson("/api/backup-tasks/{$task->id}", $updatedData);
 
     $response->assertStatus(200)
-        ->assertJsonFragment($updatedData);
+        ->assertJsonFragment([
+            'label' => 'Updated Task',
+            'description' => 'Updated description',
+            'schedule' => [
+                'frequency' => $task->frequency,
+                'time' => '13:00',
+                'custom_cron' => $task->custom_cron_expression,
+            ],
+        ]);
 
     $this->assertDatabaseHas('backup_tasks', [
         'id' => $task->id,
@@ -300,6 +387,8 @@ test('creating a backup task with non-existent backup destination returns 422', 
 test('creating a backup task with remote server belonging to another user returns 422', function (): void {
     Sanctum::actingAs($this->user, ['create-backup-tasks']);
 
+    $anotherUser = User::factory()->create();
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
     $anotherUser = User::factory()->create();
     $remoteServer = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
     $backupDestination = BackupDestination::factory()->create(['user_id' => $this->user->id]);

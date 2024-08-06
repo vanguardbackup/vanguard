@@ -72,6 +72,7 @@ class BackupTaskController extends Controller
         }
 
         $validated['user_id'] = $user->id;
+        $validated['status'] = BackupTask::STATUS_READY;
 
         $backupTask = BackupTask::create($validated);
 

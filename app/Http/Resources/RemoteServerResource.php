@@ -20,12 +20,16 @@ class RemoteServerResource extends JsonResource
             'id' => $this->resource->id,
             'user_id' => $this->resource->user_id,
             'label' => $this->resource->label,
-            'ip_address' => $this->resource->ip_address,
-            'username' => $this->resource->username,
-            'port' => $this->resource->port,
-            'connectivity_status' => $this->resource->connectivity_status,
-            'last_connected_at' => $this->resource->last_connected_at,
-            'is_password_set' => ! is_null($this->resource->database_password),
+            'connection' => [
+                'ip_address' => $this->resource->ip_address,
+                'username' => $this->resource->username,
+                'port' => $this->resource->port,
+                'is_database_password_set' => ! is_null($this->resource->database_password),
+            ],
+            'status' => [
+                'connectivity' => $this->resource->connectivity_status,
+                'last_connected_at' => $this->resource->last_connected_at,
+            ],
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];
