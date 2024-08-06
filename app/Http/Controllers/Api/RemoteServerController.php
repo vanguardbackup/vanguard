@@ -11,9 +11,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
+/**
+ * Manages API operations for remote servers.
+ */
 class RemoteServerController extends Controller
 {
     /**
@@ -21,17 +26,14 @@ class RemoteServerController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-remote-servers');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('manage-remote-servers')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $perPage = $request->input('per_page', 15);
+        $perPage = (int) $request->input('per_page', 15);
         $remoteServers = RemoteServer::where('user_id', $user->id)->paginate($perPage);
 
         return RemoteServerResource::collection($remoteServers);
@@ -42,23 +44,21 @@ class RemoteServerController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-remote-servers');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('manage-remote-servers')) {
-            abort(403, 'Unauthorized action.');
+        try {
+            $validated = $this->validateRemoteServer($request);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
-        $validated = $request->validate([
-            'label' => ['required', 'string'],
-            'ip_address' => ['required', 'string', 'unique:remote_servers,ip_address', 'ip'],
-            'username' => ['required', 'string'],
-            'port' => ['required', 'integer', 'min:1', 'max:65535'],
-            'database_password' => ['nullable', 'string'],
-        ]);
 
         if (isset($validated['database_password'])) {
             $validated['database_password'] = Crypt::encryptString($validated['database_password']);
@@ -77,16 +77,14 @@ class RemoteServerController extends Controller
     /**
      * Display the specified remote server.
      */
-    public function show(Request $request, RemoteServer $remoteServer): RemoteServerResource
+    public function show(Request $request, mixed $id): RemoteServerResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-remote-servers');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $remoteServer = $this->findRemoteServer($id);
 
-        if (! $user->tokenCan('manage-remote-servers')) {
-            abort(403, 'Unauthorized action.');
+        if (! $remoteServer instanceof RemoteServer) {
+            return response()->json(['message' => 'Remote server not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('view', $remoteServer);
@@ -97,27 +95,26 @@ class RemoteServerController extends Controller
     /**
      * Update the specified remote server in storage.
      */
-    public function update(Request $request, RemoteServer $remoteServer): RemoteServerResource
+    public function update(Request $request, mixed $id): RemoteServerResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-remote-servers');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $remoteServer = $this->findRemoteServer($id);
 
-        if (! $user->tokenCan('manage-remote-servers')) {
-            abort(403, 'Unauthorized action.');
+        if (! $remoteServer instanceof RemoteServer) {
+            return response()->json(['message' => 'Remote server not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('update', $remoteServer);
 
-        $validated = $request->validate([
-            'label' => ['sometimes', 'required', 'string'],
-            'ip_address' => ['sometimes', 'required', 'string', 'ip', 'unique:remote_servers,ip_address,' . $remoteServer->getAttribute('id')],
-            'username' => ['sometimes', 'required', 'string'],
-            'port' => ['sometimes', 'required', 'integer', 'min:1', 'max:65535'],
-            'database_password' => ['nullable', 'string'],
-        ]);
+        try {
+            $validated = $this->validateRemoteServer($request, true, $remoteServer->getAttribute('id'));
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         if (isset($validated['database_password'])) {
             $validated['database_password'] = Crypt::encryptString($validated['database_password']);
@@ -133,16 +130,14 @@ class RemoteServerController extends Controller
     /**
      * Remove the specified remote server from storage.
      */
-    public function destroy(Request $request, RemoteServer $remoteServer): Response
+    public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-remote-servers');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $remoteServer = $this->findRemoteServer($id);
 
-        if (! $user->tokenCan('manage-remote-servers')) {
-            abort(403, 'Unauthorized action.');
+        if (! $remoteServer instanceof RemoteServer) {
+            return response()->json(['message' => 'Remote server not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('forceDelete', $remoteServer);
@@ -150,5 +145,60 @@ class RemoteServerController extends Controller
         $remoteServer->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Authorize the request based on the given ability.
+     */
+    private function authorizeRequest(Request $request, string $ability): void
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        if (! $user->tokenCan($ability)) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Validate the remote server data.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws ValidationException
+     */
+    private function validateRemoteServer(Request $request, bool $isUpdate = false, ?int $remoteServerId = null): array
+    {
+        $rules = [
+            'label' => ['required', 'string', 'max:255'],
+            'ip_address' => ['required', 'string', 'ip'],
+            'username' => ['required', 'string', 'max:255'],
+            'port' => ['required', 'integer', 'min:1', 'max:65535'],
+            'database_password' => ['nullable', 'string', 'max:255'],
+        ];
+
+        if (! $isUpdate) {
+            $rules['ip_address'][] = 'unique:remote_servers,ip_address';
+        } else {
+            $rules = array_map(fn (array $rule): array => array_merge(['sometimes'], $rule), $rules);
+            $rules['ip_address'][] = 'unique:remote_servers,ip_address,' . $remoteServerId;
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Find a remote server by ID.
+     */
+    private function findRemoteServer(mixed $id): ?RemoteServer
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        return RemoteServer::find((int) $id);
     }
 }

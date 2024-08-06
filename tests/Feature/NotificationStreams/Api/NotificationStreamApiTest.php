@@ -175,3 +175,67 @@ test('user cannot delete a notification stream without proper permission', funct
 
     $response->assertStatus(403);
 });
+
+test('viewing a non-existent notification stream returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['view-notification-streams']);
+
+    $nonExistentId = 9999;
+    $response = $this->getJson("/api/notification-streams/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('updating a non-existent notification stream returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['update-notification-streams']);
+
+    $nonExistentId = 9999;
+    $response = $this->putJson("/api/notification-streams/{$nonExistentId}", [
+        'label' => 'Updated Stream',
+    ]);
+
+    $response->assertStatus(404);
+});
+
+test('deleting a non-existent notification stream returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['delete-notification-streams']);
+
+    $nonExistentId = 9999;
+    $response = $this->deleteJson("/api/notification-streams/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('user cannot view a notification stream belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['view-notification-streams']);
+
+    $anotherUser = User::factory()->create();
+    $stream = NotificationStream::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->getJson("/api/notification-streams/{$stream->id}");
+
+    $response->assertStatus(403);
+});
+
+test('user cannot update a notification stream belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['update-notification-streams']);
+
+    $anotherUser = User::factory()->create();
+    $stream = NotificationStream::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->putJson("/api/notification-streams/{$stream->id}", [
+        'label' => 'Updated Stream',
+    ]);
+
+    $response->assertStatus(403);
+});
+
+test('user cannot delete a notification stream belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['delete-notification-streams']);
+
+    $anotherUser = User::factory()->create();
+    $stream = NotificationStream::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->deleteJson("/api/notification-streams/{$stream->id}");
+
+    $response->assertStatus(403);
+});

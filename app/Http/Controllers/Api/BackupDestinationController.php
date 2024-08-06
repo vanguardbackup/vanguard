@@ -11,8 +11,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages API operations for backup destinations.
+ */
 class BackupDestinationController extends Controller
 {
     /**
@@ -20,17 +24,14 @@ class BackupDestinationController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'view-backup-destinations');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('view-backup-destinations')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $perPage = $request->input('per_page', 15); // Default to 15 items per page
+        $perPage = (int) $request->input('per_page', 15);
         $backupDestinations = BackupDestination::where('user_id', $user->id)
             ->paginate($perPage);
 
@@ -42,27 +43,14 @@ class BackupDestinationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'create-backup-destinations');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('create-backup-destinations')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $validated = $request->validate([
-            'label' => ['required', 'string'],
-            'type' => ['required', 'string', 'in:custom_s3,s3,local'],
-            's3_access_key' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3_secret_key' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3_bucket_name' => ['nullable', 'required_if:type,custom_s3,s3'],
-            'custom_s3_region' => ['nullable', 'required_if:type,s3'],
-            'custom_s3_endpoint' => ['nullable', 'required_if:type,custom_s3'],
-            'path_style_endpoint' => ['boolean', 'required_if:type,s3,custom_s3'],
-        ]);
-
+        $validated = $this->validateBackupDestination($request);
         $backupDestination = BackupDestination::create($validated + ['user_id' => $user->id]);
 
         return (new BackupDestinationResource($backupDestination))
@@ -73,16 +61,14 @@ class BackupDestinationController extends Controller
     /**
      * Display the specified backup destination.
      */
-    public function show(Request $request, BackupDestination $backupDestination): BackupDestinationResource
+    public function show(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'view-backup-destinations');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupDestination = $this->findBackupDestination($id);
 
-        if (! $user->tokenCan('view-backup-destinations')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupDestination instanceof BackupDestination) {
+            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('view', $backupDestination);
@@ -93,31 +79,19 @@ class BackupDestinationController extends Controller
     /**
      * Update the specified backup destination.
      */
-    public function update(Request $request, BackupDestination $backupDestination): BackupDestinationResource
+    public function update(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'update-backup-destinations');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupDestination = $this->findBackupDestination($id);
 
-        if (! $user->tokenCan('update-backup-destinations')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupDestination instanceof BackupDestination) {
+            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('update', $backupDestination);
 
-        $validated = $request->validate([
-            'label' => ['sometimes', 'required', 'string'],
-            'type' => ['sometimes', 'required', 'string', 'in:custom_s3,s3,local'],
-            's3_access_key' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3_secret_key' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3_bucket_name' => ['nullable', 'required_if:type,custom_s3,s3'],
-            'custom_s3_region' => ['nullable', 'required_if:type,s3'],
-            'custom_s3_endpoint' => ['nullable', 'required_if:type,custom_s3'],
-            'path_style_endpoint' => ['boolean', 'required_if:type,s3,custom_s3'],
-        ]);
-
+        $validated = $this->validateBackupDestination($request, true);
         $backupDestination->update($validated);
 
         return new BackupDestinationResource($backupDestination);
@@ -126,16 +100,14 @@ class BackupDestinationController extends Controller
     /**
      * Remove the specified backup destination.
      */
-    public function destroy(Request $request, BackupDestination $backupDestination): Response
+    public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'delete-backup-destinations');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupDestination = $this->findBackupDestination($id);
 
-        if (! $user->tokenCan('delete-backup-destinations')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupDestination instanceof BackupDestination) {
+            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('forceDelete', $backupDestination);
@@ -143,5 +115,58 @@ class BackupDestinationController extends Controller
         $backupDestination->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Authorize the request based on the given ability.
+     */
+    private function authorizeRequest(Request $request, string $ability): void
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        if (! $user->tokenCan($ability)) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Find a backup destination by ID.
+     */
+    private function findBackupDestination(mixed $id): ?BackupDestination
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        return BackupDestination::find((int) $id);
+    }
+
+    /**
+     * Validate the backup destination data.
+     *
+     * @return array<string, mixed>
+     */
+    private function validateBackupDestination(Request $request, bool $isUpdate = false): array
+    {
+        $rules = [
+            'label' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:custom_s3,s3,local'],
+            's3_access_key' => ['nullable', 'required_if:type,custom_s3,s3', 'string', 'max:255'],
+            's3_secret_key' => ['nullable', 'required_if:type,custom_s3,s3', 'string', 'max:255'],
+            's3_bucket_name' => ['nullable', 'required_if:type,custom_s3,s3', 'string', 'max:255'],
+            'custom_s3_region' => ['nullable', 'required_if:type,s3', 'string', 'max:255'],
+            'custom_s3_endpoint' => ['nullable', 'required_if:type,custom_s3', 'string', 'max:255'],
+            'path_style_endpoint' => ['boolean', 'required_if:type,s3,custom_s3'],
+        ];
+
+        if ($isUpdate) {
+            $rules = array_map(fn (array $rule): array => array_merge(['sometimes'], $rule), $rules);
+        }
+
+        return $request->validate($rules);
     }
 }

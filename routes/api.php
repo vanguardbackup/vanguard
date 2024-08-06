@@ -19,9 +19,28 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('backup-destinations', BackupDestinationController::class);
-    Route::apiResource('tags', TagController::class);
-    Route::apiResource('remote-servers', RemoteServerController::class);
-    Route::apiResource('notification-streams', NotificationStreamController::class);
-    Route::apiResource('backup-tasks', BackupTaskController::class);
+    Route::apiResource('backup-destinations', BackupDestinationController::class)
+        ->parameters([
+            'backup-destinations' => 'backupDestination',
+        ]);
+
+    Route::apiResource('tags', TagController::class)
+        ->parameters([
+            'tags' => 'tag',
+        ]);
+
+    Route::apiResource('remote-servers', RemoteServerController::class)
+        ->parameters([
+            'remote-servers' => 'remoteServer',
+        ]);
+
+    Route::apiResource('notification-streams', NotificationStreamController::class)
+        ->parameters([
+            'notification-streams' => 'notificationStream',
+        ]);
+
+    Route::apiResource('backup-tasks', BackupTaskController::class)
+        ->parameters([
+            'backup-tasks' => 'backupTask',
+        ]);
 });

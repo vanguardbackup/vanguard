@@ -211,3 +211,79 @@ test('user without delete permission cannot delete a backup destination', functi
 
     $response->assertStatus(403);
 });
+
+test('it returns the correct backup destination for a valid ID', function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-destinations']);
+
+    $destination = BackupDestination::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->getJson("/api/backup-destinations/{$destination->id}");
+
+    $response->assertOk()
+        ->assertJsonStructure([
+            'data' => ['id', 'label', 'type', 'user_id', 'created_at', 'updated_at'],
+        ])
+        ->assertJsonFragment([
+            'id' => $destination->id,
+            'label' => $destination->label,
+            'type' => $destination->type,
+        ])
+        ->assertJsonMissing(['s3_access_key', 's3_secret_key']);
+});
+
+test('it returns 404 for non-existent backup destination', function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-destinations']);
+
+    $nonExistentId = BackupDestination::max('id') + 1;
+
+    $response = $this->getJson("/api/backup-destinations/{$nonExistentId}");
+
+    $response->assertNotFound()
+        ->assertJson(['message' => 'Backup destination not found']);
+});
+
+test('it returns 404 for backup destination with non-numeric ID', function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-destinations']);
+
+    $response = $this->getJson('/api/backup-destinations/non-existent');
+
+    $response->assertNotFound()
+        ->assertJson(['message' => 'Backup destination not found']);
+});
+
+test('it returns 401 for unauthenticated user', function (): void {
+    $destination = BackupDestination::factory()->create();
+
+    $response = $this->getJson("/api/backup-destinations/{$destination->id}");
+
+    $response->assertUnauthorized()
+        ->assertJson(['message' => 'Unauthenticated.']);
+});
+
+test('it returns 403 for user without view permission', function (): void {
+    Sanctum::actingAs($this->user, ['create-backup-destinations']);
+
+    $destination = BackupDestination::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->getJson("/api/backup-destinations/{$destination->id}");
+
+    $response->assertForbidden()
+        ->assertJson(['message' => 'Unauthorized action.']);
+});
+
+test("it returns 403 for user trying to view another user's backup destination", function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-destinations']);
+
+    $otherUser = User::factory()->create();
+    $destination = BackupDestination::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    $response = $this->getJson("/api/backup-destinations/{$destination->id}");
+
+    $response->assertForbidden();
+});

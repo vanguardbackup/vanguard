@@ -7,54 +7,58 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
+/**
+ * Handles CRUD operations for tags in the API.
+ */
 class TagController extends Controller
 {
     /**
-     * Display a paginated listing of the tags.
+     * Display a paginated listing of the user's tags.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-tags');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('manage-tags')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $perPage = $request->input('per_page', 15);
+        $perPage = (int) $request->input('per_page', 15);
         $tags = Tag::where('user_id', $user->id)->paginate($perPage);
 
         return TagResource::collection($tags);
     }
 
     /**
-     * Store a newly created tag in storage.
+     * Store a newly created tag.
      */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-tags');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('manage-tags')) {
-            abort(403, 'Unauthorized action.');
+        try {
+            $validated = $this->validateTag($request);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
-        $validated = $request->validate([
-            'label' => ['required', 'string'],
-            'description' => ['nullable', 'string'],
-        ]);
 
         $tag = Tag::create($validated + ['user_id' => $user->id]);
 
@@ -66,16 +70,14 @@ class TagController extends Controller
     /**
      * Display the specified tag.
      */
-    public function show(Request $request, Tag $tag): TagResource
+    public function show(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-tags');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $tag = $this->findTag($id);
 
-        if (! $user->tokenCan('manage-tags')) {
-            abort(403, 'Unauthorized action.');
+        if (! $tag instanceof Tag) {
+            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('view', $tag);
@@ -84,26 +86,28 @@ class TagController extends Controller
     }
 
     /**
-     * Update the specified tag in storage.
+     * Update the specified tag.
      */
-    public function update(Request $request, Tag $tag): TagResource
+    public function update(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-tags');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $tag = $this->findTag($id);
 
-        if (! $user->tokenCan('manage-tags')) {
-            abort(403, 'Unauthorized action.');
+        if (! $tag instanceof Tag) {
+            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('update', $tag);
 
-        $validated = $request->validate([
-            'label' => ['sometimes', 'required', 'string'],
-            'description' => ['nullable', 'string'],
-        ]);
+        try {
+            $validated = $this->validateTag($request, true);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         $tag->update($validated);
 
@@ -111,18 +115,16 @@ class TagController extends Controller
     }
 
     /**
-     * Remove the specified tag from storage.
+     * Remove the specified tag.
      */
-    public function destroy(Request $request, Tag $tag): Response
+    public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'manage-tags');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $tag = $this->findTag($id);
 
-        if (! $user->tokenCan('manage-tags')) {
-            abort(403, 'Unauthorized action.');
+        if (! $tag instanceof Tag) {
+            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('forceDelete', $tag);
@@ -130,5 +132,54 @@ class TagController extends Controller
         $tag->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Authorize the request based on the given ability.
+     */
+    private function authorizeRequest(Request $request, string $ability): void
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        if (! $user->tokenCan($ability)) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Validate the tag data.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws ValidationException
+     */
+    private function validateTag(Request $request, bool $isUpdate = false): array
+    {
+        $rules = [
+            'label' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ];
+
+        if ($isUpdate) {
+            $rules['label'] = ['sometimes', 'required', 'string', 'max:255'];
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Find a tag by ID.
+     */
+    private function findTag(mixed $id): ?Tag
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        return Tag::find((int) $id);
     }
 }

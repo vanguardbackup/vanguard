@@ -198,3 +198,81 @@ test('user cannot delete a remote server without proper permission', function ()
 
     $response->assertStatus(403);
 });
+
+test('viewing a non-existent remote server returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $nonExistentId = 9999;
+    $response = $this->getJson("/api/remote-servers/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('updating a non-existent remote server returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $nonExistentId = 9999;
+    $response = $this->putJson("/api/remote-servers/{$nonExistentId}", [
+        'label' => 'Updated Server',
+    ]);
+
+    $response->assertStatus(404);
+});
+
+test('deleting a non-existent remote server returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $nonExistentId = 9999;
+    $response = $this->deleteJson("/api/remote-servers/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('user cannot view a remote server belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $anotherUser = User::factory()->create();
+    $server = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->getJson("/api/remote-servers/{$server->id}");
+
+    $response->assertStatus(403);
+});
+
+test('user cannot update a remote server belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $anotherUser = User::factory()->create();
+    $server = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->putJson("/api/remote-servers/{$server->id}", [
+        'label' => 'Updated Server',
+    ]);
+
+    $response->assertStatus(403);
+});
+
+test('user cannot delete a remote server belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $anotherUser = User::factory()->create();
+    $server = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->deleteJson("/api/remote-servers/{$server->id}");
+
+    $response->assertStatus(403);
+});
+
+test('updating a remote server with an ip address that already exists returns validation error', function (): void {
+    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+
+    $existingServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+    $serverToUpdate = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+
+    $response = $this->putJson("/api/remote-servers/{$serverToUpdate->id}", [
+        'ip_address' => $existingServer->ip_address,
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['ip_address']);
+});

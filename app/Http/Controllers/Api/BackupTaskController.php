@@ -6,14 +6,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BackupTaskResource;
+use App\Models\BackupDestination;
 use App\Models\BackupTask;
+use App\Models\RemoteServer;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
+/**
+ * Manages API operations for backup tasks.
+ */
 class BackupTaskController extends Controller
 {
     /**
@@ -21,17 +28,14 @@ class BackupTaskController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'view-backup-tasks');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('view-backup-tasks')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $perPage = $request->input('per_page', 15);
+        $perPage = (int) $request->input('per_page', 15);
         $backupTasks = BackupTask::where('user_id', $user->id)->paginate($perPage);
 
         return BackupTaskResource::collection($backupTasks);
@@ -42,23 +46,31 @@ class BackupTaskController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'create-backup-tasks');
 
+        $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (! $user->tokenCan('create-backup-tasks')) {
-            abort(403, 'Unauthorized action.');
+        try {
+            $validated = $this->validateBackupTask($request);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validator = Validator::make($request->all(), $this->getValidationRules());
+        $errors = $this->validateUserOwnership($validated, $user);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        if ($errors !== []) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $errors,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validated = $validator->validated();
         $validated['user_id'] = $user->id;
 
         $backupTask = BackupTask::create($validated);
@@ -71,16 +83,14 @@ class BackupTaskController extends Controller
     /**
      * Display the specified backup task.
      */
-    public function show(Request $request, BackupTask $backupTask): BackupTaskResource
+    public function show(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'view-backup-tasks');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupTask = $this->findBackupTask($id);
 
-        if (! $user->tokenCan('view-backup-tasks')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupTask instanceof BackupTask) {
+            return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('view', $backupTask);
@@ -91,27 +101,40 @@ class BackupTaskController extends Controller
     /**
      * Update the specified backup task in storage.
      */
-    public function update(Request $request, BackupTask $backupTask): BackupTaskResource
+    public function update(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'update-backup-tasks');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupTask = $this->findBackupTask($id);
 
-        if (! $user->tokenCan('update-backup-tasks')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupTask instanceof BackupTask) {
+            return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('update', $backupTask);
 
-        $validator = Validator::make($request->all(), $this->getValidationRules());
-
-        if ($validator->fails()) {
-            abort(422, $validator->errors()->first());
+        $user = Auth::user();
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
         }
 
-        $validated = $validator->validated();
+        try {
+            $validated = $this->validateBackupTask($request, true);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $errors = $this->validateUserOwnership($validated, $user);
+
+        if ($errors !== []) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $errors,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         $backupTask->update($validated);
 
@@ -121,16 +144,14 @@ class BackupTaskController extends Controller
     /**
      * Remove the specified backup task from storage.
      */
-    public function destroy(Request $request, BackupTask $backupTask): Response
+    public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $user = $request->user();
+        $this->authorizeRequest($request, 'delete-backup-tasks');
 
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
+        $backupTask = $this->findBackupTask($id);
 
-        if (! $user->tokenCan('delete-backup-tasks')) {
-            abort(403, 'Unauthorized action.');
+        if (! $backupTask instanceof BackupTask) {
+            return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
         Gate::authorize('forceDelete', $backupTask);
@@ -141,21 +162,68 @@ class BackupTaskController extends Controller
     }
 
     /**
-     * Get the validation rules for backup tasks.
+     * Authorize the request based on the given ability.
+     */
+    private function authorizeRequest(Request $request, string $ability): void
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        if (! $user->tokenCan($ability)) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Validate user ownership of remote server and backup destination.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, string[]>
+     */
+    private function validateUserOwnership(array $data, User $user): array
+    {
+        $errors = [];
+
+        if (isset($data['remote_server_id'])) {
+            $remoteServer = RemoteServer::where('id', $data['remote_server_id'])
+                ->where('user_id', $user->getAttribute('id'))
+                ->first();
+            if (! $remoteServer) {
+                $errors['remote_server_id'] = ['The selected remote server is invalid.'];
+            }
+        }
+
+        if (isset($data['backup_destination_id'])) {
+            $backupDestination = BackupDestination::where('id', $data['backup_destination_id'])
+                ->where('user_id', $user->getAttribute('id'))
+                ->first();
+            if (! $backupDestination) {
+                $errors['backup_destination_id'] = ['The selected backup destination is invalid.'];
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Validate the backup task data.
      *
      * @return array<string, mixed>
+     *
+     * @throws ValidationException
      */
-    private function getValidationRules(): array
+    private function validateBackupTask(Request $request, bool $isUpdate = false): array
     {
-        return [
-            'remote_server_id' => ['required', 'exists:remote_servers,id'],
-            'backup_destination_id' => ['required', 'exists:backup_destinations,id'],
+        $rules = [
+            'remote_server_id' => ['required', 'integer'],
+            'backup_destination_id' => ['required', 'integer'],
             'label' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'source_path' => ['required_if:type,files', 'nullable', 'string'],
             'frequency' => ['required', 'string', 'in:daily,weekly'],
-            'time_to_run_at' => ['required_without:custom_cron_expression', 'nullable', 'date_format:H:i'],
-            'custom_cron_expression' => ['required_without:time_to_run_at', 'nullable', 'string'],
             'maximum_backups_to_keep' => ['required', 'integer', 'min:0'],
             'type' => ['required', 'in:files,database'],
             'database_name' => ['required_if:type,database', 'nullable', 'string'],
@@ -164,6 +232,26 @@ class BackupTaskController extends Controller
             'excluded_database_tables' => ['nullable', 'string'],
             'isolated_username' => ['nullable', 'string'],
             'isolated_password' => ['nullable', 'string'],
+            'time_to_run_at' => ['required_without:custom_cron_expression', 'nullable', 'date_format:H:i'],
+            'custom_cron_expression' => ['required_without:time_to_run_at', 'nullable', 'string'],
         ];
+
+        if ($isUpdate) {
+            $rules = array_map(fn (array $rule): array => array_merge(['sometimes'], $rule), $rules);
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Find a backup task by ID.
+     */
+    private function findBackupTask(mixed $id): ?BackupTask
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        return BackupTask::find((int) $id);
     }
 }

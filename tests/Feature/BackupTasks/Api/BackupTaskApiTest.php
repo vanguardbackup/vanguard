@@ -41,8 +41,13 @@ test('user cannot list backup tasks without proper permission', function (): voi
 test('user can create a new backup task', function (): void {
     Sanctum::actingAs($this->user, ['create-backup-tasks']);
 
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $this->user->id]);
+
     $taskData = BackupTask::factory()->raw([
         'user_id' => $this->user->id,
+        'remote_server_id' => $remoteServer->id,
+        'backup_destination_id' => $backupDestination->id,
         'time_to_run_at' => '12:00',
         'custom_cron_expression' => null,
     ]);
@@ -66,8 +71,13 @@ test('user can create a new backup task', function (): void {
 test('user can create a new backup task with custom cron expression', function (): void {
     Sanctum::actingAs($this->user, ['create-backup-tasks']);
 
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $this->user->id]);
+
     $taskData = BackupTask::factory()->raw([
         'user_id' => $this->user->id,
+        'remote_server_id' => $remoteServer->id,
+        'backup_destination_id' => $backupDestination->id,
         'time_to_run_at' => null,
         'custom_cron_expression' => '0 0 * * *',
     ]);
@@ -127,19 +137,13 @@ test('user can update their backup task', function (): void {
     Sanctum::actingAs($this->user, ['update-backup-tasks']);
 
     $task = BackupTask::factory()->create([
-        'remote_server_id' => RemoteServer::factory(),
-        'backup_destination_id' => BackupDestination::factory(),
+        'remote_server_id' => RemoteServer::factory()->create(['user_id' => $this->user->id]),
+        'backup_destination_id' => BackupDestination::factory()->create(['user_id' => $this->user->id]),
         'user_id' => $this->user->id,
         'time_to_run_at' => '12:00',
     ]);
 
     $updatedData = [
-        'remote_server_id' => $task->remote_server_id,
-        'backup_destination_id' => $task->backup_destination_id,
-        'frequency' => $task->frequency,
-        'maximum_backups_to_keep' => $task->maximum_backups_to_keep,
-        'type' => $task->type,
-        'source_path' => $task->source_path,
         'label' => 'Updated Task',
         'description' => 'Updated description',
         'time_to_run_at' => '13:00',
@@ -189,4 +193,148 @@ test('user cannot delete a backup task without proper permission', function (): 
     $response = $this->deleteJson("/api/backup-tasks/{$task->id}");
 
     $response->assertStatus(403);
+});
+
+test('viewing a non-existent backup task returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-tasks']);
+
+    $nonExistentId = 9999;
+    $response = $this->getJson("/api/backup-tasks/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('updating a non-existent backup task returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['update-backup-tasks']);
+
+    $nonExistentId = 9999;
+    $response = $this->putJson("/api/backup-tasks/{$nonExistentId}", [
+        'label' => 'Updated Task',
+    ]);
+
+    $response->assertStatus(404);
+});
+
+test('deleting a non-existent backup task returns 404', function (): void {
+    Sanctum::actingAs($this->user, ['delete-backup-tasks']);
+
+    $nonExistentId = 9999;
+    $response = $this->deleteJson("/api/backup-tasks/{$nonExistentId}");
+
+    $response->assertStatus(404);
+});
+
+test('user cannot view a backup task belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['view-backup-tasks']);
+
+    $anotherUser = User::factory()->create();
+    $task = BackupTask::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->getJson("/api/backup-tasks/{$task->id}");
+
+    $response->assertStatus(403);
+});
+
+test('user cannot update a backup task belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['update-backup-tasks']);
+
+    $anotherUser = User::factory()->create();
+    $task = BackupTask::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->putJson("/api/backup-tasks/{$task->id}", [
+        'label' => 'Updated Task',
+    ]);
+
+    $response->assertStatus(403);
+});
+
+test('user cannot delete a backup task belonging to another user', function (): void {
+    Sanctum::actingAs($this->user, ['delete-backup-tasks']);
+
+    $anotherUser = User::factory()->create();
+    $task = BackupTask::factory()->create(['user_id' => $anotherUser->id]);
+
+    $response = $this->deleteJson("/api/backup-tasks/{$task->id}");
+
+    $response->assertStatus(403);
+});
+
+test('creating a backup task with non-existent remote server returns 422', function (): void {
+    Sanctum::actingAs($this->user, ['create-backup-tasks']);
+
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $this->user->id]);
+
+    $taskData = BackupTask::factory()->raw([
+        'user_id' => $this->user->id,
+        'remote_server_id' => 9999, // Non-existent ID
+        'backup_destination_id' => $backupDestination->id,
+        'time_to_run_at' => '12:00',
+    ]);
+
+    $response = $this->postJson('/api/backup-tasks', $taskData);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['remote_server_id'])
+        ->assertJsonPath('errors.remote_server_id.0', 'The selected remote server is invalid.');
+});
+
+test('creating a backup task with non-existent backup destination returns 422', function (): void {
+    Sanctum::actingAs($this->user, ['create-backup-tasks']);
+
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+
+    $taskData = BackupTask::factory()->raw([
+        'user_id' => $this->user->id,
+        'remote_server_id' => $remoteServer->id,
+        'backup_destination_id' => 9999, // Non-existent ID
+        'time_to_run_at' => '12:00',
+    ]);
+
+    $response = $this->postJson('/api/backup-tasks', $taskData);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['backup_destination_id'])
+        ->assertJsonPath('errors.backup_destination_id.0', 'The selected backup destination is invalid.');
+});
+
+test('creating a backup task with remote server belonging to another user returns 422', function (): void {
+    Sanctum::actingAs($this->user, ['create-backup-tasks']);
+
+    $anotherUser = User::factory()->create();
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $this->user->id]);
+
+    $taskData = BackupTask::factory()->raw([
+        'user_id' => $this->user->id,
+        'remote_server_id' => $remoteServer->id,
+        'backup_destination_id' => $backupDestination->id,
+        'time_to_run_at' => '12:00',
+    ]);
+
+    $response = $this->postJson('/api/backup-tasks', $taskData);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['remote_server_id'])
+        ->assertJsonPath('errors.remote_server_id.0', 'The selected remote server is invalid.');
+});
+
+test('creating a backup task with backup destination belonging to another user returns 422', function (): void {
+    Sanctum::actingAs($this->user, ['create-backup-tasks']);
+
+    $anotherUser = User::factory()->create();
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
+    $backupDestination = BackupDestination::factory()->create(['user_id' => $anotherUser->id]);
+
+    $taskData = BackupTask::factory()->raw([
+        'user_id' => $this->user->id,
+        'remote_server_id' => $remoteServer->id,
+        'backup_destination_id' => $backupDestination->id,
+        'time_to_run_at' => '12:00',
+    ]);
+
+    $response = $this->postJson('/api/backup-tasks', $taskData);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['backup_destination_id'])
+        ->assertJsonPath('errors.backup_destination_id.0', 'The selected backup destination is invalid.');
 });
