@@ -12,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -24,17 +23,18 @@ class TagController extends Controller
     /**
      * Display a paginated listing of the user's tags.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->authorizeRequest($request, 'manage-tags');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'manage-tags');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
 
+        /** @var User $user */
+        $user = $request->user();
+
         $perPage = (int) $request->input('per_page', 15);
-        $tags = Tag::where('user_id', $user->id)->paginate($perPage);
+        $tags = Tag::where('user_id', $user->getAttribute('id'))->paginate($perPage);
 
         return TagResource::collection($tags);
     }
@@ -44,23 +44,25 @@ class TagController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->authorizeRequest($request, 'manage-tags');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'manage-tags');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
+
+        /** @var User $user */
+        $user = $request->user();
 
         try {
             $validated = $this->validateTag($request);
         } catch (ValidationException $e) {
             return response()->json([
+                'error' => 'Validation Error',
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $tag = Tag::create($validated + ['user_id' => $user->id]);
+        $tag = Tag::create($validated + ['user_id' => $user->getAttribute('id')]);
 
         return (new TagResource($tag))
             ->response()
@@ -72,15 +74,26 @@ class TagController extends Controller
      */
     public function show(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'manage-tags');
+        $authResponse = $this->authorizeRequest($request, 'manage-tags');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {
-            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Tag not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $tag);
+        if (Gate::denies('view', $tag)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to view this tag',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         return new TagResource($tag);
     }
@@ -90,20 +103,32 @@ class TagController extends Controller
      */
     public function update(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'manage-tags');
+        $authResponse = $this->authorizeRequest($request, 'manage-tags');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {
-            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Tag not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('update', $tag);
+        if (Gate::denies('update', $tag)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to update this tag',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         try {
             $validated = $this->validateTag($request, true);
         } catch (ValidationException $e) {
             return response()->json([
+                'error' => 'Validation Error',
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -119,35 +144,30 @@ class TagController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $this->authorizeRequest($request, 'manage-tags');
+        $authResponse = $this->authorizeRequest($request, 'manage-tags');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {
-            return response()->json(['message' => 'Tag not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Tag not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('forceDelete', $tag);
+        if (Gate::denies('forceDelete', $tag)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to delete this tag',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         $tag->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 
     /**

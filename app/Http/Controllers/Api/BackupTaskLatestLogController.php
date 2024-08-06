@@ -20,41 +20,36 @@ class BackupTaskLatestLogController extends Controller
      */
     public function __invoke(Request $request, int $id): JsonResponse|JsonResource
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTask = BackupTask::find($id);
 
         if (! $backupTask) {
-            return response()->json(['message' => 'Backup task not found.'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Backup task not found.',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $backupTask);
+        if (Gate::denies('view', $backupTask)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to view this backup task.',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         $latestLog = $backupTask->logs()->latest()->first();
 
         if (! $latestLog) {
-            return response()->json(['message' => 'No logs found for this backup task.'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'No logs found for this backup task.',
+            ], Response::HTTP_NOT_FOUND);
         }
 
         return new BackupTaskLogResource($latestLog);
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     *
-     * @param  Request  $request  The incoming request
-     * @param  string  $ability  The ability to check
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 }

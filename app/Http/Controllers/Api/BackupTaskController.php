@@ -26,9 +26,13 @@ class BackupTaskController extends Controller
     /**
      * Display a paginated listing of the backup tasks.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $user = Auth::user();
         if (! $user) {
@@ -46,7 +50,11 @@ class BackupTaskController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->authorizeRequest($request, 'create-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'create-backup-tasks');
+
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $user = Auth::user();
         if (! $user) {
@@ -86,7 +94,11 @@ class BackupTaskController extends Controller
      */
     public function show(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTask = $this->findBackupTask($id);
 
@@ -104,7 +116,11 @@ class BackupTaskController extends Controller
      */
     public function update(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'update-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'update-backup-tasks');
+
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTask = $this->findBackupTask($id);
 
@@ -147,7 +163,11 @@ class BackupTaskController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $this->authorizeRequest($request, 'delete-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'delete-backup-tasks');
+
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTask = $this->findBackupTask($id);
 
@@ -160,22 +180,6 @@ class BackupTaskController extends Controller
         $backupTask->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 
     /**

@@ -20,7 +20,12 @@ test('user with view-backup-tasks permission can view backup task status', funct
     $response = $this->getJson("/api/backup-tasks/{$this->backupTask->id}/status");
 
     $response->assertOk()
-        ->assertJsonStructure(['status']);
+        ->assertJsonStructure([
+            'data' => [
+                'id',
+                'status',
+            ],
+        ]);
 });
 
 test('user without view-backup-tasks permission cannot view backup task status', function (): void {

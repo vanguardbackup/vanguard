@@ -7,11 +7,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationStreamResource;
 use App\Models\NotificationStream;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -23,17 +23,18 @@ class NotificationStreamController extends Controller
     /**
      * Display a paginated listing of the notification streams.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-notification-streams');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'view-notification-streams');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
 
+        /** @var User $user */
+        $user = $request->user();
+
         $perPage = (int) $request->input('per_page', 15);
-        $notificationStreams = NotificationStream::where('user_id', $user->id)->paginate($perPage);
+        $notificationStreams = NotificationStream::where('user_id', $user->getAttribute('id'))->paginate($perPage);
 
         return NotificationStreamResource::collection($notificationStreams);
     }
@@ -43,23 +44,25 @@ class NotificationStreamController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->authorizeRequest($request, 'create-notification-streams');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'create-notification-streams');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
 
         try {
             $validated = $this->validateNotificationStream($request);
         } catch (ValidationException $e) {
             return response()->json([
+                'error' => 'Validation Error',
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validated['user_id'] = $user->id;
+        /** @var User $user */
+        $user = $request->user();
+
+        $validated['user_id'] = $user->getAttribute('id');
 
         // Process the nested notifications data
         $validated['receive_successful_backup_notifications'] = $validated['notifications']['on_success'] ? now() : null;
@@ -80,15 +83,26 @@ class NotificationStreamController extends Controller
      */
     public function show(Request $request, mixed $id): NotificationStreamResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-notification-streams');
+        $authResponse = $this->authorizeRequest($request, 'view-notification-streams');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {
-            return response()->json(['message' => 'Notification stream not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Notification stream not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $notificationStream);
+        if (Gate::denies('view', $notificationStream)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to view this notification stream',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         return new NotificationStreamResource($notificationStream);
     }
@@ -98,20 +112,32 @@ class NotificationStreamController extends Controller
      */
     public function update(Request $request, mixed $id): NotificationStreamResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'update-notification-streams');
+        $authResponse = $this->authorizeRequest($request, 'update-notification-streams');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {
-            return response()->json(['message' => 'Notification stream not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Notification stream not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('update', $notificationStream);
+        if (Gate::denies('update', $notificationStream)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to update this notification stream',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         try {
             $validated = $this->validateNotificationStream($request);
         } catch (ValidationException $e) {
             return response()->json([
+                'error' => 'Validation Error',
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -134,35 +160,30 @@ class NotificationStreamController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $this->authorizeRequest($request, 'delete-notification-streams');
+        $authResponse = $this->authorizeRequest($request, 'delete-notification-streams');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {
-            return response()->json(['message' => 'Notification stream not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Notification stream not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('forceDelete', $notificationStream);
+        if (Gate::denies('forceDelete', $notificationStream)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to delete this notification stream',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         $notificationStream->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 
     /**

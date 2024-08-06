@@ -7,11 +7,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BackupDestinationResource;
 use App\Models\BackupDestination;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -22,17 +22,18 @@ class BackupDestinationController extends Controller
     /**
      * Display a paginated listing of the backup destinations.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-destinations');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-destinations');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
 
+        /** @var User $user */
+        $user = $request->user();
+
         $perPage = (int) $request->input('per_page', 15);
-        $backupDestinations = BackupDestination::where('user_id', $user->id)
+        $backupDestinations = BackupDestination::where('user_id', $user->getAttribute('id'))
             ->paginate($perPage);
 
         return BackupDestinationResource::collection($backupDestinations);
@@ -43,15 +44,16 @@ class BackupDestinationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->authorizeRequest($request, 'create-backup-destinations');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'create-backup-destinations');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
 
+        /** @var User $user */
+        $user = $request->user();
+
         $validated = $this->validateBackupDestination($request);
-        $backupDestination = BackupDestination::create($validated + ['user_id' => $user->id]);
+        $backupDestination = BackupDestination::create($validated + ['user_id' => $user->getAttribute('id')]);
 
         return (new BackupDestinationResource($backupDestination))
             ->response()
@@ -63,15 +65,20 @@ class BackupDestinationController extends Controller
      */
     public function show(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-destinations');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-destinations');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {
-            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Not Found', 'message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $backupDestination);
+        if (Gate::denies('view', $backupDestination)) {
+            return response()->json(['error' => 'Forbidden', 'message' => 'You are not authorized to view this backup destination'], Response::HTTP_FORBIDDEN);
+        }
 
         return new BackupDestinationResource($backupDestination);
     }
@@ -81,15 +88,20 @@ class BackupDestinationController extends Controller
      */
     public function update(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'update-backup-destinations');
+        $authResponse = $this->authorizeRequest($request, 'update-backup-destinations');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {
-            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Not Found', 'message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('update', $backupDestination);
+        if (Gate::denies('update', $backupDestination)) {
+            return response()->json(['error' => 'Forbidden', 'message' => 'You are not authorized to update this backup destination'], Response::HTTP_FORBIDDEN);
+        }
 
         $validated = $this->validateBackupDestination($request, true);
         $backupDestination->update($validated);
@@ -102,35 +114,24 @@ class BackupDestinationController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $this->authorizeRequest($request, 'delete-backup-destinations');
+        $authResponse = $this->authorizeRequest($request, 'delete-backup-destinations');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {
-            return response()->json(['message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Not Found', 'message' => 'Backup destination not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('forceDelete', $backupDestination);
+        if (Gate::denies('forceDelete', $backupDestination)) {
+            return response()->json(['error' => 'Forbidden', 'message' => 'You are not authorized to delete this backup destination'], Response::HTTP_FORBIDDEN);
+        }
 
         $backupDestination->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 
     /**

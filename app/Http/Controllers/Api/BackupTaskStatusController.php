@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BackupTaskResource;
 use App\Models\BackupTask;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,40 +21,37 @@ class BackupTaskStatusController extends Controller
      *
      * @param  Request  $request  The incoming request
      * @param  int  $id  The ID of the backup task
-     * @return BackupTaskResource|JsonResponse The backup task resource or error response
+     * @return JsonResponse The backup task status or error response
      */
-    public function __invoke(Request $request, int $id): BackupTaskResource|JsonResponse
+    public function __invoke(Request $request, int $id): JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTask = $this->findBackupTask($id);
 
         if (! $backupTask instanceof BackupTask) {
-            return response()->json(['message' => 'Backup task not found'], ResponseAlias::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Backup task not found',
+            ], ResponseAlias::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $backupTask);
-
-        return response()->json(['status' => $backupTask->getAttribute('status')]);
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     *
-     * @param  Request  $request  The incoming request
-     * @param  string  $ability  The ability to check
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        if (Gate::denies('view', $backupTask)) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to view this backup task',
+            ], ResponseAlias::HTTP_FORBIDDEN);
         }
 
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
+        return response()->json([
+            'data' => [
+                'id' => $backupTask->getAttribute('id'),
+                'status' => $backupTask->getAttribute('status'),
+            ],
+        ]);
     }
 
     /**

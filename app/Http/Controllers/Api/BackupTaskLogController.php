@@ -7,11 +7,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BackupTaskLogResource;
 use App\Models\BackupTaskLog;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -23,20 +23,21 @@ class BackupTaskLogController extends Controller
      * Display a paginated listing of the backup task logs.
      *
      * @param  Request  $request  The incoming request.
-     * @return AnonymousResourceCollection A collection of backup task log resources.
+     * @return AnonymousResourceCollection|JsonResponse A collection of backup task log resources or an error response.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
-
-        $user = Auth::user();
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
         }
+
+        /** @var User $user */
+        $user = $request->user();
 
         $perPage = (int) $request->input('per_page', 15);
         $backupTaskLogs = BackupTaskLog::whereHas('backupTask', function ($query) use ($user): void {
-            $query->where('user_id', $user->id);
+            $query->where('user_id', $user->getAttribute('id'));
         })->paginate($perPage);
 
         return BackupTaskLogResource::collection($backupTaskLogs);
@@ -51,15 +52,26 @@ class BackupTaskLogController extends Controller
      */
     public function show(Request $request, string $id): BackupTaskLogResource|JsonResponse
     {
-        $this->authorizeRequest($request, 'view-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTaskLog = $this->findBackupTaskLog($id);
 
         if (! $backupTaskLog instanceof BackupTaskLog) {
-            return response()->json(['message' => 'Backup task log not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Backup task log not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $backupTaskLog->getAttribute('backupTask'));
+        if (Gate::denies('view', $backupTaskLog->getAttribute('backupTask'))) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to view this backup task log',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         return new BackupTaskLogResource($backupTaskLog);
     }
@@ -73,38 +85,30 @@ class BackupTaskLogController extends Controller
      */
     public function destroy(Request $request, string $id): Response|JsonResponse
     {
-        $this->authorizeRequest($request, 'delete-backup-tasks');
+        $authResponse = $this->authorizeRequest($request, 'delete-backup-tasks');
+        if ($authResponse instanceof JsonResponse) {
+            return $authResponse;
+        }
 
         $backupTaskLog = $this->findBackupTaskLog($id);
 
         if (! $backupTaskLog instanceof BackupTaskLog) {
-            return response()->json(['message' => 'Backup task log not found'], Response::HTTP_NOT_FOUND);
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => 'Backup task log not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('forceDelete', $backupTaskLog->getAttribute('backupTask'));
+        if (Gate::denies('forceDelete', $backupTaskLog->getAttribute('backupTask'))) {
+            return response()->json([
+                'error' => 'Forbidden',
+                'message' => 'You are not authorized to delete this backup task log',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         $backupTaskLog->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Authorize the request based on the given ability.
-     *
-     * @param  Request  $request  The incoming request.
-     * @param  string  $ability  The ability to check for authorization.
-     */
-    private function authorizeRequest(Request $request, string $ability): void
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            abort(401, 'Unauthenticated.');
-        }
-
-        if (! $user->tokenCan($ability)) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 
     /**
