@@ -207,6 +207,10 @@ class APITokenManager extends Component
                 'name' => 'Delete Backup Tasks',
                 'description' => 'Allows deleting backup tasks',
             ],
+            'run-backup-tasks' => [
+                'name' => 'Run Backup Tasks',
+                'description' => 'Allows the running of backup tasks',
+            ],
         ];
     }
 
