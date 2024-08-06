@@ -51,7 +51,7 @@ class APITokenManager extends Component
             'name' => ['required', 'string', 'max:255'],
             'permissions' => ['required', 'array', 'min:1', function (string $attribute, array $value, callable $fail): void {
                 if (array_filter($value) === []) {
-                    $fail('At least one permission must be selected.');
+                    $fail(__('At least one permission must be selected.'));
                 }
             }],
         ];
@@ -140,76 +140,76 @@ class APITokenManager extends Component
     {
         return [
             'manage-tags' => [
-                'name' => 'Manage Tags',
-                'description' => 'Allows managing of your tags',
+                'name' => __('Manage Tags'),
+                'description' => __('Allows managing of your tags'),
             ],
             'view-backup-destinations' => [
-                'name' => 'View Backup Destinations',
-                'description' => 'Allows viewing backup destinations',
+                'name' => __('View Backup Destinations'),
+                'description' => __('Allows viewing backup destinations'),
             ],
             'create-backup-destinations' => [
-                'name' => 'Create Backup Destinations',
-                'description' => 'Allows creating new backup destinations',
+                'name' => __('Create Backup Destinations'),
+                'description' => __('Allows creating new backup destinations'),
             ],
             'update-backup-destinations' => [
-                'name' => 'Update Backup Destinations',
-                'description' => 'Allows updating existing backup destinations',
+                'name' => __('Update Backup Destinations'),
+                'description' => __('Allows updating existing backup destinations'),
             ],
             'delete-backup-destinations' => [
-                'name' => 'Delete Backup Destinations',
-                'description' => 'Allows deleting backup destinations',
+                'name' => __('Delete Backup Destinations'),
+                'description' => __('Allows deleting backup destinations'),
             ],
             'view-remote-servers' => [
-                'name' => 'View Remote Servers',
-                'description' => 'Allows viewing remote servers',
+                'name' => __('View Remote Servers'),
+                'description' => __('Allows viewing remote servers'),
             ],
             'create-remote-servers' => [
-                'name' => 'Create Remote Servers',
-                'description' => 'Allows creating new remote servers',
+                'name' => __('Create Remote Servers'),
+                'description' => __('Allows creating new remote servers'),
             ],
             'update-remote-servers' => [
-                'name' => 'Update Remote Servers',
-                'description' => 'Allows updating existing remote servers',
+                'name' => __('Update Remote Servers'),
+                'description' => __('Allows updating existing remote servers'),
             ],
             'delete-remote-servers' => [
-                'name' => 'Delete Remote Servers',
-                'description' => 'Allows deleting remote servers',
+                'name' => __('Delete Remote Servers'),
+                'description' => __('Allows deleting remote servers'),
             ],
             'view-notification-streams' => [
-                'name' => 'View Notification Streams',
-                'description' => 'Allows viewing notification streams',
+                'name' => __('View Notification Streams'),
+                'description' => __('Allows viewing notification streams'),
             ],
             'create-notification-streams' => [
-                'name' => 'Create Notification Streams',
-                'description' => 'Allows creating new notification streams',
+                'name' => __('Create Notification Streams'),
+                'description' => __('Allows creating new notification streams'),
             ],
             'update-notification-streams' => [
-                'name' => 'Update Notification Streams',
-                'description' => 'Allows updating existing notification streams',
+                'name' => __('Update Notification Streams'),
+                'description' => __('Allows updating existing notification streams'),
             ],
             'delete-notification-streams' => [
-                'name' => 'Delete Notification Notification',
-                'description' => 'Allows deleting notification streams',
+                'name' => __('Delete Notification Streams'),
+                'description' => __('Allows deleting notification streams'),
             ],
             'view-backup-tasks' => [
-                'name' => 'View Backup Tasks',
-                'description' => 'Allows viewing backup tasks',
+                'name' => __('View Backup Tasks'),
+                'description' => __('Allows viewing backup tasks'),
             ],
             'create-backup-tasks' => [
-                'name' => 'Create Backup Tasks',
-                'description' => 'Allows creating new backup tasks',
+                'name' => __('Create Backup Tasks'),
+                'description' => __('Allows creating new backup tasks'),
             ],
             'update-backup-tasks' => [
-                'name' => 'Update Backup Tasks',
-                'description' => 'Allows updating existing backup tasks',
+                'name' => __('Update Backup Tasks'),
+                'description' => __('Allows updating existing backup tasks'),
             ],
             'delete-backup-tasks' => [
-                'name' => 'Delete Backup Tasks',
-                'description' => 'Allows deleting backup tasks',
+                'name' => __('Delete Backup Tasks'),
+                'description' => __('Allows deleting backup tasks'),
             ],
             'run-backup-tasks' => [
-                'name' => 'Run Backup Tasks',
-                'description' => 'Allows the running of backup tasks',
+                'name' => __('Run Backup Tasks'),
+                'description' => __('Allows the running of backup tasks'),
             ],
         ];
     }
