@@ -66,7 +66,7 @@ class APITokenManager extends Component
 
         $validated = $this->validate();
 
-        $selectedPermissions = array_filter($validated['permissions']);
+        $selectedPermissions = array_keys(array_filter($validated['permissions']));
 
         $token = $this->user->createToken(
             $validated['name'],
