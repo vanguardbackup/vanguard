@@ -20,19 +20,51 @@
 
             <div>
                 <x-input-label :value="__('Token Permissions')" class="mb-3"/>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @foreach ($this->getPermissions() as $key => $permission)
-                        <div class="flex items-center space-x-3">
-                            <x-toggle
-                                :name="'permissions.' . $key"
-                                :label="$permission['name']"
-                                :model="'permissions.' . $key"
-                                live
-                            />
-                            <div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $permission['description'] }}
-                                </p>
+                <div class="mb-4 flex justify-between items-center">
+                    <x-secondary-button wire:click="selectAllPermissions" type="button">
+                        {{ __('Select All') }}
+                    </x-secondary-button>
+                    <x-secondary-button wire:click="deselectAllPermissions" type="button">
+                        {{ __('Deselect All') }}
+                    </x-secondary-button>
+                </div>
+                <div class="space-y-4">
+                    @foreach ($this->getPermissions() as $group => $groupPermissions)
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                            <button type="button" wire:click="toggleGroup('{{ $group }}')"
+                                    class="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                                <span class="font-medium">{{ $group }}</span>
+                                <span class="float-right">
+                                    @if ($expandedGroups[$group])
+                                        @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
+                                    @else
+                                        @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
+                                    @endif
+                                </span>
+                            </button>
+                            <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
+                                <div class="p-4 space-y-4">
+                                    @foreach ($groupPermissions as $key => $permission)
+                                        <div class="flex items-center space-x-3">
+                                            <x-toggle
+                                                :name="'permissions.' . $key"
+                                                :label="$permission['name']"
+                                                :model="'permissions.' . $key"
+                                                live
+                                            />
+                                            <div class="relative group">
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ $permission['name'] }}
+                                                    </p>
+                                                </div>
+                                                <div class="absolute left-0 bottom-full mb-2 w-48 bg-gray-800 text-white text-xs rounded p-2 hidden group-hover:block z-50">
+                                                    {{ $permission['description'] }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -43,7 +75,7 @@
             <div class="mt-6 max-w-3xl mx-auto">
                 <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
                     <div class="w-full sm:w-4/6">
-                        <x-primary-button type="submit" class="w-full justify-center" centered action="createApiToken" ire:loading.attr="disabled">
+                        <x-primary-button type="submit" class="w-full justify-center" centered action="createApiToken" wire:loading.attr="disabled">
                             {{ __('Save') }}
                         </x-primary-button>
                     </div>
