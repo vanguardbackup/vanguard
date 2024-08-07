@@ -25,11 +25,6 @@ class TagController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-tags');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -44,11 +39,6 @@ class TagController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-tags');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -74,11 +64,6 @@ class TagController extends Controller
      */
     public function show(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-tags');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {
@@ -103,11 +88,6 @@ class TagController extends Controller
      */
     public function update(Request $request, mixed $id): TagResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-tags');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {
@@ -144,11 +124,6 @@ class TagController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-tags');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $tag = $this->findTag($id);
 
         if (! $tag instanceof Tag) {

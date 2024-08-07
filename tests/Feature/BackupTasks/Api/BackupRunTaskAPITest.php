@@ -42,7 +42,7 @@ test('user without run-backup-tasks permission cannot run a backup task', functi
     $response = $this->postJson("/api/backup-tasks/{$backupTask->id}/run");
 
     $response->assertStatus(403)
-        ->assertJson(['message' => 'Access denied. Your token does not have permission to run backup tasks.']);
+        ->assertJson(['message' => 'Invalid ability provided.']);
 });
 
 test('user cannot run a backup task belonging to another user', function (): void {

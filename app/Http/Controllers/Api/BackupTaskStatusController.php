@@ -25,11 +25,6 @@ class BackupTaskStatusController extends Controller
      */
     public function __invoke(Request $request, int $id): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTask = $this->findBackupTask($id);
 
         if (! $backupTask instanceof BackupTask) {

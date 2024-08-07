@@ -27,11 +27,6 @@ class BackupTaskLogController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -52,11 +47,6 @@ class BackupTaskLogController extends Controller
      */
     public function show(Request $request, string $id): BackupTaskLogResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTaskLog = $this->findBackupTaskLog($id);
 
         if (! $backupTaskLog instanceof BackupTaskLog) {
@@ -85,11 +75,6 @@ class BackupTaskLogController extends Controller
      */
     public function destroy(Request $request, string $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'delete-backup-tasks');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTaskLog = $this->findBackupTaskLog($id);
 
         if (! $backupTaskLog instanceof BackupTaskLog) {

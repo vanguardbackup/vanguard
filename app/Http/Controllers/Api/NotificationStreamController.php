@@ -25,11 +25,6 @@ class NotificationStreamController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-notification-streams');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -44,11 +39,6 @@ class NotificationStreamController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'create-notification-streams');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         try {
             $validated = $this->validateNotificationStream($request);
         } catch (ValidationException $e) {
@@ -83,11 +73,6 @@ class NotificationStreamController extends Controller
      */
     public function show(Request $request, mixed $id): NotificationStreamResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-notification-streams');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {
@@ -112,11 +97,6 @@ class NotificationStreamController extends Controller
      */
     public function update(Request $request, mixed $id): NotificationStreamResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'update-notification-streams');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {
@@ -160,11 +140,6 @@ class NotificationStreamController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'delete-notification-streams');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $notificationStream = $this->findNotificationStream($id);
 
         if (! $notificationStream instanceof NotificationStream) {

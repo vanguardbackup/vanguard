@@ -28,12 +28,6 @@ class BackupTaskController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
@@ -50,12 +44,6 @@ class BackupTaskController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'create-backup-tasks');
-
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $user = Auth::user();
         if (! $user) {
             abort(401, 'Unauthenticated.');
@@ -94,19 +82,15 @@ class BackupTaskController extends Controller
      */
     public function show(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTask = $this->findBackupTask($id);
 
         if (! $backupTask instanceof BackupTask) {
             return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('view', $backupTask);
+        if (Gate::denies('view', $backupTask)) {
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+        }
 
         return new BackupTaskResource($backupTask);
     }
@@ -116,19 +100,15 @@ class BackupTaskController extends Controller
      */
     public function update(Request $request, mixed $id): BackupTaskResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'update-backup-tasks');
-
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTask = $this->findBackupTask($id);
 
         if (! $backupTask instanceof BackupTask) {
             return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('update', $backupTask);
+        if (Gate::denies('update', $backupTask)) {
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+        }
 
         $user = Auth::user();
         if (! $user) {
@@ -163,19 +143,15 @@ class BackupTaskController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'delete-backup-tasks');
-
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTask = $this->findBackupTask($id);
 
         if (! $backupTask instanceof BackupTask) {
             return response()->json(['message' => 'Backup task not found'], Response::HTTP_NOT_FOUND);
         }
 
-        Gate::authorize('forceDelete', $backupTask);
+        if (Gate::denies('forceDelete', $backupTask)) {
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+        }
 
         $backupTask->delete();
 

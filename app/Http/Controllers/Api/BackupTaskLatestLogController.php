@@ -20,11 +20,6 @@ class BackupTaskLatestLogController extends Controller
      */
     public function __invoke(Request $request, int $id): JsonResponse|JsonResource
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-tasks');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupTask = BackupTask::find($id);
 
         if (! $backupTask) {

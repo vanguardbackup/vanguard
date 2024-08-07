@@ -26,11 +26,6 @@ class RemoteServerController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-remote-servers');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -45,11 +40,6 @@ class RemoteServerController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-remote-servers');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         try {
             $validated = $this->validateRemoteServer($request);
         } catch (ValidationException $e) {
@@ -82,11 +72,6 @@ class RemoteServerController extends Controller
      */
     public function show(Request $request, mixed $id): RemoteServerResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-remote-servers');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $remoteServer = $this->findRemoteServer($id);
 
         if (! $remoteServer instanceof RemoteServer) {
@@ -97,10 +82,7 @@ class RemoteServerController extends Controller
         }
 
         if (Gate::denies('view', $remoteServer)) {
-            return response()->json([
-                'error' => 'Forbidden',
-                'message' => 'You are not authorized to view this remote server',
-            ], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         }
 
         return new RemoteServerResource($remoteServer);
@@ -111,11 +93,6 @@ class RemoteServerController extends Controller
      */
     public function update(Request $request, mixed $id): RemoteServerResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-remote-servers');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $remoteServer = $this->findRemoteServer($id);
 
         if (! $remoteServer instanceof RemoteServer) {
@@ -126,10 +103,7 @@ class RemoteServerController extends Controller
         }
 
         if (Gate::denies('update', $remoteServer)) {
-            return response()->json([
-                'error' => 'Forbidden',
-                'message' => 'You are not authorized to update this remote server',
-            ], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -158,11 +132,6 @@ class RemoteServerController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'manage-remote-servers');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $remoteServer = $this->findRemoteServer($id);
 
         if (! $remoteServer instanceof RemoteServer) {
@@ -173,10 +142,7 @@ class RemoteServerController extends Controller
         }
 
         if (Gate::denies('forceDelete', $remoteServer)) {
-            return response()->json([
-                'error' => 'Forbidden',
-                'message' => 'You are not authorized to delete this remote server',
-            ], Response::HTTP_FORBIDDEN);
+            return response()->json(['message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         }
 
         $remoteServer->delete();

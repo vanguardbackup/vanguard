@@ -24,11 +24,6 @@ class BackupDestinationController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-destinations');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -44,11 +39,6 @@ class BackupDestinationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'create-backup-destinations');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         /** @var User $user */
         $user = $request->user();
 
@@ -65,11 +55,6 @@ class BackupDestinationController extends Controller
      */
     public function show(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'view-backup-destinations');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {
@@ -88,11 +73,6 @@ class BackupDestinationController extends Controller
      */
     public function update(Request $request, mixed $id): BackupDestinationResource|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'update-backup-destinations');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {
@@ -114,11 +94,6 @@ class BackupDestinationController extends Controller
      */
     public function destroy(Request $request, mixed $id): Response|JsonResponse
     {
-        $authResponse = $this->authorizeRequest($request, 'delete-backup-destinations');
-        if ($authResponse instanceof JsonResponse) {
-            return $authResponse;
-        }
-
         $backupDestination = $this->findBackupDestination($id);
 
         if (! $backupDestination instanceof BackupDestination) {

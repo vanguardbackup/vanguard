@@ -12,7 +12,7 @@ beforeEach(function (): void {
 });
 
 test('user can list their remote servers', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['view-remote-servers']);
 
     RemoteServer::factory()->count(3)->create(['user_id' => $this->user->id]);
 
@@ -54,7 +54,7 @@ test('user cannot list remote servers without proper permission', function (): v
 });
 
 test('user can create a new remote server', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['create-remote-servers']);
 
     $serverData = [
         'label' => 'Test Server',
@@ -102,7 +102,7 @@ test('user cannot create a remote server without proper permission', function ()
 });
 
 test('user can view a specific remote server', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['view-remote-servers']);
 
     $server = RemoteServer::factory()->create(['user_id' => $this->user->id]);
 
@@ -132,7 +132,7 @@ test('user cannot view a remote server without proper permission', function (): 
 });
 
 test('user can update their remote server', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['update-remote-servers']);
 
     $server = RemoteServer::factory()->create(['user_id' => $this->user->id]);
 
@@ -162,7 +162,7 @@ test('user can update their remote server', function (): void {
 });
 
 test('user can update their remote server without changing password', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['update-remote-servers']);
 
     $server = RemoteServer::factory()->create([
         'user_id' => $this->user->id,
@@ -206,7 +206,7 @@ test('user cannot update a remote server without proper permission', function ()
 });
 
 test('user can delete their remote server', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['delete-remote-servers']);
 
     $server = RemoteServer::factory()->create(['user_id' => $this->user->id]);
 
@@ -227,7 +227,7 @@ test('user cannot delete a remote server without proper permission', function ()
 });
 
 test('viewing a non-existent remote server returns 404', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['view-remote-servers']);
 
     $nonExistentId = 9999;
     $response = $this->getJson("/api/remote-servers/{$nonExistentId}");
@@ -236,7 +236,7 @@ test('viewing a non-existent remote server returns 404', function (): void {
 });
 
 test('updating a non-existent remote server returns 404', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['update-remote-servers']);
 
     $nonExistentId = 9999;
     $response = $this->putJson("/api/remote-servers/{$nonExistentId}", [
@@ -247,7 +247,7 @@ test('updating a non-existent remote server returns 404', function (): void {
 });
 
 test('deleting a non-existent remote server returns 404', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['delete-remote-servers']);
 
     $nonExistentId = 9999;
     $response = $this->deleteJson("/api/remote-servers/{$nonExistentId}");
@@ -267,7 +267,7 @@ test('user cannot view a remote server belonging to another user', function (): 
 });
 
 test('user cannot update a remote server belonging to another user', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['update-remote-servers']);
 
     $anotherUser = User::factory()->create();
     $server = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
@@ -280,7 +280,7 @@ test('user cannot update a remote server belonging to another user', function ()
 });
 
 test('user cannot delete a remote server belonging to another user', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['delete-remote-servers']);
 
     $anotherUser = User::factory()->create();
     $server = RemoteServer::factory()->create(['user_id' => $anotherUser->id]);
@@ -291,7 +291,7 @@ test('user cannot delete a remote server belonging to another user', function ()
 });
 
 test('updating a remote server with an ip address that already exists returns validation error', function (): void {
-    Sanctum::actingAs($this->user, ['manage-remote-servers']);
+    Sanctum::actingAs($this->user, ['update-remote-servers']);
 
     $existingServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
     $serverToUpdate = RemoteServer::factory()->create(['user_id' => $this->user->id]);
