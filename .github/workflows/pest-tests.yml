@@ -46,9 +46,9 @@ jobs:
           cp .env.example.ci .env
           php artisan key:generate
           php artisan vanguard:generate-ssh-key
-          php artisan config:clear
-          php artisan cache:clear
           composer dump-autoload
+          php artisan clear-compiled
+          php artisan config:cache
 
       - name: Cache Laravel application
         uses: actions/cache@v4

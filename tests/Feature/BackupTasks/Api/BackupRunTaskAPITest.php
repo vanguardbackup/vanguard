@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function (): void {
+    Event::fake();
     $this->user = User::factory()->create();
 });
 
@@ -120,9 +121,9 @@ test('it returns 401 for unauthenticated user', function (): void {
 
 beforeEach(function (): void {
     $this->user = User::factory()->create();
+    Event::fake();
+    Queue::fake();
 });
-
-// ... [previous tests remain unchanged]
 
 test('user is rate limited after exceeding maximum attempts', function (): void {
     Sanctum::actingAs($this->user, ['run-backup-tasks']);
