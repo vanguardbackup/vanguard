@@ -13,6 +13,7 @@ test('it renders the component successfully', function (): void {
 });
 
 test('the creator of the backup destination can update the backup destination', function (): void {
+    $this->withoutExceptionHandling();
     $user = User::factory()->create();
 
     $originalData = [

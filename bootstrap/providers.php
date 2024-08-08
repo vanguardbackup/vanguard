@@ -12,4 +12,5 @@ return [
     App\Providers\HorizonServiceProvider::class,
     App\Providers\VoltServiceProvider::class,
     App\Providers\ServerConnectionServiceProvider::class,
+    Laravel\Sanctum\SanctumServiceProvider::class,
 ];

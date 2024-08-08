@@ -16,6 +16,7 @@ class BackupTaskFactory extends Factory
             'description' => fake()->paragraph,
             'source_path' => fake()->word,
             'frequency' => 'daily',
+            'status' => 'ready',
             'custom_cron_expression' => null,
             'user_id' => User::factory()->create()->id,
             'backup_destination_id' => BackupDestination::factory()->create()->id,

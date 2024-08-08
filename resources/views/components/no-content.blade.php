@@ -24,7 +24,7 @@
 @else
     <div class="text-center my-10">
         <div class="flex justify-center mb-4">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-800">
+            <div class="inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary-100 dark:bg-primary-800">
                 {{ $icon }}
             </div>
         </div>

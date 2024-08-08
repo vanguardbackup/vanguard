@@ -6,6 +6,7 @@ use App\Console\Commands\FetchNewFeatures;
 use App\Console\Commands\ResetInoperativeBackupTasksCommand;
 use App\Console\Commands\SendSummaryBackupTaskEmails;
 use App\Console\Commands\VerifyConnectionToRemoteServersCommand;
+use Laravel\Sanctum\Console\Commands\PruneExpired;
 
 Schedule::command(ExecuteScheduledBackupTasksCommand::class)
     ->everyMinute();
@@ -24,3 +25,6 @@ Schedule::command(SendSummaryBackupTaskEmails::class)
 
 Schedule::command(FetchNewFeatures::class)
     ->dailyAt('02:00');
+
+Schedule::command(PruneExpired::class, ['hours' => 24])
+    ->dailyAt('05:00');

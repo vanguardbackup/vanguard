@@ -94,3 +94,7 @@ Breadcrumbs::for('notification-streams.edit', function (BreadcrumbTrail $trail, 
 Breadcrumbs::for('statistics', function (BreadcrumbTrail $trail) {
     $trail->push(__('Statistics'), route('statistics'));
 });
+
+Breadcrumbs::for('profile.api', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Manage API Tokens'), route('profile.api'));
+});
