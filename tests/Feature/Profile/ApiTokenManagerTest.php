@@ -4,9 +4,27 @@ declare(strict_types=1);
 
 use App\Livewire\Profile\APITokenManager;
 use App\Models\User;
+use App\Services\SanctumAbilitiesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    $this->mockAbilitiesService = Mockery::mock(SanctumAbilitiesService::class);
+    $this->mockAbilitiesService->shouldReceive('getAbilities')->andReturn([
+        'General' => [
+            'manage-tags' => ['name' => 'Manage Tags', 'description' => 'Allows managing of tags'],
+        ],
+        'Backup Destinations' => [
+            'view-backup-destinations' => ['name' => 'View Backup Destinations', 'description' => 'Allows viewing backup destinations'],
+        ],
+        'Backup Tasks' => [
+            'create-backup-tasks' => ['name' => 'Create Backup Tasks', 'description' => 'Allows creating new backup tasks'],
+        ],
+    ]);
+    $this->app->instance(SanctumAbilitiesService::class, $this->mockAbilitiesService);
+});
 
 test('the component can be rendered', function (): void {
     $user = User::factory()->create();
@@ -31,15 +49,15 @@ test('the page cannot be visited by guests', function (): void {
     $this->assertGuest();
 });
 
-test('api tokens can be created with correct permissions format', function (): void {
+test('api tokens can be created with correct abilities format', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)->test(APITokenManager::class)
         ->set('name', 'API Token')
-        ->set('permissions', [
+        ->set('abilities', [
             'view-backup-destinations' => true,
             'create-backup-tasks' => true,
-            'update-remote-servers' => false,
+            'manage-tags' => false,
         ])
         ->call('createApiToken')
         ->assertHasNoErrors()
@@ -52,14 +70,14 @@ test('api tokens can be created with correct permissions format', function (): v
     $this->assertEquals(['view-backup-destinations', 'create-backup-tasks'], $token->abilities);
 });
 
-test('api tokens cannot be created without permissions', function (): void {
+test('api tokens cannot be created without abilities', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)->test(APITokenManager::class)
         ->set('name', 'API Token')
-        ->set('permissions', [])
+        ->set('abilities', [])
         ->call('createApiToken')
-        ->assertHasErrors(['permissions']);
+        ->assertHasErrors(['abilities']);
 
     $this->assertCount(0, $user->fresh()->tokens);
 });
@@ -85,18 +103,18 @@ test('api token deletion confirmation works', function (): void {
         ->assertSet('apiTokenIdBeingDeleted', $token->accessToken->id);
 });
 
-test('permissions are reset after token creation', function (): void {
+test('abilities are reset after token creation', function (): void {
     $user = User::factory()->create();
 
     $component = Livewire::actingAs($user)->test(APITokenManager::class)
         ->set('name', 'API Token')
-        ->set('permissions', [
+        ->set('abilities', [
             'view-backup-destinations' => true,
             'create-backup-tasks' => true,
         ])
         ->call('createApiToken');
 
-    $component->assertSet('permissions', array_fill_keys(array_keys($component->get('permissions')), false));
+    $component->assertSet('abilities', array_fill_keys(array_keys($component->get('abilities')), false));
 });
 
 test('token value is displayed after creation', function (): void {
@@ -104,7 +122,7 @@ test('token value is displayed after creation', function (): void {
 
     $component = Livewire::actingAs($user)->test(APITokenManager::class)
         ->set('name', 'API Token')
-        ->set('permissions', ['view-backup-destinations' => true])
+        ->set('abilities', ['view-backup-destinations' => true])
         ->call('createApiToken');
 
     $component
@@ -115,23 +133,86 @@ test('token value is displayed after creation', function (): void {
         });
 });
 
-test('all available permissions are initially set to false', function (): void {
+test('all available abilities are initially set to false', function (): void {
     $user = User::factory()->create();
 
     $component = Livewire::actingAs($user)->test(APITokenManager::class);
 
-    $permissions = $component->get('permissions');
-    foreach ($permissions as $permission) {
-        expect($permission)->toBeFalse();
+    $abilities = $component->get('abilities');
+    foreach ($abilities as $ability) {
+        expect($ability)->toBeFalse();
     }
 });
 
-test('validation error occurs when no permissions are selected', function (): void {
+test('validation error occurs when no abilities are selected', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)->test(APITokenManager::class)
         ->set('name', 'API Token')
-        ->set('permissions', array_fill_keys(array_keys((new APITokenManager)->getPermissions()), false))
+        ->set('abilities', [
+            'view-backup-destinations' => false,
+            'create-backup-tasks' => false,
+            'manage-tags' => false,
+        ])
         ->call('createApiToken')
-        ->assertHasErrors(['permissions']);
+        ->assertHasErrors(['abilities']);
+});
+
+test('select all abilities works', function (): void {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+        ->call('selectAllAbilities');
+
+    $abilities = $component->get('abilities');
+    foreach ($abilities as $ability) {
+        expect($ability)->toBeTrue();
+    }
+});
+
+test('deselect all abilities works', function (): void {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+        ->set('abilities', [
+            'view-backup-destinations' => true,
+            'create-backup-tasks' => true,
+            'manage-tags' => true,
+        ])
+        ->call('deselectAllAbilities');
+
+    $abilities = $component->get('abilities');
+    foreach ($abilities as $ability) {
+        expect($ability)->toBeFalse();
+    }
+});
+
+test('view token abilities modal can be opened', function (): void {
+    $user = User::factory()->create();
+    $token = $user->createToken('Test Token', ['view-backup-destinations']);
+
+    Livewire::actingAs($user)->test(APITokenManager::class)
+        ->call('viewTokenAbilities', $token->accessToken->id)
+        ->assertDispatched('open-modal', 'view-token-abilities')
+        ->assertSet('viewingTokenId', $token->accessToken->id);
+});
+
+test('token listing shows correct information', function (): void {
+    $user = User::factory()->create();
+    $user->createToken('Test Token', ['view-backup-destinations']);
+
+    Livewire::actingAs($user)->test(APITokenManager::class)
+        ->assertSee('Test Token')
+        ->assertSee('Never'); // For 'Last Used' column
+});
+
+test('group expansion toggle works', function (): void {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(APITokenManager::class);
+
+    $component->call('toggleGroup', 'General')
+        ->assertSet('expandedGroups.General', true)
+        ->call('toggleGroup', 'General')
+        ->assertSet('expandedGroups.General', false);
 });

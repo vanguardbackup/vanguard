@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Profile;
 
 use App\Models\User;
+use App\Services\SanctumAbilitiesService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -14,7 +15,10 @@ use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
 /**
- * Manages API tokens for users, including granular permissions for backup destinations.
+ * Manages API tokens for users, including granular abilities for various operations.
+ *
+ * This component handles the creation, deletion, and viewing of API tokens,
+ * as well as managing the abilities associated with each token.
  *
  * @property-read User|Authenticatable $user
  */
@@ -23,8 +27,8 @@ class APITokenManager extends Component
     /** @var string The name of the new API token */
     public string $name = '';
 
-    /** @var array<string, bool> The permissions for the new API token */
-    public array $permissions = [];
+    /** @var array<string, bool> The abilities for the new API token */
+    public array $abilities = [];
 
     /** @var string|null The plain text value of the newly created token */
     public ?string $plainTextToken = null;
@@ -32,20 +36,34 @@ class APITokenManager extends Component
     /** @var int|null The ID of the API token being deleted */
     public ?int $apiTokenIdBeingDeleted = null;
 
-    /** @var array<string, bool> The expanded state of permission groups */
+    /** @var array<string, bool> The expanded state of ability groups */
     public array $expandedGroups = [];
 
+    /** @var int|null The ID of the token whose abilities are being viewed */
+    public ?int $viewingTokenId = null;
+
+    /** @var SanctumAbilitiesService Service for managing Sanctum abilities */
+    private SanctumAbilitiesService $abilitiesService;
+
     /**
-     * Initialize the component
+     * Boot the component and inject dependencies.
+     */
+    public function boot(SanctumAbilitiesService $sanctumAbilitiesService): void
+    {
+        $this->abilitiesService = $sanctumAbilitiesService;
+    }
+
+    /**
+     * Initialize component state.
      */
     public function mount(): void
     {
-        $this->resetPermissions();
+        $this->resetAbilities();
         $this->initializeExpandedGroups();
     }
 
     /**
-     * Define the validation rules for the component
+     * Define validation rules for the component.
      *
      * @return array<string, mixed>
      */
@@ -53,16 +71,18 @@ class APITokenManager extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'permissions' => ['required', 'array', 'min:1', function (string $attribute, array $value, callable $fail): void {
+            'abilities' => ['required', 'array', 'min:1', function (string $attribute, array $value, callable $fail): void {
                 if (array_filter($value) === []) {
-                    $fail(__('At least one permission must be selected.'));
+                    $fail(__('At least one ability must be selected.'));
                 }
             }],
         ];
     }
 
     /**
-     * Create a new API token
+     * Create a new API token with selected abilities.
+     *
+     * @throws ValidationException
      */
     public function createApiToken(): void
     {
@@ -70,11 +90,11 @@ class APITokenManager extends Component
 
         $validated = $this->validate();
 
-        $selectedPermissions = array_keys(array_filter($validated['permissions']));
+        $selectedAbilities = array_keys(array_filter($validated['abilities']));
 
         $token = $this->user->createToken(
             $validated['name'],
-            $selectedPermissions
+            $selectedAbilities
         );
 
         $this->displayTokenValue($token);
@@ -82,15 +102,13 @@ class APITokenManager extends Component
         Toaster::success('API Token has been created.');
 
         $this->reset('name');
-        $this->resetPermissions();
+        $this->resetAbilities();
 
         $this->dispatch('created');
     }
 
     /**
-     * Confirm the deletion of an API token
-     *
-     * @param  int  $tokenId  The ID of the token to be deleted
+     * Confirm the deletion of an API token.
      */
     public function confirmApiTokenDeletion(int $tokenId): void
     {
@@ -99,7 +117,7 @@ class APITokenManager extends Component
     }
 
     /**
-     * Delete an API token
+     * Delete the selected API token.
      */
     public function deleteApiToken(): void
     {
@@ -117,6 +135,15 @@ class APITokenManager extends Component
     }
 
     /**
+     * View the abilities of a specific token.
+     */
+    public function viewTokenAbilities(int $tokenId): void
+    {
+        $this->viewingTokenId = $tokenId;
+        $this->dispatch('open-modal', 'view-token-abilities');
+    }
+
+    /**
      * Get the authenticated user
      */
     public function getUserProperty(): Authenticatable|User
@@ -128,164 +155,63 @@ class APITokenManager extends Component
     }
 
     /**
-     * Render the component
+     * Render the component.
      */
     public function render(): View
     {
-        return view('livewire.profile.api-token-manager');
+        return view('livewire.profile.api-token-manager', [
+            'availableAbilities' => $this->abilitiesService->getAbilities(),
+            'tokens' => $this->user->tokens()->latest()->get(),
+        ]);
     }
 
     /**
-     * Get the list of available permissions grouped by category
-     *
-     * @return array<string, array<string, array<string, string>>>
+     * Reset the abilities array to its default state.
      */
-    public function getPermissions(): array
+    public function resetAbilities(): void
     {
-        return [
-            'General' => [
-                'manage-tags' => [
-                    'name' => __('Manage Tags'),
-                    'description' => __('Allows managing of your tags'),
-                ],
-            ],
-            'Backup Destinations' => [
-                'view-backup-destinations' => [
-                    'name' => __('View Backup Destinations'),
-                    'description' => __('Allows viewing backup destinations'),
-                ],
-                'create-backup-destinations' => [
-                    'name' => __('Create Backup Destinations'),
-                    'description' => __('Allows creating new backup destinations'),
-                ],
-                'update-backup-destinations' => [
-                    'name' => __('Update Backup Destinations'),
-                    'description' => __('Allows updating existing backup destinations'),
-                ],
-                'delete-backup-destinations' => [
-                    'name' => __('Delete Backup Destinations'),
-                    'description' => __('Allows deleting backup destinations'),
-                ],
-            ],
-            'Remote Servers' => [
-                'view-remote-servers' => [
-                    'name' => __('View Remote Servers'),
-                    'description' => __('Allows viewing remote servers'),
-                ],
-                'create-remote-servers' => [
-                    'name' => __('Create Remote Servers'),
-                    'description' => __('Allows creating new remote servers'),
-                ],
-                'update-remote-servers' => [
-                    'name' => __('Update Remote Servers'),
-                    'description' => __('Allows updating existing remote servers'),
-                ],
-                'delete-remote-servers' => [
-                    'name' => __('Delete Remote Servers'),
-                    'description' => __('Allows deleting remote servers'),
-                ],
-            ],
-            'Notification Streams' => [
-                'view-notification-streams' => [
-                    'name' => __('View Notification Streams'),
-                    'description' => __('Allows viewing notification streams'),
-                ],
-                'create-notification-streams' => [
-                    'name' => __('Create Notification Streams'),
-                    'description' => __('Allows creating new notification streams'),
-                ],
-                'update-notification-streams' => [
-                    'name' => __('Update Notification Streams'),
-                    'description' => __('Allows updating existing notification streams'),
-                ],
-                'delete-notification-streams' => [
-                    'name' => __('Delete Notification Streams'),
-                    'description' => __('Allows deleting notification streams'),
-                ],
-            ],
-            'Backup Tasks' => [
-                'view-backup-tasks' => [
-                    'name' => __('View Backup Tasks'),
-                    'description' => __('Allows viewing backup tasks'),
-                ],
-                'create-backup-tasks' => [
-                    'name' => __('Create Backup Tasks'),
-                    'description' => __('Allows creating new backup tasks'),
-                ],
-                'update-backup-tasks' => [
-                    'name' => __('Update Backup Tasks'),
-                    'description' => __('Allows updating existing backup tasks'),
-                ],
-                'delete-backup-tasks' => [
-                    'name' => __('Delete Backup Tasks'),
-                    'description' => __('Allows deleting backup tasks'),
-                ],
-                'run-backup-tasks' => [
-                    'name' => __('Run Backup Tasks'),
-                    'description' => __('Allows the running of backup tasks'),
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Reset the permissions array
-     */
-    public function resetPermissions(): void
-    {
-        $this->permissions = array_fill_keys(
-            array_keys(array_merge(...array_values($this->getPermissions()))),
+        $this->abilities = array_fill_keys(
+            array_keys(array_merge(...array_values($this->abilitiesService->getAbilities()))),
             false
         );
     }
 
     /**
-     * Toggle the expanded state of a permission group
-     *
-     * @param  string  $group  The group to toggle
+     * Toggle the expanded state of an ability group.
      */
     public function toggleGroup(string $group): void
     {
-        foreach (array_keys($this->expandedGroups) as $key) {
-            $this->expandedGroups[$key] = false;
-        }
-
-        $this->expandedGroups[$group] = true;
+        $this->expandedGroups[$group] = ! ($this->expandedGroups[$group] ?? false);
     }
 
     /**
-     * Select all permissions
+     * Select all abilities.
      */
-    public function selectAllPermissions(): void
+    public function selectAllAbilities(): void
     {
-        $this->permissions = array_fill_keys(array_keys($this->permissions), true);
+        $this->abilities = array_fill_keys(array_keys($this->abilities), true);
     }
 
     /**
-     * Deselect all permissions
+     * Deselect all abilities.
      */
-    public function deselectAllPermissions(): void
+    public function deselectAllAbilities(): void
     {
-        $this->permissions = array_fill_keys(array_keys($this->permissions), false);
+        $this->abilities = array_fill_keys(array_keys($this->abilities), false);
     }
 
     /**
-     * Validate permissions when updated
-     *
-     * @param  mixed  $value  The new value
-     * @param  string|null  $key  The key of the updated permission
+     * Validate abilities when updated.
      *
      * @throws ValidationException
      */
-    public function updatedPermissions(mixed $value, ?string $key = null): void
+    public function updatedAbilities(mixed $value, ?string $key = null): void
     {
-        $this->validateOnly('permissions');
+        $this->validateOnly('abilities');
     }
 
     /**
-     * Display the value of a newly created token
-     *
-     * @param  NewAccessToken  $newAccessToken  The newly created access token
+     * Display the plain text value of a newly created token.
      */
     protected function displayTokenValue(NewAccessToken $newAccessToken): void
     {
@@ -295,10 +221,10 @@ class APITokenManager extends Component
     }
 
     /**
-     * Initialize the expanded state of permission groups
+     * Initialize the expanded state of ability groups.
      */
     private function initializeExpandedGroups(): void
     {
-        $this->expandedGroups = array_fill_keys(array_keys($this->getPermissions()), false);
+        $this->expandedGroups = array_fill_keys(array_keys($this->abilitiesService->getAbilities()), false);
     }
 }
