@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\SanctumAbilitiesService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Laravel\Sanctum\NewAccessToken;
@@ -159,9 +160,28 @@ class APITokenManager extends Component
      */
     public function render(): View
     {
+        $availableAbilities = $this->abilitiesService->getAbilities();
+        $tokens = $this->user->tokens()->latest()->get();
+
+        // Log the number of available abilities and tokens
+        Log::debug('APITokenManager rendering', [
+            'abilitiesCount' => count($availableAbilities),
+            'tokensCount' => $tokens->count(),
+        ]);
+
+        if ($availableAbilities === []) {
+            Log::warning('No abilities available in APITokenManager');
+        }
+
+        // Log a sample of abilities (first 3) if available
+        if ($availableAbilities !== []) {
+            $sampleAbilities = array_slice($availableAbilities, 0, 3, true);
+            Log::debug('Sample abilities', ['sample' => $sampleAbilities]);
+        }
+
         return view('livewire.profile.api-token-manager', [
-            'availableAbilities' => $this->abilitiesService->getAbilities(),
-            'tokens' => $this->user->tokens()->latest()->get(),
+            'availableAbilities' => $availableAbilities,
+            'tokens' => $tokens,
         ]);
     }
 

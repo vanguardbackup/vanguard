@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * Manages the definition of Sanctum abilities for the Vanguard application.
  *
@@ -19,13 +21,20 @@ class SanctumAbilitiesService
      */
     public function getAbilities(): array
     {
-        return [
+        $abilities = [
             'General' => $this->getGeneralAbilities(),
             'Backup Destinations' => $this->getBackupDestinationAbilities(),
             'Remote Servers' => $this->getRemoteServerAbilities(),
             'Notification Streams' => $this->getNotificationStreamAbilities(),
             'Backup Tasks' => $this->getBackupTaskAbilities(),
         ];
+
+        Log::debug('SanctumAbilitiesService getAbilities', [
+            'totalAbilities' => count($abilities),
+            'abilityGroups' => array_keys($abilities),
+        ]);
+
+        return $abilities;
     }
 
     /**
