@@ -31,6 +31,9 @@ class APITokenManager extends Component
     /** @var array<string, bool> The abilities for the new API token */
     public array $abilities = [];
 
+    /** @var array<string, bool> The list of possible abilities */
+    public array $availableAbilities = [];
+
     /** @var string|null The plain text value of the newly created token */
     public ?string $plainTextToken = null;
 
