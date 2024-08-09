@@ -272,7 +272,7 @@ test('it returns 403 for user without view permission', function (): void {
     $response = $this->getJson("/api/backup-destinations/{$destination->id}");
 
     $response->assertForbidden()
-        ->assertJson(['message' => 'Invalid ability provided.']);
+        ->assertJson(['message' => 'Access denied due to insufficient permissions. Required token ability scopes: view-backup-destinations']);
 });
 
 test("it returns 403 for user trying to view another user's backup destination", function (): void {

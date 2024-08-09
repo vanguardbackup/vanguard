@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Middleware\CustomCheckForAnyAbility;
 use App\Http\Middleware\UserLanguage;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
-use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 /**
  * Application configuration and bootstrapping.
@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(UserLanguage::class);
         $middleware->alias([
             'abilities' => CheckAbilities::class,
-            'ability' => CheckForAnyAbility::class,
+            'ability' => CustomCheckForAnyAbility::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

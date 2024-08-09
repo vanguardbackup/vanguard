@@ -40,7 +40,7 @@ test('user without view-backup-tasks permission cannot view latest backup task l
     $response = $this->getJson("/api/backup-tasks/{$this->backupTask->id}/latest-log");
 
     $response->assertForbidden()
-        ->assertJson(['message' => 'Invalid ability provided.']);
+        ->assertJson(['message' => 'Access denied due to insufficient permissions. Required token ability scopes: view-backup-tasks']);
 });
 
 test('returns not found for non-existent backup task', function (): void {
