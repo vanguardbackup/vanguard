@@ -1,3 +1,389 @@
+<?php
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\NewAccessToken;
+use Laravel\Sanctum\PersonalAccessToken;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Modelable;
+use Livewire\Volt\Component;
+use Masmerise\Toaster\Toaster;
+
+/**
+ * API Token Manager Component
+ *
+ * Manages the creation, viewing, and deletion of API tokens for users.
+ */
+new class extends Component
+{
+    /** @var string The name of the new token being created */
+    #[Modelable]
+    public string $name = '';
+
+    /** @var array The selected abilities for the new token */
+    public array $abilities = [];
+
+    /** @var array All available token abilities */
+    public array $availableAbilities = [];
+
+    /** @var string|null The plain text value of the newly created token */
+    public ?string $plainTextToken = null;
+
+    /** @var int|null The ID of the token being deleted */
+    public ?int $apiTokenIdBeingDeleted = null;
+
+    /** @var array Tracks which ability groups are expanded in the UI */
+    public array $expandedGroups = [];
+
+    /** @var int|null The ID of the token whose abilities are being viewed */
+    public ?int $viewingTokenId = null;
+
+    /**
+     * Initialize the component state.
+     */
+    public function mount(): void
+    {
+        $this->availableAbilities = $this->getAbilities();
+        $this->resetAbilities();
+        $this->initializeExpandedGroups();
+    }
+
+    /**
+     * Define validation rules for token creation.
+     *
+     * @return array
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'abilities' => ['required', 'array', 'min:1', function (string $attribute, array $value, callable $fail): void {
+                if (array_filter($value) === []) {
+                    $fail(__('At least one ability must be selected.'));
+                }
+            }],
+        ];
+    }
+
+    /**
+     * Create a new API token.
+     */
+    public function createApiToken(): void
+    {
+        $this->resetErrorBag();
+
+        $validated = $this->validate();
+
+        $selectedAbilities = array_keys(array_filter($validated['abilities']));
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $newAccessToken = $user->createToken(
+            $validated['name'],
+            $selectedAbilities
+        );
+
+        $this->displayTokenValue($newAccessToken);
+
+        Toaster::success('API Token has been created.');
+
+        $this->reset('name');
+        $this->resetAbilities();
+
+        $this->dispatch('created');
+    }
+
+    /**
+     * Confirm the deletion of an API token.
+     *
+     * @param int $tokenId
+     */
+    public function confirmApiTokenDeletion(int $tokenId): void
+    {
+        $this->apiTokenIdBeingDeleted = $tokenId;
+        $this->dispatch('open-modal', 'confirm-api-token-deletion');
+    }
+
+    /**
+     * Delete the selected API token.
+     */
+    public function deleteApiToken(): void
+    {
+        if (!$this->apiTokenIdBeingDeleted) {
+            return;
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->tokens()->where('id', $this->apiTokenIdBeingDeleted)->delete();
+
+        Toaster::success('API Token has been revoked.');
+
+        $this->reset('apiTokenIdBeingDeleted');
+        $this->dispatch('close-modal', 'confirm-api-token-deletion');
+    }
+
+    /**
+     * View the abilities of a specific token.
+     *
+     * @param int $tokenId
+     */
+    public function viewTokenAbilities(int $tokenId): void
+    {
+        $this->viewingTokenId = $tokenId;
+        $this->dispatch('open-modal', 'view-token-abilities');
+    }
+
+    /**
+     * Reset all abilities to false.
+     */
+    public function resetAbilities(): void
+    {
+        $this->abilities = array_fill_keys(
+            array_keys(array_merge(...array_values($this->getAbilities()))),
+            false
+        );
+    }
+
+    /**
+     * Toggle the expanded state of an ability group.
+     *
+     * @param string $group
+     */
+    public function toggleGroup(string $group): void
+    {
+        $this->expandedGroups[$group] = !($this->expandedGroups[$group] ?? false);
+    }
+
+    /**
+     * Select all available abilities.
+     */
+    public function selectAllAbilities(): void
+    {
+        Toaster::info('Selected all abilities.');
+        $this->abilities = array_fill_keys(array_keys($this->abilities), true);
+    }
+
+    /**
+     * Deselect all abilities.
+     */
+    public function deselectAllAbilities(): void
+    {
+        Toaster::info('Deselected all abilities.');
+        $this->abilities = array_fill_keys(array_keys($this->abilities), false);
+    }
+
+    /**
+     * Validate abilities when updated.
+     *
+     * @param mixed $value
+     * @param string|null $key
+     */
+    public function updatedAbilities(mixed $value, ?string $key = null): void
+    {
+        $this->validateOnly('abilities');
+    }
+
+    /**
+     * Display the value of a newly created token.
+     *
+     * @param NewAccessToken $newAccessToken
+     */
+    protected function displayTokenValue(NewAccessToken $newAccessToken): void
+    {
+        $this->plainTextToken = explode('|', $newAccessToken->plainTextToken, 2)[1];
+        $this->dispatch('close-modal', 'create-api-token');
+        $this->dispatch('open-modal', 'api-token-value');
+    }
+
+    /**
+     * Initialize the expanded state of ability groups.
+     */
+    private function initializeExpandedGroups(): void
+    {
+        $this->expandedGroups = array_fill_keys(array_keys($this->getAbilities()), false);
+    }
+
+    /**
+     * Get all tokens for the authenticated user.
+     *
+     * @return Collection
+     */
+    #[Computed]
+    public function tokens(): Collection
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $tokens = $user->tokens()->latest()->get();
+
+        /** @var Collection<int|string, PersonalAccessToken> $personalAccessTokens */
+        $personalAccessTokens = $tokens->map(function ($token): PersonalAccessToken {
+            return $token instanceof PersonalAccessToken
+                ? $token
+                : new PersonalAccessToken($token->getAttributes());
+        });
+
+        return $personalAccessTokens;
+    }
+
+    /**
+     * Get all available token abilities.
+     *
+     * @return array
+     */
+    #[Computed]
+    public function getAbilities(): array
+    {
+        $abilities = [
+            'General' => $this->getGeneralAbilities(),
+            'Backup Destinations' => $this->getBackupDestinationAbilities(),
+            'Remote Servers' => $this->getRemoteServerAbilities(),
+            'Notification Streams' => $this->getNotificationStreamAbilities(),
+            'Backup Tasks' => $this->getBackupTaskAbilities(),
+        ];
+
+        Log::debug('APITokenManager getAbilities', [
+            'totalAbilities' => count($abilities),
+            'abilityGroups' => array_keys($abilities),
+        ]);
+
+        return $abilities;
+    }
+
+    /**
+     * Get general abilities.
+     *
+     * @return array
+     */
+    private function getGeneralAbilities(): array
+    {
+        return [
+            'manage-tags' => [
+                'name' => __('Manage Tags'),
+                'description' => __('Allows managing of tags'),
+            ],
+        ];
+    }
+
+    /**
+     * Get backup destination abilities.
+     *
+     * @return array
+     */
+    private function getBackupDestinationAbilities(): array
+    {
+        return [
+            'view-backup-destinations' => [
+                'name' => __('View Backup Destinations'),
+                'description' => __('Allows viewing backup destinations'),
+            ],
+            'create-backup-destinations' => [
+                'name' => __('Create Backup Destinations'),
+                'description' => __('Allows creating new backup destinations'),
+            ],
+            'update-backup-destinations' => [
+                'name' => __('Update Backup Destinations'),
+                'description' => __('Allows updating existing backup destinations'),
+            ],
+            'delete-backup-destinations' => [
+                'name' => __('Delete Backup Destinations'),
+                'description' => __('Allows deleting backup destinations'),
+            ],
+        ];
+    }
+
+    /**
+     * Get remote server abilities.
+     *
+     * @return array
+     */
+    private function getRemoteServerAbilities(): array
+    {
+        return [
+            'view-remote-servers' => [
+                'name' => __('View Remote Servers'),
+                'description' => __('Allows viewing remote servers'),
+            ],
+            'create-remote-servers' => [
+                'name' => __('Create Remote Servers'),
+                'description' => __('Allows creating new remote servers'),
+            ],
+            'update-remote-servers' => [
+                'name' => __('Update Remote Servers'),
+                'description' => __('Allows updating existing remote servers'),
+            ],
+            'delete-remote-servers' => [
+                'name' => __('Delete Remote Servers'),
+                'description' => __('Allows deleting remote servers'),
+            ],
+        ];
+    }
+
+    /**
+     * Get notification stream abilities.
+     *
+     * @return array
+     */
+    private function getNotificationStreamAbilities(): array
+    {
+        return [
+            'view-notification-streams' => [
+                'name' => __('View Notification Streams'),
+                'description' => __('Allows viewing notification streams'),
+            ],
+            'create-notification-streams' => [
+                'name' => __('Create Notification Streams'),
+                'description' => __('Allows creating new notification streams'),
+            ],
+            'update-notification-streams' => [
+                'name' => __('Update Notification Streams'),
+                'description' => __('Allows updating existing notification streams'),
+            ],
+            'delete-notification-streams' => [
+                'name' => __('Delete Notification Streams'),
+                'description' => __('Allows deleting notification streams'),
+            ],
+        ];
+    }
+
+    /**
+     * Get backup task abilities.
+     *
+     * @return array
+     */
+    private function getBackupTaskAbilities(): array
+    {
+        return [
+            'view-backup-tasks' => [
+                'name' => __('View Backup Tasks'),
+                'description' => __('Allows viewing backup tasks'),
+            ],
+            'create-backup-tasks' => [
+                'name' => __('Create Backup Tasks'),
+                'description' => __('Allows creating new backup tasks'),
+            ],
+            'update-backup-tasks' => [
+                'name' => __('Update Backup Tasks'),
+                'description' => __('Allows updating existing backup tasks'),
+            ],
+            'delete-backup-tasks' => [
+                'name' => __('Delete Backup Tasks'),
+                'description' => __('Allows deleting backup tasks'),
+            ],
+            'run-backup-tasks' => [
+                'name' => __('Run Backup Tasks'),
+                'description' => __('Allows the running of backup tasks'),
+            ],
+        ];
+    }
+};
+
+?>
 <div>
     <!-- Create Token Modal -->
     <x-modal name="create-api-token" focusable>
@@ -13,7 +399,7 @@
         <form wire:submit.prevent="createApiToken" class="space-y-6">
             <div>
                 <x-input-label for="token_name" :value="__('Token Name')"/>
-                <x-text-input id="token_name" name="token_name" type="text" wire:model="name"
+                <x-text-input id="token_name" name="token_name" type="text" wire:model="name" autofocus
                               class="mt-1 block w-full" required/>
                 <x-input-error :messages="$errors->get('name')" class="mt-2"/>
             </div>
@@ -35,12 +421,12 @@
                                     class="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
                                 <span class="font-medium">{{ $group }}</span>
                                 <span class="float-right">
-                    @if ($this->expandedGroups[$group])
+                                        @if ($this->expandedGroups[$group])
                                         @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
                                     @else
                                         @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
                                     @endif
-                </span>
+                                    </span>
                             </button>
                             <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
                                 <div class="p-4 space-y-4">
@@ -90,32 +476,6 @@
                 </div>
             </div>
         </form>
-    </x-modal>
-
-    <!-- Token Value Modal -->
-    <x-modal name="api-token-value" focusable>
-        <x-slot name="title">
-            {{ __('API Token Created') }}
-        </x-slot>
-        <x-slot name="description">
-            {{ __('Your new API token has been generated. Please copy it now, as it won\'t be shown again.') }}
-        </x-slot>
-        <x-slot name="icon">
-            heroicon-o-key
-        </x-slot>
-        <div class="space-y-4">
-            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
-                <code class="text-sm text-gray-800 dark:text-gray-200 break-all"
-                      x-ref="tokenDisplay">{{ $plainTextToken }}</code>
-            </div>
-            <div class="mt-6">
-                <x-secondary-button
-                    x-on:click="navigator.clipboard.writeText($refs.tokenDisplay.textContent); $dispatch('close')"
-                    centered>
-                    {{ __('Copy and Close') }}
-                </x-secondary-button>
-            </div>
-        </div>
     </x-modal>
 
     @if ($this->tokens->isEmpty())
@@ -241,6 +601,32 @@
         </div>
     </x-modal>
 
+    <!-- Token Value Modal -->
+    <x-modal name="api-token-value" focusable>
+        <x-slot name="title">
+            {{ __('API Token Created') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Your new API token has been generated. Please copy it now, as it won\'t be shown again.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-key
+        </x-slot>
+        <div class="space-y-4">
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                    <code class="text-sm text-gray-800 dark:text-gray-200 break-all"
+                          x-ref="tokenDisplay">{{ $plainTextToken }}</code>
+                </div>
+            <div class="mt-6">
+                <x-secondary-button
+                    x-on:click="navigator.clipboard.writeText($refs.tokenDisplay.textContent); $dispatch('close')"
+                    centered>
+                    {{ __('Copy and Close') }}
+                </x-secondary-button>
+            </div>
+        </div>
+    </x-modal>
+
     <!-- View Token Abilities Modal -->
     <x-modal name="view-token-abilities" focusable>
         <x-slot name="title">
@@ -255,30 +641,33 @@
         <div class="mt-4 space-y-4">
             @if ($viewingTokenId)
                 @php
-                    $token = $this->user->tokens->find($viewingTokenId);
+                    $token = $this->tokens->find($viewingTokenId);
                 @endphp
                 @if ($token)
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach ($availableAbilities as $group => $groupAbilities)
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                                <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-medium">
-                                    {{ $group }}
+                        @if (isset($this->availableAbilities) && is_array($this->availableAbilities))
+                            @foreach ($this->availableAbilities as $group => $groupAbilities)
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                                    <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-medium">
+                                        {{ $group }}
+                                    </div>
+                                    <ul class="p-4 space-y-2">
+                                        @foreach ($groupAbilities as $key => $ability)
+                                            <li class="flex items-center space-x-2">
+                                                @if (in_array($key, $token->abilities, true))
+                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500 flex-shrink-0')
+                                                @else
+                                                    @svg('heroicon-s-x-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
+                                                @endif
+                                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
                                 </div>
-                                <ul class="p-4 space-y-2">
-                                    @foreach ($groupAbilities as $key => $ability)
-                                        <li class="flex items-center space-x-2">
-                                            @if (in_array($key, $token->abilities, true))
-                                                @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500 flex-shrink-0')
-                                            @else
-                                                @svg('heroicon-s-x-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
-                                            @endif
-                                            <span
-                                                class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        @else
+                            <p class="text-sm text-red-500 dark:text-red-400">{{ __('Available abilities are not defined or not in the expected format.') }}</p>
+                        @endif
                     </div>
                 @else
                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Token not found.') }}</p>

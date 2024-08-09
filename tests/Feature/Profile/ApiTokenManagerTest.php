@@ -2,57 +2,42 @@
 
 declare(strict_types=1);
 
-use App\Livewire\Profile\APITokenManager;
 use App\Models\User;
-use App\Services\SanctumAbilitiesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use Livewire\Volt\Volt;
 
 uses(RefreshDatabase::class);
-
-beforeEach(function (): void {
-    $this->mockAbilitiesService = Mockery::mock(SanctumAbilitiesService::class);
-    $this->mockAbilitiesService->shouldReceive('getAbilities')->andReturn([
-        'General' => [
-            'manage-tags' => ['name' => 'Manage Tags', 'description' => 'Allows managing of tags'],
-        ],
-        'Backup Destinations' => [
-            'view-backup-destinations' => ['name' => 'View Backup Destinations', 'description' => 'Allows viewing backup destinations'],
-        ],
-        'Backup Tasks' => [
-            'create-backup-tasks' => ['name' => 'Create Backup Tasks', 'description' => 'Allows creating new backup tasks'],
-        ],
-    ]);
-    $this->app->instance(SanctumAbilitiesService::class, $this->mockAbilitiesService);
-});
 
 test('the component can be rendered', function (): void {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)->test(APITokenManager::class)->assertOk();
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
+        ->assertOk();
 });
 
 test('the page can be visited by authenticated users', function (): void {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->get(route('profile.api'));
-
-    $response
+    $this->actingAs($user)->get(route('profile.api'))
         ->assertOk()
         ->assertSeeLivewire('profile.api-token-manager');
 });
 
 test('the page cannot be visited by guests', function (): void {
-    $response = $this->get(route('profile.api'));
+    $this->get(route('profile.api'))
+        ->assertRedirect('login');
 
-    $response->assertRedirect('login');
     $this->assertGuest();
 });
 
 test('api tokens can be created with correct abilities format', function (): void {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', [
             'view-backup-destinations' => true,
@@ -73,7 +58,9 @@ test('api tokens can be created with correct abilities format', function (): voi
 test('api tokens cannot be created without abilities', function (): void {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', [])
         ->call('createApiToken')
@@ -86,7 +73,9 @@ test('api tokens can be deleted', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('Test Token', ['view-backup-destinations']);
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->set('apiTokenIdBeingDeleted', $token->accessToken->id)
         ->call('deleteApiToken');
 
@@ -97,7 +86,9 @@ test('api token deletion confirmation works', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('Test Token', ['view-backup-destinations']);
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->call('confirmApiTokenDeletion', $token->accessToken->id)
         ->assertDispatched('open-modal', 'confirm-api-token-deletion')
         ->assertSet('apiTokenIdBeingDeleted', $token->accessToken->id);
@@ -106,7 +97,9 @@ test('api token deletion confirmation works', function (): void {
 test('abilities are reset after token creation', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', [
             'view-backup-destinations' => true,
@@ -120,7 +113,9 @@ test('abilities are reset after token creation', function (): void {
 test('token value is displayed after creation', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', ['view-backup-destinations' => true])
         ->call('createApiToken');
@@ -136,9 +131,11 @@ test('token value is displayed after creation', function (): void {
 test('all available abilities are initially set to false', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class);
+    $this->actingAs($user);
 
-    $abilities = $component->get('abilities');
+    $testable = Volt::test('profile.api-token-manager');
+
+    $abilities = $testable->get('abilities');
     foreach ($abilities as $ability) {
         expect($ability)->toBeFalse();
     }
@@ -147,7 +144,9 @@ test('all available abilities are initially set to false', function (): void {
 test('validation error occurs when no abilities are selected', function (): void {
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', [
             'view-backup-destinations' => false,
@@ -161,7 +160,9 @@ test('validation error occurs when no abilities are selected', function (): void
 test('select all abilities works', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.api-token-manager')
         ->call('selectAllAbilities');
 
     $abilities = $component->get('abilities');
@@ -173,7 +174,9 @@ test('select all abilities works', function (): void {
 test('deselect all abilities works', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    $component = Volt::test('profile.api-token-manager')
         ->set('abilities', [
             'view-backup-destinations' => true,
             'create-backup-tasks' => true,
@@ -191,7 +194,9 @@ test('view token abilities modal can be opened', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('Test Token', ['view-backup-destinations']);
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->call('viewTokenAbilities', $token->accessToken->id)
         ->assertDispatched('open-modal', 'view-token-abilities')
         ->assertSet('viewingTokenId', $token->accessToken->id);
@@ -201,7 +206,9 @@ test('token listing shows correct information', function (): void {
     $user = User::factory()->create();
     $user->createToken('Test Token', ['view-backup-destinations']);
 
-    Livewire::actingAs($user)->test(APITokenManager::class)
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
         ->assertSee('Test Token')
         ->assertSee('Never'); // For 'Last Used' column
 });
@@ -209,9 +216,11 @@ test('token listing shows correct information', function (): void {
 test('group expansion toggle works', function (): void {
     $user = User::factory()->create();
 
-    $component = Livewire::actingAs($user)->test(APITokenManager::class);
+    $this->actingAs($user);
 
-    $component->call('toggleGroup', 'General')
+    $testable = Volt::test('profile.api-token-manager');
+
+    $testable->call('toggleGroup', 'General')
         ->assertSet('expandedGroups.General', true)
         ->call('toggleGroup', 'General')
         ->assertSet('expandedGroups.General', false);

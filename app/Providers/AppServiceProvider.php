@@ -6,7 +6,6 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Services\GreetingService;
-use App\Services\SanctumAbilitiesService;
 use Flare;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -25,7 +24,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerFlareVersion();
         $this->registerGreetingService();
-        $this->registerSanctumAbilitiesService();
     }
 
     /**
@@ -59,14 +57,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(GreetingService::class);
         $this->app->alias(GreetingService::class, 'Greeting');
-    }
-
-    /**
-     * Register the SanctumAbilitiesService as a singleton.
-     */
-    private function registerSanctumAbilitiesService(): void
-    {
-        $this->app->singleton(SanctumAbilitiesService::class);
     }
 
     /**
