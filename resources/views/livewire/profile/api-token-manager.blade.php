@@ -29,18 +29,18 @@
                     </x-secondary-button>
                 </div>
                 <div class="space-y-4">
-                    @foreach ($availableAbilities as $group => $groupAbilities)
+                    @foreach ($this->availableAbilities as $group => $groupAbilities)
                         <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
                             <button type="button" wire:click="toggleGroup('{{ $group }}')"
                                     class="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
                                 <span class="font-medium">{{ $group }}</span>
                                 <span class="float-right">
-                                    @if ($expandedGroups[$group])
+                    @if ($this->expandedGroups[$group])
                                         @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
                                     @else
                                         @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
                                     @endif
-                                </span>
+                </span>
                             </button>
                             <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
                                 <div class="p-4 space-y-4">
