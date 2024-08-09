@@ -6,12 +6,13 @@ namespace App\Livewire\Profile;
 
 use App\Models\User;
 use App\Services\SanctumAbilitiesService;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Laravel\Sanctum\NewAccessToken;
+use Laravel\Sanctum\PersonalAccessToken;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
 
@@ -20,8 +21,6 @@ use Masmerise\Toaster\Toaster;
  *
  * This component handles the creation, deletion, and viewing of API tokens,
  * as well as managing the abilities associated with each token.
- *
- * @property-read User|Authenticatable $user
  */
 class APITokenManager extends Component
 {
@@ -31,7 +30,7 @@ class APITokenManager extends Component
     /** @var array<string, bool> The abilities for the new API token */
     public array $abilities = [];
 
-    /** @var array<string, bool> The list of possible abilities */
+    /** @var array<string, array<string, array<string, string>>> The list of possible abilities */
     public array $availableAbilities = [];
 
     /** @var string|null The plain text value of the newly created token */
@@ -45,6 +44,9 @@ class APITokenManager extends Component
 
     /** @var int|null The ID of the token whose abilities are being viewed */
     public ?int $viewingTokenId = null;
+
+    /** @var Collection<int|string, PersonalAccessToken> The user's tokens */
+    public Collection $tokens;
 
     /** @var SanctumAbilitiesService Service for managing Sanctum abilities */
     private SanctumAbilitiesService $abilitiesService;
@@ -62,8 +64,12 @@ class APITokenManager extends Component
      */
     public function mount(): void
     {
+        /* @phpstan-ignore-next-line */
+        $this->tokens = new Collection;
         $this->resetAbilities();
         $this->initializeExpandedGroups();
+        $this->availableAbilities = $this->abilitiesService->getAbilities();
+        $this->loadTokens();
     }
 
     /**
@@ -96,17 +102,21 @@ class APITokenManager extends Component
 
         $selectedAbilities = array_keys(array_filter($validated['abilities']));
 
-        $token = $this->user->createToken(
+        /** @var User $user */
+        $user = Auth::user();
+
+        $newAccessToken = $user->createToken(
             $validated['name'],
             $selectedAbilities
         );
 
-        $this->displayTokenValue($token);
+        $this->displayTokenValue($newAccessToken);
 
         Toaster::success('API Token has been created.');
 
         $this->reset('name');
         $this->resetAbilities();
+        $this->loadTokens();
 
         $this->dispatch('created');
     }
@@ -129,12 +139,15 @@ class APITokenManager extends Component
             return;
         }
 
-        $this->user->tokens()->where('id', $this->apiTokenIdBeingDeleted)->delete();
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->tokens()->where('id', $this->apiTokenIdBeingDeleted)->delete();
 
         Toaster::success('API Token has been revoked.');
 
         $this->reset('apiTokenIdBeingDeleted');
-        $this->user->load('tokens');
+        $this->loadTokens();
         $this->dispatch('close-modal', 'confirm-api-token-deletion');
     }
 
@@ -148,44 +161,20 @@ class APITokenManager extends Component
     }
 
     /**
-     * Get the authenticated user
-     */
-    public function getUserProperty(): Authenticatable|User
-    {
-        /** @var User $user */
-        $user = Auth::user();
-
-        return $user;
-    }
-
-    /**
      * Render the component.
      */
     public function render(): View
     {
-        $availableAbilities = $this->abilitiesService->getAbilities();
-        $tokens = $this->user->tokens()->latest()->get();
-
-        // Log the number of available abilities and tokens
         Log::debug('APITokenManager rendering', [
-            'abilitiesCount' => count($availableAbilities),
-            'tokensCount' => $tokens->count(),
+            'abilitiesCount' => count($this->availableAbilities),
+            'tokensCount' => $this->tokens->count(),
         ]);
 
-        if ($availableAbilities === []) {
+        if ($this->availableAbilities === []) {
             Log::warning('No abilities available in APITokenManager');
         }
 
-        // Log a sample of abilities (first 3) if available
-        if ($availableAbilities !== []) {
-            $sampleAbilities = array_slice($availableAbilities, 0, 3, true);
-            Log::debug('Sample abilities', ['sample' => $sampleAbilities]);
-        }
-
-        return view('livewire.profile.api-token-manager', [
-            'availableAbilities' => $availableAbilities,
-            'tokens' => $tokens,
-        ]);
+        return view('livewire.profile.api-token-manager');
     }
 
     /**
@@ -249,5 +238,25 @@ class APITokenManager extends Component
     private function initializeExpandedGroups(): void
     {
         $this->expandedGroups = array_fill_keys(array_keys($this->abilitiesService->getAbilities()), false);
+    }
+
+    /**
+     * Load the user's tokens.
+     */
+    private function loadTokens(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $tokens = $user->tokens()->latest()->get();
+
+        /** @var Collection<int|string, PersonalAccessToken> $personalAccessTokens */
+        $personalAccessTokens = $tokens->map(function ($token): PersonalAccessToken {
+            return $token instanceof PersonalAccessToken
+                ? $token
+                : new PersonalAccessToken($token->getAttributes());
+        });
+
+        $this->tokens = $personalAccessTokens;
     }
 }

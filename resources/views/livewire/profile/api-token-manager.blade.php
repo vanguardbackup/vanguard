@@ -118,7 +118,7 @@
         </div>
     </x-modal>
 
-    @if ($this->user->tokens->count() === 0)
+    @if ($this->tokens->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
                 @svg('heroicon-o-key', 'h-16 w-16 text-primary-900 dark:text-white inline')
@@ -182,7 +182,7 @@
                         </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                        @foreach ($tokens as $token)
+                        @foreach ($this->tokens as $token)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                     {{ $token->name }}
