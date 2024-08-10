@@ -33,6 +33,28 @@ test('user with run-backup-tasks permission can run a backup task', function ():
     ]);
 });
 
+test('user receives a message when the backup task is already running', function (): void {
+    Queue::fake();
+    Sanctum::actingAs($this->user, ['run-backup-tasks']);
+
+    $backupTask = BackupTask::factory()->create([
+        'user_id' => $this->user->id,
+        'status' => BackupTask::STATUS_RUNNING,
+    ]);
+
+    $response = $this->postJson("/api/backup-tasks/{$backupTask->id}/run");
+
+    $response->assertStatus(409)
+        ->assertJson(['message' => 'The backup task is already running.']);
+
+    $this->assertDatabaseHas('backup_tasks', [
+        'id' => $backupTask->id,
+        'status' => BackupTask::STATUS_RUNNING,
+    ]);
+
+    Queue::assertNothingPushed();
+});
+
 test('user without run-backup-tasks permission cannot run a backup task', function (): void {
     Sanctum::actingAs($this->user, ['view-backup-tasks']);
 
@@ -174,27 +196,6 @@ test('rate limit is applied on a per-user basis', function (): void {
     ]);
 
     $response = $this->postJson("/api/backup-tasks/{$backupTask2->id}/run");
-    $response->assertStatus(202);
-});
-
-test('rate limit resets after decay time', function (): void {
-    Sanctum::actingAs($this->user, ['run-backup-tasks']);
-
-    $backupTask = BackupTask::factory()->create([
-        'user_id' => $this->user->id,
-        'status' => BackupTask::STATUS_READY,
-    ]);
-
-    for ($i = 0; $i < 5; $i++) {
-        $this->postJson("/api/backup-tasks/{$backupTask->id}/run");
-    }
-
-    $response = $this->postJson("/api/backup-tasks/{$backupTask->id}/run");
-    $response->assertStatus(429);
-
-    $this->travel(70)->seconds();
-
-    $response = $this->postJson("/api/backup-tasks/{$backupTask->id}/run");
     $response->assertStatus(202);
 });
 

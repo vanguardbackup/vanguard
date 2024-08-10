@@ -14,9 +14,8 @@ use Illuminate\Support\Facades\RateLimiter;
 /**
  * Handles the execution of backup tasks via API requests.
  *
- * This controller is responsible for validating and initiating
- * backup tasks based on user permissions and task status.
- * It implements rate limiting to prevent abuse.
+ * Validates and initiates backup tasks based on user permissions and task status.
+ * Implements rate limiting to prevent abuse.
  */
 class RunBackupTaskController extends Controller
 {
@@ -32,17 +31,14 @@ class RunBackupTaskController extends Controller
 
     /**
      * Execute the specified backup task.
-     *
-     * This method implements rate limiting to prevent abuse.
-     *
-     * @param  Request  $request  The incoming HTTP request
-     * @param  int  $id  The ID of the backup task to run
-     * @return JsonResponse The JSON response indicating the result of the operation
      */
     public function __invoke(Request $request, int $id): JsonResponse
     {
-        /** @var User $user */
         $user = $request->user();
+
+        if (! $user instanceof User) {
+            return $this->jsonResponse('Unauthenticated', 401);
+        }
 
         if (! $this->checkRateLimit($user->getAttribute('id'))) {
             return $this->jsonResponse('Too many requests. Please try again later.', 429);
@@ -70,6 +66,10 @@ class RunBackupTaskController extends Controller
             return $this->jsonResponse('Another task is currently running on the same remote server. Please try again later.', 409);
         }
 
+        if ($backupTask->isRunning()) {
+            return $this->jsonResponse('The backup task is already running.', 409);
+        }
+
         $backupTask->markAsRunning();
         $backupTask->run();
 
@@ -78,13 +78,10 @@ class RunBackupTaskController extends Controller
 
     /**
      * Check if the user has exceeded the rate limit.
-     *
-     * @param  int  $userId  The ID of the user to check
-     * @return bool True if the request is allowed, false if it exceeds the rate limit
      */
     private function checkRateLimit(int $userId): bool
     {
-        $key = 'run_backup_task_' . $userId;
+        $key = "run_backup_task_{$userId}";
 
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
             return false;
@@ -97,10 +94,6 @@ class RunBackupTaskController extends Controller
 
     /**
      * Create a JSON response with the given message and status code.
-     *
-     * @param  string  $message  The message to include in the response
-     * @param  int  $statusCode  The HTTP status code for the response
-     * @return JsonResponse The formatted JSON response
      */
     private function jsonResponse(string $message, int $statusCode): JsonResponse
     {
