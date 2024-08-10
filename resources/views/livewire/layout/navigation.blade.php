@@ -126,6 +126,10 @@ new class extends Component
                                 @svg('heroicon-o-bell', 'h-5 w-5 mr-2 inline')
                                 {{ __('Notifications') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('profile.api')" wire:navigate>
+                                @svg('heroicon-o-code-bracket', 'h-5 w-5 mr-2 inline')
+                                {{ __('API Tokens') }}
+                            </x-dropdown-link>
                             <x-dropdown-link :href="route('statistics')" wire:navigate>
                                 @svg('heroicon-o-chart-pie', 'h-5 w-5 mr-2 inline')
                                 {{ __('Statistics') }}
@@ -203,6 +207,10 @@ new class extends Component
                 <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>
                     @svg('heroicon-o-bell', 'h-5 w-5 text-gray-50 mr-2 inline')
                     {{ __('Notifications') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.api')" wire:navigate>
+                    @svg('heroicon-o-code-bracket', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    {{ __('API Tokens') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('statistics')" wire:navigate>
                     @svg('heroicon-o-chart-pie', 'h-5 w-5 text-gray-50 mr-2 inline')

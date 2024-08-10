@@ -394,7 +394,7 @@ new class extends Component
             {{ __('Generate a new API token with specific abilities.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-key
+            heroicon-o-code-bracket
         </x-slot>
         <form wire:submit.prevent="createApiToken" class="space-y-6">
             <div>
@@ -481,7 +481,7 @@ new class extends Component
     @if ($this->tokens->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-key', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('heroicon-o-code-bracket', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No API Tokens') }}
@@ -499,7 +499,7 @@ new class extends Component
     @else
         <x-form-wrapper>
             <x-slot name="icon">
-                heroicon-o-key
+                heroicon-o-code-bracket
             </x-slot>
             <x-slot name="description">
                 {{ __('Manage your API tokens for third-party access to Vanguard.') }}
@@ -610,7 +610,7 @@ new class extends Component
             {{ __('Your new API token has been generated. Please copy it now, as it won\'t be shown again.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-key
+            heroicon-o-code-bracket
         </x-slot>
         <div class="space-y-4">
                 <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
@@ -636,7 +636,7 @@ new class extends Component
             {{ __('View the abilities assigned to this API token.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-key
+            heroicon-o-code-bracket
         </x-slot>
         <div class="mt-4 space-y-4">
             @if ($viewingTokenId)
