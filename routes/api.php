@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthenticateDeviceController;
 use App\Http\Controllers\Api\BackupDestinationController;
 use App\Http\Controllers\Api\BackupTaskController;
 use App\Http\Controllers\Api\BackupTaskLatestLogController;
@@ -19,6 +20,15 @@ use Illuminate\Support\Facades\Route;
  * This file defines the routes for the Vanguard API.
  * All routes are protected by Sanctum authentication and rate limiting.
  */
+
+/**
+ * Device Authentication
+ *
+ * This route is used to authenticate devices and generate Sanctum tokens.
+ * It is not protected by authentication middleware as it's used to obtain the initial token.
+ */
+Route::post('sanctum/token', AuthenticateDeviceController::class);
+
 Route::middleware(['auth:sanctum', 'throttle:60,1,default', TrackAPIUsage::class])->group(function () {
     /**
      * Get authenticated user information

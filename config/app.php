@@ -45,4 +45,12 @@ return [
         'en' => 'English (English)',
         'da' => 'Danish (Dansk)',
     ],
+
+    /**
+     * Controls the availability of the /api/sanctum/token endpoint for device authentication.
+     *
+     * When true, allows mobile apps and other clients to request authentication tokens.
+     * When false, the endpoint returns a 404 Not Found response.
+     */
+    'enable_device_authentication_endpoint' => env('ENABLE_DEVICE_AUTH_ENDPOINT', false),
 ];
