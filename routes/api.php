@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\RemoteServerController;
 use App\Http\Controllers\Api\RunBackupTaskController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Middleware\TrackAPIUsage;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
  * This file defines the routes for the Vanguard API.
  * All routes are protected by Sanctum authentication and rate limiting.
  */
-Route::middleware(['auth:sanctum', 'throttle:60,1,default'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1,default', TrackAPIUsage::class])->group(function () {
     /**
      * Get authenticated user information
      */

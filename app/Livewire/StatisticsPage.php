@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Models\ApiUsage;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\BackupTaskData;
 use App\Models\RemoteServer;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Number;
 use Illuminate\View\View;
@@ -69,6 +71,15 @@ class StatisticsPage extends Component
     /** @var int Number of paused backup tasks */
     public int $pausedBackupTasks;
 
+    /** @var array<string> Labels for the API usage chart */
+    public array $apiUsageLabels = [];
+
+    /** @var array<int> Data for the API usage chart */
+    public array $apiUsageData = [];
+
+    /** @var array<string, mixed> API usage data grouped by method */
+    public array $apiUsageMethodData = [];
+
     /**
      * Initialize the component state
      */
@@ -79,6 +90,8 @@ class StatisticsPage extends Component
         $this->loadAverageBackupSizeData();
         $this->loadBackupSuccessRateData();
         $this->loadCompletionTimeData();
+        $this->loadApiUsageData();
+        $this->loadApiUsageMethodData();
     }
 
     /**
@@ -151,5 +164,29 @@ class StatisticsPage extends Component
         $data = BackupTask::getCompletionTimeData();
         $this->completionTimeLabels = array_map('strval', $data['labels']);
         $this->completionTimeData = array_map('floatval', $data['data']);
+    }
+
+    /**
+     * Load API usage data for the past 30 days
+     */
+    private function loadApiUsageData(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $chartData = ApiUsage::getChartData($user->getAttribute('id'));
+        $this->apiUsageLabels = $chartData['labels'];
+        $this->apiUsageData = $chartData['datasets'][0]['data'];
+    }
+
+    /**
+     * Load API usage data by request for the past 30 days
+     */
+    private function loadApiUsageMethodData(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $this->apiUsageMethodData = ApiUsage::getMethodBreakdownChartData($user->getAttribute('id'));
     }
 }

@@ -424,7 +424,176 @@
                         </div>
                     </x-chart-card>
 
+                    <x-chart-card
+                        title="{{ __('API Usage Trend') }}"
+                        description="{{ __('Daily API usage count over the last 30 days.') }}"
+                    >
+                        <div
+                            x-data="{
+    chart: null,
+    loaded: false,
+    init() {
+        this.createChart();
+        this.$watch('$store.darkMode', () => {
+            this.updateChart();
+        });
+    },
+    createChart() {
+        const ctx = document.getElementById('apiUsageChart').getContext('2d');
+        this.chart = new Chart(ctx, this.getChartConfig());
+        this.loaded = true;
+    },
+    updateChart() {
+        if (this.chart) {
+            this.chart.destroy();
+        }
+        this.createChart();
+    },
+    getChartConfig() {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
+        return {
+            type: 'bar',
+            data: {
+                labels: {{ Js::from($apiUsageLabels) }},
+                datasets: [{
+                    label: '{{ __("API Calls") }}',
+                    data: {{ Js::from($apiUsageData) }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: textColor
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '{{ __("API Usage Trend - Last 30 Days") }}',
+                        color: textColor
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: textColor },
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            color: textColor
+                        }
+                    },
+                    y: {
+                        ticks: { color: textColor },
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of API Calls',
+                            color: textColor
+                        }
+                    }
+                }
+            }
+        };
+    }
+}"
+                            x-init="init()"
+                        >
+                            <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            <div x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                                <canvas id="apiUsageChart"></canvas>
+                            </div>
+                        </div>
+                    </x-chart-card>
+
+                    <x-chart-card
+                        title="{{ __('API Usage by Method') }}"
+                        description="{{ __('Daily API usage count by HTTP method over the last 30 days.') }}"
+                    >
+                        <div
+                            x-data="{
+    chart: null,
+    loaded: false,
+    init() {
+        this.createChart();
+        this.$watch('$store.darkMode', () => {
+            this.updateChart();
+        });
+    },
+    createChart() {
+        const ctx = document.getElementById('apiUsageMethodChart').getContext('2d');
+        this.chart = new Chart(ctx, this.getChartConfig());
+        this.loaded = true;
+    },
+    updateChart() {
+        if (this.chart) {
+            this.chart.destroy();
+        }
+        this.createChart();
+    },
+    getChartConfig() {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
+
+        return {
+            type: 'bar',
+            data: {{ Js::from($apiUsageMethodData) }},
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: textColor
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '{{ __("API Usage by Method - Last 30 Days") }}',
+                        color: textColor
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: textColor },
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            color: textColor
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: { color: textColor },
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of API Calls',
+                            color: textColor
+                        }
+                    }
+                }
+            }
+        };
+    }
+}"
+                            x-init="init()"
+                        >
+                            <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                            <div x-show="loaded" x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                                <canvas id="apiUsageMethodChart"></canvas>
+                            </div>
+                        </div>
+                    </x-chart-card>
                 </div>
             @endif
         </div>
