@@ -14,7 +14,7 @@ use Symfony\Component\Process\Process;
  * Command to generate SSH keys for secure communication with remote servers.
  *
  * This command creates a new SSH key pair for Vanguard, used in remote server operations.
- * It includes checks for environment, existing keys, and required configuration.
+ * It includes checks for existing keys, and required configuration.
  */
 class GenerateSSHKeyCommand extends Command
 {
@@ -29,12 +29,6 @@ class GenerateSSHKeyCommand extends Command
      */
     public function handle(): void
     {
-        if ($this->appEnvironmentNotAllowed()) {
-            $this->components->error('Cannot generate SSH keys in a production environment.');
-
-            return;
-        }
-
         if ($this->doSSHKeysAlreadyExist()) {
             $this->components->error('SSH keys already exist. Cannot generate new keys.');
 
@@ -61,16 +55,6 @@ class GenerateSSHKeyCommand extends Command
         $publicKeyPath = storage_path('app/ssh/key.pub');
 
         return file_exists($privateKeyPath) || file_exists($publicKeyPath);
-    }
-
-    /**
-     * Check if the current environment is production.
-     *
-     * @return bool True if the environment is production, false otherwise.
-     */
-    public function appEnvironmentNotAllowed(): bool
-    {
-        return app()->environment('production');
     }
 
     /**
