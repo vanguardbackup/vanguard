@@ -39,6 +39,7 @@ class BackupTaskResource extends JsonResource
                 'appended_filename' => $this->resource->appended_filename ?? null,
                 'path' => $this->resource->store_path,
             ],
+            'notification_streams_count' => $this->resource->notificationStreams()->count ?? 0,
             'status' => $this->resource->status,
             'has_isolated_credentials' => ! is_null($this->resource->isolated_username) && ! is_null($this->resource->isolated_password),
             'created_at' => $this->resource->created_at,

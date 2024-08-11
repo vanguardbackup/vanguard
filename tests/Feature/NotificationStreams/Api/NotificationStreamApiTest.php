@@ -26,6 +26,7 @@ test('user can list their notification streams', function (): void {
                     'user_id',
                     'label',
                     'type',
+                    'type_human',
                     'notifications' => [
                         'on_success',
                         'on_failure',

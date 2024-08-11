@@ -21,6 +21,7 @@ class NotificationStreamResource extends JsonResource
             'user_id' => $this->resource->user_id,
             'label' => $this->resource->label,
             'type' => $this->resource->type,
+            'type_human' => $this->resource->formatted_type,
             'notifications' => [
                 'on_success' => (bool) $this->resource->receive_successful_backup_notifications,
                 'on_failure' => (bool) $this->resource->receive_failed_backup_notifications,

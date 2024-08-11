@@ -22,7 +22,7 @@ test('user with view permission can list backup destinations', function (): void
     $response->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'label', 'type', 'user_id', 'created_at', 'updated_at'],
+                '*' => ['id', 'label', 'type', 'type_human', 'user_id', 'created_at', 'updated_at'],
             ],
         ])
         ->assertJsonCount(3, 'data')

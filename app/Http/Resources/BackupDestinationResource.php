@@ -21,6 +21,7 @@ class BackupDestinationResource extends JsonResource
             'user_id' => $this->resource->user_id,
             'label' => $this->resource->label,
             'type' => $this->resource->type,
+            'type_human' => $this->resource->type(),
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];

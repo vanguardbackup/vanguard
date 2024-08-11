@@ -45,6 +45,7 @@ test('user can list their backup tasks', function (): void {
                         'appended_filename',
                         'path',
                     ],
+                    'notification_streams_count',
                     'status',
                     'has_isolated_credentials',
                     'created_at',
