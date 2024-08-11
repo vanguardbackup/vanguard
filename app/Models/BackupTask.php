@@ -989,10 +989,10 @@ class BackupTask extends Model
     /**
      * Format the backup task's last run time according to the user's locale preferences.
      */
-    public function lastRunFormatted(?User $user = null): string
+    public function lastRunFormatted(?User $user = null): ?string
     {
         if (is_null($this->last_run_at)) {
-            return __('Never');
+            return null;
         }
 
         $user ??= Auth::user();
@@ -1010,8 +1010,12 @@ class BackupTask extends Model
     /**
      * Format the backup task's run time according to the user's timezone.
      */
-    public function runTimeFormatted(?User $user = null): string
+    public function runTimeFormatted(?User $user = null): ?string
     {
+        if ($this->time_to_run_at === null) {
+            return null;
+        }
+
         $userTimezone = $user?->timezone ?? Auth::user()?->timezone ?? config('app.timezone');
 
         $utcTime = Carbon::parse($this->time_to_run_at, 'UTC');

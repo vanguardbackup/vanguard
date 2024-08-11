@@ -31,7 +31,8 @@ class BackupTaskResource extends JsonResource
             ],
             'schedule' => [
                 'frequency' => $this->resource->frequency,
-                'time' => $this->resource->time_to_run_at,
+                'scheduled_utc_time' => $this->resource->time_to_run_at,
+                'scheduled_local_time' => $this->resource->runTimeFormatted(),
                 'custom_cron' => $this->resource->custom_cron_expression,
             ],
             'storage' => [
@@ -42,6 +43,9 @@ class BackupTaskResource extends JsonResource
             'notification_streams_count' => $this->resource->notificationStreams()->count ?? 0,
             'status' => $this->resource->status,
             'has_isolated_credentials' => ! is_null($this->resource->isolated_username) && ! is_null($this->resource->isolated_password),
+            'last_run_local_time' => $this->resource->lastRunFormatted(),
+            'last_run_utc_time' => $this->resource->last_run_at,
+            'paused_at' => $this->resource->paused_at,
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];

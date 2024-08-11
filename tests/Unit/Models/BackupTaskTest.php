@@ -1312,13 +1312,13 @@ it('formats last run correctly for English locale', function (): void {
     expect($result)->toBe('12 June 2024 18:57');
 });
 
-it('returns "Never" when last run is null', function (): void {
+it('returns null when last run is null', function (): void {
     $user = User::factory()->create();
     $backupTask = BackupTask::factory()->create(['last_run_at' => null]);
 
     $result = $backupTask->lastRunFormatted($user);
 
-    expect($result)->toBe('Never');
+    expect($result)->toBe(null);
 });
 
 it('formats last run correctly for authenticated user', function (): void {
@@ -1411,6 +1411,13 @@ it('handles explicit user parameter', function (): void {
 
     expect($result)->toBe('13:00')
         ->and($user2->timezone)->toBe('Europe/London');
+});
+
+it('returns null if the time to run at is null', function (): void {
+
+    $backupTask = BackupTask::factory()->create(['time_to_run_at' => null]);
+
+    expect($backupTask->runTimeFormatted())->toBe(null);
 });
 
 it('retrieves backup tasks data for the past 90 days', function (): void {

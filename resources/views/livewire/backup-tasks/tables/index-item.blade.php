@@ -110,7 +110,7 @@
                     </p>
                     <p class="text-gray-500 dark:text-gray-400">
                         <span
-                            class="font-medium">{{ __('Last ran') }}:</span> {{ $backupTask->lastRunFormatted(Auth::user()) }}
+                            class="font-medium">{{ __('Last ran') }}:</span> {{ $backupTask->lastRunFormatted(Auth::user()) ?? __('Never') }}
                     </p>
                 </div>
             </div>
@@ -241,7 +241,7 @@
                 </p>
                 <p class="mt-1">
                     <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('Last ran') }}:</span>
-                    {{ $backupTask->lastRunFormatted(Auth::user()) }}
+                    {{ $backupTask->lastRunFormatted(Auth::user()) ?? __('Never') }}
                 </p>
             </div>
 

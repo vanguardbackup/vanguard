@@ -37,7 +37,8 @@ test('user can list their backup tasks', function (): void {
                     ],
                     'schedule' => [
                         'frequency',
-                        'time',
+                        'scheduled_utc_time',
+                        'scheduled_local_time',
                         'custom_cron',
                     ],
                     'storage' => [
@@ -48,6 +49,8 @@ test('user can list their backup tasks', function (): void {
                     'notification_streams_count',
                     'status',
                     'has_isolated_credentials',
+                    'last_run_local_time',
+                    'last_run_utc_time',
                     'created_at',
                     'updated_at',
                 ],
@@ -95,7 +98,8 @@ test('user can create a new backup task', function (): void {
             ],
             'schedule' => [
                 'frequency' => $taskData['frequency'],
-                'time' => $taskData['time_to_run_at'],
+                'scheduled_utc_time' => $taskData['time_to_run_at'],
+                'scheduled_local_time' => $taskData['time_to_run_at'],
                 'custom_cron' => $taskData['custom_cron_expression'],
             ],
             'storage' => [
@@ -142,7 +146,8 @@ test('user can create a new backup task with custom cron expression', function (
             ],
             'schedule' => [
                 'frequency' => $taskData['frequency'],
-                'time' => $taskData['time_to_run_at'],
+                'scheduled_utc_time' => $taskData['time_to_run_at'],
+                'scheduled_local_time' => $taskData['time_to_run_at'],
                 'custom_cron' => $taskData['custom_cron_expression'],
             ],
             'storage' => [
@@ -190,7 +195,8 @@ test('user can view a specific backup task', function (): void {
             ],
             'schedule' => [
                 'frequency' => $task->frequency,
-                'time' => $task->time_to_run_at,
+                'scheduled_utc_time' => $task->time_to_run_at,
+                'scheduled_local_time' => $task->runTimeFormatted(),
                 'custom_cron' => $task->custom_cron_expression,
             ],
             'storage' => [
@@ -200,6 +206,9 @@ test('user can view a specific backup task', function (): void {
             ],
             'status' => $task->status,
             'has_isolated_credentials' => ! is_null($task->isolated_username) && ! is_null($task->isolated_password),
+            'last_run_local_time' => $task->lastRunFormatted(),
+            'last_run_utc_time' => $task->last_run_at,
+            'paused_at' => $task->paused_at,
         ]);
 });
 
@@ -237,7 +246,8 @@ test('user can update their backup task', function (): void {
             'description' => 'Updated description',
             'schedule' => [
                 'frequency' => $task->frequency,
-                'time' => '13:00',
+                'scheduled_local_time' => '13:00',
+                'scheduled_utc_time' => '13:00',
                 'custom_cron' => $task->custom_cron_expression,
             ],
         ]);
