@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\User\DeviceAuthenticationLogIn;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -41,7 +43,9 @@ class AuthenticateDeviceController extends Controller
             ]);
         }
 
-        $token = $user->createToken($credentials['device_name'])->plainTextToken;
+        $token = $user->createMobileToken($credentials['device_name'])->plainTextToken;
+
+        $this->sendEmail($user);
 
         return response()->json(['token' => $token]);
     }
@@ -86,5 +90,10 @@ class AuthenticateDeviceController extends Controller
     private function checkPassword(User $user, string $password): bool
     {
         return Hash::check($password, (string) $user->getAttribute('password'));
+    }
+
+    private function sendEmail(User $user): void
+    {
+        Mail::to($user->getAttribute('email'))->queue(new DeviceAuthenticationLogIn($user));
     }
 }

@@ -284,3 +284,15 @@ it('returns zero tasks when no backup logs exist in the date range', function ()
         ->and($summaryData['failed_tasks'])->toBe(0)
         ->and($summaryData['success_rate'])->toBe(0);
 });
+
+it('generates a mobile api token', function (): void {
+
+    $user = User::factory()->create();
+
+    $user->createMobileToken('Test Token');
+
+    $this->assertDatabaseHas('personal_access_tokens', [
+        'name' => 'Test Token',
+        'mobile_at' => now(),
+    ]);
+});

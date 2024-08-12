@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
 
 /**
  * Represents a user in the system.
@@ -214,6 +216,30 @@ class User extends Authenticatable
                 'end' => $dateRange['end']->toDateString(),
             ],
         ];
+    }
+
+    /**
+     * Create a new mobile personal access token for the user.
+     *
+     * @param  string  $name  The name of the token.
+     * @param  array<int|string, mixed>  $abilities  The abilities granted to the token. Defaults to all abilities.
+     * @param  DateTimeInterface|null  $expiresAt  The expiration date of the token, if any.
+     * @return NewAccessToken The newly created access token.
+     */
+    public function createMobileToken(string $name, array $abilities = ['*'], ?DateTimeInterface $expiresAt = null): NewAccessToken
+    {
+        $plainTextToken = $this->generateTokenString();
+
+        /** @var PersonalAccessToken $model */
+        $model = $this->tokens()->forceCreate([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken),
+            'mobile_at' => now(),
+            'abilities' => $abilities,
+            'expires_at' => $expiresAt,
+        ]);
+
+        return new NewAccessToken($model, $model->getKey() . '|' . $plainTextToken);
     }
 
     /**

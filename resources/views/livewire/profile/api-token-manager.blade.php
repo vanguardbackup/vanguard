@@ -545,7 +545,17 @@ new class extends Component
                         @foreach ($this->tokens as $token)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ $token->name }}
+                                    <div class="flex items-center space-x-2">
+                                        @if ($token->isMobileToken())
+                                            <div title="{{ __('Token was used on a mobile device.') }}" class="flex items-center space-x-2 bg-cyan-100 dark:bg-cyan-600 rounded-full px-3 py-1">
+                    <span class="text-cyan-600 dark:text-cyan-100">
+                        @svg('heroicon-o-device-phone-mobile', 'w-5 h-5')
+                    </span>
+                                                <span class="text-cyan-600 dark:text-cyan-100 text-xs font-semibold">{{ __('Mobile') }}</span>
+                                            </div>
+                                        @endif
+                                        <span>{{ $token->name }}</span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ $token->created_at->diffForHumans() }}
@@ -554,12 +564,10 @@ new class extends Component
                                     {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" class="mr-2"
-                                                        iconOnly title="{{ __('View Abilities') }}">
+                                    <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" class="mr-2" iconOnly title="{{ __('View Abilities') }}">
                                         @svg('heroicon-o-eye', 'w-4 h-4')
                                     </x-secondary-button>
-                                    <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})"
-                                                     wire:loading.attr="disabled" iconOnly  title="{{ __('Revoke Token') }}">
+                                    <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})" wire:loading.attr="disabled" iconOnly title="{{ __('Revoke Token') }}">
                                         @svg('heroicon-o-trash', 'w-4 h-4')
                                     </x-danger-button>
                                 </td>

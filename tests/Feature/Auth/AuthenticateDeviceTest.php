@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Mail\User\DeviceAuthenticationLogIn;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -18,6 +19,7 @@ beforeEach(function (): void {
 
     // Enable the device authentication endpoint by default for most tests
     Config::set('app.enable_device_authentication_endpoint', true);
+    Mail::fake();
 });
 
 test('authenticates user and returns a token when endpoint is enabled', function (): void {
@@ -31,6 +33,14 @@ test('authenticates user and returns a token when endpoint is enabled', function
         ->assertJsonStructure(['token']);
 
     expect($response->json('token'))->toBeString()->not->toBeEmpty();
+
+    $this->assertDatabaseHas('personal_access_tokens', [
+        'tokenable_id' => $this->user->id,
+        'name' => 'test_device',
+        'mobile_at' => now(),
+    ]);
+
+    Mail::assertQueued(DeviceAuthenticationLogIn::class);
 });
 
 test('returns 404 when device authentication endpoint is disabled', function (): void {
@@ -43,6 +53,7 @@ test('returns 404 when device authentication endpoint is disabled', function ():
     ]);
 
     $response->assertStatus(404);
+    Mail::assertNotQueued(DeviceAuthenticationLogIn::class);
 });
 
 test('returns validation error for missing fields', function (): void {
@@ -61,6 +72,7 @@ test('returns validation error for invalid email', function (): void {
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['email']);
+    Mail::assertNotQueued(DeviceAuthenticationLogIn::class);
 });
 
 test('returns error for incorrect credentials', function (): void {
@@ -72,6 +84,7 @@ test('returns error for incorrect credentials', function (): void {
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['email']);
+    Mail::assertNotQueued(DeviceAuthenticationLogIn::class);
 });
 
 test('returns error for non-existent user', function (): void {
@@ -83,6 +96,7 @@ test('returns error for non-existent user', function (): void {
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['email']);
+    Mail::assertNotQueued(DeviceAuthenticationLogIn::class);
 });
 
 test('creates a new token for an already authenticated user', function (): void {
@@ -98,4 +112,5 @@ test('creates a new token for an already authenticated user', function (): void 
         ->assertJsonStructure(['token']);
 
     expect($response->json('token'))->toBeString()->not->toBeEmpty();
+    Mail::assertQueued(DeviceAuthenticationLogIn::class);
 });
