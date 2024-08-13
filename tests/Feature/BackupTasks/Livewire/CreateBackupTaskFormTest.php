@@ -52,6 +52,7 @@ test('users can create backup tasks', function (): void {
         ->set('excludedDatabaseTables', 'table1,table2')
         ->set('selectedTags', $tags->pluck('id')->toArray())
         ->set('selectedStreams', $notificationStreams->pluck('id')->toArray())
+        ->set('encryptionPassword', 'password123')
         ->call('submit');
 
     $this->assertDatabaseHas('backup_tasks', [

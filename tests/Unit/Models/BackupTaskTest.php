@@ -1592,3 +1592,21 @@ it('correctly formats file sizes in getAverageBackupSizeData method', function (
         BackupTaskLog::query()->delete();
     }
 });
+
+it('returns true if an encryption password is set', function (): void {
+
+    $task = BackupTask::factory()->create([
+        'encryption_password' => 'password123',
+    ]);
+
+    $this->assertTrue($task->hasEncryptionPassword());
+});
+
+it('returns false if an encryption password is not set', function (): void {
+
+    $task = BackupTask::factory()->create([
+        'isolated_username' => null,
+    ]);
+
+    $this->assertFalse($task->hasEncryptionPassword());
+});

@@ -43,6 +43,7 @@ class BackupTaskResource extends JsonResource
             'notification_streams_count' => $this->resource->notificationStreams()->count ?? 0,
             'status' => $this->resource->status,
             'has_isolated_credentials' => ! is_null($this->resource->isolated_username) && ! is_null($this->resource->isolated_password),
+            'has_encryption_password' => ! is_null($this->resource->encryption_password),
             'last_run_local_time' => $this->resource->lastRunFormatted(),
             'last_run_utc_time' => $this->resource->last_run_at,
             'paused_at' => $this->resource->paused_at,

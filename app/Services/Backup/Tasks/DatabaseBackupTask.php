@@ -62,6 +62,10 @@ class DatabaseBackupTask extends AbstractBackupTask
 
         $this->dumpRemoteDatabase($sftp, $databaseType, $remoteDumpPath, $databasePassword, $databaseName, $this->backupTask->getAttribute('excluded_database_tables'));
 
+        if ($this->backupTask->hasEncryptionPassword()) {
+            $this->setFileEncryption($sftp, $remoteDumpPath);
+        }
+
         if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteDumpPath, $backupDestinationModel, $dumpFileName, $storagePath)) {
             throw new RuntimeException('Failed to upload the dump file to destination.');
         }

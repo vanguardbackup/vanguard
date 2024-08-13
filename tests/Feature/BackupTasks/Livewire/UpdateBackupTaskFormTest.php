@@ -54,6 +54,7 @@ describe('backup task update', function (): void {
             'excludedDatabaseTables' => 'table1,table2',
             'selectedTags' => $tagIds,
             'selectedStreams' => $notificationStreamIds,
+            'encryptionPassword' => 'password123456',
         ];
 
         $testable->set($updatedData)->call('submit')->assertHasNoErrors();

@@ -10,6 +10,7 @@ use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
 use App\Models\User;
 use App\Services\Backup\Backup;
+use App\Services\Backup\Contracts\SFTPInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -191,5 +192,125 @@ abstract class AbstractBackupTask extends Backup
         $user = $this->backupTask->user;
 
         $this->logWithTimestamp($message, $user->getAttribute('timezone'));
+    }
+
+    /**
+     * Encrypts the backup file on the remote server using the specified password.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP connection
+     * @param  string  $remoteFilePath  The path to the file to be encrypted
+     *
+     * @throws RuntimeException|Exception If encryption fails
+     */
+    protected function setFileEncryption(SFTPInterface $sftp, string $remoteFilePath): void
+    {
+        $this->ensureEncryptionPassword();
+        $this->ensureOpensslCommandExists($sftp);
+
+        $iv = $this->generateSecureIV();
+        $encryptCommand = $this->buildEncryptCommand($remoteFilePath, $iv);
+
+        $this->logMessage('Encrypting backup file.');
+        $result = $sftp->exec($encryptCommand);
+
+        if ($result === false) {
+            $this->handleEncryptionFailure($sftp->getLastError() ?: 'Unknown error during encryption');
+        }
+
+        if (is_string($result) && stripos($result, 'error') !== false) {
+            $this->handleEncryptionFailure($result);
+        }
+
+        $this->logMessage('Backup file encrypted successfully.');
+    }
+
+    /**
+     * Ensures that the required 'openssl' command is available on the remote system.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP connection to use for command execution
+     *
+     * @throws RuntimeException If the 'openssl' command is not available
+     */
+    private function ensureOpensslCommandExists(SFTPInterface $sftp): void
+    {
+        $result = $sftp->exec('command -v openssl');
+        if ($result === false || ($result === '' || $result === '0')) {
+            $this->logError('The openssl command is not available on the remote system.');
+            throw new RuntimeException('Required openssl command not found on the remote system.');
+        }
+    }
+
+    /**
+     * Ensures that an encryption password is set for the backup task.
+     *
+     * @throws RuntimeException If no encryption password is set
+     */
+    private function ensureEncryptionPassword(): void
+    {
+        if (! $this->backupTask->hasEncryptionPassword()) {
+            $this->logError('Attempted to set encryption for this backup but no encryption password was supplied.', ['backup_task' => $this->backupTask]);
+            throw new RuntimeException('Encryption password is missing.');
+        }
+    }
+
+    /**
+     * Generates a cryptographically secure initialization vector (IV) for encryption.
+     *
+     * @return string A 16-byte string to be used as the IV
+     *
+     * @throws RuntimeException If a secure IV cannot be generated
+     */
+    private function generateSecureIV(): string
+    {
+        /** @var string|false $iv */
+        $iv = openssl_random_pseudo_bytes(16, $strong);
+
+        if ($iv === false || ! $strong) {
+            $this->logError('Failed to generate a cryptographically strong IV.');
+            throw new RuntimeException('Failed to generate a secure initialization vector.');
+        }
+
+        return $iv;
+    }
+
+    /**
+     * Builds the OpenSSL command for encrypting the backup file.
+     *
+     * @param  string  $remoteFilePath  The path to the file to be encrypted on the remote server
+     * @param  string  $iv  The initialization vector to use for encryption
+     * @return string The complete OpenSSL command for file encryption
+     */
+    private function buildEncryptCommand(string $remoteFilePath, string $iv): string
+    {
+        $encryptionPassword = $this->backupTask->getAttribute('encryption_password');
+        $ivHex = bin2hex($iv);
+
+        return sprintf(
+            'openssl enc -aes-256-cbc -in %s -out %s.enc -pass pass:%s -pbkdf2 -iter 100000 -nosalt && ' .
+            'echo -n %s | xxd -r -p | cat - %s.enc > %s.tmp && ' .
+            'mv %s.tmp %s && rm %s.enc',
+            escapeshellarg($remoteFilePath),
+            escapeshellarg($remoteFilePath),
+            escapeshellarg((string) $encryptionPassword),
+            $ivHex,
+            escapeshellarg($remoteFilePath),
+            escapeshellarg($remoteFilePath),
+            escapeshellarg($remoteFilePath),
+            escapeshellarg($remoteFilePath),
+            escapeshellarg($remoteFilePath)
+        );
+    }
+
+    /**
+     * Handles encryption failure by logging the error and throwing an exception.
+     *
+     * @param  string  $error  The error message describing why encryption failed
+     *
+     * @throws RuntimeException Always thrown to indicate encryption failure
+     */
+    private function handleEncryptionFailure(string $error): void
+    {
+        $this->logError('Failed to encrypt the backup file.', ['error' => $error]);
+        throw new RuntimeException('Failed to encrypt the backup file: ' . $error);
     }
 }

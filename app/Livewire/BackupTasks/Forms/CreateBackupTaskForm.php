@@ -67,6 +67,8 @@ class CreateBackupTaskForm extends Component
 
     public ?string $isolatedPassword = null;
 
+    public ?string $encryptionPassword = null;
+
     public int $currentStep = 1;
 
     public int $totalSteps = 6;
@@ -112,6 +114,7 @@ class CreateBackupTaskForm extends Component
         'frequency' => 'Backup Frequency',
         'timeToRun' => 'Time to Backup',
         'cronExpression' => 'Cron Expression',
+        'encryptionPassword' => 'Encryption Password',
     ];
 
     /**
@@ -310,6 +313,7 @@ class CreateBackupTaskForm extends Component
         $baseRules = [
             'isolatedUsername' => ['nullable', 'string'],
             'isolatedPassword' => ['nullable', 'string'],
+            'encryptionPassword' => ['nullable', 'string'],
             'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
@@ -395,6 +399,7 @@ class CreateBackupTaskForm extends Component
                 ? "Custom: {$this->cronExpression}"
                 : ucfirst((string) $this->frequency) . " at {$this->timeToRun}",
             'Using Isolated Environment' => $this->useIsolatedCredentials ? 'Yes' : 'No',
+            'Supplied Encryption Password' => $this->encryptionPassword ? 'Yes' : 'No',
             'Tags' => $this->getSelectedTagLabels(),
             'Notification Streams' => $this->getSelectedStreamLabels(),
         ];
@@ -652,6 +657,7 @@ class CreateBackupTaskForm extends Component
             'excluded_database_tables' => $this->excludedDatabaseTables,
             'isolated_username' => $this->isolatedUsername,
             'isolated_password' => $this->isolatedPassword ? Crypt::encryptString($this->isolatedPassword) : null,
+            'encryption_password' => $this->encryptionPassword,
         ];
     }
 

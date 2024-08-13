@@ -218,6 +218,14 @@
                             </div>
                         @endif
                         <div class="mt-4">
+                            <x-input-label for="encryptionPassword" :value="__('Encryption Password')"/>
+                            <x-text-input id="encryptionPassword" class="block mt-1 w-full" type="password"
+                                          wire:model="encryptionPassword"
+                                          name="encryptionPassword"/>
+                            <x-input-error :messages="$errors->get('encryptionPassword')" class="mt-2"/>
+                            <x-input-explain>{{ __('You can optionally set an encryption password which will enhance the security of this backup.') }}</x-input-explain>
+                        </div>
+                        <div class="mt-4">
                             <x-input-label for="appendedFileName" :value="__('Additional Filename Text')"/>
                             <x-text-input id="appendedFileName" class="block mt-1 w-full" type="text"
                                           wire:model="appendedFileName"
@@ -392,6 +400,10 @@
                                                             @break
                                                         @case(__('Backup Type'))
                                                             @svg('heroicon-o-archive-box', 'w-5 h-5 mr-2
+                                                            text-yellow-500')
+                                                            @break
+                                                        @case(__('Supplied Encryption Password'))
+                                                            @svg('heroicon-o-key', 'w-5 h-5 mr-2
                                                             text-yellow-500')
                                                             @break
                                                         @case(__('Backup Destination'))
