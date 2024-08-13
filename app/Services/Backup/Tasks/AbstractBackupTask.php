@@ -311,6 +311,6 @@ abstract class AbstractBackupTask extends Backup
     private function handleEncryptionFailure(string $error): void
     {
         $this->logError('Failed to encrypt the backup file.', ['error' => $error]);
-        throw new RuntimeException('Failed to encrypt the backup file: ' . $error);
+        throw new RuntimeException("Failed to encrypt the backup file: {$error}");
     }
 }

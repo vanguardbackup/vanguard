@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
 use ReflectionClass;
+use RuntimeException;
 
 uses(RefreshDatabase::class);
 
@@ -114,6 +115,125 @@ it('handles backup failure', function (): void {
 
     expect($this->abstractBackupTask->getLogOutput())
         ->toContain('Error in backup process: Test exception');
+});
+
+afterEach(function (): void {
+    Mockery::close();
+});
+
+beforeEach(function (): void {
+    $this->backupTask = BackupTask::factory()->create([
+        'encryption_password' => 'test_password',
+    ]);
+
+    $this->abstractBackupTask = new class($this->backupTask->id) extends AbstractBackupTask
+    {
+        public function getLogOutput(): string
+        {
+            return $this->logOutput;
+        }
+
+        protected function performBackup(): void
+        {
+            $this->logMessage('Performing backup');
+        }
+    };
+
+    $this->reflection = new ReflectionClass($this->abstractBackupTask);
+});
+
+it('ensures encryption password exists', function (): void {
+    $method = $this->reflection->getMethod('ensureEncryptionPassword');
+
+    // Should not throw an exception
+    $method->invoke($this->abstractBackupTask);
+
+    // Now let's remove the encryption password
+    $this->backupTask->update(['encryption_password' => null]);
+    $this->abstractBackupTask = new class($this->backupTask->id) extends AbstractBackupTask
+    {
+        protected function performBackup(): void {}
+    };
+
+    $this->expectException(RuntimeException::class);
+    $this->expectExceptionMessage('Encryption password is missing.');
+    $method->invoke($this->abstractBackupTask);
+});
+
+it('generates secure IV', function (): void {
+    $method = $this->reflection->getMethod('generateSecureIV');
+
+    $iv = $method->invoke($this->abstractBackupTask);
+
+    expect(strlen((string) $iv))->toBe(16)
+        ->and(bin2hex((string) $iv))->toMatch('/^[0-9a-f]{32}$/');
+});
+
+it('builds encrypt command', function (): void {
+    $method = $this->reflection->getMethod('buildEncryptCommand');
+
+    $remoteFilePath = '/path/to/backup.zip';
+    $iv = hex2bin('4c3dbe3d7a693f8c4995894939880b27');
+
+    $command = $method->invoke($this->abstractBackupTask, $remoteFilePath, $iv);
+
+    expect($command)
+        ->toContain("openssl enc -aes-256-cbc -in '/path/to/backup.zip' -out '/path/to/backup.zip'.enc")
+        ->toContain("-pass pass:'test_password' -pbkdf2 -iter 100000 -nosalt")
+        ->toContain('echo -n 4c3dbe3d7a693f8c4995894939880b27')
+        ->toContain("xxd -r -p | cat - '/path/to/backup.zip'.enc > '/path/to/backup.zip'.tmp")
+        ->toContain("mv '/path/to/backup.zip'.tmp '/path/to/backup.zip'")
+        ->toContain("rm '/path/to/backup.zip'.enc");
+});
+
+it('ensures openssl command exists', function (): void {
+    $method = $this->reflection->getMethod('ensureOpensslCommandExists');
+
+    $mock = Mockery::mock(SFTPInterface::class);
+
+    // Test when openssl exists
+    $mock->shouldReceive('exec')
+        ->with('command -v openssl')
+        ->andReturn('/usr/bin/openssl');
+
+    // Should not throw an exception
+    $method->invoke($this->abstractBackupTask, $mock);
+
+    // Test when openssl doesn't exist
+    $mock = Mockery::mock(SFTPInterface::class);
+    $mock->shouldReceive('exec')
+        ->with('command -v openssl')
+        ->andReturn('');
+
+    $this->expectException(RuntimeException::class);
+    $this->expectExceptionMessage('Required openssl command not found on the remote system.');
+    $method->invoke($this->abstractBackupTask, $mock);
+});
+
+it('handles encryption failure', function (): void {
+    $method = $this->reflection->getMethod('handleEncryptionFailure');
+
+    $errorMessage = 'Test encryption error';
+
+    try {
+        $method->invoke($this->abstractBackupTask, $errorMessage);
+        $this->fail('Expected exception was not thrown');
+    } catch (RuntimeException $e) {
+        expect($e->getMessage())->toBe("Failed to encrypt the backup file: {$errorMessage}");
+    }
+
+    // Check the log output
+    $logMethod = $this->reflection->getMethod('logError');
+
+    $legacyMock = Mockery::mock(AbstractBackupTask::class)->makePartial();
+
+    try {
+        $method->invoke($legacyMock, $errorMessage);
+    } catch (RuntimeException) {
+        // Expected exception
+    }
+
+    Mockery::close();
 });
 
 afterEach(function (): void {
