@@ -46,9 +46,6 @@ jobs:
           cp .env.example.ci .env
           php artisan key:generate
           php artisan vanguard:generate-ssh-key
-          php artisan clear-compiled
-          php artisan config:cache
-          composer dump-autoload
 
       - name: Cache Laravel application
         uses: actions/cache@v4
@@ -82,12 +79,6 @@ jobs:
           php artisan config:clear
           php artisan cache:clear
           php artisan view:clear
-
-      - name: Debug information
-        run: |
-          php --version
-          composer --version
-          php artisan --version
 
       - name: Run Tests
         run: vendor/bin/pest
