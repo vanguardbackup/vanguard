@@ -88,7 +88,6 @@ jobs:
           php --version
           composer --version
           php artisan --version
-          php artisan config:list
 
       - name: Run Tests
         run: vendor/bin/pest
