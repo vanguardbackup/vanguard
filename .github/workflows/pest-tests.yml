@@ -31,12 +31,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install PHP extensions
-        run: |
-          apt-get update && apt-get install -y \
-            libpq-dev \
-            && docker-php-ext-install pdo pdo_pgsql
-
       - name: Cache Composer packages
         uses: actions/cache@v4
         with:
@@ -52,9 +46,9 @@ jobs:
           cp .env.example.ci .env
           php artisan key:generate
           php artisan vanguard:generate-ssh-key
-          composer dump-autoload
           php artisan clear-compiled
           php artisan config:cache
+          composer dump-autoload
 
       - name: Cache Laravel application
         uses: actions/cache@v4
