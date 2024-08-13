@@ -31,6 +31,12 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Install PHP extensions
+        run: |
+          apt-get update && apt-get install -y \
+            libpq-dev \
+            && docker-php-ext-install pdo pdo_pgsql
+
       - name: Cache Composer packages
         uses: actions/cache@v4
         with:
@@ -76,6 +82,19 @@ jobs:
           path: public/build
           key: ${{ runner.os }}-assets-${{ github.sha }}
           restore-keys: ${{ runner.os }}-assets-
+
+      - name: Clear caches
+        run: |
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+
+      - name: Debug information
+        run: |
+          php --version
+          composer --version
+          php artisan --version
+          php artisan config:list
 
       - name: Run Tests
         run: vendor/bin/pest
