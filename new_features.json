@@ -1,8 +1,8 @@
 [
     {
-        "title": "API Support",
-        "description": "Vanguard now has an API.",
-        "version": "1.5.0",
-        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.5.0"
+        "title": "API Token Expiry",
+        "description": "Tokens can now be expired!",
+        "version": "1.6.0",
+        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.6.0"
     }
 ]
