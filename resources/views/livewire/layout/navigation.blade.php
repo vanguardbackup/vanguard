@@ -88,16 +88,25 @@ new class extends Component
                                     class="flex items-center text-sm font-medium text-gray-50 hover:text-gray-100 focus:outline-none transition duration-150 ease-in-out"
                                     aria-expanded="false">
                                 <span class="sr-only">Open user menu</span>
-                                <div x-data="{ imageLoaded: false }" class="relative h-8 w-8 mr-2">
+                                <div x-data="{
+                imageLoaded: false,
+                reloadCount: 0,
+                maxReloads: 3,
+                imageUrl: '{{ Auth::user()->gravatar() }}'
+            }"
+                                     class="relative h-8 w-8 mr-2">
+                                    <!-- Skeleton loader -->
                                     <div
                                         x-show="!imageLoaded"
                                         class="absolute inset-0 bg-gray-600 dark:bg-gray-400 rounded-full animate-pulse"
                                     ></div>
+                                    <!-- User avatar -->
                                     <img
                                         x-on:load="imageLoaded = true"
+                                        x-on:error="reloadImage"
                                         x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
                                         class="h-8 w-8 rounded-full border border-gray-950 transition-opacity duration-300"
-                                        src="{{ Auth::user()->gravatar() }}"
+                                        x-bind:src="imageUrl"
                                     />
                                 </div>
                                 <span x-data="{ name: @js(auth()->user()->first_name) }"
@@ -113,6 +122,18 @@ new class extends Component
                                 </svg>
                             </button>
                         </x-slot>
+
+                        <script>
+                            function reloadImage() {
+                                if (this.reloadCount < this.maxReloads) {
+                                    setTimeout(() => {
+                                        this.reloadCount++;
+                                        this.imageLoaded = false;
+                                        this.imageUrl = '{{ Auth::user()->gravatar() }}' + '?' + new Date().getTime(); // Cache busting
+                                    }, 1000); // 1-second delay before retry
+                                }
+                            }
+                        </script>
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile')" wire:navigate>
                                 @svg('heroicon-o-user-circle', 'h-5 w-5 mr-2 inline')
