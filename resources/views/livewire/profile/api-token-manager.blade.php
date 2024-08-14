@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\NewAccessToken;
@@ -16,8 +17,7 @@ use Masmerise\Toaster\Toaster;
  *
  * Manages the creation, viewing, and deletion of API tokens for users.
  */
-new class extends Component
-{
+new class extends Component {
     /** @var string The name of the new token being created */
     #[Modelable]
     public string $name = '';
@@ -39,6 +39,12 @@ new class extends Component
 
     /** @var int|null The ID of the token whose abilities are being viewed */
     public ?int $viewingTokenId = null;
+
+    /** @var string The selected expiration option for the new token */
+    public string $expirationOption = '1_month';
+
+    /** @var string|null The custom expiration date for the new token */
+    public ?string $customExpirationDate = null;
 
     /**
      * Initialize the component state.
@@ -64,6 +70,14 @@ new class extends Component
                     $fail(__('At least one ability must be selected.'));
                 }
             }],
+            'expirationOption' => ['required', 'in:1_month,6_months,1_year,never,custom'],
+            'customExpirationDate' => [
+                'required_if:expirationOption,custom',
+                'nullable',
+                'date',
+                'after:today',
+                'before:' . now()->addYears(5)->format('Y-m-d'), // Limit to 5 years from now
+            ],
         ];
     }
 
@@ -81,19 +95,40 @@ new class extends Component
         /** @var User $user */
         $user = Auth::user();
 
+        $expiresAt = $this->getExpirationDate($validated['expirationOption'], $validated['customExpirationDate'] ?? null);
+
         $newAccessToken = $user->createToken(
             $validated['name'],
-            $selectedAbilities
+            $selectedAbilities,
+            $expiresAt
         );
 
         $this->displayTokenValue($newAccessToken);
 
         Toaster::success('API Token has been created.');
 
-        $this->reset('name');
+        $this->reset(['name', 'expirationOption', 'customExpirationDate']);
         $this->resetAbilities();
 
         $this->dispatch('created');
+    }
+
+    /**
+     * Get the expiration date based on the selected option.
+     *
+     * @param string $option
+     * @param string|null $customDate
+     * @return Carbon|null
+     */
+    private function getExpirationDate(string $option, ?string $customDate): ?Carbon
+    {
+        return match ($option) {
+            '1_month' => now()->addMonth(),
+            '6_months' => now()->addMonths(6),
+            '1_year' => now()->addYear(),
+            'custom' => $customDate ? Carbon::parse($customDate) : null,
+            default => null,
+        };
     }
 
     /**
@@ -256,6 +291,50 @@ new class extends Component
     }
 
     /**
+     * Get the expiration date for display.
+     *
+     * @param PersonalAccessToken $token
+     * @return string
+     */
+    public function getExpirationDisplay(PersonalAccessToken $token): string
+    {
+        if (!$token->expires_at) {
+            return __('Never');
+        }
+
+        $expiresAt = Carbon::parse($token->expires_at);
+        return $expiresAt->diffForHumans([
+            'parts' => 2,
+            'join' => true,
+            'short' => true,
+        ]);
+    }
+
+    /**
+     * Get the expiration status of a token.
+     *
+     * @param PersonalAccessToken $token
+     * @return string
+     */
+    public function getExpirationStatus(PersonalAccessToken $token): string
+    {
+        if (!$token->expires_at) {
+            return 'active';
+        }
+
+        $expiresAt = Carbon::parse($token->expires_at);
+        $now = now();
+
+        if ($expiresAt->isPast()) {
+            return 'expired';
+        } elseif ($expiresAt->diffInDays($now) <= 7) {
+            return 'expiring-soon';
+        } else {
+            return 'active';
+        }
+    }
+
+    /**
      * Get general abilities.
      *
      * @return array
@@ -384,14 +463,26 @@ new class extends Component
 };
 
 ?>
-<div>
+<div
+    x-data="{
+        showCustomDatepicker: false,
+        showNeverExpirationWarning: false,
+        init() {
+            this.$watch('$wire.expirationOption', value => {
+                this.showCustomDatepicker = (value === 'custom');
+                this.showNeverExpirationWarning = (value === 'never');
+            });
+        }
+    }"
+    class="space-y-6"
+>
     <!-- Create Token Modal -->
     <x-modal name="create-api-token" focusable>
         <x-slot name="title">
             {{ __('Create New API Token') }}
         </x-slot>
         <x-slot name="description">
-            {{ __('Generate a new API token with specific abilities.') }}
+            {{ __('Generate a new API token with specific abilities and expiration.') }}
         </x-slot>
         <x-slot name="icon">
             heroicon-o-code-bracket
@@ -402,6 +493,46 @@ new class extends Component
                 <x-text-input id="token_name" name="token_name" type="text" wire:model="name" autofocus
                               class="mt-1 block w-full" required/>
                 <x-input-error :messages="$errors->get('name')" class="mt-2"/>
+            </div>
+
+            <div>
+                <x-input-label for="expiration_option" :value="__('Token Expiration')"/>
+                <x-select id="expiration_option" name="expiration_option" wire:model="expirationOption"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                    <option value="1_month">{{ __('1 Month') }}</option>
+                    <option value="6_months">{{ __('6 Months') }}</option>
+                    <option value="1_year">{{ __('1 Year') }}</option>
+                    <option value="never">{{ __('Never') }}</option>
+                    <option value="custom">{{ __('Custom') }}</option>
+                </x-select>
+                <x-input-error :messages="$errors->get('expirationOption')" class="mt-2"/>
+            </div>
+
+            <div x-show="$wire.expirationOption === 'custom'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+                <x-input-label for="custom_expiration_date" :value="__('Custom Expiration Date')"/>
+                <x-text-input id="custom_expiration_date" name="custom_expiration_date" type="date" wire:model="customExpirationDate"
+                              class="mt-1 block w-full" :min="date('Y-m-d', strtotime('+1 day'))" :max="date('Y-m-d', strtotime('+5 years'))"/>
+                <x-input-error :messages="$errors->get('customExpirationDate')" class="mt-2"/>
+            </div>
+
+            <div x-show="showNeverExpirationWarning" x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100" class="rounded-md bg-yellow-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        @svg('heroicon-s-exclamation-triangle', 'h-5 w-5 text-yellow-400')
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            {{ __('Warning: Token Never Expires') }}
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>
+                                {{ __('Creating a token that never expires can be a security risk. Only use this option if absolutely necessary.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -421,12 +552,12 @@ new class extends Component
                                     class="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
                                 <span class="font-medium">{{ $group }}</span>
                                 <span class="float-right">
-                                        @if ($this->expandedGroups[$group])
+                        @if ($this->expandedGroups[$group])
                                         @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
                                     @else
                                         @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
                                     @endif
-                                    </span>
+                    </span>
                             </button>
                             <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
                                 <div class="p-4 space-y-4">
@@ -508,15 +639,17 @@ new class extends Component
                 {{ __('API Tokens') }}
             </x-slot>
             <div class="space-y-6">
-                <div class="py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600 dark:border-blue-500 font-normal mb-6 rounded-r">
+                <div
+                    class="py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600 dark:border-blue-500 font-normal mb-6 rounded-r">
                     <div class="flex items-center">
                         @svg('heroicon-o-information-circle', 'h-5 w-5 flex-shrink-0 mr-2')
                         <span>
-                            {{ __('Need help with API integration?') }}
-                            <a href="https://docs.vanguardbackup.com/api/introduction" target="_blank" class="font-medium underline hover:text-blue-700 dark:hover:text-blue-300">
-                                {{ __('Check our API documentation') }}
-                            </a>
-                        </span>
+                        {{ __('Need help with API integration?') }}
+                        <a href="https://docs.vanguardbackup.com/api/introduction" target="_blank"
+                           class="font-medium underline hover:text-blue-700 dark:hover:text-blue-300">
+                            {{ __('Check our API documentation') }}
+                        </a>
+                    </span>
                     </div>
                 </div>
                 <div class="mt-6 overflow-x-auto">
@@ -536,6 +669,10 @@ new class extends Component
                                 {{ __('Last Used') }}
                             </th>
                             <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ __('Expiration') }}
+                            </th>
+                            <th scope="col"
                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 {{ __('Actions') }}
                             </th>
@@ -547,11 +684,13 @@ new class extends Component
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                     <div class="flex items-center space-x-2">
                                         @if ($token->isMobileToken())
-                                            <div title="{{ __('Token was used on a mobile device.') }}" class="flex items-center space-x-2 bg-cyan-100 dark:bg-cyan-600 rounded-full px-3 py-1">
-                    <span class="text-cyan-600 dark:text-cyan-100">
-                        @svg('heroicon-o-device-phone-mobile', 'w-5 h-5')
-                    </span>
-                                                <span class="text-cyan-600 dark:text-cyan-100 text-xs font-semibold">{{ __('Mobile') }}</span>
+                                            <div title="{{ __('Token was used on a mobile device.') }}"
+                                                 class="flex items-center space-x-2 bg-cyan-100 dark:bg-cyan-600 rounded-full px-3 py-1">
+                                            <span class="text-cyan-600 dark:text-cyan-100">
+                                                @svg('heroicon-o-device-phone-mobile', 'w-5 h-5')
+                                            </span>
+                                                <span
+                                                    class="text-cyan-600 dark:text-cyan-100 text-xs font-semibold">{{ __('Mobile') }}</span>
                                             </div>
                                         @endif
                                         <span>{{ $token->name }}</span>
@@ -563,11 +702,37 @@ new class extends Component
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div class="flex items-center">
+        <span class="flex-shrink-0 w-2 h-2 mr-2 rounded-full
+            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-400 dark:bg-green-500' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-400 dark:bg-yellow-500' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-400 dark:bg-red-500' : '' }}
+        "></span>
+                                        <span class="inline-flex items-center text-xs font-medium
+            {{ $this->getExpirationStatus($token) === 'active' ? 'text-green-700 dark:text-green-400' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'text-yellow-700 dark:text-yellow-400' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expired' ? 'text-red-700 dark:text-red-400' : '' }}
+        ">
+            @if ($this->getExpirationStatus($token) === 'active')
+                                                @svg('heroicon-s-check-circle', 'w-4 h-4 mr-1')
+                                            @elseif ($this->getExpirationStatus($token) === 'expiring-soon')
+                                                @svg('heroicon-s-clock', 'w-4 h-4 mr-1')
+                                            @elseif ($this->getExpirationStatus($token) === 'expired')
+                                                @svg('heroicon-s-x-circle', 'w-4 h-4 mr-1')
+                                            @endif
+                                            {{ $this->getExpirationDisplay($token) }}
+        </span>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" class="mr-2" iconOnly title="{{ __('View Abilities') }}">
+                                    <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" class="mr-2"
+                                                        iconOnly title="{{ __('View Abilities') }}">
                                         @svg('heroicon-o-eye', 'w-4 h-4')
                                     </x-secondary-button>
-                                    <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})" wire:loading.attr="disabled" iconOnly title="{{ __('Revoke Token') }}">
+                                    <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})"
+                                                     wire:loading.attr="disabled" iconOnly
+                                                     title="{{ __('Revoke Token') }}">
                                         @svg('heroicon-o-trash', 'w-4 h-4')
                                     </x-danger-button>
                                 </td>
@@ -621,10 +786,10 @@ new class extends Component
             heroicon-o-code-bracket
         </x-slot>
         <div class="space-y-4">
-                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
-                    <code class="text-sm text-gray-800 dark:text-gray-200 break-all"
-                          x-ref="tokenDisplay">{{ $plainTextToken }}</code>
-                </div>
+            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                <code class="text-sm text-gray-800 dark:text-gray-200 break-all"
+                      x-ref="tokenDisplay">{{ $plainTextToken }}</code>
+            </div>
             <div class="mt-6">
                 <x-secondary-button
                     x-on:click="navigator.clipboard.writeText($refs.tokenDisplay.textContent); $dispatch('close')"
@@ -652,6 +817,19 @@ new class extends Component
                     $token = $this->tokens->find($viewingTokenId);
                 @endphp
                 @if ($token)
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $token->name }}</h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            {{ __('Expires') }}:
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
+                            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
+                            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}
+                        ">
+                            {{ $this->getExpirationDisplay($token) }}
+                        </span>
+                        </p>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         @if (isset($this->availableAbilities) && is_array($this->availableAbilities))
                             @foreach ($this->availableAbilities as $group => $groupAbilities)
@@ -663,11 +841,13 @@ new class extends Component
                                         @foreach ($groupAbilities as $key => $ability)
                                             <li class="flex items-center space-x-2">
                                                 @if (in_array($key, $token->abilities, true))
-                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500 flex-shrink-0')
+                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500
+                                                    flex-shrink-0')
                                                 @else
                                                     @svg('heroicon-s-x-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
                                                 @endif
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
+                                                <span
+                                                    class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -688,4 +868,5 @@ new class extends Component
             </x-secondary-button>
         </div>
     </x-modal>
+
 </div>
