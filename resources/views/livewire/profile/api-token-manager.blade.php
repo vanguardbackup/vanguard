@@ -497,8 +497,7 @@ new class extends Component {
 
             <div>
                 <x-input-label for="expiration_option" :value="__('Token Expiration')"/>
-                <x-select id="expiration_option" name="expiration_option" wire:model="expirationOption"
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                <x-select id="expiration_option" name="expiration_option" wire:model="expirationOption">
                     <option value="1_month">{{ __('1 Month') }}</option>
                     <option value="6_months">{{ __('6 Months') }}</option>
                     <option value="1_year">{{ __('1 Year') }}</option>
@@ -515,18 +514,20 @@ new class extends Component {
                 <x-input-error :messages="$errors->get('customExpirationDate')" class="mt-2"/>
             </div>
 
-            <div x-show="showNeverExpirationWarning" x-transition:enter="transition ease-out duration-300"
+            <div x-show="showNeverExpirationWarning"
+                 x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100" class="rounded-md bg-yellow-50 p-4">
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 class="rounded-md p-4 bg-yellow-50 dark:bg-yellow-900">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        @svg('heroicon-s-exclamation-triangle', 'h-5 w-5 text-yellow-400')
+                        @svg('heroicon-s-exclamation-triangle', 'h-5 w-5 text-yellow-400 dark:text-yellow-300')
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800">
+                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-100">
                             {{ __('Warning: Token Never Expires') }}
                         </h3>
-                        <div class="mt-2 text-sm text-yellow-700">
+                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-200">
                             <p>
                                 {{ __('Creating a token that never expires can be a security risk. Only use this option if absolutely necessary.') }}
                             </p>
@@ -534,6 +535,7 @@ new class extends Component {
                     </div>
                 </div>
             </div>
+
 
             <div>
                 <x-input-label :value="__('Token Abilities')" class="mb-3"/>
@@ -549,7 +551,7 @@ new class extends Component {
                     @foreach ($this->availableAbilities as $group => $groupAbilities)
                         <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
                             <button type="button" wire:click="toggleGroup('{{ $group }}')"
-                                    class="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                                    class="w-full px-4 py-2 text-left dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
                                 <span class="font-medium">{{ $group }}</span>
                                 <span class="float-right">
                         @if ($this->expandedGroups[$group])
@@ -800,6 +802,7 @@ new class extends Component {
         </div>
     </x-modal>
 
+
     <!-- View Token Abilities Modal -->
     <x-modal name="view-token-abilities" focusable>
         <x-slot name="title">
@@ -811,7 +814,7 @@ new class extends Component {
         <x-slot name="icon">
             heroicon-o-code-bracket
         </x-slot>
-        <div class="mt-4 space-y-4">
+        <div>
             @if ($viewingTokenId)
                 @php
                     $token = $this->tokens->find($viewingTokenId);
@@ -822,32 +825,30 @@ new class extends Component {
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             {{ __('Expires') }}:
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
-                            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
-                            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}
-                        ">
-                            {{ $this->getExpirationDisplay($token) }}
-                        </span>
+                        {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
+                        {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
+                        {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}
+                    ">
+                        {{ $this->getExpirationDisplay($token) }}
+                    </span>
                         </p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         @if (isset($this->availableAbilities) && is_array($this->availableAbilities))
                             @foreach ($this->availableAbilities as $group => $groupAbilities)
                                 <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                                    <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-medium">
+                                    <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-medium text-gray-900 dark:text-gray-100">
                                         {{ $group }}
                                     </div>
                                     <ul class="p-4 space-y-2">
                                         @foreach ($groupAbilities as $key => $ability)
                                             <li class="flex items-center space-x-2">
-                                                @if (in_array($key, $token->abilities, true))
-                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500
-                                                    flex-shrink-0')
+                                                @if (in_array('*', $token->abilities, true) || in_array($key, $token->abilities, true))
+                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500 flex-shrink-0')
                                                 @else
                                                     @svg('heroicon-s-x-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
                                                 @endif
-                                                <span
-                                                    class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
+                                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
