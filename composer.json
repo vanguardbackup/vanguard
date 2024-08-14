@@ -9,6 +9,7 @@
         "blade-ui-kit/blade-heroicons": "^2.3",
         "danharrin/livewire-rate-limiting": "^1.3",
         "diglactic/laravel-breadcrumbs": "^9.0",
+        "laragear/two-factor": "^2.0",
         "laravel/framework": "^11.9",
         "laravel/horizon": "^5.24",
         "laravel/pail": "^1.1",
@@ -22,7 +23,7 @@
         "livewire/volt": "^1.0",
         "masmerise/livewire-toaster": "^2.2",
         "phpseclib/phpseclib": "~3.0",
-        "spatie/laravel-flare": "^1.0"
+        "spatie/laravel-flare": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laragear\TwoFactor\Contracts\TwoFactorAuthenticatable;
+use Laragear\TwoFactor\TwoFactorAuthentication;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 
@@ -22,12 +24,16 @@ use Laravel\Sanctum\NewAccessToken;
  * This model handles user authentication, profile information, and relationships
  * to various entities such as remote servers, backup destinations, and tasks.
  */
-class User extends Authenticatable
+class User extends Authenticatable implements TwoFactorAuthenticatable
 {
     use HasApiTokens;
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
+    use TwoFactorAuthentication;
+
+    public const string TWO_FACTOR_APP = 'app';
+    public const string TWO_FACTOR_EMAIL = 'email';
 
     protected $fillable = [
         'name',

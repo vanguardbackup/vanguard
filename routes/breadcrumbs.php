@@ -98,3 +98,7 @@ Breadcrumbs::for('statistics', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('profile.api', function (BreadcrumbTrail $trail) {
     $trail->push(__('Manage API Tokens'), route('profile.api'));
 });
+
+Breadcrumbs::for('profile.mfa', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Multi-Factor Authentication (2FA)'), route('profile.mfa'));
+});

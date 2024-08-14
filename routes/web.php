@@ -12,6 +12,7 @@ use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use App\Livewire\Profile\APIPage;
+use App\Livewire\Profile\MFAPage;
 use App\Livewire\StatisticsPage;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +66,7 @@ Route::middleware([UserLanguage::class, 'auth'])->group(function () {
     Route::get('statistics', StatisticsPage::class)->name('statistics');
 
     Route::get('profile/api', APIPage::class)->name('profile.api');
+    Route::get('profile/mfa', MFAPage::class)->name('profile.mfa');
 });
 
 require __DIR__ . '/auth.php';

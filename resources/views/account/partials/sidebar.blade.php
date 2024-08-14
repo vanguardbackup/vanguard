@@ -33,6 +33,14 @@
             </x-sidebar-nav-link>
         </li>
         <li class="flex-1 lg:flex-initial">
+            <x-sidebar-nav-link :href="route('profile.mfa')" :active="request()->routeIs('profile.mfa*')" wire:navigate>
+        <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
+            @svg('heroicon-o-lock-closed', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
+            <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage 2FA') }}</span>
+        </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li class="flex-1 lg:flex-initial">
             <x-sidebar-nav-link :href="route('account.remove-account')" :active="request()->routeIs('account.remove-account')" wire:navigate>
                 <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
                     @svg('heroicon-o-trash', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
