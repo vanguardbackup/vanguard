@@ -213,6 +213,7 @@ class BackupTaskController extends Controller
             'excluded_database_tables' => ['nullable', 'string'],
             'isolated_username' => ['nullable', 'string'],
             'isolated_password' => ['nullable', 'string'],
+            'encryption_password' => ['nullable', 'string'],
             'time_to_run_at' => ['required_without:custom_cron_expression', 'nullable', 'date_format:H:i'],
             'custom_cron_expression' => ['required_without:time_to_run_at', 'nullable', 'string'],
         ];

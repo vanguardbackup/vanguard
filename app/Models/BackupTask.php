@@ -987,6 +987,14 @@ class BackupTask extends Model
     }
 
     /**
+     * Check if the task has an encryption password set.
+     */
+    public function hasEncryptionPassword(): bool
+    {
+        return $this->getAttribute('encryption_password') !== null;
+    }
+
+    /**
      * Format the backup task's last run time according to the user's locale preferences.
      */
     public function lastRunFormatted(?User $user = null): ?string
@@ -1055,6 +1063,7 @@ class BackupTask extends Model
         return [
             'last_run_at' => 'datetime',
             'last_scheduled_weekly_run_at' => 'datetime',
+            'encryption_password' => 'encrypted',
         ];
     }
 

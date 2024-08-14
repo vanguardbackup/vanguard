@@ -75,6 +75,10 @@ class FileBackupTask extends AbstractBackupTask
         $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath, $excludeDirs);
         $this->logMessage(sprintf('Directory compression complete. Archive location: %s.', $remoteZipPath));
 
+        if ($this->backupTask->hasEncryptionPassword()) {
+            $this->setFileEncryption($sftp, $remoteZipPath);
+        }
+
         $this->backupTask->setScriptUpdateTime();
 
         if (! $this->backupDestinationDriver($backupDestinationModel->type, $sftp, $remoteZipPath, $backupDestinationModel, $zipFileName, $storagePath)) {

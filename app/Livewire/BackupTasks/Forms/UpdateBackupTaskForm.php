@@ -69,6 +69,8 @@ class UpdateBackupTaskForm extends Component
 
     public ?string $isolatedPassword = null;
 
+    public ?string $encryptionPassword = null;
+
     /** @var Collection<int, RemoteServer>|null */
     public ?Collection $remoteServers = null;
 
@@ -186,6 +188,7 @@ class UpdateBackupTaskForm extends Component
             'store_path' => 'storePath',
             'excluded_database_tables' => 'excludedDatabaseTables',
             'isolated_username' => 'isolatedUsername',
+            'encryption_password' => null,
         ];
 
         foreach ($attributeMap as $modelAttribute => $formProperty) {
@@ -232,6 +235,7 @@ class UpdateBackupTaskForm extends Component
     private function rules(): array
     {
         $baseRules = [
+            'encryptionPassword' => ['nullable', 'string'],
             'isolatedUsername' => ['nullable', 'string'],
             'isolatedPassword' => ['nullable', 'string'],
             'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
@@ -325,6 +329,13 @@ class UpdateBackupTaskForm extends Component
         if ($this->isolatedPassword) {
             $this->backupTask->updateQuietly([
                 'isolated_password' => Crypt::encrypt($this->isolatedPassword),
+            ]);
+        }
+
+        if (! is_null($this->encryptionPassword)) {
+            $this->backupTask->updateQuietly([
+                // We're using 'encryption' cast here.
+                'encryption_password' => $this->encryptionPassword,
             ]);
         }
 
