@@ -225,3 +225,99 @@ test('group expansion toggle works', function (): void {
         ->call('toggleGroup', 'General')
         ->assertSet('expandedGroups.General', false);
 });
+
+test('api tokens can be created with custom expiration date', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $expirationDate = now()->addMonths(3)->format('Y-m-d');
+
+    Volt::test('profile.api-token-manager')
+        ->set('name', 'Custom Expiration Token')
+        ->set('abilities', ['view-backup-destinations' => true])
+        ->set('expirationOption', 'custom')
+        ->set('customExpirationDate', $expirationDate)
+        ->call('createApiToken')
+        ->assertHasNoErrors()
+        ->assertDispatched('created');
+
+    $token = $user->fresh()->tokens->first();
+    expect($token->name)->toBe('Custom Expiration Token')
+        ->and($token->expires_at->format('Y-m-d'))->toBe($expirationDate);
+});
+
+test('api tokens cannot be created with invalid custom expiration date', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
+        ->set('name', 'Invalid Expiration Token')
+        ->set('abilities', ['view-backup-destinations' => true])
+        ->set('expirationOption', 'custom')
+        ->set('customExpirationDate', now()->subDay()->format('Y-m-d'))
+        ->call('createApiToken')
+        ->assertHasErrors(['customExpirationDate']);
+});
+
+test('api tokens can be created with predefined expiration options', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $expirationOptions = ['1_month', '6_months', '1_year'];
+
+    foreach ($expirationOptions as $expirationOption) {
+        $component = Volt::test('profile.api-token-manager')
+            ->set('name', "Token with {$expirationOption} expiration")
+            ->set('abilities', ['view-backup-destinations'])
+            ->set('expirationOption', $expirationOption);
+
+        $component->call('createApiToken')
+            ->assertHasNoErrors()
+            ->assertDispatched('created');
+
+        $token = $user->fresh()->tokens->sortByDesc('created_at')->first();
+        expect($token->name)->toBe("Token with {$expirationOption} expiration");
+
+        $expectedExpiration = match ($expirationOption) {
+            '1_month' => now()->addMonth(),
+            '6_months' => now()->addMonths(6),
+            '1_year' => now()->addYear(),
+        };
+
+        expect($token->expires_at->startOfDay())->toEqual($expectedExpiration->startOfDay());
+
+        $token->delete();
+    }
+});
+
+test('api tokens can be created with no expiration', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    Volt::test('profile.api-token-manager')
+        ->set('name', 'Never Expiring Token')
+        ->set('abilities', ['view-backup-destinations' => true])
+        ->set('expirationOption', 'never')
+        ->call('createApiToken')
+        ->assertHasNoErrors()
+        ->assertDispatched('created');
+
+    $token = $user->fresh()->tokens->first();
+    expect($token->name)->toBe('Never Expiring Token')
+        ->and($token->expires_at)->toBeNull();
+});
+
+test('custom expiration date cannot be more than 5 years in the future', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $farFutureDate = now()->addYears(6)->format('Y-m-d');
+
+    Volt::test('profile.api-token-manager')
+        ->set('name', 'Far Future Token')
+        ->set('abilities', ['view-backup-destinations' => true])
+        ->set('expirationOption', 'custom')
+        ->set('customExpirationDate', $farFutureDate)
+        ->call('createApiToken')
+        ->assertHasErrors(['customExpirationDate']);
+});
