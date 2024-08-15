@@ -95,7 +95,9 @@
             <div class="mt-2 flex justify-center space-x-6">
                 <a href="https://github.com/vanguardbackup/vanguard" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" target="_blank">
                     <span class="sr-only">GitHub</span>
-                    @svg('heroicon-o-code-bracket', 'h-6 w-6')
+                    <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
                 </a>
             </div>
         </footer>
@@ -148,71 +150,82 @@
         }
     </style>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const codeInput = document.getElementById('code');
-            const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
-            const hiddenCodeInput = document.getElementById('hiddenCode');
-            const form = document.getElementById('twoFactorForm');
-            const codeTypeToggle = document.getElementById('codeTypeToggle');
-            const authCodeInputDiv = document.getElementById('authCodeInput');
-            const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
-            const codeError = document.getElementById('codeError');
-            const recoveryCodeError = document.getElementById('recoveryCodeError');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const codeInput = document.getElementById('code');
+        const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
+        const hiddenCodeInput = document.getElementById('hiddenCode');
+        const form = document.getElementById('twoFactorForm');
+        const codeTypeToggle = document.getElementById('codeTypeToggle');
+        const authCodeInputDiv = document.getElementById('authCodeInput');
+        const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
+        const codeError = document.getElementById('codeError');
+        const recoveryCodeError = document.getElementById('recoveryCodeError');
+        const submitButton = document.querySelector('button[type="submit"]');
 
-            function updateHiddenInput(value) {
-                hiddenCodeInput.value = value;
+        function updateHiddenInput(value) {
+            hiddenCodeInput.value = value;
+        }
+
+        function validateInput(input, errorElement) {
+            if (!input.value) {
+                errorElement.textContent = 'This field is required.';
+                errorElement.style.display = 'block';
+                return false;
             }
+            errorElement.style.display = 'none';
+            return true;
+        }
 
-            function validateInput(input, errorElement) {
-                if (!input.value) {
-                    errorElement.textContent = 'This field is required.';
-                    errorElement.style.display = 'block';
-                    return false;
-                }
-                errorElement.style.display = 'none';
-                return true;
+        codeInput.addEventListener('input', function () {
+            updateHiddenInput(this.value);
+            validateInput(this, codeError);
+            if (this.value.length === 6) {
+                submitForm();
             }
-
-            codeInput.addEventListener('input', function () {
-                updateHiddenInput(this.value);
-                validateInput(this, codeError);
-                if (this.value.length === 6) {
-                    form.requestSubmit();
-                }
-            });
-
-            recoveryCodeInput.addEventListener('input', function () {
-                updateHiddenInput(this.value);
-                validateInput(this, recoveryCodeError);
-            });
-
-            codeTypeToggle.addEventListener('change', function () {
-                if (this.checked) {
-                    authCodeInputDiv.style.display = 'none';
-                    recoveryCodeInputDiv.style.display = 'block';
-                    recoveryCodeInput.focus();
-                } else {
-                    authCodeInputDiv.style.display = 'block';
-                    recoveryCodeInputDiv.style.display = 'none';
-                    codeInput.focus();
-                }
-                hiddenCodeInput.value = '';
-                codeError.style.display = 'none';
-                recoveryCodeError.style.display = 'none';
-            });
-
-            form.addEventListener('submit', function (event) {
-                let isValid = true;
-                if (codeTypeToggle.checked) {
-                    isValid = validateInput(recoveryCodeInput, recoveryCodeError);
-                } else {
-                    isValid = validateInput(codeInput, codeError);
-                }
-                if (!isValid) {
-                    event.preventDefault();
-                }
-            });
         });
-    </script>
+
+        recoveryCodeInput.addEventListener('input', function () {
+            updateHiddenInput(this.value);
+            validateInput(this, recoveryCodeError);
+        });
+
+        codeTypeToggle.addEventListener('change', function () {
+            if (this.checked) {
+                authCodeInputDiv.style.display = 'none';
+                recoveryCodeInputDiv.style.display = 'block';
+                recoveryCodeInput.focus();
+            } else {
+                authCodeInputDiv.style.display = 'block';
+                recoveryCodeInputDiv.style.display = 'none';
+                codeInput.focus();
+            }
+            hiddenCodeInput.value = '';
+            codeError.style.display = 'none';
+            recoveryCodeError.style.display = 'none';
+        });
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            submitForm();
+        });
+
+        submitButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            submitForm();
+        });
+
+        function submitForm() {
+            let isValid = true;
+            if (codeTypeToggle.checked) {
+                isValid = validateInput(recoveryCodeInput, recoveryCodeError);
+            } else {
+                isValid = validateInput(codeInput, codeError);
+            }
+            if (isValid) {
+                form.submit();
+            }
+        }
+    });
+</script>
 </x-minimal-layout>
