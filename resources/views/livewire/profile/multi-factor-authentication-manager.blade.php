@@ -77,6 +77,16 @@ new class extends Component {
             return;
         }
 
+        $token = Str::random(40);
+        $user->update([
+            'last_two_factor_ip' => request()->ip(),
+            'last_two_factor_at' => now(),
+            'two_factor_enabled_at' => now(),
+            'two_factor_verified_token' => Hash::make($token),
+        ]);
+
+        Cookie::queue('two_factor_verified', encrypt($token), 60 * 24 * 30); // 30 days
+
         $this->currentView = 'success';
         $this->showingRecoveryCodes = true;
         $this->currentMethod = 'app';
@@ -97,6 +107,8 @@ new class extends Component {
         $this->showingRecoveryCodes = false;
         $this->currentView = 'methods';
         $this->password = '';
+
+        Cookie::queue(Cookie::forget('two_factor_verified'));
 
         $this->dispatch('close-modal', 'confirm-disable-2fa');
         Toaster::success('Two-factor authentication has been disabled.');

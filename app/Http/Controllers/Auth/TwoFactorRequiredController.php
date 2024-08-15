@@ -26,6 +26,10 @@ class TwoFactorRequiredController extends Controller
      */
     public function __invoke(Request $request): View|RedirectResponse
     {
+        if (! $request->user() || ! $request->user()->hasTwoFactorEnabled()) {
+            return redirect()->route('overview');
+        }
+
         return $request->isMethod('post')
             ? $this->verifyTwoFactor($request)
             : view('auth.two-factor-challenge');
@@ -34,8 +38,8 @@ class TwoFactorRequiredController extends Controller
     /**
      * Verify the submitted two-factor authentication code.
      *
-     * This method handles the validation of the two-factor code, implements
-     * rate limiting, and sets up the necessary cookies and user data upon
+     * This method handles the validation of the two-factor code or recovery code,
+     * implements rate limiting, and sets up the necessary cookies and user data upon
      * successful verification.
      *
      * @param  Request  $request  The incoming HTTP request containing the two-factor code
@@ -44,7 +48,7 @@ class TwoFactorRequiredController extends Controller
     private function verifyTwoFactor(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'code' => ['required', 'string', 'size:6'],
+            'code' => ['required', 'string'],
         ]);
 
         $user = $request->user();
@@ -57,7 +61,9 @@ class TwoFactorRequiredController extends Controller
             return $this->rateLimitedResponse();
         }
 
-        if ($user->validateTwoFactorCode($validated['code'])) {
+        $code = $validated['code'];
+
+        if ($user->validateTwoFactorCode($code)) {
             return $this->handleSuccessfulVerification($user);
         }
 
@@ -116,6 +122,19 @@ class TwoFactorRequiredController extends Controller
             'last_two_factor_ip' => request()->ip(),
         ]);
 
+        $recoveryCodes = $user->getRecoveryCodes();
+        $unusedCodes = $recoveryCodes->filter(fn ($code): bool => $code['used_at'] === null);
+        $unusedCodeCount = $unusedCodes->count();
+        if ($unusedCodeCount === 0) {
+            return redirect()->intended(route('overview'))
+                ->with('warning', 'You have no unused recovery codes left. Please generate new ones immediately.');
+        }
+
+        if ($unusedCodeCount <= 3) {
+            return redirect()->intended(route('overview'))
+                ->with('warning', "You only have {$unusedCodeCount} unused recovery codes left. Consider generating new ones.");
+        }
+
         return redirect()->intended(route('overview'));
     }
 
@@ -130,7 +149,7 @@ class TwoFactorRequiredController extends Controller
         RateLimiter::hit($this->getRateLimitKey($userId));
         sleep(random_int(1, 3)); // Mitigate timing attacks
 
-        return back()->withErrors(['code' => 'The provided two-factor code was invalid.']);
+        return back()->withErrors(['code' => 'The provided two-factor code or recovery code was invalid.']);
     }
 
     /**
