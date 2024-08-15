@@ -398,25 +398,62 @@ new class extends Component {
                 <div class="mb-6">
                     <div class="mt-4 max-w-xl text-sm text-gray-600 dark:text-gray-400">
                         <p class="font-semibold">
-                            {{ __('Scan the following QR code using your phone\'s authenticator application or enter the setup key.') }}
+                            {{ __('Scan the QR code or enter the setup key in your authenticator app.') }}
                         </p>
                     </div>
 
-                    <div class="w-48 h-48 mb-4 md:mb-0 mx-auto">
-                        {!! $this->qrCodeSvg !!}
-                    </div>
+                    <div class="flex flex-col md:flex-row items-center justify-center mt-6">
+                        <div class="w-48 h-48 mb-4 md:mb-0 md:mr-8">
+                            <div class="w-full h-full flex items-center justify-center">
+                                {!! $this->qrCodeSvg !!}
+                            </div>
+                        </div>
 
-                    <div class="mt-4">
-                        <x-input-label for="setup_key" :value="__('Secret Key')"/>
-                        <div class="flex mt-1">
-                            <x-text-input id="setup_key" type="text" name="setup_key" class="mt-1 block w-full"
-                                          :value="$this->twoFactorSecret" readonly/>
-                            <x-secondary-button class="ml-3" wire:click="copySetupKey" type="button">
-                                {{ __('Copy') }}
-                            </x-secondary-button>
+                        <div class="w-full md:w-64">
+                            <x-input-label for="setup_key" :value="__('Secret Key')" class="mb-2"/>
+                            <div class="flex flex-col sm:flex-row">
+                                <x-text-input
+                                    id="setup_key"
+                                    type="text"
+                                    name="setup_key"
+                                    class="block w-full mb-2 sm:mb-0 sm:mr-2"
+                                    :value="$this->twoFactorSecret"
+                                    readonly
+                                />
+                                <x-secondary-button
+                                    wire:click="copySetupKey"
+                                    type="button"
+                                    class="w-full sm:w-auto justify-center"
+                                >
+                                    {{ __('Copy') }}
+                                </x-secondary-button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <style>
+                    /* Adjust SVG size while maintaining aspect ratio */
+                    #qr-code-container svg {
+                        width: 100%;
+                        height: 100%;
+                        max-width: 192px; /* 48px * 4 */
+                        max-height: 192px;
+                    }
+                </style>
+
+                <script>
+                    // Wrap the SVG in a container for easier manipulation
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const svgElement = document.querySelector('.w-48.h-48 svg');
+                        if (svgElement) {
+                            const container = document.createElement('div');
+                            container.id = 'qr-code-container';
+                            svgElement.parentNode.insertBefore(container, svgElement);
+                            container.appendChild(svgElement);
+                        }
+                    });
+                </script>
 
                 <form wire:submit.prevent="verifyAndEnable2FA" class="space-y-6">
                     <div>
