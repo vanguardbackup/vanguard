@@ -1,5 +1,9 @@
 <?php
 
+use App\Mail\User\TwoFactor\DisabledMail;
+use App\Mail\User\TwoFactor\EnabledMail;
+use App\Mail\User\TwoFactor\RegeneratedBackupCodesMail;
+use App\Mail\User\TwoFactor\ViewedBackupCodesMail;
 use App\Models\User;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
@@ -96,6 +100,7 @@ new class extends Component {
         $this->showingRecoveryCodes = true;
         $this->currentMethod = 'app';
         $this->backupCodes = $user->getRecoveryCodes();
+        Mail::to($user)->queue(new EnabledMail($user));
     }
 
     public function disable2FA(): void
@@ -116,6 +121,8 @@ new class extends Component {
         Cookie::queue(Cookie::forget('two_factor_verified'));
 
         $this->dispatch('close-modal', 'confirm-disable-2fa');
+
+        Mail::to($user)->queue(new DisabledMail($user));
         Toaster::success('Two-factor authentication has been disabled.');
     }
 
@@ -146,6 +153,7 @@ new class extends Component {
         $user = Auth::user();
         $this->backupCodes = $user->getRecoveryCodes();
         $this->currentView = 'backup-codes';
+        Mail::to($user)->queue(new ViewedBackupCodesMail($user));
     }
 
     public function regenerateBackupCodes(): void
@@ -186,6 +194,7 @@ new class extends Component {
 
         $this->backupCodes = $user->generateRecoveryCodes();
         $this->dispatch('close-modal', 'confirm-regenerate');
+        Mail::to($user)->queue(new RegeneratedBackupCodesMail($user));
         Toaster::success('Your backup codes have been regenerated.');
     }
 
@@ -256,11 +265,13 @@ new class extends Component {
                     <ul class="space-y-3">
                         <li class="flex items-start">
                             @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-blue-700 dark:text-blue-300">{{ __('Adds an extra layer of security to your account') }}</span>
+                            <span
+                                class="text-blue-700 dark:text-blue-300">{{ __('Adds an extra layer of security to your account') }}</span>
                         </li>
                         <li class="flex items-start">
                             @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-blue-700 dark:text-blue-300">{{ __('Protects against unauthorized access even if your password is compromised') }}</span>
+                            <span
+                                class="text-blue-700 dark:text-blue-300">{{ __('Protects against unauthorized access even if your password is compromised') }}</span>
                         </li>
                         <li class="flex items-start">
                             @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
@@ -271,7 +282,8 @@ new class extends Component {
 
                 <div class="space-y-6">
                     @foreach ($this->mfaMethods as $methodKey => $method)
-                        <div class="border rounded-lg transition-all duration-200 overflow-hidden {{ $currentMethod === $methodKey ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700' }}">
+                        <div
+                            class="border rounded-lg transition-all duration-200 overflow-hidden {{ $currentMethod === $methodKey ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700' }}">
                             <div class="p-6">
                                 <div class="flex items-center mb-4">
                                     <div class="flex-shrink-0 mr-4">
@@ -303,13 +315,15 @@ new class extends Component {
                                 </div>
                             </div>
                             @if (isset($method['benefits']))
-                                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                                <div
+                                    class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                                     <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ __('Benefits:') }}</h4>
                                     <ul class="space-y-1">
                                         @foreach ($method['benefits'] as $benefit)
                                             <li class="flex items-start">
                                                 @svg('heroicon-o-check', 'w-5 h-5 text-green-500 mr-2 flex-shrink-0')
-                                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $benefit }}</span>
+                                                <span
+                                                    class="text-sm text-gray-600 dark:text-gray-400">{{ $benefit }}</span>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -369,7 +383,7 @@ new class extends Component {
 
                 <form wire:submit="disable2FA">
                     <div>
-                        <x-input-label for="password" value="{{ __('Confirm Your Password') }}" />
+                        <x-input-label for="password" value="{{ __('Confirm Your Password') }}"/>
                         <x-text-input
                             wire:model="password"
                             id="password"
@@ -446,31 +460,38 @@ new class extends Component {
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ __('Setup Instructions') }}</h3>
                     <ol class="list-none space-y-6">
                         <li class="flex items-start">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">1</span>
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">1</span>
                             <div>
                                 <p class="text-gray-700 dark:text-gray-300 mb-3">{{ __('Open your preferred authenticator app:') }}</p>
                                 <div class="flex flex-wrap gap-4">
-                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
-                                        <x-icons.google-auth class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300" />
+                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                        <x-icons.google-auth class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300"/>
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Google Authenticator</span>
                                     </a>
-                                    <a href="https://authy.com/download/" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
-                                        <x-icons.authy class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300" />
+                                    <a href="https://authy.com/download/" target="_blank" rel="noopener noreferrer"
+                                       class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                        <x-icons.authy class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300"/>
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Authy</span>
                                     </a>
                                 </div>
                             </div>
                         </li>
                         <li class="flex items-start">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">2</span>
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">2</span>
                             <p class="text-gray-700 dark:text-gray-300">{{ __('Scan the QR code or enter the secret key manually') }}</p>
                         </li>
                         <li class="flex items-start">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">3</span>
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">3</span>
                             <p class="text-gray-700 dark:text-gray-300">{{ __('Enter the 6-digit code generated by the app below') }}</p>
                         </li>
                         <li class="flex items-start">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">4</span>
+                            <span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">4</span>
                             <p class="text-gray-700 dark:text-gray-300">{{ __('Click "Enable" to activate two-factor authentication') }}</p>
                         </li>
                     </ol>
@@ -550,8 +571,10 @@ new class extends Component {
 
                 <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
                     <div class="flex items-center mb-4">
-                        <svg class="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg class="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Success!') }}</h3>
                     </div>
@@ -560,36 +583,49 @@ new class extends Component {
                     </p>
                     <ul class="space-y-4">
                         <li class="flex items-start">
-                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Store your backup codes in a secure location (e.g., password manager)') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Store your backup codes in a secure location (e.g., password manager)') }}</span>
                         </li>
                         <li class="flex items-start">
-                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Review your account security settings regularly') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Review your account security settings regularly') }}</span>
                         </li>
                         <li class="flex items-start">
-                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Consider enabling 2FA on other important accounts') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Consider enabling 2FA on other important accounts') }}</span>
                         </li>
                     </ul>
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <x-primary-button wire:click="viewBackupCodes" class="w-full sm:w-auto justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                         </svg>
                         {{ __('View Backup Codes') }}
                     </x-primary-button>
                     <x-secondary-button wire:click="goBackToMethodsView" class="w-full sm:w-auto justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path>
                         </svg>
                         {{ __('Back to 2FA Methods') }}
                     </x-secondary-button>
@@ -611,15 +647,18 @@ new class extends Component {
                     <ul class="space-y-3">
                         <li class="flex items-start">
                             @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Each code can only be used once') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Each code can only be used once') }}</span>
                         </li>
                         <li class="flex items-start">
                             @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Store these codes in a secure password manager or print them') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Store these codes in a secure password manager or print them') }}</span>
                         </li>
                         <li class="flex items-start">
                             @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-gray-700 dark:text-gray-300">{{ __('Regenerating codes will invalidate all previous codes') }}</span>
+                            <span
+                                class="text-gray-700 dark:text-gray-300">{{ __('Regenerating codes will invalidate all previous codes') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -629,11 +668,13 @@ new class extends Component {
                     <ul class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         @foreach ($backupCodes as $backupCode)
                             <li class="relative">
-                                <div class="font-mono text-sm bg-white dark:bg-gray-700 p-3 rounded-md shadow {{ $backupCode['used_at'] ? 'opacity-50' : '' }}">
+                                <div
+                                    class="font-mono text-sm bg-white dark:bg-gray-700 p-3 rounded-md shadow {{ $backupCode['used_at'] ? 'opacity-50' : '' }}">
                                     {{ $backupCode['code'] }}
                                 </div>
                                 @if ($backupCode['used_at'])
-                                    <span class="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-bl-md rounded-tr-md">{{ __('Used') }}</span>
+                                    <span
+                                        class="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-bl-md rounded-tr-md">{{ __('Used') }}</span>
                                 @endif
                             </li>
                         @endforeach
@@ -661,28 +702,28 @@ new class extends Component {
                     {{ __('Make sure to store these codes securely. They are your backup access to your account.') }}
                 </div>
             </x-form-wrapper>
-        <x-modal name="confirm-regenerate" :show="$errors->isNotEmpty()" focusable>
-            <x-slot name="title">
-                {{ __('Regenerate Backup Codes') }}
-            </x-slot>
-            <x-slot name="description">
-                {{ __('Are you sure you want to regenerate your backup codes? All existing codes will be invalidated.') }}
-            </x-slot>
-            <x-slot name="icon">
-                heroicon-o-exclamation-triangle
-            </x-slot>
-            <form wire:submit="performRegenerateBackupCodes">
-                <div class="mt-6 flex justify-end">
-                    <x-secondary-button x-on:click="$dispatch('close')">
-                        {{ __('Cancel') }}
-                    </x-secondary-button>
+            <x-modal name="confirm-regenerate" :show="$errors->isNotEmpty()" focusable>
+                <x-slot name="title">
+                    {{ __('Regenerate Backup Codes') }}
+                </x-slot>
+                <x-slot name="description">
+                    {{ __('Are you sure you want to regenerate your backup codes? All existing codes will be invalidated.') }}
+                </x-slot>
+                <x-slot name="icon">
+                    heroicon-o-exclamation-triangle
+                </x-slot>
+                <form wire:submit="performRegenerateBackupCodes">
+                    <div class="mt-6 flex justify-end">
+                        <x-secondary-button x-on:click="$dispatch('close')">
+                            {{ __('Cancel') }}
+                        </x-secondary-button>
 
-                    <x-danger-button class="ml-3">
-                        {{ __('Regenerate') }}
-                    </x-danger-button>
-                </div>
-            </form>
-        </x-modal>
+                        <x-danger-button class="ml-3">
+                            {{ __('Regenerate') }}
+                        </x-danger-button>
+                    </div>
+                </form>
+            </x-modal>
         @endif
     </div>
 

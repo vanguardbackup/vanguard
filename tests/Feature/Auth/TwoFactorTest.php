@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnforceTwoFactor;
+use App\Mail\User\TwoFactor\BackupCodeConsumedMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -153,6 +154,7 @@ describe('Recovery Codes', function (): void {
     });
 
     test('User can use recovery code for two-factor authentication', function (): void {
+        Mail::fake();
         $this->user->createTwoFactorAuth();
         $this->user->enableTwoFactorAuth();
 
@@ -169,6 +171,8 @@ describe('Recovery Codes', function (): void {
         $updatedRecoveryCodes = $this->user->getRecoveryCodes();
         $usedCode = $updatedRecoveryCodes->firstWhere('code', $recoveryCode);
         $this->assertNotNull($usedCode['used_at']);
+
+        Mail::assertQueued(BackupCodeConsumedMail::class);
     });
 
     test('User can generate new recovery codes', function (): void {

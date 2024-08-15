@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Mail\User\TwoFactor\DisabledMail;
+use App\Mail\User\TwoFactor\EnabledMail;
+use App\Mail\User\TwoFactor\RegeneratedBackupCodesMail;
+use App\Mail\User\TwoFactor\ViewedBackupCodesMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
@@ -37,11 +41,12 @@ test('user can start 2fa setup process', function (): void {
         ->assertSet('qrCodeSvg', fn ($value): bool => ! empty($value))
         ->assertSet('twoFactorSecret', fn ($value): bool => ! empty($value));
 
-    expect($this->user->fresh()->twoFactorAuth)->not->toBeNull();
-    expect($this->user->fresh()->twoFactorAuth->shared_secret)->not->toBeNull();
+    expect($this->user->fresh()->twoFactorAuth)->not->toBeNull()
+        ->and($this->user->fresh()->twoFactorAuth->shared_secret)->not->toBeNull();
 });
 
 test('user can enable 2fa with valid code', function (): void {
+    Mail::fake();
     $testable = Volt::test('profile.multi-factor-authentication-manager');
 
     $testable->call('startSetup2FA');
@@ -56,9 +61,11 @@ test('user can enable 2fa with valid code', function (): void {
         ->assertSet('showingRecoveryCodes', true);
 
     expect($this->user->fresh()->hasTwoFactorEnabled())->toBeTrue();
+    Mail::assertQueued(EnabledMail::class);
 });
 
 test('user cannot enable 2fa with invalid code', function (): void {
+    Mail::fake();
     $testable = Volt::test('profile.multi-factor-authentication-manager');
 
     $testable->call('startSetup2FA')
@@ -68,9 +75,11 @@ test('user cannot enable 2fa with invalid code', function (): void {
         ->assertSet('currentView', 'setup-app');
 
     expect($this->user->fresh()->hasTwoFactorEnabled())->toBeFalse();
+    Mail::assertNotQueued(EnabledMail::class);
 });
 
 test('user can view backup codes', function (): void {
+    Mail::fake();
     $this->user->createTwoFactorAuth();
     $this->user->enableTwoFactorAuth();
 
@@ -84,9 +93,12 @@ test('user can view backup codes', function (): void {
         ->call('confirmPassword')
         ->assertSet('currentView', 'backup-codes')
         ->assertSet('backupCodes', fn ($codes): bool => count($codes) > 0);
+
+    Mail::assertQueued(ViewedBackupCodesMail::class);
 });
 
 test('user can regenerate backup codes', function (): void {
+    Mail::fake();
     $this->user->createTwoFactorAuth();
     $this->user->enableTwoFactorAuth();
 
@@ -97,9 +109,11 @@ test('user can regenerate backup codes', function (): void {
 
     $testable->call('performRegenerateBackupCodes')
         ->assertSet('backupCodes', fn ($newCodes): bool => $newCodes != $originalCodes);
+    Mail::assertQueued(RegeneratedBackupCodesMail::class);
 });
 
 test('user can disable 2fa', function (): void {
+    Mail::fake();
     $this->user->createTwoFactorAuth();
     $this->user->enableTwoFactorAuth();
 
@@ -111,9 +125,11 @@ test('user can disable 2fa', function (): void {
         ->assertDispatched('close-modal');
 
     expect($this->user->fresh()->hasTwoFactorEnabled())->toBeFalse();
+    Mail::assertQueued(DisabledMail::class);
 });
 
 test('user cannot disable 2fa with incorrect password', function (): void {
+    Mail::fake();
     $this->user->createTwoFactorAuth();
     $this->user->enableTwoFactorAuth();
 
@@ -124,6 +140,7 @@ test('user cannot disable 2fa with incorrect password', function (): void {
         ->assertSet('currentMethod', 'app');
 
     expect($this->user->fresh()->hasTwoFactorEnabled())->toBeTrue();
+    Mail::assertNotQueued(DisabledMail::class);
 });
 
 test('user can download backup codes', function (): void {

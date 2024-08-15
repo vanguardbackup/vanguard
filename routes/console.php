@@ -3,6 +3,7 @@
 use App\Console\Commands\EnsureConnectionToBackupDestinationsCommand;
 use App\Console\Commands\ExecuteScheduledBackupTasksCommand;
 use App\Console\Commands\FetchNewFeatures;
+use App\Console\Commands\NotifyUsersAboutOldBackupCodes;
 use App\Console\Commands\ResetInoperativeBackupTasksCommand;
 use App\Console\Commands\SendPersonalAccessTokenExpiringSoon;
 use App\Console\Commands\SendSummaryBackupTaskEmails;
@@ -32,3 +33,6 @@ Schedule::command(PruneExpired::class, ['hours' => 24])
 
 Schedule::command(SendPersonalAccessTokenExpiringSoon::class)
     ->dailyAt('09:00');
+
+Schedule::command(NotifyUsersAboutOldBackupCodes::class)
+    ->monthly();

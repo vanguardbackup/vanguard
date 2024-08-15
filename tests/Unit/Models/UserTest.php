@@ -296,3 +296,73 @@ it('generates a mobile api token', function (): void {
         'mobile_at' => now(),
     ]);
 });
+
+it('returns the correct number of valid backup codes remaining', function (): void {
+    Event::fake();
+    $user = User::factory()->create();
+    $user->createTwoFactorAuth();
+    $user->enableTwoFactorAuth();
+    $user->generateRecoveryCodes();
+
+    $this->assertEquals(10, $user->backupCodesRemainingCount());
+});
+
+it('returns the correct number of used backup codes', function (): void {
+    Event::fake();
+
+    $user = User::factory()->create();
+    $user->createTwoFactorAuth();
+    $user->enableTwoFactorAuth();
+    $user->generateRecoveryCodes();
+
+    $this->assertEquals(0, $user->backupCodesUsedCount());
+});
+
+it('does not include users without two-factor auth', function (): void {
+    User::factory()->create();
+
+    $filteredUsers = User::withOutdatedBackupCodes()->get();
+
+    expect($filteredUsers)->toBeEmpty();
+});
+
+it('filters users with outdated backup codes', function (): void {
+    Config::set('two-factor.recovery.enabled', true);
+    Config::set('two-factor.recovery.codes', 8);
+    Config::set('two-factor.recovery.length', 10);
+
+    $userWithOutdatedCodes = User::factory()->create();
+    $userWithOutdatedCodes->createTwoFactorAuth();
+    $userWithOutdatedCodes->enableTwoFactorAuth();
+    $userWithOutdatedCodes->twoFactorAuth->recovery_codes_generated_at = now()->subYear()->subDay();
+    $userWithOutdatedCodes->twoFactorAuth->save();
+
+    $userWithRecentCodes = User::factory()->create();
+    $userWithRecentCodes->createTwoFactorAuth();
+    $userWithRecentCodes->enableTwoFactorAuth();
+    $userWithRecentCodes->twoFactorAuth->recovery_codes_generated_at = now()->subMonths(6);
+    $userWithRecentCodes->twoFactorAuth->save();
+
+    User::factory()->create();
+
+    $filteredUsers = User::withOutdatedBackupCodes()->get();
+
+    expect($filteredUsers)->toHaveCount(1)
+        ->and($filteredUsers->first()->id)->toBe($userWithOutdatedCodes->id);
+});
+
+it('considers codes generated exactly one year ago as not outdated', function (): void {
+    Config::set('two-factor.recovery.enabled', true);
+    Config::set('two-factor.recovery.codes', 8);
+    Config::set('two-factor.recovery.length', 10);
+
+    $user = User::factory()->create();
+    $user->createTwoFactorAuth();
+    $user->enableTwoFactorAuth();
+    $user->twoFactorAuth->recovery_codes_generated_at = now()->subYear();
+    $user->twoFactorAuth->save();
+
+    $filteredUsers = User::withOutdatedBackupCodes()->get();
+
+    expect($filteredUsers)->toBeEmpty();
+});

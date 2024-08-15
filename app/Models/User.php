@@ -27,6 +27,7 @@ use Laravel\Sanctum\NewAccessToken;
 class User extends Authenticatable implements TwoFactorAuthenticatable
 {
     use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
@@ -249,6 +250,35 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         ]);
 
         return new NewAccessToken($model, $model->getKey() . '|' . $plainTextToken);
+    }
+
+    /**
+     *  The quantity of backup codes the user has consumed.
+     */
+    public function backupCodesUsedCount(): int
+    {
+        return $this->getRecoveryCodes()->whereNotNull('used_at')->count();
+    }
+
+    /**
+     *  The quantity of backup codes the user has left.
+     */
+    public function backupCodesRemainingCount(): int
+    {
+        return $this->getRecoveryCodes()->count();
+    }
+
+    /**
+     * Scope query to users with two-factor auth and outdated backup codes.
+     *
+     * @param  Builder<User>  $builder
+     * @return Builder<User>
+     */
+    public function scopeWithOutdatedBackupCodes(Builder $builder): Builder
+    {
+        return $builder->whereHas('twoFactorAuth', function ($subquery): void {
+            $subquery->where('recovery_codes_generated_at', '<', now()->subYear());
+        });
     }
 
     /**

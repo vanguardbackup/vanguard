@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\User\TwoFactor\BackupCodeConsumedMail;
+use App\Mail\User\TwoFactor\LowBackupCodesNoticeMail;
+use App\Mail\User\TwoFactor\NoBackupCodesRemainingNoticeMail;
+use Carbon\Carbon;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 
 class TwoFactorRequiredController extends Controller
@@ -121,11 +126,19 @@ class TwoFactorRequiredController extends Controller
 
         $unusedCodeCount = $this->getUnusedRecoveryCodeCount($user);
 
+        if ($this->wasRecoveryCodeUsed($user, request('code'))) {
+            Mail::to($user)->queue(new BackupCodeConsumedMail($user));
+        }
+
         if ($unusedCodeCount === 0) {
+            Mail::to($user)->queue(new NoBackupCodesRemainingNoticeMail($user));
+
             return $this->redirectWithWarning('You have no unused recovery codes left. Please generate new ones immediately.');
         }
 
         if ($unusedCodeCount <= 3) {
+            Mail::to($user)->queue(new LowBackupCodesNoticeMail($user));
+
             return $this->redirectWithWarning("You only have {$unusedCodeCount} unused recovery codes left. Consider generating new ones.");
         }
 
@@ -169,5 +182,24 @@ class TwoFactorRequiredController extends Controller
         $seconds = RateLimiter::availableIn($this->getRateLimitKey($userId));
 
         return back()->withErrors(['code' => "Too many attempts. Please try again in {$seconds} seconds."]);
+    }
+
+    /**
+     * Check if the provided code was a recovery code that was just used.
+     */
+    private function wasRecoveryCodeUsed(mixed $user, ?string $code): bool
+    {
+        if (! $code) {
+            return false;
+        }
+
+        $recoveryCodes = $user->getRecoveryCodes();
+        $usedCode = $recoveryCodes->firstWhere('code', $code);
+
+        if (! $usedCode || ! isset($usedCode['used_at'])) {
+            return false;
+        }
+
+        return Carbon::parse($usedCode['used_at'])->isAfter(now()->subSeconds(5));
     }
 }
