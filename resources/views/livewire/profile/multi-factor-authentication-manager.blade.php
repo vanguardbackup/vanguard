@@ -45,8 +45,13 @@ new class extends Component {
         return [
             User::TWO_FACTOR_APP => [
                 'name' => __('Authenticator App'),
-                'description' => __('Use an app like Google Authenticator or Authy.'),
+                'description' => __('Use a mobile app to generate secure, time-based codes for login.'),
                 'icon' => 'heroicon-o-device-phone-mobile',
+                'benefits' => [
+                    __('Works offline without cellular or internet connection'),
+                    __('Supports multiple accounts across various services'),
+                    __('Widely adopted and compatible with most online platforms'),
+                ],
             ],
         ];
     }
@@ -243,60 +248,93 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-shield-check</x-slot>
 
-                <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/50 rounded-lg">
-                    <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200 mb-2">{{ __('Why use 2FA?') }}</h3>
-                    <ul class="list-disc list-inside text-sm text-blue-700 dark:text-blue-300">
-                        <li>{{ __('Adds an extra layer of security to your account') }}</li>
-                        <li>{{ __('Protects against unauthorized access even if your password is compromised') }}</li>
-                        <li>{{ __('Easy to set up and use') }}</li>
+                <div class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        @svg('heroicon-o-light-bulb', 'w-8 h-8 text-blue-500 mr-3')
+                        <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('Why use 2FA?') }}</h3>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-blue-700 dark:text-blue-300">{{ __('Adds an extra layer of security to your account') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-blue-700 dark:text-blue-300">{{ __('Protects against unauthorized access even if your password is compromised') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-blue-700 dark:text-blue-300">{{ __('Easy to set up and use') }}</span>
+                        </li>
                     </ul>
                 </div>
 
                 <div class="space-y-6">
                     @foreach ($this->mfaMethods as $methodKey => $method)
-                        <div
-                            class="flex items-center p-4 border rounded-lg {{ $currentMethod === $methodKey ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700' }}">
-                            <div class="flex-shrink-0 mr-4">
-                                @svg($method['icon'], 'w-8 h-8 text-gray-500 dark:text-gray-400')
+                        <div class="border rounded-lg transition-all duration-200 overflow-hidden {{ $currentMethod === $methodKey ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700' }}">
+                            <div class="p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="flex-shrink-0 mr-4">
+                                        @svg($method['icon'], 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $method['name'] }}</h3>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ $method['description'] }}</p>
+                                <div class="flex justify-end">
+                                    @if ($currentMethod === $methodKey)
+                                        <x-danger-button
+                                            x-data=""
+                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-disable-2fa')"
+                                            class="w-full sm:w-auto justify-center"
+                                        >
+                                            {{ __('Disable') }}
+                                        </x-danger-button>
+                                    @else
+                                        <x-primary-button
+                                            wire:click="startSetup2FA('{{ $methodKey }}')"
+                                            wire:loading.attr="disabled"
+                                            class="w-full sm:w-auto justify-center"
+                                        >
+                                            {{ __('Configure') }}
+                                        </x-primary-button>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="flex-grow">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $method['name'] }}</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $method['description'] }}</p>
-                            </div>
-                            <div class="flex-shrink-0 ml-4">
-                                @if ($currentMethod === $methodKey)
-                                    <x-danger-button
-                                        x-data=""
-                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-disable-2fa')"
-                                    >
-                                        {{ __('Disable') }}
-                                    </x-danger-button>
-                                @else
-                                    <x-primary-button wire:click="startSetup2FA('{{ $methodKey }}')"
-                                                      wire:loading.attr="disabled">
-                                        {{ __('Configure') }}
-                                    </x-primary-button>
-                                @endif
-                            </div>
+                            @if (isset($method['benefits']))
+                                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ __('Benefits:') }}</h4>
+                                    <ul class="space-y-1">
+                                        @foreach ($method['benefits'] as $benefit)
+                                            <li class="flex items-start">
+                                                @svg('heroicon-o-check', 'w-5 h-5 text-green-500 mr-2 flex-shrink-0')
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $benefit }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
 
                 @if ($currentMethod !== 'none')
-                    <div class="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ __('Backup and Recovery') }}</h3>
-                        <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ __('Access your backup codes or generate new ones.') }}</p>
-                                <div class="flex space-x-2">
-                                    <x-secondary-button wire:click="viewBackupCodes">
-                                        {{ __('View Backup Codes') }}
-                                    </x-secondary-button>
-                                    <x-secondary-button wire:click="regenerateBackupCodes">
-                                        {{ __('Regenerate Codes') }}
-                                    </x-secondary-button>
-                                </div>
-                            </div>
+                    <div class="mt-8 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-4">
+                            @svg('heroicon-o-key', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Backup and Recovery') }}</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('Access your backup codes or generate new ones for account recovery.') }}</p>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                            <x-secondary-button wire:click="viewBackupCodes" class="justify-center">
+                                @svg('heroicon-o-eye', 'w-5 h-5 mr-2')
+                                {{ __('View Backup Codes') }}
+                            </x-secondary-button>
+                            <x-secondary-button wire:click="regenerateBackupCodes" class="justify-center">
+                                @svg('heroicon-o-arrow-path', 'w-5 h-5 mr-2')
+                                {{ __('Regenerate Codes') }}
+                            </x-secondary-button>
                         </div>
                     </div>
                 @endif
@@ -304,40 +342,59 @@ new class extends Component {
 
             <x-modal name="confirm-disable-2fa" :show="$errors->isNotEmpty()" focusable>
                 <x-slot name="title">
-                    {{ __('Are you sure you want to disable two-factor authentication?') }}
+                    {{ __('Disable Two-Factor Authentication') }}
                 </x-slot>
                 <x-slot name="description">
-                    {{ __('Once your two-factor authentication is disabled, your account will be less secure.') }}
+                    {{ __('Please review the consequences before proceeding.') }}
                 </x-slot>
                 <x-slot name="icon">
-                    heroicon-o-trash
+                    heroicon-o-shield-exclamation
                 </x-slot>
+
+                <div class="mb-6">
+                    <div class="flex items-center mb-4 text-yellow-600 dark:text-yellow-500">
+                        @svg('heroicon-o-exclamation-triangle', 'w-6 h-6 mr-2')
+                        <h3 class="text-lg font-semibold">{{ __('Warning: Reduced Security') }}</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        {{ __('Disabling two-factor authentication will significantly reduce the security of your account. Please consider the following consequences:') }}
+                    </p>
+                    <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                        <li>{{ __('Your account will be protected by password only') }}</li>
+                        <li>{{ __('Increased vulnerability to unauthorized access') }}</li>
+                        <li>{{ __('Loss of additional layer of security for sensitive operations') }}</li>
+                        <li>{{ __('Your backup codes will be invalidated') }}</li>
+                    </ul>
+                </div>
+
                 <form wire:submit="disable2FA">
                     <div>
-                        <x-input-label for="password" value="{{ __('Password') }}" class="sr-only"/>
+                        <x-input-label for="password" value="{{ __('Confirm Your Password') }}" />
                         <x-text-input
                             wire:model="password"
                             id="password"
                             name="password"
                             type="password"
                             class="mt-1 block w-full"
-                            placeholder="{{ __('Password') }}"
+                            placeholder="{{ __('Enter your current password') }}"
                             autofocus
                         />
-
                         <x-input-error :messages="$errors->get('password')" class="mt-2"/>
                     </div>
 
-                    <div class="mt-6 flex justify-end">
+                    <div class="mt-6 flex justify-end space-x-3">
                         <x-secondary-button x-on:click="$dispatch('close')">
                             {{ __('Cancel') }}
                         </x-secondary-button>
-
-                        <x-danger-button class="ml-3">
-                            {{ __('Disable') }}
+                        <x-danger-button>
+                            {{ __('Disable 2FA') }}
                         </x-danger-button>
                     </div>
                 </form>
+
+                <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('Note: You can re-enable two-factor authentication at any time to improve your account security.') }}
+                </div>
             </x-modal>
 
             <x-modal name="confirm-password" :show="$errors->isNotEmpty()" focusable>
@@ -385,13 +442,37 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-device-phone-mobile</x-slot>
 
-                <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
-                    <h3 class="text-lg font-medium text-yellow-800 dark:text-yellow-200 mb-2">{{ __('Setup Instructions') }}</h3>
-                    <ol class="list-decimal list-inside text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
-                        <li>{{ __('Open your authenticator app (e.g., Google Authenticator, Authy)') }}</li>
-                        <li>{{ __('Scan the QR code or enter the secret key manually') }}</li>
-                        <li>{{ __('Enter the 6-digit code generated by the app below') }}</li>
-                        <li>{{ __('Click "Enable" to activate authenticator app 2FA') }}</li>
+                <div class="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ __('Setup Instructions') }}</h3>
+                    <ol class="list-none space-y-6">
+                        <li class="flex items-start">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">1</span>
+                            <div>
+                                <p class="text-gray-700 dark:text-gray-300 mb-3">{{ __('Open your preferred authenticator app:') }}</p>
+                                <div class="flex flex-wrap gap-4">
+                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                        <x-icons.google-auth class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300" />
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Google Authenticator</span>
+                                    </a>
+                                    <a href="https://authy.com/download/" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                        <x-icons.authy class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300" />
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Authy</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">2</span>
+                            <p class="text-gray-700 dark:text-gray-300">{{ __('Scan the QR code or enter the secret key manually') }}</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">3</span>
+                            <p class="text-gray-700 dark:text-gray-300">{{ __('Enter the 6-digit code generated by the app below') }}</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">4</span>
+                            <p class="text-gray-700 dark:text-gray-300">{{ __('Click "Enable" to activate two-factor authentication') }}</p>
+                        </li>
                     </ol>
                 </div>
 
@@ -404,7 +485,7 @@ new class extends Component {
 
                     <div class="flex flex-col md:flex-row items-center justify-center mt-6">
                         <div class="w-48 h-48 mb-4 md:mb-0 md:mr-8">
-                            <div class="w-full h-full flex items-center justify-center">
+                            <div id="qr-code-container" class="w-full h-full flex items-center justify-center">
                                 {!! $this->qrCodeSvg !!}
                             </div>
                         </div>
@@ -432,29 +513,6 @@ new class extends Component {
                     </div>
                 </div>
 
-                <style>
-                    /* Adjust SVG size while maintaining aspect ratio */
-                    #qr-code-container svg {
-                        width: 100%;
-                        height: 100%;
-                        max-width: 192px; /* 48px * 4 */
-                        max-height: 192px;
-                    }
-                </style>
-
-                <script>
-                    // Wrap the SVG in a container for easier manipulation
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const svgElement = document.querySelector('.w-48.h-48 svg');
-                        if (svgElement) {
-                            const container = document.createElement('div');
-                            container.id = 'qr-code-container';
-                            svgElement.parentNode.insertBefore(container, svgElement);
-                            container.appendChild(svgElement);
-                        }
-                    });
-                </script>
-
                 <form wire:submit.prevent="verifyAndEnable2FA" class="space-y-6">
                     <div>
                         <x-input-label for="verification_code" :value="__('Verification Code')"/>
@@ -473,6 +531,15 @@ new class extends Component {
                     </div>
                 </form>
             </x-form-wrapper>
+
+            <style>
+                #qr-code-container svg {
+                    width: 100%;
+                    height: 100%;
+                    max-width: 192px;
+                    max-height: 192px;
+                }
+            </style>
         @elseif ($currentView === 'success')
             <x-form-wrapper>
                 <x-slot name="title">{{ __('2FA Method Enabled!') }}</x-slot>
@@ -481,19 +548,49 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-check-circle</x-slot>
 
-                <div class="mb-6 p-4 bg-green-50 dark:bg-green-900 rounded-lg">
-                    <h3 class="text-lg font-medium text-green-800 dark:text-green-200 mb-2">{{ __('Next Steps') }}</h3>
-                    <ul class="list-disc list-inside text-sm text-green-700 dark:text-green-300 space-y-2">
-                        <li>{{ __('Store your backup codes in a secure location') }}</li>
-                        <li>{{ __('Review your account security settings regularly') }}</li>
+                <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Success!') }}</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        {{ __('Your account is now more secure with two-factor authentication. Here are some important next steps:') }}
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Store your backup codes in a secure location (e.g., password manager)') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Review your account security settings regularly') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Consider enabling 2FA on other important accounts') }}</span>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="flex justify-center space-x-4">
-                    <x-primary-button wire:click="viewBackupCodes">
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <x-primary-button wire:click="viewBackupCodes" class="w-full sm:w-auto justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
                         {{ __('View Backup Codes') }}
                     </x-primary-button>
-                    <x-secondary-button wire:click="goBackToMethodsView">
+                    <x-secondary-button wire:click="goBackToMethodsView" class="w-full sm:w-auto justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path>
+                        </svg>
                         {{ __('Back to 2FA Methods') }}
                     </x-secondary-button>
                 </div>
@@ -506,42 +603,62 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-key</x-slot>
 
-                <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/50 rounded-lg">
-                    <h3 class="text-lg font-medium text-yellow-800 dark:text-yellow-200 mb-2">{{ __('Important:') }}</h3>
-                    <ul class="list-disc list-inside text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
-                        <li>{{ __('Each code can only be used once') }}</li>
-                        <li>{{ __('Store these codes in a secure password manager or print them') }}</li>
-                        <li>{{ __('Regenerating codes will invalidate all previous codes') }}</li>
+                <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        @svg('heroicon-o-exclamation-triangle', 'w-8 h-8 text-yellow-500 mr-3')
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Important:') }}</h3>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Each code can only be used once') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Store these codes in a secure password manager or print them') }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            <span class="text-gray-700 dark:text-gray-300">{{ __('Regenerating codes will invalidate all previous codes') }}</span>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="mt-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-md">
-                    <ul class="list-none grid grid-cols-2 gap-2">
+                <div class="mb-8 bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-inner">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Your Backup Codes') }}</h4>
+                    <ul class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         @foreach ($backupCodes as $backupCode)
-                            <li class="text-sm font-mono bg-white dark:bg-gray-700 p-2 rounded
-                        {{ $backupCode['used_at'] ? 'line-through text-red-500 dark:text-red-400' : '' }}">
-                                {{ $backupCode['code'] }}
+                            <li class="relative">
+                                <div class="font-mono text-sm bg-white dark:bg-gray-700 p-3 rounded-md shadow {{ $backupCode['used_at'] ? 'opacity-50' : '' }}">
+                                    {{ $backupCode['code'] }}
+                                </div>
+                                @if ($backupCode['used_at'])
+                                    <span class="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-bl-md rounded-tr-md">{{ __('Used') }}</span>
+                                @endif
                             </li>
                         @endforeach
                     </ul>
                 </div>
 
-                <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                    <div class="flex space-x-4">
-                        <x-secondary-button wire:click="downloadBackupCodes">
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <x-secondary-button wire:click="downloadBackupCodes" class="w-full sm:w-auto justify-center">
+                            @svg('heroicon-o-arrow-down-tray', 'w-5 h-5 mr-2')
                             {{ __('Download Codes') }}
                         </x-secondary-button>
-                        <x-secondary-button wire:click="regenerateBackupCodes">
+                        <x-secondary-button wire:click="regenerateBackupCodes" class="w-full sm:w-auto justify-center">
+                            @svg('heroicon-o-arrow-path', 'w-5 h-5 mr-2')
                             {{ __('Regenerate Codes') }}
                         </x-secondary-button>
                     </div>
-                    <x-primary-button wire:click="confirmBackupCodes">
+                    <x-primary-button wire:click="confirmBackupCodes" class="w-full sm:w-auto justify-center">
+                        @svg('heroicon-o-check', 'w-5 h-5 mr-2')
                         {{ __('I Have Saved These Codes') }}
                     </x-primary-button>
                 </div>
 
                 <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('Make sure to store these codes securely.') }}
+                    {{ __('Make sure to store these codes securely. They are your backup access to your account.') }}
                 </div>
             </x-form-wrapper>
         <x-modal name="confirm-regenerate" :show="$errors->isNotEmpty()" focusable>
