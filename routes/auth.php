@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GitHubSocialiteController;
 use App\Http\Controllers\Auth\GitLabSocialiteController;
+use App\Http\Controllers\Auth\TwoFactorRequiredController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -32,4 +33,7 @@ Route::middleware('auth')->group(function () {
         ->name('verification.verify');
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')->name('password.confirm');
+
+    Route::match(['get', 'post'], 'two-factor-challenge', TwoFactorRequiredController::class)
+        ->name('two-factor.challenge');
 });

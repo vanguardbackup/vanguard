@@ -46,6 +46,9 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         'gravatar_email',
         'weekly_summary_opt_in_at',
         'pagination_count',
+        'last_two_factor_at',
+        'last_two_factor_ip',
+        'two_factor_verified_token',
     ];
 
     protected $hidden = [
@@ -259,6 +262,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'weekly_summary_opt_in_at' => 'datetime',
+            'last_two_factor_at' => 'datetime',
         ];
     }
 

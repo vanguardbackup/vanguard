@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
 
-Route::middleware([UserLanguage::class, 'auth'])->group(function () {
+Route::middleware([UserLanguage::class, 'auth', 'two-factor'])->group(function () {
     Route::get('overview', OverviewController::class)->name('overview');
 
     Route::view('profile', 'profile')->name('profile');

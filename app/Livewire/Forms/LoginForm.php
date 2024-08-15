@@ -4,50 +4,49 @@ declare(strict_types=1);
 
 namespace App\Livewire\Forms;
 
-use Exception;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Laragear\TwoFactor\Facades\Auth2FA;
 use Livewire\Form;
 
-/**
- * Handles the login form logic, including two-factor authentication.
- */
 class LoginForm extends Form
 {
-    /** @var string The user's email address. */
     public string $email = '';
 
-    /** @var string The user's password. */
     public string $password = '';
 
-    /** @var bool Whether to remember the user's login. */
     public bool $remember = false;
 
-    /** @var string|null The two-factor authentication code. */
-    public ?string $two_factor_code = null;
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
 
-    /** @var bool Whether two-factor authentication is required. */
-    public bool $requires_2fa = false;
+        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'form.email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
 
     /**
-     * Define the validation rules for the login form.
-     *
      * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'string'],
             'password' => ['required', 'string'],
-            'two_factor_code' => ['nullable', 'string'],
+            'remember' => ['boolean'],
         ];
     }
 
     /**
-     * Define the custom error messages for the login form.
-     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -56,88 +55,29 @@ class LoginForm extends Form
             'email.required' => __('Please enter your email address.'),
             'email.email' => __('Please enter a valid email address.'),
             'password.required' => __('Please enter your password.'),
-            'two_factor_code.required' => __('Please enter your two-factor authentication code.'),
         ];
     }
 
-    /**
-     * Attempt to authenticate the user.
-     *
-     * @throws ValidationException
-     */
-    public function authenticate(): bool
+    protected function ensureIsNotRateLimited(): void
     {
-        Log::info('LoginForm: Starting authentication attempt', ['email' => $this->email]);
-
-        try {
-            $credentials = [
-                'email' => $this->email,
-                'password' => $this->password,
-            ];
-
-            if (Auth2FA::attempt($credentials, $this->remember)) {
-                Log::info('LoginForm: Authentication successful', ['email' => $this->email]);
-
-                return true;
-            }
-
-            Log::warning('LoginForm: Authentication failed', ['email' => $this->email]);
-            throw ValidationException::withMessages([
-                'email' => __('These credentials do not match our records.'),
-            ]);
-
-        } catch (HttpResponseException $e) {
-            Log::info('LoginForm: 2FA required', ['email' => $this->email]);
-            $this->requires_2fa = true;
-            throw $e;
-        } catch (Exception $e) {
-            Log::error('LoginForm: Exception during authentication', [
-                'email' => $this->email,
-                'exception' => $e::class,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw ValidationException::withMessages([
-                'email' => __('An error occurred during login. Please try again.'),
-            ]);
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
         }
+
+        event(new Lockout(request()));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'form.email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
     }
 
-    /**
-     * Confirm the two-factor authentication code.
-     *
-     * @throws ValidationException
-     */
-    public function confirmTwoFactor(): bool
+    protected function throttleKey(): string
     {
-        if (! $this->two_factor_code) {
-            throw ValidationException::withMessages([
-                'two_factor_code' => __('Please enter your two-factor authentication code.'),
-            ]);
-        }
-
-        try {
-            if (Auth2FA::input($this->two_factor_code)) {
-                Log::info('LoginForm: 2FA validation successful', ['email' => $this->email]);
-
-                return true;
-            }
-
-            Log::warning('LoginForm: 2FA validation failed', ['email' => $this->email]);
-            throw ValidationException::withMessages([
-                'two_factor_code' => __('The provided two-factor code is invalid.'),
-            ]);
-
-        } catch (Exception $e) {
-            Log::error('LoginForm: Exception during 2FA validation', [
-                'email' => $this->email,
-                'exception' => $e::class,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw ValidationException::withMessages([
-                'two_factor_code' => __('An error occurred during 2FA validation. Please try again.'),
-            ]);
-        }
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 }
