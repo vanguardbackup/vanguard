@@ -1,25 +1,25 @@
 <x-minimal-layout>
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div class="flex items-center justify-between">
+        <div class="w-full max-w-md space-y-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between">
                 <x-application-logo class="h-11 w-auto fill-current text-primary-950 dark:text-white" />
-                <div class="flex items-center space-x-4">
+                <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
                     <img
-                        class="h-8 w-8 rounded-full border border-gray-300 dark:border-gray-700"
+                        class="h-12 w-12 rounded-full border-2 border-gray-300 dark:border-gray-700"
                         src="{{ Auth::user()->gravatar(60) }}"
                         alt="{{ Auth::user()->first_name }}"
                     />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span class="text-base font-medium text-gray-700 dark:text-gray-300">
                         {{ Auth::user()->first_name }}
                     </span>
                 </div>
             </div>
             <div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+                <h2 class="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
                     Two-Factor Authentication
                 </h2>
             </div>
-            <div class="mt-8 bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-[0.70rem] sm:px-10">
+            <div class="mt-8 bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
                 @if ($errors->any())
                     <div class="rounded-md bg-red-50 dark:bg-red-900 p-4 mb-4">
                         <div class="flex">
@@ -31,24 +31,25 @@
                 @endif
 
                 <div class="mb-6 text-sm text-gray-600 dark:text-gray-400">
-                    <div class="flex items-center mb-3">
-                        <p><span class="font-semibold">Welcome back, {{ Auth::user()->first_name }}!</span> To ensure the security of your account, please enter your two-factor authentication code.</p>
-                    </div>
-                    <div class="flex items-center">
-                        <p>If you're unable to access your two-factor device, you can use one of your recovery codes instead.</p>
-                    </div>
+                    <p class="mb-3"><span class="font-semibold">Welcome back, {{ Auth::user()->first_name }}!</span> Please enter your two-factor authentication code.</p>
+                    <p>If you can't access your two-factor device, use a recovery code.</p>
                 </div>
 
                 <form class="space-y-6" action="{{ route('two-factor.challenge') }}" method="POST" id="twoFactorForm">
                     @csrf
                     <input type="hidden" id="hiddenCode" name="code" value="" />
 
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Using recovery code?</span>
-                        <label class="switch">
-                            <input type="checkbox" id="codeTypeToggle">
-                            <span class="slider round"></span>
-                        </label>
+                    <div class="flex justify-center mb-4">
+                        <div class="inline-flex rounded-md shadow-sm" role="group" aria-label="Authentication type">
+                            <button type="button" id="authCodeBtn" class="flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-gray-950 focus:z-10 focus:ring-2 focus:ring-gray-950 focus:text-gray-950 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-500 dark:focus:text-white">
+                                @svg('heroicon-o-key', 'w-5 h-5 mr-2')
+                                Auth Code
+                            </button>
+                            <button type="button" id="recoveryCodeBtn" class="flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-gray-950 focus:z-10 focus:ring-2 focus:ring-gray-950 focus:text-gray-950 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-500 dark:focus:text-white">
+                                @svg('heroicon-o-document-text', 'w-5 h-5 mr-2')
+                                Recovery Code
+                            </button>
+                        </div>
                     </div>
 
                     <div id="authCodeInput">
@@ -93,7 +94,7 @@
         </div>
         <footer class="mt-8 text-center">
             <div class="mt-2 flex justify-center space-x-6">
-                <a href="https://github.com/vanguardbackup/vanguard" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" target="_blank">
+                <a href="https://github.com/vanguardbackup/vanguard" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" target="_blank" rel="noopener noreferrer">
                     <span class="sr-only">GitHub</span>
                     <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
                         <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
@@ -103,129 +104,82 @@
         </footer>
     </div>
 
-    <style>
-        /* Toggle switch styles */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-        }
-        input:checked + .slider {
-            background-color: #000000;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .slider.round {
-            border-radius: 34px;
-        }
-        .slider.round:before {
-            border-radius: 50%;
-        }
-    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const codeInput = document.getElementById('code');
+            const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
+            const hiddenCodeInput = document.getElementById('hiddenCode');
+            const form = document.getElementById('twoFactorForm');
+            const authCodeBtn = document.getElementById('authCodeBtn');
+            const recoveryCodeBtn = document.getElementById('recoveryCodeBtn');
+            const authCodeInputDiv = document.getElementById('authCodeInput');
+            const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
+            const codeError = document.getElementById('codeError');
+            const recoveryCodeError = document.getElementById('recoveryCodeError');
+            const submitButton = document.querySelector('button[type="submit"]');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const codeInput = document.getElementById('code');
-        const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
-        const hiddenCodeInput = document.getElementById('hiddenCode');
-        const form = document.getElementById('twoFactorForm');
-        const codeTypeToggle = document.getElementById('codeTypeToggle');
-        const authCodeInputDiv = document.getElementById('authCodeInput');
-        const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
-        const codeError = document.getElementById('codeError');
-        const recoveryCodeError = document.getElementById('recoveryCodeError');
-        const submitButton = document.querySelector('button[type="submit"]');
-
-        function updateHiddenInput(value) {
-            hiddenCodeInput.value = value;
-        }
-
-        function validateInput(input, errorElement) {
-            if (!input.value) {
-                errorElement.textContent = 'This field is required.';
-                errorElement.style.display = 'block';
-                return false;
+            function updateHiddenInput(value) {
+                hiddenCodeInput.value = value;
             }
-            errorElement.style.display = 'none';
-            return true;
-        }
 
-        codeInput.addEventListener('input', function () {
-            updateHiddenInput(this.value);
-            validateInput(this, codeError);
-            if (this.value.length === 6) {
+            function validateInput(input, errorElement) {
+                if (!input.value) {
+                    errorElement.textContent = 'Please enter your code.';
+                    errorElement.style.display = 'block';
+                    return false;
+                }
+                errorElement.style.display = 'none';
+                return true;
+            }
+
+            codeInput.addEventListener('input', function () {
+                updateHiddenInput(this.value);
+                validateInput(this, codeError);
+                if (this.value.length === 6) {
+                    submitForm();
+                }
+            });
+
+            recoveryCodeInput.addEventListener('input', function () {
+                updateHiddenInput(this.value);
+                validateInput(this, recoveryCodeError);
+            });
+
+            function toggleInputs(showAuth) {
+                authCodeInputDiv.style.display = showAuth ? 'block' : 'none';
+                recoveryCodeInputDiv.style.display = showAuth ? 'none' : 'block';
+                authCodeBtn.classList.toggle('bg-blue-500', showAuth);
+                recoveryCodeBtn.classList.toggle('bg-blue-500', !showAuth);
+                (showAuth ? codeInput : recoveryCodeInput).focus();
+                hiddenCodeInput.value = '';
+                codeError.style.display = 'none';
+                recoveryCodeError.style.display = 'none';
+            }
+
+            authCodeBtn.addEventListener('click', () => toggleInputs(true));
+            recoveryCodeBtn.addEventListener('click', () => toggleInputs(false));
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
                 submitForm();
+            });
+
+            submitButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                submitForm();
+            });
+
+            function submitForm() {
+                let isValid = true;
+                if (recoveryCodeInputDiv.style.display !== 'none') {
+                    isValid = validateInput(recoveryCodeInput, recoveryCodeError);
+                } else {
+                    isValid = validateInput(codeInput, codeError);
+                }
+                if (isValid) {
+                    form.submit();
+                }
             }
         });
-
-        recoveryCodeInput.addEventListener('input', function () {
-            updateHiddenInput(this.value);
-            validateInput(this, recoveryCodeError);
-        });
-
-        codeTypeToggle.addEventListener('change', function () {
-            if (this.checked) {
-                authCodeInputDiv.style.display = 'none';
-                recoveryCodeInputDiv.style.display = 'block';
-                recoveryCodeInput.focus();
-            } else {
-                authCodeInputDiv.style.display = 'block';
-                recoveryCodeInputDiv.style.display = 'none';
-                codeInput.focus();
-            }
-            hiddenCodeInput.value = '';
-            codeError.style.display = 'none';
-            recoveryCodeError.style.display = 'none';
-        });
-
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            submitForm();
-        });
-
-        submitButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            submitForm();
-        });
-
-        function submitForm() {
-            let isValid = true;
-            if (codeTypeToggle.checked) {
-                isValid = validateInput(recoveryCodeInput, recoveryCodeError);
-            } else {
-                isValid = validateInput(codeInput, codeError);
-            }
-            if (isValid) {
-                form.submit();
-            }
-        }
-    });
-</script>
+    </script>
 </x-minimal-layout>
