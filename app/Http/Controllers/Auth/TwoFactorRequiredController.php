@@ -160,7 +160,11 @@ class TwoFactorRequiredController extends Controller
      */
     private function redirectWithWarning(string $message): RedirectResponse
     {
-        return redirect()->intended(route('overview'))->with('warning', $message);
+        return redirect()->intended(route('overview'))->with('flash_message', [
+            'message' => $message,
+            'type' => 'warning',
+            'dismissible' => true,
+        ]);
     }
 
     /**
