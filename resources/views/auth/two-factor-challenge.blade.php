@@ -103,83 +103,115 @@
             </div>
         </footer>
     </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const codeInput = document.getElementById('code');
+        const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
+        const hiddenCodeInput = document.getElementById('hiddenCode');
+        const form = document.getElementById('twoFactorForm');
+        const authCodeBtn = document.getElementById('authCodeBtn');
+        const recoveryCodeBtn = document.getElementById('recoveryCodeBtn');
+        const authCodeInputDiv = document.getElementById('authCodeInput');
+        const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
+        const codeError = document.getElementById('codeError');
+        const recoveryCodeError = document.getElementById('recoveryCodeError');
+        const submitButton = document.querySelector('button[type="submit"]');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const codeInput = document.getElementById('code');
-            const recoveryCodeInput = document.getElementById('recoveryCodeInput').querySelector('input');
-            const hiddenCodeInput = document.getElementById('hiddenCode');
-            const form = document.getElementById('twoFactorForm');
-            const authCodeBtn = document.getElementById('authCodeBtn');
-            const recoveryCodeBtn = document.getElementById('recoveryCodeBtn');
-            const authCodeInputDiv = document.getElementById('authCodeInput');
-            const recoveryCodeInputDiv = document.getElementById('recoveryCodeInput');
-            const codeError = document.getElementById('codeError');
-            const recoveryCodeError = document.getElementById('recoveryCodeError');
-            const submitButton = document.querySelector('button[type="submit"]');
+        function updateHiddenInput(value) {
+            hiddenCodeInput.value = value;
+        }
 
-            function updateHiddenInput(value) {
-                hiddenCodeInput.value = value;
+        function validateInput(input, errorElement) {
+            if (!input.value.trim()) {
+                errorElement.textContent = 'Please enter your code.';
+                errorElement.style.display = 'block';
+                return false;
             }
+            errorElement.style.display = 'none';
+            return true;
+        }
 
-            function validateInput(input, errorElement) {
-                if (!input.value) {
-                    errorElement.textContent = 'Please enter your code.';
-                    errorElement.style.display = 'block';
-                    return false;
-                }
-                errorElement.style.display = 'none';
-                return true;
-            }
-
-            codeInput.addEventListener('input', function () {
-                updateHiddenInput(this.value);
-                validateInput(this, codeError);
-                if (this.value.length === 6) {
-                    submitForm();
-                }
-            });
-
-            recoveryCodeInput.addEventListener('input', function () {
-                updateHiddenInput(this.value);
-                validateInput(this, recoveryCodeError);
-            });
-
-            function toggleInputs(showAuth) {
-                authCodeInputDiv.style.display = showAuth ? 'block' : 'none';
-                recoveryCodeInputDiv.style.display = showAuth ? 'none' : 'block';
-                authCodeBtn.classList.toggle('bg-blue-500', showAuth);
-                recoveryCodeBtn.classList.toggle('bg-blue-500', !showAuth);
-                (showAuth ? codeInput : recoveryCodeInput).focus();
-                hiddenCodeInput.value = '';
-                codeError.style.display = 'none';
-                recoveryCodeError.style.display = 'none';
-            }
-
-            authCodeBtn.addEventListener('click', () => toggleInputs(true));
-            recoveryCodeBtn.addEventListener('click', () => toggleInputs(false));
-
-            form.addEventListener('submit', function (event) {
-                event.preventDefault();
+        function handleInputChange(input, errorElement) {
+            updateHiddenInput(input.value);
+            validateInput(input, errorElement);
+            if (input === codeInput && input.value.length === 6) {
                 submitForm();
-            });
+            }
+        }
 
-            submitButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                submitForm();
-            });
+        codeInput.addEventListener('input', () => handleInputChange(codeInput, codeError));
+        recoveryCodeInput.addEventListener('input', () => handleInputChange(recoveryCodeInput, recoveryCodeError));
 
-            function submitForm() {
-                let isValid = true;
-                if (recoveryCodeInputDiv.style.display !== 'none') {
-                    isValid = validateInput(recoveryCodeInput, recoveryCodeError);
-                } else {
-                    isValid = validateInput(codeInput, codeError);
+        function toggleInputs(showAuth) {
+            authCodeInputDiv.style.display = showAuth ? 'block' : 'none';
+            recoveryCodeInputDiv.style.display = showAuth ? 'none' : 'block';
+            authCodeBtn.classList.toggle('bg-blue-500', showAuth);
+            recoveryCodeBtn.classList.toggle('bg-blue-500', !showAuth);
+
+            const activeInput = showAuth ? codeInput : recoveryCodeInput;
+            activeInput.value = '';
+            hiddenCodeInput.value = '';
+            codeError.style.display = 'none';
+            recoveryCodeError.style.display = 'none';
+
+            // Ensure focus is set after a short delay
+            setTimeout(() => {
+                activeInput.focus();
+            }, 0);
+        }
+
+        authCodeBtn.addEventListener('click', () => toggleInputs(true));
+        recoveryCodeBtn.addEventListener('click', () => toggleInputs(false));
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            submitForm();
+        });
+
+        submitButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            submitForm();
+        });
+
+        function submitForm() {
+            let isValid = true;
+            const activeInput = recoveryCodeInputDiv.style.display !== 'none' ? recoveryCodeInput : codeInput;
+            const activeError = recoveryCodeInputDiv.style.display !== 'none' ? recoveryCodeError : codeError;
+
+            isValid = validateInput(activeInput, activeError);
+
+            if (isValid) {
+                if (!activeInput.value.trim()) {
+                    activeError.textContent = 'Please enter your code.';
+                    activeError.style.display = 'block';
+                    activeInput.focus();
+                    return;
                 }
-                if (isValid) {
-                    form.submit();
+                form.submit();
+            } else {
+                activeInput.focus();
+            }
+        }
+
+        // Ensure initial focus
+        codeInput.focus();
+
+        // Handle tab key to prevent losing focus
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                const focusableElements = form.querySelectorAll('input, button');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                } else if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
                 }
             }
         });
-    </script>
+    });
+</script>
 </x-minimal-layout>
