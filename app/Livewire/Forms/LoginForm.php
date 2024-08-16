@@ -11,30 +11,14 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 
-/**
- * Handles user login form logic and authentication.
- *
- * This class manages the login process, including rate limiting and validation.
- */
 class LoginForm extends Form
 {
-    /** @var string User's email address */
     public string $email = '';
 
-    /** @var string User's password */
     public string $password = '';
 
-    /** @var bool Whether to remember the user's login */
     public bool $remember = false;
 
-    /**
-     * Attempt to authenticate the user.
-     *
-     * Checks rate limiting before attempting authentication. Throws an exception
-     * if authentication fails or if the user is rate limited.
-     *
-     * @throws ValidationException
-     */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -51,8 +35,6 @@ class LoginForm extends Form
     }
 
     /**
-     * Get the validation rules for the login form.
-     *
      * @return array<string, array<int, string>>
      */
     public function rules(): array
@@ -65,8 +47,6 @@ class LoginForm extends Form
     }
 
     /**
-     * Get the custom error messages for the login form.
-     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -78,13 +58,6 @@ class LoginForm extends Form
         ];
     }
 
-    /**
-     * Check if the user is rate limited.
-     *
-     * If too many attempts have been made, this method will throw an exception.
-     *
-     * @throws ValidationException
-     */
     protected function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -103,9 +76,6 @@ class LoginForm extends Form
         ]);
     }
 
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());

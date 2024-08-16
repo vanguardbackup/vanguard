@@ -54,6 +54,16 @@
 @include('partials.missing-keys-and-passphrase')
 <div class="min-h-screen bg-primary-100 dark:bg-gray-900">
     <livewire:layout.navigation/>
+    @if (session()->has('flash_message'))
+        @php
+            $flashMessage = session('flash_message');
+        @endphp
+        <x-partials.flash-message
+            :message="$flashMessage['message']"
+            :type="$flashMessage['type']"
+            :dismissible="$flashMessage['dismissible']"
+        />
+    @endif
     {{ Breadcrumbs::render() }}
     <!-- Page Heading -->
     @if (isset($header))

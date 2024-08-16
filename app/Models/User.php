@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laragear\TwoFactor\Contracts\TwoFactorAuthenticatable;
+use Laragear\TwoFactor\TwoFactorAuthentication;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 
@@ -22,12 +24,17 @@ use Laravel\Sanctum\NewAccessToken;
  * This model handles user authentication, profile information, and relationships
  * to various entities such as remote servers, backup destinations, and tasks.
  */
-class User extends Authenticatable
+class User extends Authenticatable implements TwoFactorAuthenticatable
 {
     use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
+    use TwoFactorAuthentication;
+
+    public const string TWO_FACTOR_APP = 'app';
+    public const string TWO_FACTOR_EMAIL = 'email';
 
     protected $fillable = [
         'name',
@@ -40,6 +47,9 @@ class User extends Authenticatable
         'gravatar_email',
         'weekly_summary_opt_in_at',
         'pagination_count',
+        'last_two_factor_at',
+        'last_two_factor_ip',
+        'two_factor_verified_token',
     ];
 
     protected $hidden = [
@@ -243,6 +253,35 @@ class User extends Authenticatable
     }
 
     /**
+     *  The quantity of backup codes the user has consumed.
+     */
+    public function backupCodesUsedCount(): int
+    {
+        return $this->getRecoveryCodes()->whereNotNull('used_at')->count();
+    }
+
+    /**
+     *  The quantity of backup codes the user has left.
+     */
+    public function backupCodesRemainingCount(): int
+    {
+        return $this->getRecoveryCodes()->count();
+    }
+
+    /**
+     * Scope query to users with two-factor auth and outdated backup codes.
+     *
+     * @param  Builder<User>  $builder
+     * @return Builder<User>
+     */
+    public function scopeWithOutdatedBackupCodes(Builder $builder): Builder
+    {
+        return $builder->whereHas('twoFactorAuth', function ($subquery): void {
+            $subquery->where('recovery_codes_generated_at', '<', now()->subYear());
+        });
+    }
+
+    /**
      * Get the casts array.
      *
      * @return array<string, string>
@@ -253,6 +292,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'weekly_summary_opt_in_at' => 'datetime',
+            'last_two_factor_at' => 'datetime',
         ];
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CustomCheckForAnyAbility;
+use App\Http\Middleware\EnforceTwoFactor;
 use App\Http\Middleware\UserLanguage;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'abilities' => CheckAbilities::class,
             'ability' => CustomCheckForAnyAbility::class,
+            'two-factor' => EnforceTwoFactor::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

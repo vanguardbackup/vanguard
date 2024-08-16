@@ -12,12 +12,13 @@ use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use App\Livewire\Profile\APIPage;
+use App\Livewire\Profile\MFAPage;
 use App\Livewire\StatisticsPage;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/overview');
 
-Route::middleware([UserLanguage::class, 'auth'])->group(function () {
+Route::middleware([UserLanguage::class, 'auth', 'two-factor'])->group(function () {
     Route::get('overview', OverviewController::class)->name('overview');
 
     Route::view('profile', 'profile')->name('profile');
@@ -65,6 +66,7 @@ Route::middleware([UserLanguage::class, 'auth'])->group(function () {
     Route::get('statistics', StatisticsPage::class)->name('statistics');
 
     Route::get('profile/api', APIPage::class)->name('profile.api');
+    Route::get('profile/mfa', MFAPage::class)->name('profile.mfa');
 });
 
 require __DIR__ . '/auth.php';
