@@ -102,3 +102,7 @@ Breadcrumbs::for('profile.api', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('profile.mfa', function (BreadcrumbTrail $trail) {
     $trail->push(__('Multi-Factor Authentication (2FA)'), route('profile.mfa'));
 });
+
+Breadcrumbs::for('profile.sessions', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Manage Sessions'), route('profile.sessions'));
+});
