@@ -503,35 +503,33 @@ new class extends Component {
             <x-table.table-body>
                 @foreach ($this->tokens as $token)
                     <x-table.table-row>
-                        <div class="col-span-12 sm:col-span-3 flex flex-col sm:flex-row sm:items-center">
+                        <div class="col-span-12 sm:col-span-3 flex items-center">
                             <p class="font-medium text-gray-900 dark:text-gray-100">
                                 {{ $token->name }}
                                 @if ($token->isMobileToken())
-                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100">
-                                    @svg('heroicon-s-device-phone-mobile', 'w-4 h-4 mr-1')
-                                    {{ __('Mobile') }}
-                                </span>
+                                    <span class="ml-2 relative group">
+                                        @svg('heroicon-s-device-phone-mobile', 'w-4 h-4 text-cyan-600 dark:text-cyan-400 inline-block', ['aria-label' => __('Mobile Token'),'role' => 'img',])
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 w-max bg-gray-900 px-2 py-1 text-sm text-gray-100 rounded opacity-0 transition-opacity group-hover:opacity-100">
+                                            {{ __('Mobile Token') }}
+                                        </span>
+                                    </span>
                                 @endif
                             </p>
                         </div>
-
-                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-                        <span class="text-gray-600 dark:text-gray-300">
-                            {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
-                        </span>
+                        <div class="col-span-12 sm:col-span-3">
+                            <span class="text-gray-600 dark:text-gray-300">
+                                {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
+                            </span>
                         </div>
-
-                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
-                            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
-                            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}
-                        ">
-                            {{ $this->getExpirationDisplay($token) }}
-                        </span>
+                        <div class="col-span-12 sm:col-span-3">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+           {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
+            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}">
+            {{ $this->getExpirationDisplay($token) }}
+                            </span>
                         </div>
-
-                        <div class="col-span-12 sm:col-span-3 mt-4 sm:mt-0 flex justify-start sm:justify-center space-x-2">
+                        <div class="col-span-12 sm:col-span-3 flex justify-start sm:justify-center space-x-2">
                             <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" iconOnly>
                                 <span class="sr-only">{{ __('View Abilities') }}</span>
                                 @svg('heroicon-s-eye', 'w-4 h-4')
@@ -546,7 +544,6 @@ new class extends Component {
             </x-table.table-body>
         </x-table.table-wrapper>
     @endif
-
     <!-- Create Token Modal -->
     <x-modal name="create-api-token" focusable>
         <x-slot name="title">
