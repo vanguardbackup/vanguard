@@ -76,7 +76,7 @@ new class extends Component {
                 'nullable',
                 'date',
                 'after:today',
-                'before:' . now()->addYears(5)->format('Y-m-d'), // Limit to 5 years from now
+                'before:' . now()->addYears(5)->format('Y-m-d'),
             ],
         ];
     }
@@ -463,154 +463,7 @@ new class extends Component {
 };
 
 ?>
-<div
-    x-data="{
-        showCustomDatepicker: false,
-        showNeverExpirationWarning: false,
-        init() {
-            this.$watch('$wire.expirationOption', value => {
-                this.showCustomDatepicker = (value === 'custom');
-                this.showNeverExpirationWarning = (value === 'never');
-            });
-        }
-    }"
-    class="space-y-6"
->
-    <!-- Create Token Modal -->
-    <x-modal name="create-api-token" focusable>
-        <x-slot name="title">
-            {{ __('Create New API Token') }}
-        </x-slot>
-        <x-slot name="description">
-            {{ __('Generate a new API token with specific abilities and expiration.') }}
-        </x-slot>
-        <x-slot name="icon">
-            heroicon-o-code-bracket
-        </x-slot>
-        <form wire:submit.prevent="createApiToken" class="space-y-6">
-            <div>
-                <x-input-label for="token_name" :value="__('Token Name')"/>
-                <x-text-input id="token_name" name="token_name" type="text" wire:model="name" autofocus
-                              class="mt-1 block w-full" required/>
-                <x-input-error :messages="$errors->get('name')" class="mt-2"/>
-            </div>
-
-            <div>
-                <x-input-label for="expiration_option" :value="__('Token Expiration')"/>
-                <x-select id="expiration_option" name="expiration_option" wire:model="expirationOption">
-                    <option value="1_month">{{ __('1 Month') }}</option>
-                    <option value="6_months">{{ __('6 Months') }}</option>
-                    <option value="1_year">{{ __('1 Year') }}</option>
-                    <option value="never">{{ __('Never') }}</option>
-                    <option value="custom">{{ __('Custom') }}</option>
-                </x-select>
-                <x-input-error :messages="$errors->get('expirationOption')" class="mt-2"/>
-            </div>
-
-            <div x-show="$wire.expirationOption === 'custom'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
-                <x-input-label for="custom_expiration_date" :value="__('Custom Expiration Date')"/>
-                <x-text-input id="custom_expiration_date" name="custom_expiration_date" type="date" wire:model="customExpirationDate"
-                              class="mt-1 block w-full" :min="date('Y-m-d', strtotime('+1 day'))" :max="date('Y-m-d', strtotime('+5 years'))"/>
-                <x-input-error :messages="$errors->get('customExpirationDate')" class="mt-2"/>
-            </div>
-
-            <div x-show="showNeverExpirationWarning"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 class="rounded-md p-4 bg-yellow-50 dark:bg-yellow-900">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        @svg('heroicon-s-exclamation-triangle', 'h-5 w-5 text-yellow-400 dark:text-yellow-300')
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-100">
-                            {{ __('Warning: Token Never Expires') }}
-                        </h3>
-                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-200">
-                            <p>
-                                {{ __('Creating a token that never expires can be a security risk. Only use this option if absolutely necessary.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div>
-                <x-input-label :value="__('Token Abilities')" class="mb-3"/>
-                <div class="mb-4 flex justify-between items-center">
-                    <x-secondary-button wire:click="selectAllAbilities" type="button">
-                        {{ __('Select All') }}
-                    </x-secondary-button>
-                    <x-secondary-button wire:click="deselectAllAbilities" type="button">
-                        {{ __('Deselect All') }}
-                    </x-secondary-button>
-                </div>
-                <div class="space-y-4">
-                    @foreach ($this->availableAbilities as $group => $groupAbilities)
-                        <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                            <button type="button" wire:click="toggleGroup('{{ $group }}')"
-                                    class="w-full px-4 py-2 text-left dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
-                                <span class="font-medium">{{ $group }}</span>
-                                <span class="float-right">
-                        @if ($this->expandedGroups[$group])
-                                        @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
-                                    @else
-                                        @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
-                                    @endif
-                    </span>
-                            </button>
-                            <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
-                                <div class="p-4 space-y-4">
-                                    @foreach ($groupAbilities as $key => $ability)
-                                        <div class="flex items-center space-x-3">
-                                            <x-toggle
-                                                :name="'abilities.' . $key"
-                                                :label="$ability['name']"
-                                                :model="'abilities.' . $key"
-                                                live
-                                            />
-                                            <div class="relative group">
-                                                <div>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                        {{ $ability['name'] }}
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    class="absolute left-0 bottom-full mb-2 w-48 bg-gray-800 text-white text-xs rounded p-2 hidden group-hover:block z-50">
-                                                    {{ $ability['description'] }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                <x-input-error :messages="$errors->get('abilities')" class="mt-2"/>
-            </div>
-
-            <div class="mt-6 max-w-3xl mx-auto">
-                <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
-                    <div class="w-full sm:w-4/6">
-                        <x-primary-button type="submit" class="w-full justify-center" centered action="createApiToken"
-                                          wire:loading.attr="disabled">
-                            {{ __('Save') }}
-                        </x-primary-button>
-                    </div>
-                    <div class="w-full sm:w-2/6">
-                        <x-secondary-button type="button" class="w-full justify-center" centered
-                                            x-on:click="$dispatch('close')">
-                            {{ __('Cancel') }}
-                        </x-secondary-button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </x-modal>
-
+<div>
     @if ($this->tokens->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
@@ -630,122 +483,178 @@ new class extends Component {
             </x-slot>
         </x-no-content>
     @else
-        <x-form-wrapper>
+        <x-table.table-wrapper
+            title="{{ __('API Tokens') }}"
+            description="{{ __('Manage your API tokens for third-party access to Vanguard.') }}">
             <x-slot name="icon">
-                heroicon-o-code-bracket
+                <x-heroicon-o-code-bracket class="h-6 w-6 text-primary-600 dark:text-primary-400"/>
             </x-slot>
-            <x-slot name="description">
-                {{ __('Manage your API tokens for third-party access to Vanguard.') }}
+            <x-slot name="actions">
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-api-token')">
+                    {{ __('Create New Token') }}
+                </x-primary-button>
             </x-slot>
-            <x-slot name="title">
-                {{ __('API Tokens') }}
-            </x-slot>
-            <div class="space-y-6">
-                <div
-                    class="py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600 dark:border-blue-500 font-normal mb-6 rounded-r">
-                    <div class="flex items-center">
-                        @svg('heroicon-o-information-circle', 'h-5 w-5 flex-shrink-0 mr-2')
-                        <span>
-                        {{ __('Need help with API integration?') }}
-                        <a href="https://docs.vanguardbackup.com/api/introduction" target="_blank"
-                           class="font-medium underline hover:text-blue-700 dark:hover:text-blue-300">
-                            {{ __('Check our API documentation') }}
-                        </a>
-                    </span>
-                    </div>
-                </div>
-                <div class="mt-6 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {{ __('Name') }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {{ __('Created') }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {{ __('Last Used') }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {{ __('Expiration') }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {{ __('Actions') }}
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                        @foreach ($this->tokens as $token)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    <div class="flex items-center space-x-2">
-                                        @if ($token->isMobileToken())
-                                            <div title="{{ __('Token was used on a mobile device.') }}"
-                                                 class="flex items-center space-x-2 bg-cyan-100 dark:bg-cyan-600 rounded-full px-3 py-1">
-                                            <span class="text-cyan-600 dark:text-cyan-100">
-                                                @svg('heroicon-o-device-phone-mobile', 'w-5 h-5')
-                                            </span>
-                                                <span
-                                                    class="text-cyan-600 dark:text-cyan-100 text-xs font-semibold">{{ __('Mobile') }}</span>
-                                            </div>
-                                        @endif
-                                        <span>{{ $token->name }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $token->created_at->diffForHumans() }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <div class="flex items-center">
-        <span class="flex-shrink-0 w-2 h-2 mr-2 rounded-full
-            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-400 dark:bg-green-500' : '' }}
-            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-400 dark:bg-yellow-500' : '' }}
-            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-400 dark:bg-red-500' : '' }}
-        "></span>
-                                        <span class="inline-flex items-center text-xs font-medium
-            {{ $this->getExpirationStatus($token) === 'active' ? 'text-green-700 dark:text-green-400' : '' }}
-            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'text-yellow-700 dark:text-yellow-400' : '' }}
-            {{ $this->getExpirationStatus($token) === 'expired' ? 'text-red-700 dark:text-red-400' : '' }}
-        ">
-            @if ($this->getExpirationStatus($token) === 'active')
-                                                @svg('heroicon-s-check-circle', 'w-4 h-4 mr-1')
-                                            @elseif ($this->getExpirationStatus($token) === 'expiring-soon')
-                                                @svg('heroicon-s-clock', 'w-4 h-4 mr-1')
-                                            @elseif ($this->getExpirationStatus($token) === 'expired')
-                                                @svg('heroicon-s-x-circle', 'w-4 h-4 mr-1')
-                                            @endif
-                                            {{ $this->getExpirationDisplay($token) }}
-        </span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" class="mr-2"
-                                                        iconOnly title="{{ __('View Abilities') }}">
-                                        @svg('heroicon-o-eye', 'w-4 h-4')
-                                    </x-secondary-button>
-                                    <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})"
-                                                     wire:loading.attr="disabled" iconOnly
-                                                     title="{{ __('Revoke Token') }}">
-                                        @svg('heroicon-o-trash', 'w-4 h-4')
-                                    </x-danger-button>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </x-form-wrapper>
+            <x-table.table-header>
+                <div class="col-span-3">{{ __('Name') }}</div>
+                <div class="col-span-3">{{ __('Last Used') }}</div>
+                <div class="col-span-3">{{ __('Expiration') }}</div>
+                <div class="col-span-3">{{ __('Actions') }}</div>
+            </x-table.table-header>
+            <x-table.table-body>
+                @foreach ($this->tokens as $token)
+                    <x-table.table-row>
+                        <div class="col-span-12 sm:col-span-3 flex flex-col sm:flex-row sm:items-center">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">
+                                {{ $token->name }}
+                                @if ($token->isMobileToken())
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100">
+                                    @svg('heroicon-s-device-phone-mobile', 'w-4 h-4 mr-1')
+                                    {{ __('Mobile') }}
+                                </span>
+                                @endif
+                            </p>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
+                        <span class="text-gray-600 dark:text-gray-300">
+                            {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}
+                        </span>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {{ $this->getExpirationStatus($token) === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : '' }}
+                            {{ $this->getExpirationStatus($token) === 'expiring-soon' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : '' }}
+                            {{ $this->getExpirationStatus($token) === 'expired' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' : '' }}
+                        ">
+                            {{ $this->getExpirationDisplay($token) }}
+                        </span>
+                        </div>
+
+                        <div class="col-span-12 sm:col-span-3 mt-4 sm:mt-0 flex justify-start sm:justify-center space-x-2">
+                            <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" iconOnly>
+                                <span class="sr-only">{{ __('View Abilities') }}</span>
+                                @svg('heroicon-s-eye', 'w-4 h-4')
+                            </x-secondary-button>
+                            <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})" iconOnly>
+                                <span class="sr-only">{{ __('Delete Token') }}</span>
+                                @svg('heroicon-s-trash', 'w-4 h-4')
+                            </x-danger-button>
+                        </div>
+                    </x-table.table-row>
+                @endforeach
+            </x-table.table-body>
+        </x-table.table-wrapper>
     @endif
+
+    <!-- Create Token Modal -->
+    <x-modal name="create-api-token" focusable>
+        <x-slot name="title">
+            {{ __('Create New API Token') }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('Generate a new API token with specific abilities and expiration.') }}
+        </x-slot>
+        <x-slot name="icon">
+            heroicon-o-code-bracket
+        </x-slot>
+        <form wire:submit.prevent="createApiToken" class="space-y-6">
+            <!-- Token Name -->
+            <div>
+                <x-input-label for="token_name" :value="__('Token Name')"/>
+                <x-text-input id="token_name" name="token_name" type="text" wire:model="name" autofocus
+                              class="mt-1 block w-full" required/>
+                <x-input-error :messages="$errors->get('name')" class="mt-2"/>
+            </div>
+
+            <!-- Token Expiration -->
+            <div>
+                <x-input-label for="expiration_option" :value="__('Token Expiration')"/>
+                <x-select id="expiration_option" name="expiration_option" wire:model="expirationOption">
+                    <option value="1_month">{{ __('1 Month') }}</option>
+                    <option value="6_months">{{ __('6 Months') }}</option>
+                    <option value="1_year">{{ __('1 Year') }}</option>
+                    <option value="never">{{ __('Never') }}</option>
+                    <option value="custom">{{ __('Custom') }}</option>
+                </x-select>
+                <x-input-error :messages="$errors->get('expirationOption')" class="mt-2"/>
+            </div>
+
+            <!-- Custom Expiration Date -->
+            @if ($expirationOption === 'custom')
+                <div>
+                    <x-input-label for="custom_expiration_date" :value="__('Custom Expiration Date')"/>
+                    <x-text-input id="custom_expiration_date" name="custom_expiration_date" type="date" wire:model="customExpirationDate"
+                                  class="mt-1 block w-full" :min="date('Y-m-d', strtotime('+1 day'))" :max="date('Y-m-d', strtotime('+5 years'))"/>
+                    <x-input-error :messages="$errors->get('customExpirationDate')" class="mt-2"/>
+                </div>
+            @endif
+
+            <!-- Token Abilities -->
+            <div>
+                <x-input-label :value="__('Token Abilities')" class="mb-3"/>
+                <div class="mb-4 flex justify-between items-center">
+                    <x-secondary-button wire:click="selectAllAbilities" type="button">
+                        {{ __('Select All') }}
+                    </x-secondary-button>
+                    <x-secondary-button wire:click="deselectAllAbilities" type="button">
+                        {{ __('Deselect All') }}
+                    </x-secondary-button>
+                </div>
+                <div class="space-y-4">
+                    @foreach ($this->availableAbilities as $group => $groupAbilities)
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                            <button type="button" wire:click="toggleGroup('{{ $group }}')"
+                                    class="w-full px-4 py-2 text-left dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                                <span class="font-medium">{{ $group }}</span>
+                                <span class="float-right">
+                                @if ($this->expandedGroups[$group])
+                                        @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
+                                    @else
+                                        @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
+                                    @endif
+                            </span>
+                            </button>
+                            <div x-show="$wire.expandedGroups['{{ $group }}']" x-collapse>
+                                <div class="p-4 space-y-4">
+                                    @foreach ($groupAbilities as $key => $ability)
+                                        <div class="flex items-center space-x-3">
+                                            <x-toggle
+                                                :name="'abilities.' . $key"
+                                                :label="$ability['name']"
+                                                :model="'abilities.' . $key"
+                                                live
+                                            />
+                                            <div class="relative group">
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ $ability['name'] }}
+                                                    </p>
+                                                </div>
+                                                <div class="absolute left-0 bottom-full mb-2 w-48 bg-gray-800 text-white text-xs rounded p-2 hidden group-hover:block z-50">
+                                                    {{ $ability['description'] }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <x-input-error :messages="$errors->get('abilities')" class="mt-2"/>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <x-secondary-button type="button" x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+                <x-primary-button type="submit">
+                    {{ __('Create') }}
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
 
     <!-- Delete Token Confirmation Modal -->
     <x-modal name="confirm-api-token-deletion" focusable>
@@ -758,21 +667,13 @@ new class extends Component {
         <x-slot name="icon">
             heroicon-o-trash
         </x-slot>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Please be careful and ensure that you wish to remove your API token.') }}
-        </p>
-        <div class="flex space-x-5">
-            <div class="w-4/6">
-                <x-danger-button type="button" wire:click="deleteApiToken" class="mt-4" centered action="delete"
-                                 loadingText="Removing...">
-                    {{ __('Confirm Removal') }}
-                </x-danger-button>
-            </div>
-            <div class="w-2/6 ml-2">
-                <x-secondary-button type="button" class="mt-4" centered x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-            </div>
+        <div class="mt-4">
+            <x-danger-button wire:click="deleteApiToken" wire:loading.attr="disabled">
+                {{ __('Delete Token') }}
+            </x-danger-button>
+            <x-secondary-button class="ml-3" x-on:click="$dispatch('close')">
+                {{ __('Cancel') }}
+            </x-secondary-button>
         </div>
     </x-modal>
 
@@ -787,40 +688,44 @@ new class extends Component {
         <x-slot name="icon">
             heroicon-o-code-bracket
         </x-slot>
-        <div class="space-y-4">
-            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
-                <code class="text-sm text-gray-800 dark:text-gray-200 break-all"
-                      x-ref="tokenDisplay">{{ $plainTextToken }}</code>
-            </div>
-            <div class="mt-6">
-                <x-secondary-button
-                    x-on:click="navigator.clipboard.writeText($refs.tokenDisplay.textContent); $dispatch('close')"
-                    centered>
-                    {{ __('Copy and Close') }}
-                </x-secondary-button>
-            </div>
+        <div class="mt-4">
+            <x-input-label for="token" value="{{ __('API Token') }}" />
+            <x-text-input
+                name="token_result"
+                x-ref="tokenInput"
+                type="text"
+                class="mt-1 w-full"
+                :value="$plainTextToken"
+                readonly
+            />
+        </div>
+        <div class="mt-4 flex justify-end space-x-3">
+            <x-secondary-button x-on:click="$dispatch('close')">
+                {{ __('Close') }}
+            </x-secondary-button>
+            <x-primary-button x-on:click="navigator.clipboard.writeText($refs.tokenInput.value)">
+                {{ __('Copy to Clipboard') }}
+            </x-primary-button>
         </div>
     </x-modal>
 
-
-    <!-- View Token Abilities Modal -->
-    <x-modal name="view-token-abilities" focusable>
-        <x-slot name="title">
-            {{ __('Token Abilities') }}
-        </x-slot>
-        <x-slot name="description">
-            {{ __('View the abilities assigned to this API token.') }}
-        </x-slot>
-        <x-slot name="icon">
-            heroicon-o-code-bracket
-        </x-slot>
-        <div>
-            @if ($viewingTokenId)
-                @php
-                    $token = $this->tokens->find($viewingTokenId);
-                @endphp
-                @if ($token)
-                    <div class="mb-4">
+        <!-- View Token Abilities Modal -->
+        <x-modal name="view-token-abilities" focusable>
+            <x-slot name="title">
+                {{ __('Token Abilities') }}
+            </x-slot>
+            <x-slot name="description">
+                {{ __('View the abilities assigned to this API token.') }}
+            </x-slot>
+            <x-slot name="icon">
+                heroicon-o-code-bracket
+            </x-slot>
+            <div>
+                @if ($viewingTokenId)
+                    @php
+                        $token = $this->tokens->find($viewingTokenId);
+                    @endphp
+                    @if ($token)
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $token->name }}</h3>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             {{ __('Expires') }}:
@@ -832,10 +737,8 @@ new class extends Component {
                         {{ $this->getExpirationDisplay($token) }}
                     </span>
                         </p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @if (isset($this->availableAbilities) && is_array($this->availableAbilities))
-                            @foreach ($this->availableAbilities as $group => $groupAbilities)
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach ($this->getAbilities() as $group => $groupAbilities)
                                 <div class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
                                     <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-medium text-gray-900 dark:text-gray-100">
                                         {{ $group }}
@@ -854,20 +757,17 @@ new class extends Component {
                                     </ul>
                                 </div>
                             @endforeach
-                        @else
-                            <p class="text-sm text-red-500 dark:text-red-400">{{ __('Available abilities are not defined or not in the expected format.') }}</p>
-                        @endif
-                    </div>
-                @else
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Token not found.') }}</p>
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Token not found.') }}</p>
+                    @endif
                 @endif
-            @endif
-        </div>
-        <div class="mt-6">
-            <x-secondary-button x-on:click="$dispatch('close')" centered>
-                {{ __('Close') }}
-            </x-secondary-button>
-        </div>
-    </x-modal>
+            </div>
+            <div class="mt-6">
+                <x-secondary-button x-on:click="$dispatch('close')" centered>
+                    {{ __('Close') }}
+                </x-secondary-button>
+            </div>
+        </x-modal>
 
 </div>
