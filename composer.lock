@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dab54331f1886f8845c0cbbf615d8969",
+    "content-hash": "d0ddff4c47e9bf0aa570e061334d831b",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.319.4",
+            "version": "3.320.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "b39a56786bef9e922c8bdd0e47c73ba828cc512e"
+                "reference": "dbae075b861316237d63418715f8bf4bfdd9d33d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b39a56786bef9e922c8bdd0e47c73ba828cc512e",
-                "reference": "b39a56786bef9e922c8bdd0e47c73ba828cc512e",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/dbae075b861316237d63418715f8bf4bfdd9d33d",
+                "reference": "dbae075b861316237d63418715f8bf4bfdd9d33d",
                 "shasum": ""
             },
             "require": {
@@ -154,9 +154,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.319.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.2"
             },
-            "time": "2024-08-13T18:04:50+00:00"
+            "time": "2024-08-16T18:06:17+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -490,75 +490,6 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
-        },
-        {
-            "name": "cjmellor/browser-sessions",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cjmellor/browser-sessions.git",
-                "reference": "28d4cc4ab9501f17504a39fe990197d6ae303e9c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cjmellor/browser-sessions/zipball/28d4cc4ab9501f17504a39fe990197d6ae303e9c",
-                "reference": "28d4cc4ab9501f17504a39fe990197d6ae303e9c",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^10.0|^11.0",
-                "jenssegers/agent": "^2.6",
-                "php": "^8.2",
-                "spatie/laravel-package-tools": "^1.14"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^7.0|^8.0",
-                "orchestra/testbench": "^8.0|^9.0",
-                "pestphp/pest": "^2.0",
-                "pestphp/pest-plugin-arch": "^2.0",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "phpunit/phpunit": "^10.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Cjmellor\\BrowserSessions\\BrowserSessionsServiceProvider"
-                    ],
-                    "aliases": {
-                        "BrowserSessions": "Cjmellor\\BrowserSessions\\Facades\\BrowserSessions"
-                    }
-                },
-                "minimum-stability": "stable",
-                "prefer-stable": true
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cjmellor\\BrowserSessions\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Mellor",
-                    "email": "cmellor@gmail.com"
-                }
-            ],
-            "description": "A Laravel package to enable users to manage and monitor their active browser sessions. Allows users to view devices where they are logged in and provides options to terminate unrecognized or all sessions, enhancing account security",
-            "homepage": "https://github.com/cjmellor/browser-sessions",
-            "keywords": [
-                "browser-sessions",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/cjmellor/browser-sessions/issues",
-                "source": "https://github.com/cjmellor/browser-sessions/tree/v1.1.0"
-            },
-            "time": "2024-03-24T00:16:50+00:00"
         },
         {
             "name": "clue/redis-protocol",
@@ -3191,16 +3122,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.5.2",
+            "version": "2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "df09d5b6a4188f8f3c3ab2e43a109076a5eeb767"
+                "reference": "b650144166dfa7703e62a22e493b853b58d874b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/df09d5b6a4188f8f3c3ab2e43a109076a5eeb767",
-                "reference": "df09d5b6a4188f8f3c3ab2e43a109076a5eeb767",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/b650144166dfa7703e62a22e493b853b58d874b0",
+                "reference": "b650144166dfa7703e62a22e493b853b58d874b0",
                 "shasum": ""
             },
             "require": {
@@ -3213,8 +3144,8 @@
             },
             "require-dev": {
                 "cebe/markdown": "^1.0",
-                "commonmark/cmark": "0.31.0",
-                "commonmark/commonmark.js": "0.31.0",
+                "commonmark/cmark": "0.31.1",
+                "commonmark/commonmark.js": "0.31.1",
                 "composer/package-versions-deprecated": "^1.8",
                 "embed/embed": "^4.4",
                 "erusev/parsedown": "^1.0",
@@ -3293,7 +3224,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-08-14T10:56:57+00:00"
+            "time": "2024-08-16T11:46:16+00:00"
         },
         {
             "name": "league/config",
@@ -12199,12 +12130,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "a143e7459e3961149eb6a8eecc98dfa19799d02a"
+                "reference": "251a4f1fefcc6e6cc90d50514fee6b6e3745cb3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a143e7459e3961149eb6a8eecc98dfa19799d02a",
-                "reference": "a143e7459e3961149eb6a8eecc98dfa19799d02a",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/251a4f1fefcc6e6cc90d50514fee6b6e3745cb3e",
+                "reference": "251a4f1fefcc6e6cc90d50514fee6b6e3745cb3e",
                 "shasum": ""
             },
             "conflict": {
@@ -12370,7 +12301,7 @@
                 "ezsystems/ezplatform-graphql": ">=1.0.0.0-RC1-dev,<1.0.13|>=2.0.0.0-beta1,<2.3.12",
                 "ezsystems/ezplatform-kernel": "<1.2.5.1-dev|>=1.3,<1.3.35",
                 "ezsystems/ezplatform-rest": ">=1.2,<=1.2.2|>=1.3,<1.3.8",
-                "ezsystems/ezplatform-richtext": ">=2.3,<2.3.7.1-dev",
+                "ezsystems/ezplatform-richtext": ">=2.3,<2.3.7.1-dev|>=3.3,<3.3.40",
                 "ezsystems/ezplatform-solr-search-engine": ">=1.7,<1.7.12|>=2,<2.0.2|>=3.3,<3.3.15",
                 "ezsystems/ezplatform-user": ">=1,<1.0.1",
                 "ezsystems/ezpublish-kernel": "<6.13.8.2-dev|>=7,<7.5.31",
@@ -12451,6 +12382,7 @@
                 "hyn/multi-tenant": ">=5.6,<5.7.2",
                 "ibexa/admin-ui": ">=4.2,<4.2.3|>=4.6.0.0-beta1,<4.6.9",
                 "ibexa/core": ">=4,<4.0.7|>=4.1,<4.1.4|>=4.2,<4.2.3|>=4.5,<4.5.6|>=4.6,<4.6.2",
+                "ibexa/fieldtype-richtext": ">=4.6,<4.6.10",
                 "ibexa/graphql": ">=2.5,<2.5.31|>=3.3,<3.3.28|>=4.2,<4.2.3",
                 "ibexa/post-install": "<=1.0.4",
                 "ibexa/solr": ">=4.5,<4.5.4",
@@ -13007,7 +12939,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-08-12T19:04:53+00:00"
+            "time": "2024-08-14T19:05:08+00:00"
         },
         {
             "name": "sebastian/cli-parser",

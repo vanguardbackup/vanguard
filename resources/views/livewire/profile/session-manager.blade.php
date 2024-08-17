@@ -1,11 +1,15 @@
 <?php
 
-use Cjmellor\BrowserSessions\Facades\BrowserSessions;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
+use Jenssegers\Agent\Agent;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Rule;
 use Livewire\Volt\Component;
@@ -13,112 +17,201 @@ use Livewire\Volt\Component;
 /**
  * Session Manager Component
  *
- * This component manages and displays active user sessions across various devices.
- * It provides functionality to view, terminate individual sessions, and log out from all other sessions.
+ * Manages and displays active user sessions across various devices.
+ * Provides functionality to view, terminate individual sessions, and log out from all other sessions.
  */
 new class extends Component {
     use WithRateLimiting;
 
-    /**
-     * Collection of active user sessions.
-     *
-     * @var Collection
-     */
+    /** @var Collection<int, object> Active user sessions. */
     public Collection $sessions;
 
-    /**
-     * User's password for authentication when logging out other sessions.
-     *
-     * @var string
-     */
+    /** @var string User's password for authentication when logging out other sessions. */
     #[Rule('required|string')]
     public string $password = '';
 
-    /**
-     * Initialize the component and load active sessions.
-     *
-     * @return void
-     */
+    /** @var object|null Currently selected session for detailed view. */
+    public ?object $selectedSession = null;
+
     public function mount(): void
     {
         $this->loadSessions();
     }
 
-    /**
-     * Load active sessions for the authenticated user.
-     *
-     * @return void
-     */
     public function loadSessions(): void
     {
         if (!Auth::check()) {
             return;
         }
 
-        $this->sessions = BrowserSessions::sessions();
+        $this->sessions = $this->getSessions();
     }
 
-    /**
-     * Log out from all other browser sessions.
-     *
-     * @return void
-     */
     public function logoutOtherBrowserSessions(): void
     {
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
         ]);
 
-        BrowserSessions::logoutOtherBrowserSessions();
+        $this->doLogoutOtherBrowserSessions();
         $this->loadSessions();
         $this->password = '';
         $this->dispatch('close-modal', 'confirm-logout-other-browser-sessions');
-        Toaster::success('All other browser sessions have been successfully terminated.');
+        Toaster::success(__('All other browser sessions have been successfully terminated.'));
     }
 
-    /**
-     * Terminate a specific session.
-     *
-     * @param string $sessionId
-     * @return void
-     */
     public function logoutSession(string $sessionId): void
     {
         if (!Auth::check()) {
             return;
         }
 
-        DB::table(config('session.table'))
+        DB::table(Config::get('session.table', 'sessions'))
             ->where('id', $sessionId)
             ->where('user_id', Auth::id())
             ->delete();
 
         $this->loadSessions();
-        Toaster::success('The selected session has been successfully terminated.');
+        $this->selectedSession = null;
+        $this->dispatch('close-modal', 'session-details');
+        Toaster::success(__('The selected session has been successfully terminated.'));
     }
 
-    /**
-     * Check if the current session driver is set to database.
-     *
-     * @return bool
-     */
+    public function showSessionDetails(string $sessionId): void
+    {
+        $this->selectedSession = $this->sessions->firstWhere('id', $sessionId);
+        $this->dispatch('open-modal', 'session-details');
+    }
+
     #[Computed]
     public function isDatabaseDriver(): bool
     {
-        return Config::get('session.driver') === 'database';
+        return Config::get('session.driver') === 'database' && request()->hasSession();
     }
 
-    /**
-     * Get the user's last activity in a human-readable format.
-     *
-     * @return string
-     */
     #[Computed]
     public function userLastActivity(): string
     {
-        return BrowserSessions::getUserLastActivity(human: true);
+        return $this->getUserLastActivity(true);
     }
-}; ?>
+
+    protected function getSessions(): Collection
+    {
+        if (!$this->isDatabaseDriver) {
+            return collect();
+        }
+
+        return collect(
+            DB::connection(Config::get('session.connection'))
+                ->table(Config::get('session.table', 'sessions'))
+                ->where('user_id', Auth::id())
+                ->latest('last_activity')
+                ->get()
+        )->map(function ($session) {
+            $agent = $this->createAgent($session);
+            $location = $this->getLocationFromIp($session->ip_address);
+
+            return (object) [
+                'id' => $session->id,
+                'device' => [
+                    'browser' => $agent->browser(),
+                    'desktop' => $agent->isDesktop(),
+                    'mobile' => $agent->isMobile(),
+                    'tablet' => $agent->isTablet(),
+                    'platform' => $agent->platform(),
+                ],
+                'ip_address' => $session->ip_address,
+                'is_current_device' => $session->id === request()->session()->getId(),
+                'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
+                'location' => $location,
+            ];
+        });
+    }
+
+    protected function createAgent(object $session): Agent
+    {
+        return tap(
+            new Agent(),
+            fn (Agent $agent) => $agent->setUserAgent($session->user_agent)
+        );
+    }
+
+    protected function getLocationFromIp(string $ip): array
+    {
+        try {
+            $response = Http::get("http://ip-api.com/json/{$ip}");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return [
+                    'city' => $data['city'] ?? 'Unknown',
+                    'country' => $data['country'] ?? 'Unknown',
+                    'latitude' => $data['lat'] ?? 0,
+                    'longitude' => $data['lon'] ?? 0,
+                ];
+            }
+        } catch (\Exception $e) {
+            // Log the error if needed
+        }
+
+        return [
+            'city' => 'Unknown',
+            'country' => 'Unknown',
+            'latitude' => 0,
+            'longitude' => 0,
+        ];
+    }
+
+    protected function doLogoutOtherBrowserSessions(): void
+    {
+        $user = Auth::user();
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'user' => [__('User not found.')],
+            ]);
+        }
+
+        if (!Hash::check($this->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => [__('This password does not match our records.')],
+            ]);
+        }
+
+        Auth::guard()->logoutOtherDevices($this->password);
+
+        $this->deleteOtherSessionRecords();
+    }
+
+    protected function deleteOtherSessionRecords(): void
+    {
+        if (!$this->isDatabaseDriver) {
+            return;
+        }
+
+        DB::connection(Config::get('session.connection'))
+            ->table(Config::get('session.table', 'sessions'))
+            ->where('user_id', Auth::id())
+            ->where('id', '!=', request()->session()->getId())
+            ->delete();
+    }
+
+    protected function getUserLastActivity(bool $human = false): Carbon|string
+    {
+        $lastActivity = DB::connection(Config::get('session.connection'))
+            ->table(Config::get('session.table', 'sessions'))
+            ->where('user_id', Auth::id())
+            ->latest('last_activity')
+            ->first();
+
+        if (!$lastActivity) {
+            return $human ? __('Never') : Carbon::now();
+        }
+
+        $timestamp = Carbon::createFromTimestamp($lastActivity->last_activity);
+        return $human ? $timestamp->diffForHumans() : $timestamp;
+    }
+}
+?>
 
 <div wire:key="{{ auth()->id() }}-browser-sessions">
     <div wire:key="current-view-sessions">
@@ -165,11 +258,13 @@ new class extends Component {
                                         </div>
                                     </div>
                                     <div class="flex justify-end sm:ml-4 sm:flex-shrink-0">
-                                        @if ($session->is_current_device)
-                                            <span class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 dark:bg-green-800 dark:text-green-100">
-                                                {{ __('Current Device') }}
-                                            </span>
-                                        @else
+                                        <x-secondary-button
+                                            wire:click="showSessionDetails('{{ $session->id }}')"
+                                            class="mr-2"
+                                        >
+                                            {{ __('See More') }}
+                                        </x-secondary-button>
+                                        @if (!$session->is_current_device)
                                             <x-danger-button
                                                 wire:click="logoutSession('{{ $session->id }}')"
                                                 wire:loading.attr="disabled"
@@ -177,17 +272,14 @@ new class extends Component {
                                             >
                                                 {{ __('Terminate') }}
                                             </x-danger-button>
+                                        @else
+                                            <span class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 dark:bg-green-800 dark:text-green-100">
+                                                {{ __('Current Device') }}
+                                            </span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
-                            @if (!$session->is_current_device)
-                                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                                        {{ __('Device type') }}: {{ $session->device['desktop'] ? 'Desktop' : ($session->device['mobile'] ? 'Mobile' : ($session->device['tablet'] ? 'Tablet' : 'Unknown')) }}
-                                    </p>
-                                </div>
-                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -226,6 +318,7 @@ new class extends Component {
                             <x-input-label for="password" value="{{ __('Password') }}" class="sr-only"/>
 
                             <x-text-input
+                                autofocus
                                 wire:model="password"
                                 id="password"
                                 name="password"
@@ -247,6 +340,47 @@ new class extends Component {
                             </x-danger-button>
                         </div>
                     </form>
+                </x-modal>
+
+                <x-modal name="session-details" focusable>
+                    <x-slot name="title">
+                        {{ __('Session Details') }}
+                    </x-slot>
+                    <x-slot name="description">
+                        {{ __('Detailed information about the selected session.') }}
+                    </x-slot>
+                    <x-slot name="icon">
+                        heroicon-o-information-circle
+                    </x-slot>
+
+                    @if ($selectedSession)
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                {{ $selectedSession->device['browser'] }} on {{ $selectedSession->device['platform'] }}
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <strong>{{ __('IP Address') }}:</strong> {{ $selectedSession->ip_address }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <strong>{{ __('Last Active') }}:</strong> {{ $selectedSession->last_active }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                <strong>{{ __('Location') }}:</strong> {{ $selectedSession->location['city'] }}, {{ $selectedSession->location['country'] }}
+                            </p>
+
+                            @if (!$selectedSession->is_current_device)
+                                <div class="mt-6">
+                                    <x-danger-button
+                                        wire:click="logoutSession('{{ $selectedSession->id }}')"
+                                        wire:loading.attr="disabled"
+                                        class="w-full justify-center"
+                                    >
+                                        {{ __('Terminate This Session') }}
+                                    </x-danger-button>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                 </x-modal>
             </x-form-wrapper>
         @endif
