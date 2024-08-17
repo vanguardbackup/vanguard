@@ -106,3 +106,7 @@ Breadcrumbs::for('profile.mfa', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('profile.sessions', function (BreadcrumbTrail $trail) {
     $trail->push(__('Manage Sessions'), route('profile.sessions'));
 });
+
+Breadcrumbs::for('profile.experiments', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Manage Experiments'), route('profile.experiments'));
+});

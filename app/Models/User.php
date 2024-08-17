@@ -15,6 +15,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laragear\TwoFactor\Contracts\TwoFactorAuthenticatable;
 use Laragear\TwoFactor\TwoFactorAuthentication;
+use Laravel\Pennant\Concerns\HasFeatures;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 
@@ -30,6 +31,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+    use HasFeatures;
     use Notifiable;
     use TwoFactorAuthentication;
 
