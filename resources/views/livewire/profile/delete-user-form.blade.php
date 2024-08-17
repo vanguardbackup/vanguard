@@ -1,25 +1,107 @@
 <?php
 
 use App\Livewire\Actions\Logout;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Volt\Component;
 
-new class extends Component {
-    public string $password = '';
-    public bool $isLoading = true;
+/**
+ * Delete User Form Component
+ *
+ * This component handles the account deletion process, including eligibility checks
+ * and final confirmation.
+ */
+new class extends Component
+{
+    /** @var string The current view of the deletion process */
+    public string $currentView = 'notice';
 
+    /** @var string The user's password for confirmation */
+    public string $password = '';
+
+    /** @var bool Whether the user is eligible for account deletion */
+    public bool $isEligible = false;
+
+    /** @var array Summary of the user's account data */
+    public array $accountSummary = [];
+
+    /** @var bool Whether the user has set a password */
+    public bool $hasPassword = true;
+
+    /**
+     * Initialize the component state
+     */
     public function mount(): void
     {
-        $this->isLoading = true;
+        $this->checkEligibility();
+        $this->generateAccountSummary();
+        $this->checkPassword();
     }
 
+    /**
+     * Check if the user is eligible for account deletion
+     */
+    private function checkEligibility(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $this->isEligible = $user->backupTasks()->count() === 0 &&
+            $user->remoteServers()->count() === 0 &&
+            $user->backupDestinations()->count() === 0;
+    }
+
+    /**
+     * Generate a summary of the user's account data
+     */
+    private function generateAccountSummary(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $this->accountSummary = [
+            'backupTasks' => $user->backupTasks()->count(),
+            'remoteServers' => $user->remoteServers()->count(),
+            'backupDestinations' => $user->backupDestinations()->count(),
+        ];
+    }
+
+    /**
+     * Check if the user has set a password
+     */
+    private function checkPassword(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $this->hasPassword = !is_null($user->password);
+    }
+
+    /**
+     * Proceed to the eligibility check view
+     */
+    public function proceedToEligibilityCheck(): void
+    {
+        $this->currentView = 'eligibility';
+    }
+
+    /**
+     * Proceed to the final confirmation view if eligible
+     */
+    public function proceedToFinalConfirmation(): void
+    {
+        if ($this->isEligible) {
+            $this->currentView = 'final-confirmation';
+        }
+    }
+
+    /**
+     * Delete the user's account
+     *
+     * @param Logout $logout
+     */
     public function deleteUser(Logout $logout): void
     {
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
-        ], [
-            'password.required' => __('Please enter your password.'),
-            'password.current_password' => __('The password you have entered is incorrect. Please try again.')
         ]);
 
         tap(Auth::user(), $logout(...))->delete();
@@ -29,126 +111,145 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-form-wrapper>
-        <x-slot name="title">
-            {{ __('Remove your Account') }}
-        </x-slot>
-        <x-slot name="description">
-            {{ __('Remove your account from the application.') }}
-        </x-slot>
-        <x-slot name="icon">
-            heroicon-o-trash
-        </x-slot>
+    <div>
+        @if ($currentView === 'notice')
+            <x-form-wrapper>
+                <x-slot name="title">{{ __('Account Deletion') }}</x-slot>
+                <x-slot name="description">
+                    {{ __('Please review the consequences of account deletion before proceeding.') }}
+                </x-slot>
+                <x-slot name="icon">heroicon-o-exclamation-triangle</x-slot>
 
-        <header>
-            @if (Auth::user()->backupTasks->count() > 0)
-                <div
-                    class="py-2 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-l-4 border-amber-600 dark:border-amber-500 font-normal my-6 rounded-r">
-                    <div class="flex items-center">
-                        @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 flex-shrink-0 mr-2')
-                        <span>
-            {{ __('Your scheduled tasks will not be ran if you remove your account.') }}
-        </span>
+                <div class="mb-8 p-6 bg-red-50 dark:bg-red-950 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        @svg('heroicon-o-exclamation-circle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
+                        <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Warning: Irreversible Action') }}</h3>
                     </div>
+                    <p class="text-red-700 dark:text-red-300 mb-4">
+                        {{ __('Deleting your account is a permanent action. Please consider the following consequences:') }}
+                    </p>
+                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-2">
+                        <li>{{ __('All your personal information will be permanently removed') }}</li>
+                        <li>{{ __('Your backup tasks, remote servers, and backup destinations will be deleted') }}</li>
+                        <li>{{ __('You will lose access to all services associated with this account') }}</li>
+                        <li>{{ __('This action cannot be undone') }}</li>
+                    </ul>
                 </div>
-            @endif
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Before removing your account, please take a moment to download any data or information that you wish to retain.') }}
-            </p>
-            <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Once your account is removed, all of its resources and data will be permanently removed. Additionally, all backup tasks, backup destinations, and linked servers will be removed from our systems.') }}
-            </p>
-            <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('These resources, such as S3 buckets or Linux servers, will still exist at their respective services (server hosts, Amazon S3, etc.). However, Vanguard will no longer be able to link to them and perform scheduled backups of your data.') }}
-            </p>
-        </header>
+                @if (!$hasPassword)
+                    <div class="mb-8 p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-lg">
+                        @svg('heroicon-o-exclamation-triangle', 'w-6 h-6 inline-block mr-2')
+                        {{ __('You need to set a password before you can delete your account. Please request a password reset.') }}
+                    </div>
+                @endif
 
-        <section>
-            <div class="mt-6 max-w-3xl mx-auto">
-                <div class="flex flex-col sm:flex-row sm:space-x-5 space-y-4 sm:space-y-0">
-                    <div class="w-full sm:w-3/6">
-                        <x-danger-button centered
-                                         x-data=""
-                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-                        >
-                            {{ __('Proceed') }}
+                @if ($hasPassword)
+                    <div class="flex justify-end items-center">
+                        <x-danger-button wire:click="proceedToEligibilityCheck" type="button">
+                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2')
+                            {{ __('Proceed to Eligibility Check') }}
                         </x-danger-button>
                     </div>
-                    <div class="w-full sm:w-3/6">
-                        <a href="{{ route('overview') }}" wire:navigate class="block">
-                            <x-secondary-button type="button" class="w-full justify-center" centered>
-                                {{ __('Get me out of here!') }}
-                            </x-secondary-button>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+                @endif
+            </x-form-wrapper>
 
-        <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
-            <x-slot name="title">
-                {{ __('Remove your Account') }}
-            </x-slot>
-            <x-slot name="description">
-                {{ __('Please read this carefully before confirming this action.') }}
-            </x-slot>
-            <x-slot name="icon">
-                heroicon-o-trash
-            </x-slot>
-            <form wire:submit="deleteUser">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {{ __('Are you certain you want to proceed with removing your account?') }}
-                </h2>
+        @elseif ($currentView === 'eligibility')
+            <x-form-wrapper>
+                <x-slot name="title">{{ __('Account Deletion Eligibility') }}</x-slot>
+                <x-slot name="description">
+                    {{ __('We\'ll check if your account is eligible for deletion based on your current data and services.') }}
+                </x-slot>
+                <x-slot name="icon">heroicon-o-clipboard-document-check</x-slot>
 
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('When your account is removed, all the data we hold on you will be permanently erased. This includes any backup tasks, backup destinations you have configured with us, and servers you have linked.') }}
-                </p>
-
-                <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('This action cannot be reversed, so please make sure you are certain about this decision.') }}
-                </p>
-
-                <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('You are welcome to re-join at any time.') }}
-                </p>
-
-                <p class="mt-3 text-sm text-gray-800 dark:text-gray-600 font-medium">
-                    {{ __('If you wish to proceed, please enter your account password to confirm.') }}
-                </p>
-
-                <div class="mt-6">
-                    <x-input-label for="password" value="{{ __('Your Password:') }}"/>
-
-                    <x-text-input
-                        wire:model="password"
-                        id="password"
-                        name="password"
-                        type="password"
-                        class="mt-2 block w-full"
-                        placeholder="{{ __('Password') }}"
-                    />
-
-                    <x-input-error :messages="$errors->get('password')" class="mt-2"/>
-                    <x-input-explain>
-                        {{ __('To continue with the removal of your account, please enter the password associated with your account. If you do not know, you can reset your password.') }}
-                    </x-input-explain>
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Account Summary') }}</h3>
+                    <ul class="space-y-4">
+                        @foreach (['backupTasks' => 'Backup Tasks', 'remoteServers' => 'Remote Servers', 'backupDestinations' => 'Backup Destinations'] as $key => $label)
+                            <li class="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                <span class="text-gray-700 dark:text-gray-300">{{ __($label) }}</span>
+                                <span class="font-semibold {{ $accountSummary[$key] > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400' }}">
+                                    {{ $accountSummary[$key] }}
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
 
-                <div class="flex space-x-5">
-                    <div class="w-4/6">
-                        <x-danger-button type="button" wire:click="deleteUser" class="mt-4" centered action="deleteUser"
-                                         loadingText="Removing...">
-                            {{ __('Confirm Removal') }}
+                <div class="mb-8">
+                    @if ($isEligible)
+                        <div class="p-4 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-lg">
+                            @svg('heroicon-o-check-circle', 'w-6 h-6 inline-block mr-2')
+                            {{ __('Your account is eligible for deletion.') }}
+                        </div>
+                    @else
+                        <div class="p-4 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 rounded-lg">
+                            @svg('heroicon-o-x-circle', 'w-6 h-6 inline-block mr-2')
+                            {{ __('Your account is not eligible for deletion. Please remove all associated data and services before proceeding.') }}
+                        </div>
+                    @endif
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <x-secondary-button wire:click="$set('currentView', 'notice')" type="button">
+                        @svg('heroicon-o-arrow-left', 'w-5 h-5 mr-2')
+                        {{ __('Go Back') }}
+                    </x-secondary-button>
+                    @if ($isEligible)
+                        <x-danger-button wire:click="proceedToFinalConfirmation" type="button">
+                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2')
+                            {{ __('Proceed to Final Confirmation') }}
                         </x-danger-button>
+                    @endif
+                </div>
+            </x-form-wrapper>
+
+        @elseif ($currentView === 'final-confirmation')
+            <x-form-wrapper>
+                <x-slot name="title">{{ __('Final Account Deletion Confirmation') }}</x-slot>
+                <x-slot name="description">
+                    {{ __('This is your last chance to reconsider. Once confirmed, your account will be deleted.') }}
+                </x-slot>
+                <x-slot name="icon">heroicon-o-shield-exclamation</x-slot>
+
+                <form wire:submit.prevent="deleteUser">
+                    <div class="mb-8">
+                        <div class="p-6 bg-red-50 dark:bg-red-950 rounded-lg mb-6">
+                            <div class="flex items-center mb-4">
+                                @svg('heroicon-o-exclamation-triangle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
+                                <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Final Warning') }}</h3>
+                            </div>
+                            <p class="text-red-700 dark:text-red-300 mb-4">
+                                {{ __('You are about to permanently delete your account. This action cannot be undone.') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <x-input-label for="password" :value="__('Confirm Your Password')" />
+                            <x-text-input
+                                name="password"
+                                wire:model="password"
+                                id="password"
+                                type="password"
+                                class="mt-1 block w-full"
+                                required
+                                autocomplete="current-password"
+                            />
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        </div>
                     </div>
-                    <div class="w-2/6 ml-2">
-                        <x-secondary-button type="button" class="mt-4" centered x-on:click="$dispatch('close')">
-                            {{ __('Cancel') }}
+
+                    <div class="flex justify-between items-center">
+                        <x-secondary-button wire:click="$set('currentView', 'eligibility')" type="button">
+                            @svg('heroicon-o-arrow-left', 'w-5 h-5 mr-2')
+                            {{ __('Go Back') }}
                         </x-secondary-button>
+                        <x-danger-button type="submit">
+                            @svg('heroicon-o-trash', 'w-5 h-5 mr-2')
+                            {{ __('Permanently Delete Account') }}
+                        </x-danger-button>
                     </div>
-                </div>
-            </form>
-        </x-modal>
-    </x-form-wrapper>
+                </form>
+            </x-form-wrapper>
+        @endif
+    </div>
 </div>
