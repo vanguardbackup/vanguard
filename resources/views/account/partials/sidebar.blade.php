@@ -62,7 +62,7 @@
             <x-sidebar-nav-link :href="route('account.remove-account')" :active="request()->routeIs('account.remove-account')" wire:navigate>
                 <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
                     @svg('heroicon-o-trash', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Remove') }}</span>
+                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Remove Account') }}</span>
                 </span>
             </x-sidebar-nav-link>
         </li>

@@ -654,25 +654,68 @@ new class extends Component {
     </x-modal>
 
     <!-- Delete Token Confirmation Modal -->
-    <x-modal name="confirm-api-token-deletion" focusable>
-        <x-slot name="title">
-            {{ __('Delete API Token') }}
-        </x-slot>
-        <x-slot name="description">
-            {{ __('Are you sure you want to delete this API token? This action cannot be undone.') }}
-        </x-slot>
-        <x-slot name="icon">
-            heroicon-o-trash
-        </x-slot>
-        <div class="mt-4">
-            <x-danger-button wire:click="deleteApiToken" wire:loading.attr="disabled">
-                {{ __('Delete Token') }}
-            </x-danger-button>
-            <x-secondary-button class="ml-3" x-on:click="$dispatch('close')">
-                {{ __('Cancel') }}
-            </x-secondary-button>
-        </div>
-    </x-modal>
+        <x-modal name="confirm-api-token-deletion" focusable>
+            <x-slot name="title">
+                {{ __('Revoke API Token') }}
+            </x-slot>
+
+            <x-slot name="description">
+                {{ __('You are about to revoke an API token. Please review the following information carefully before proceeding.') }}
+            </x-slot>
+
+            <x-slot name="icon">
+                heroicon-o-exclamation-triangle
+            </x-slot>
+
+            <div class="space-y-4 text-gray-800 dark:text-gray-200">
+                <p>
+                    {{ __('Revoking an API token has the following consequences:') }}
+                </p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                    <li>{{ __('Any applications or services using this token will immediately lose access.') }}</li>
+                    <li>{{ __('You will need to generate a new token and update your applications if you wish to restore access.') }}</li>
+                    <li>{{ __('This action cannot be undone. Once revoked, a token cannot be recovered.') }}</li>
+                </ul>
+
+                @isset($token)
+                    @if ($token->isMobileToken())
+                        <p class="bg-yellow-100 dark:bg-yellow-800 p-3 rounded-md">
+                            <strong>{{ __('Mobile Token Alert:') }}</strong> {{ __('This token is associated with a mobile device. Revoking it will log you out of the mobile application. You will need to log in again on your mobile device to regain access.') }}
+                        </p>
+                    @endif
+                    <p>
+                        {{ __('Token Details:') }}
+                        <br>
+                        {{ __('Name:') }} <strong>{{ $token->name }}</strong>
+                        <br>
+                        {{ __('Last used:') }} <strong>{{ $token->last_used_at ? $token->last_used_at->diffForHumans() : __('Never') }}</strong>
+                    </p>
+                @endisset
+            </div>
+
+            <div class="flex space-x-5 mt-6">
+                <div class="w-4/6">
+                    <x-danger-button
+                        type="button"
+                        wire:click="deleteApiToken"
+                        class="w-full justify-center"
+                        action="deleteApiToken"
+                        loadingText="{{ __('Revoking...') }}"
+                    >
+                        {{ __('Yes, Revoke This Token') }}
+                    </x-danger-button>
+                </div>
+                <div class="w-2/6">
+                    <x-secondary-button
+                        type="button"
+                        class="w-full justify-center"
+                        x-on:click="$dispatch('close')"
+                    >
+                        {{ __('Cancel') }}
+                    </x-secondary-button>
+                </div>
+            </div>
+        </x-modal>
 
     <!-- Token Value Modal -->
     <x-modal name="api-token-value" focusable>
