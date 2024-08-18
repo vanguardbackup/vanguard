@@ -88,17 +88,22 @@ new class extends Component
         $user = $this->getCurrentUser();
         $isActive = Feature::active($experiment) ?? false;
         $isEnabled = Feature::for($user)->active($experiment) ?? false;
+        $metadata = config("features.{$experiment}", []);
 
         Log::debug('Getting experiment details', [
             'experiment' => $experiment,
             'isActive' => $isActive,
-            'isEnabled' => $isEnabled
+            'isEnabled' => $isEnabled,
+            'metadata' => $metadata,
         ]);
 
         return [
             'name' => $experiment,
-            'title' => $this->getExperimentTitle($experiment),
-            'description' => $this->getExperimentDescription($experiment),
+            'title' => $metadata['title'] ?? $this->getExperimentTitle($experiment),
+            'description' => $metadata['description'] ?? $this->getExperimentDescription($experiment),
+            'group' => $metadata['group'] ?? 'Uncategorized',
+            'rolloutPercentage' => $metadata['rolloutPercentage'] ?? 0,
+            'icon' => $metadata['icon'] ?? 'heroicon-o-beaker',
             'active' => $isActive,
             'enabled' => $isEnabled,
         ];
@@ -168,31 +173,36 @@ new class extends Component
             </div>
 
             <div class="space-y-6">
-                @foreach ($this->experiments as $experiment)
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 overflow-hidden">
-                        <div class="p-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                <div class="flex items-center mb-4 sm:mb-0">
-                                    <div class="flex-shrink-0 mr-4">
-                                        @svg('heroicon-o-beaker', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                @foreach ($this->experiments->groupBy('group') as $group => $groupExperiments)
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $group }}</h3>
+                        @foreach ($groupExperiments as $experiment)
+                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 overflow-hidden mb-4">
+                                <div class="p-6">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                        <div class="flex items-center mb-4 sm:mb-0">
+                                            <div class="flex-shrink-0 mr-4">
+                                                @svg($experiment['icon'], 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                            </div>
+                                            <div>
+                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $experiment['title'] }}</h3>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                    {{ $experiment['enabled'] ? __('Enabled for you') : __('Disabled for you') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end sm:ml-4 sm:flex-shrink-0">
+                                            <x-secondary-button
+                                                wire:click="viewExperimentDetails('{{ $experiment['name'] }}')"
+                                                class="mr-3"
+                                            >
+                                                {{ __('View Details') }}
+                                            </x-secondary-button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $experiment['title'] }}</h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                            {{ $experiment['enabled'] ? __('Enabled for you') : __('Disabled for you') }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex justify-end sm:ml-4 sm:flex-shrink-0">
-                                    <x-secondary-button
-                                        wire:click="viewExperimentDetails('{{ $experiment['name'] }}')"
-                                        class="mr-3"
-                                    >
-                                        {{ __('View Details') }}
-                                    </x-secondary-button>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 @endforeach
             </div>
@@ -214,16 +224,30 @@ new class extends Component
                     $experiment = $this->experiments->firstWhere('name', $selectedExperiment);
                 @endphp
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ $experiment['title'] }}</h3>
+                    <div class="flex items-center mb-4">
+                        @svg($experiment['icon'], 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $experiment['title'] }}</h3>
+                    </div>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         {{ $experiment['description'] }}
                     </p>
-                    <div class="flex items-center mb-4">
+                    <div class="flex items-center mb-2">
                         <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Status:') }}</span>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $experiment['enabled'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $experiment['enabled'] ? __('Enabled') : __('Disabled') }}
                         </span>
                     </div>
+                    <div class="flex items-center mb-2">
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Group:') }}</span>
+                        <span class="text-sm text-gray-900 dark:text-gray-100">{{ $experiment['group'] }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-md">
+                    <p class="text-sm text-yellow-700 dark:text-yellow-200">
+                        <span class="font-medium">{{ __('Note:') }}</span>
+                        {{ __('You may need to reload the page (F5 or Cmd/Ctrl + R) to see the effects of enabling or disabling an experiment.') }}
+                    </p>
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">

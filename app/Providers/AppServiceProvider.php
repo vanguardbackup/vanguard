@@ -14,7 +14,7 @@ use Laravel\Sanctum\Sanctum;
 
 /**
  * Core application service provider.
- * Handles service registration and authorization setup.
+ * Handles service registration, authorization setup, and feature flags.
  */
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,10 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         $this->defineGates();
-
-        /*        Feature::define('example-experiment', function () {
-                    return false;
-                });*/
+        $this->defineFeatures();
     }
 
     /**
@@ -55,5 +52,29 @@ class AppServiceProvider extends ServiceProvider
     private function defineGates(): void
     {
         Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
+    }
+
+    /**
+     * Define feature flags with additional metadata.
+     */
+    private function defineFeatures(): void
+    {
+        $features = [
+            'navigation-redesign' => [
+                'title' => 'Navigation Redesign',
+                'description' => 'A new, more intuitive navigation structure for improved user experience.',
+                'group' => 'UI/UX',
+                'icon' => 'heroicon-o-bars-3',
+            ],
+        ];
+
+        foreach ($features as $key => $metadata) {
+            Feature::define($key, function (): false {
+                return false;
+            });
+
+            // Store the metadata for later use
+            config(["features.{$key}" => $metadata]);
+        }
     }
 }
