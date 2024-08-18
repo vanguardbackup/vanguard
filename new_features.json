@@ -1,8 +1,8 @@
 [
     {
-        "title": "API Token Expiry",
-        "description": "Tokens can now be expired!",
-        "version": "1.6.0",
-        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.6.0"
+        "title": "Multi-Factor Auth!",
+        "description": "Enhance the security of your account with MFA!",
+        "version": "1.7.0",
+        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.7.0"
     }
 ]
