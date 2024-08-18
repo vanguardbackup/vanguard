@@ -1,8 +1,4 @@
-#!/usr/bin/env bash
 set -eo pipefail
-
-# Source husky
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Colour codes
 GREEN='\033[0;32m'

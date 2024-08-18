@@ -1,7 +1,6 @@
-#!/usr/bin/env bash
 set -e
 
-. "$(dirname -- "$0")/_/husky.sh"
+
 
 GREEN='\033[0;32m'
 LIGHT_GREEN='\033[1;32m'
