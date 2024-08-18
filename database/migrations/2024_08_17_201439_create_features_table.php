@@ -13,8 +13,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('scope');
             $table->text('value');
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
             $table->timestamps();
 
             $table->unique(['name', 'scope']);

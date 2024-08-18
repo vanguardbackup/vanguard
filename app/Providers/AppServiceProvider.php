@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\GreetingService;
+use Feature;
 use Flare;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -36,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         $this->defineGates();
+
+        /*        Feature::define('example-experiment', function () {
+                    return false;
+                });*/
     }
 
     /**

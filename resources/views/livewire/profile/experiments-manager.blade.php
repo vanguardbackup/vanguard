@@ -5,124 +5,120 @@ use Illuminate\Support\Collection;
 use Laravel\Pennant\Feature;
 use Livewire\Attributes\Computed;
 use Livewire\Volt\Component;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Experiment Management Component
+ *
+ * Handles the display and management of feature experiments.
+ * Allows users to view, enable, and disable experiments.
+ */
 new class extends Component
 {
     /**
      * The current view state of the component.
-     *
-     * @var string
+     * Can be 'list' or 'no-content'.
      */
     public string $currentView = 'list';
 
     /**
-     * The name of the currently selected feature.
-     *
-     * @var string|null
+     * The currently selected experiment for detailed view.
      */
-    public ?string $selectedFeature = null;
+    public ?string $selectedExperiment = null;
 
-    /**
-     * Initialize the component state.
-     *
-     * @return void
-     */
     public function mount(): void
     {
         $this->currentView = $this->hasExperiments ? 'list' : 'no-content';
     }
 
-    /**
-     * Determine if there are any experiments available.
-     *
-     * @return bool
-     */
     #[Computed]
     public function hasExperiments(): bool
     {
-        return $this->experiments->isNotEmpty();
+        $hasExperiments = $this->experiments->isNotEmpty();
+        Log::debug('Checking if has experiments', ['hasExperiments' => $hasExperiments]);
+        return $hasExperiments;
     }
 
-    /**
-     * Get all available experiments with their details.
-     *
-     * @return Collection
-     */
     #[Computed]
     public function experiments(): Collection
     {
-        return collect(Feature::all())->map(function ($feature) {
-            return $this->getExperimentDetails($feature);
-        });
+        $allFeatures = Feature::all();
+
+        $experiments = collect($allFeatures)
+            ->mapWithKeys(function ($value, $key) {
+                return [$key => $this->getExperimentDetails($key)];
+            });
+
+        Log::debug('Processed experiments', ['count' => $experiments->count(), 'experiments' => $experiments]);
+        return $experiments;
     }
 
-    /**
-     * Toggle the active state of a feature for the current user.
-     *
-     * @param string $feature
-     * @return void
-     */
-    public function toggleFeature(string $feature): void
+    public function toggleExperiment(string $experiment): void
     {
         $user = $this->getCurrentUser();
+        $isActive = Feature::for($user)->active($experiment);
 
-        Feature::for($user)->active($feature)
-            ? Feature::for($user)->deactivate($feature)
-            : Feature::for($user)->activate($feature);
+        Log::debug('Toggling experiment', ['experiment' => $experiment, 'currentState' => $isActive]);
 
-        $this->dispatch('feature-toggled');
+        if ($isActive) {
+            Toaster::success("Experiment '{$this->getExperimentTitle($experiment)}' has been disabled.");
+            Feature::for($user)->deactivate($experiment);
+        } else {
+            Toaster::success("Experiment '{$this->getExperimentTitle($experiment)}' has been successfully enabled.");
+            Feature::for($user)->activate($experiment);
+        }
+
+        $this->dispatch('experiment-toggled');
     }
 
-    /**
-     * Set the current view to the experiments list.
-     *
-     * @return void
-     */
     public function viewExperiments(): void
     {
         $this->currentView = 'list';
     }
 
-    /**
-     * Open the feature details modal for a specific feature.
-     *
-     * @param string $feature
-     * @return void
-     */
-    public function viewFeatureDetails(string $feature): void
+    public function viewExperimentDetails(string $experiment): void
     {
-        $this->selectedFeature = $feature;
-        $this->dispatch('open-modal', 'feature-details');
+        $this->selectedExperiment = $experiment;
+        Log::debug('Viewing experiment details', ['experiment' => $experiment]);
+        $this->dispatch('open-modal', 'experiment-details');
     }
 
-    /**
-     * Get the details of a specific experiment.
-     *
-     * @param string $feature
-     * @return array
-     */
-    private function getExperimentDetails(string $feature): array
+    private function getExperimentDetails(string $experiment): array
     {
         $user = $this->getCurrentUser();
-        $featureDetails = Feature::definition($feature);
+        $isActive = Feature::active($experiment) ?? false;
+        $isEnabled = Feature::for($user)->active($experiment) ?? false;
+
+        Log::debug('Getting experiment details', [
+            'experiment' => $experiment,
+            'isActive' => $isActive,
+            'isEnabled' => $isEnabled
+        ]);
 
         return [
-            'name' => $feature,
-            'title' => $featureDetails['title'] ?? $feature,
-            'description' => $featureDetails['description'] ?? '',
-            'active' => Feature::active($feature),
-            'enabled' => Feature::for($user)->active($feature),
+            'name' => $experiment,
+            'title' => $this->getExperimentTitle($experiment),
+            'description' => $this->getExperimentDescription($experiment),
+            'active' => $isActive,
+            'enabled' => $isEnabled,
         ];
     }
 
-    /**
-     * Get the current authenticated user.
-     *
-     * @return User
-     */
+    private function getExperimentTitle(string $experiment): string
+    {
+        return ucfirst(str_replace('-', ' ', $experiment));
+    }
+
+    private function getExperimentDescription(string $experiment): string
+    {
+        return "This is the {$this->getExperimentTitle($experiment)} experiment.";
+    }
+
     private function getCurrentUser(): User
     {
-        return auth()->user();
+        $user = auth()->user();
+        Log::debug('Current user retrieved', ['userId' => $user->id]);
+        return $user;
     }
 }; ?>
 
@@ -141,19 +137,19 @@ new class extends Component
         </x-no-content>
     @elseif ($currentView === 'list')
         <x-form-wrapper>
-            <x-slot name="title">{{ __('Feature Experiments') }}</x-slot>
+            <x-slot name="title">{{ __('Experiments') }}</x-slot>
             <x-slot name="description">
-                {{ __('Explore and manage feature experiments for your account.') }}
+                {{ __('Explore and manage experiments for your account.') }}
             </x-slot>
             <x-slot name="icon">heroicon-o-beaker</x-slot>
 
             <div class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-sm">
                 <div class="flex items-center mb-4">
                     @svg('heroicon-o-light-bulb', 'w-8 h-8 text-blue-500 mr-3')
-                    <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('What are Feature Experiments?') }}</h3>
+                    <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('What are Experiments?') }}</h3>
                 </div>
                 <p class="text-blue-700 dark:text-blue-300 mb-4">
-                    {{ __('Feature experiments are controlled rollouts of new functionalities or improvements to our application. They allow us to test new ideas, gather feedback, and ensure stability before full release. By participating in these experiments, you help shape the future of our product.') }}
+                    {{ __('Experiments are controlled rollouts of new functionalities or improvements to our application. They allow us to test new ideas, gather feedback, and ensure stability before full release. By participating in these experiments, you help shape the future of our product.') }}
                 </p>
                 <ul class="space-y-3">
                     <li class="flex items-start">
@@ -166,7 +162,7 @@ new class extends Component
                     </li>
                     <li class="flex items-start">
                         @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                        <span class="text-blue-700 dark:text-blue-300">{{ __('Customize your experience by enabling or disabling specific features') }}</span>
+                        <span class="text-blue-700 dark:text-blue-300">{{ __('Customize your experience by enabling or disabling specific experiments') }}</span>
                     </li>
                 </ul>
             </div>
@@ -189,17 +185,11 @@ new class extends Component
                                 </div>
                                 <div class="flex justify-end sm:ml-4 sm:flex-shrink-0">
                                     <x-secondary-button
-                                        wire:click="viewFeatureDetails('{{ $experiment['name'] }}')"
+                                        wire:click="viewExperimentDetails('{{ $experiment['name'] }}')"
                                         class="mr-3"
                                     >
                                         {{ __('View Details') }}
                                     </x-secondary-button>
-                                    <x-primary-button
-                                        wire:click="toggleFeature('{{ $experiment['name'] }}')"
-                                        class="{{ $experiment['enabled'] ? 'bg-green-600 hover:bg-green-700' : '' }}"
-                                    >
-                                        {{ $experiment['enabled'] ? __('Disable') : __('Enable') }}
-                                    </x-primary-button>
                                 </div>
                             </div>
                         </div>
@@ -208,36 +198,30 @@ new class extends Component
             </div>
         </x-form-wrapper>
 
-        <x-modal name="feature-details" :show="$errors->isNotEmpty()" focusable>
+        <x-modal name="experiment-details" :show="$errors->isNotEmpty()" focusable>
             <x-slot name="title">
-                {{ __('Feature Details') }}
+                {{ __('Experiment Details') }}
             </x-slot>
             <x-slot name="description">
-                {{ __('Learn more about this feature experiment and manage its status.') }}
+                {{ __('Learn more about this experiment and manage its status.') }}
             </x-slot>
             <x-slot name="icon">
                 heroicon-o-information-circle
             </x-slot>
 
-            @if ($selectedFeature)
+            @if ($selectedExperiment)
                 @php
-                    $feature = $this->experiments->firstWhere('name', $selectedFeature);
+                    $experiment = $this->experiments->firstWhere('name', $selectedExperiment);
                 @endphp
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ $feature['title'] }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ $experiment['title'] }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        {{ $feature['description'] }}
+                        {{ $experiment['description'] }}
                     </p>
                     <div class="flex items-center mb-4">
                         <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Status:') }}</span>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $feature['enabled'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $feature['enabled'] ? __('Enabled') : __('Disabled') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Global Status:') }}</span>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $feature['active'] ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                            {{ $feature['active'] ? __('Active') : __('Inactive') }}
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $experiment['enabled'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            {{ $experiment['enabled'] ? __('Enabled') : __('Disabled') }}
                         </span>
                     </div>
                 </div>
@@ -246,8 +230,8 @@ new class extends Component
                     <x-secondary-button x-on:click="$dispatch('close')">
                         {{ __('Close') }}
                     </x-secondary-button>
-                    <x-primary-button wire:click="toggleFeature('{{ $feature['name'] }}')">
-                        {{ $feature['enabled'] ? __('Disable Feature') : __('Enable Feature') }}
+                    <x-primary-button wire:click="toggleExperiment('{{ $experiment['name'] }}')">
+                        {{ $experiment['enabled'] ? __('Disable Experiment') : __('Enable Experiment') }}
                     </x-primary-button>
                 </div>
             @endif
