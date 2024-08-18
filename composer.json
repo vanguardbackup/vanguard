@@ -24,8 +24,7 @@
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.0",
         "masmerise/livewire-toaster": "^2.2",
-        "phpseclib/phpseclib": "~3.0",
-        "spatie/laravel-flare": "*"
+        "phpseclib/phpseclib": "~3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",

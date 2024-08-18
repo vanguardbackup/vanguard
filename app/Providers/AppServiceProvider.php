@@ -8,8 +8,6 @@ use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\GreetingService;
 use Feature;
-use Flare;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
@@ -25,7 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->registerFlareVersion();
         $this->registerGreetingService();
     }
 
@@ -41,22 +38,6 @@ class AppServiceProvider extends ServiceProvider
         /*        Feature::define('example-experiment', function () {
                     return false;
                 });*/
-    }
-
-    /**
-     * Set up version determination for Flare.
-     */
-    private function registerFlareVersion(): void
-    {
-        Flare::determineVersionUsing(function () {
-            $versionFile = base_path('VERSION');
-
-            if (! File::exists($versionFile)) {
-                return __('Unknown');
-            }
-
-            return str_replace("\n", '', File::get($versionFile));
-        });
     }
 
     /**
