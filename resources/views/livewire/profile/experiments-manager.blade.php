@@ -131,7 +131,7 @@ new class extends Component {
     /**
      * Sends the feedback request to the external service.
      *
-     * @return \Illuminate\Http\Client\Response
+     * @return Illuminate\Http\Client\Response
      */
     private function sendFeedbackRequest(): \Illuminate\Http\Client\Response
     {
@@ -169,8 +169,8 @@ new class extends Component {
     /**
      * Handles unsuccessful responses from the feedback service.
      *
-     * @param \Illuminate\Http\Client\Response $response
-     * @throws \RuntimeException
+     * @param Illuminate\Http\Client\Response $response
+     * @throws RuntimeException
      */
     private function handleUnsuccessfulResponse(\Illuminate\Http\Client\Response $response): void
     {

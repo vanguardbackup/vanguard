@@ -42,6 +42,7 @@
         "pestphp/pest-plugin-laravel": "^2.0",
         "rector/rector": "^1.1",
         "roave/security-advisories": "dev-latest",
+        "spatie/laravel-error-share": "^1.0",
         "tightenco/duster": "^3.0"
     },
     "autoload": {
