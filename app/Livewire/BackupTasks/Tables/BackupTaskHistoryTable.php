@@ -5,47 +5,87 @@ declare(strict_types=1);
 namespace App\Livewire\BackupTasks\Tables;
 
 use App\Models\BackupTaskLog;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * Manages the display of backup task history.
- *
- * This component handles the rendering and pagination of completed backup task logs.
- */
 class BackupTaskHistoryTable extends Component
 {
     use WithPagination;
 
-    /** @var BackupTaskLog Collection of backup task logs */
-    public BackupTaskLog $backupTasks;
+    /**
+     * Unique key for the component instance.
+     */
+    public string $tableKey;
 
     /**
-     * Render the backup task history table.
-     *
-     * Fetches and paginates finished backup task logs for the authenticated user.
+     * The current page number.
      */
-    public function render(): View
+    public int $page = 1;
+
+    /**
+     * The name of the pagination query string.
+     */
+    protected string $paginationQueryString = 'backup-task-logs';
+
+    /**
+     * Mount the component.
+     */
+    public function mount(): void
     {
-        $backupTaskLogs = BackupTaskLog::finished()
+        $this->tableKey = 'backup-task-history-' . Auth::id();
+        $this->page = (int) request()->query($this->paginationQueryString, '1');
+    }
+
+    /**
+     * Define the query string parameters.
+     *
+     * @return array<string, array<int, string>>
+     */
+    public function queryString(): array
+    {
+        return [
+            'page' => [0 => $this->paginationQueryString],
+        ];
+    }
+
+    /**
+     * Get the backup task logs.
+     *
+     * @return LengthAwarePaginator<BackupTaskLog>
+     */
+    #[Computed]
+    public function backupTaskLogs(): LengthAwarePaginator
+    {
+        return BackupTaskLog::finished()
             ->with(['backupTask', 'backupTask.backupDestination', 'backupTask.RemoteServer'])
             ->whereHas('backupTask', function ($query): void {
                 $query->where('user_id', Auth::id());
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(Auth::user()?->getAttribute('pagination_count') ?? 15, pageName: 'backup-task-logs');
+            ->paginate(
+                Auth::user()?->getAttribute('pagination_count') ?? 15,
+                ['*'],
+                $this->paginationQueryString,
+                $this->page
+            );
+    }
 
+    /**
+     * Render the backup task history table.
+     */
+    public function render(): View
+    {
         return view('livewire.backup-tasks.tables.backup-task-history-table', [
-            'backupTaskLogs' => $backupTaskLogs,
+            'backupTaskLogs' => $this->backupTaskLogs(),
         ]);
     }
 
     /**
      * Get the listeners array.
-     *
-     * Defines the event listeners for this component.
      *
      * @return array<string, string>
      */

@@ -1,4 +1,4 @@
-<div>
+<div wire:key="{{ $tableKey }}">
     @if (count($backupTaskLogs) !== 0)
         <div>
             <x-table.table-wrapper
