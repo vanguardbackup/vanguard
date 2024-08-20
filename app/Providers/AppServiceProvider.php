@@ -7,9 +7,9 @@ namespace App\Providers;
 use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\GreetingService;
-use Feature;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pennant\Feature;
 use Laravel\Sanctum\Sanctum;
 
 /**
