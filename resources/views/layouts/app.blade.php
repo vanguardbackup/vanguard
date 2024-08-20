@@ -189,14 +189,5 @@
         </div>
     </div>
 </footer>
-<script>
-    document.addEventListener('livewire:navigated', function () {
-        new ClipboardJS('.btn');
-        document.getElementById('copyButton').addEventListener('click', function () {
-            document.getElementById('copiedIcon').classList.remove('hidden');
-            document.getElementById('copyIcon').classList.add('hidden');
-        });
-    });
-</script>
 </body>
 </html>
