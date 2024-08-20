@@ -67,5 +67,11 @@ jobs:
           key: ${{ runner.os }}-assets-${{ github.sha }}
           restore-keys: ${{ runner.os }}-assets-
 
+      - name: Clear caches
+        run: |
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+
       - name: Run Phpstan
         run: vendor/bin/phpstan analyse
