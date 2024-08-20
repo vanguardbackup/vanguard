@@ -13,6 +13,7 @@
         "laragear/two-factor": "^2.0",
         "laravel/framework": "^11.9",
         "laravel/horizon": "^5.24",
+        "laravel/pail": "^1.1",
         "laravel/pennant": "^1.10",
         "laravel/pulse": "^1.2",
         "laravel/reverb": "@beta",
@@ -23,7 +24,8 @@
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.0",
         "masmerise/livewire-toaster": "^2.2",
-        "phpseclib/phpseclib": "~3.0"
+        "phpseclib/phpseclib": "~3.0",
+        "spatie/laravel-flare": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
