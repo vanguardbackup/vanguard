@@ -35,6 +35,9 @@ jobs:
       - name: Install composer dependencies
         run: composer install --no-scripts
 
+      - name: Dump autoloader
+        run: composer dump-autoload
+
       - name: Prepare Laravel Application
         run: |
           cp .env.example.ci .env
