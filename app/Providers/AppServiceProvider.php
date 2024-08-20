@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Services\GreetingService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Pennant\Feature;
 use Laravel\Sanctum\Sanctum;
 
 /**
@@ -34,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         $this->defineGates();
-        $this->defineFeatures();
     }
 
     /**
@@ -52,29 +50,5 @@ class AppServiceProvider extends ServiceProvider
     private function defineGates(): void
     {
         Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
-    }
-
-    /**
-     * Define feature flags with additional metadata.
-     */
-    private function defineFeatures(): void
-    {
-        $features = [
-            'navigation-redesign' => [
-                'title' => 'Navigation Redesign',
-                'description' => 'A new, more intuitive navigation structure for improved user experience.',
-                'group' => 'UI/UX',
-                'icon' => 'heroicon-o-bars-3',
-            ],
-        ];
-
-        foreach ($features as $key => $metadata) {
-            Feature::define($key, function (): false {
-                return false;
-            });
-
-            // Store the metadata for later use
-            config(["features.{$key}" => $metadata]);
-        }
     }
 }
