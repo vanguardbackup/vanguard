@@ -20,6 +20,11 @@ class IndexTable extends Component
     use WithPagination;
 
     /**
+     * @var string[]
+     */
+    protected $listeners = ['refreshBackupTasksTable' => '$refresh'];
+
+    /**
      * Render the backup tasks index table.
      *
      * Fetches and paginates backup tasks for the authenticated user, including related data.
