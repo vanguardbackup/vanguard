@@ -64,6 +64,7 @@
             :dismissible="$flashMessage['dismissible']"
         />
     @endif
+    @include('partials.quiet-mode-banner')
     {{ Breadcrumbs::render() }}
     <!-- Page Heading -->
     @if (isset($header))

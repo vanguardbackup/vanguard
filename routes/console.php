@@ -5,6 +5,7 @@ use App\Console\Commands\ExecuteScheduledBackupTasksCommand;
 use App\Console\Commands\FetchNewFeatures;
 use App\Console\Commands\NotifyUsersAboutOldBackupCodes;
 use App\Console\Commands\ResetInoperativeBackupTasksCommand;
+use App\Console\Commands\ResetQuietModeStatus;
 use App\Console\Commands\SendPersonalAccessTokenExpiringSoon;
 use App\Console\Commands\SendSummaryBackupTaskEmails;
 use App\Console\Commands\VerifyConnectionToRemoteServersCommand;
@@ -36,3 +37,6 @@ Schedule::command(SendPersonalAccessTokenExpiringSoon::class)
 
 Schedule::command(NotifyUsersAboutOldBackupCodes::class)
     ->monthly();
+
+Schedule::command(ResetQuietModeStatus::class)
+    ->dailyAt('00:00');

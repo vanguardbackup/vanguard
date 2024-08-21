@@ -284,6 +284,37 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     }
 
     /**
+     *  Returns whether the user has quiet mode enabled.
+     */
+    public function hasQuietMode(): bool
+    {
+        return $this->quiet_until !== null;
+    }
+
+    /**
+     * Scope query to users that have a quiet mode enabled.
+     *
+     * @param  Builder<User>  $builder
+     * @return Builder<User>
+     */
+    public function scopeWithQuietMode(Builder $builder): Builder
+    {
+        return $builder->whereNotNull('quiet_until');
+    }
+
+    /**
+     *  It clears a user's quiet mode if set.
+     */
+    public function clearQuietMode(): void
+    {
+        if (! $this->hasQuietMode()) {
+            return;
+        }
+
+        $this->forceFill(['quiet_until' => null])->save();
+    }
+
+    /**
      * Get the casts array.
      *
      * @return array<string, string>
@@ -295,6 +326,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'password' => 'hashed',
             'weekly_summary_opt_in_at' => 'datetime',
             'last_two_factor_at' => 'datetime',
+            'quiet_until' => 'datetime',
         ];
     }
 

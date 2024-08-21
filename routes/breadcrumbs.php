@@ -110,3 +110,7 @@ Breadcrumbs::for('profile.sessions', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('profile.experiments', function (BreadcrumbTrail $trail) {
     $trail->push(__('Manage Experiments'), route('profile.experiments'));
 });
+
+Breadcrumbs::for('profile.quiet-mode', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Manage Quiet Mode'), route('profile.quiet-mode'));
+});

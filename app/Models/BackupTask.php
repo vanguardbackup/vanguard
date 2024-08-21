@@ -690,6 +690,10 @@ class BackupTask extends Model
      */
     public function shouldSendNotification(NotificationStream $notificationStream, bool $backupTaskSuccessful): bool
     {
+        if ($notificationStream->getAttribute('user') && $notificationStream->getAttribute('user')->hasQuietMode()) {
+            return false;
+        }
+
         if ($backupTaskSuccessful && $notificationStream->hasSuccessfulBackupNotificationsEnabled()) {
             return true;
         }

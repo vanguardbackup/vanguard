@@ -826,6 +826,32 @@ it('can send multiple types of notifications simultaneously', function (): void 
     Mail::assertQueued(OutputMail::class);
 });
 
+it('does not send multiple types of notifications simultaneously if the user has quiet mode enabled', function (): void {
+    Queue::fake();
+    Mail::fake();
+
+    $user = User::factory()->quietMode()->create();
+
+    $task = BackupTask::factory()->create(['user_id' => $user->id]);
+    $discordStream = NotificationStream::factory()->discord()->create(['user_id' => $user->id]);
+    $slackStream = NotificationStream::factory()->slack()->create(['user_id' => $user->id]);
+    $teamsStream = NotificationStream::factory()->teams()->create(['user_id' => $user->id]);
+    $emailStream = NotificationStream::factory()->email()->create(['user_id' => $user->id]);
+
+    $task->notificationStreams()->attach([$discordStream->id, $slackStream->id, $emailStream->id, $teamsStream->id]);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendDiscordNotificationJob::class);
+    Queue::assertNotPushed(SendSlackNotificationJob::class);
+    Queue::assertNotPushed(SendTeamsNotificationJob::class);
+    Mail::assertNotQueued(OutputMail::class);
+
+    $this->assertTrue($user->hasQuietMode());
+});
+
 it('sends a discord webhook successfully', function (): void {
     $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);

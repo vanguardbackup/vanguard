@@ -14,6 +14,7 @@ use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use App\Livewire\Profile\APIPage;
 use App\Livewire\Profile\ExperimentsPage;
 use App\Livewire\Profile\MFAPage;
+use App\Livewire\Profile\QuietModePage;
 use App\Livewire\Profile\SessionsPage;
 use App\Livewire\StatisticsPage;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +72,7 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor'])->group(function (
     Route::get('profile/mfa', MFAPage::class)->name('profile.mfa');
     Route::get('profile/sessions', SessionsPage::class)->name('profile.sessions');
     Route::get('profile/experiments', ExperimentsPage::class)->name('profile.experiments');
+    Route::get('profile/quiet-mode', QuietModePage::class)->name('profile.quiet-mode');
 });
 
 require __DIR__ . '/auth.php';

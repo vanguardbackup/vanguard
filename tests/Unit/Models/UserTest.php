@@ -366,3 +366,58 @@ it('considers codes generated exactly one year ago as not outdated', function ()
 
     expect($filteredUsers)->toBeEmpty();
 });
+
+it('returns true if quiet mode is enabled', function (): void {
+    $user = User::factory()->quietMode()->create();
+
+    $this->assertTrue($user->hasQuietMode());
+});
+
+it('returns false if quiet mode is disabled', function (): void {
+    $user = User::factory()->create();
+
+    $this->assertFalse($user->hasQuietMode());
+});
+
+it('scopes query to users with quiet mode enabled', function (): void {
+    User::factory()->count(3)->create();
+    User::factory()->count(2)->quietMode()->create();
+
+    $quietUsers = User::withQuietMode()->get();
+
+    expect($quietUsers)->toHaveCount(2)
+        ->each(function ($user): void {
+            expect($user->quiet_until)->not->toBeNull();
+        });
+});
+
+it('does not include users without quiet mode', function (): void {
+    User::factory()->count(3)->create(['quiet_until' => null]);
+    User::factory()->count(2)->quietMode()->create();
+
+    $nonQuietUsers = User::query()->whereNotIn('id', User::withQuietMode()->pluck('id'))->get();
+
+    expect($nonQuietUsers)->toHaveCount(3);
+
+    $nonQuietUsers->each(function ($user): void {
+        expect($user->quiet_until)->toBeNull();
+    });
+});
+
+it('resets a users quiet mode', function (): void {
+    $user = User::factory()->quietMode()->create();
+
+    $user->clearQuietMode();
+
+    $this->assertFalse($user->hasQuietMode());
+});
+
+it('does not reset quiet mode if quiet mode not set', function (): void {
+    $user = User::factory()->create();
+
+    $this->assertFalse($user->hasQuietMode());
+
+    $user->clearQuietMode();
+
+    $this->assertFalse($user->hasQuietMode());
+});

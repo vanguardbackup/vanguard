@@ -22,6 +22,7 @@ class UserFactory extends Factory
             'pagination_count' => '25',
             'language' => 'en',
             'weekly_summary_opt_in_at' => now(),
+            'quiet_until' => null,
         ];
     }
 
@@ -43,6 +44,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'weekly_summary_opt_in_at' => null,
+        ]);
+    }
+
+    public function quietMode(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'quiet_until' => now(),
         ]);
     }
 }
