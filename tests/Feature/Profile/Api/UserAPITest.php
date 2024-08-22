@@ -50,7 +50,6 @@ test('user resource contains all expected sections', function (): void {
                 'timezone',
                 'language',
                 'is_admin',
-                'github_login_enabled',
                 'weekly_summary_enabled',
             ],
             'backup_tasks' => [
