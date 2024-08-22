@@ -14,6 +14,7 @@ use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use App\Livewire\Profile\APIPage;
 use App\Livewire\Profile\ConnectionsPage;
 use App\Livewire\Profile\ExperimentsPage;
+use App\Livewire\Profile\HelpPage;
 use App\Livewire\Profile\MFAPage;
 use App\Livewire\Profile\QuietModePage;
 use App\Livewire\Profile\SessionsPage;
@@ -75,6 +76,7 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor'])->group(function (
     Route::get('profile/experiments', ExperimentsPage::class)->name('profile.experiments');
     Route::get('profile/quiet-mode', QuietModePage::class)->name('profile.quiet-mode');
     Route::get('profile/connections', ConnectionsPage::class)->name('profile.connections');
+    Route::get('profile/help', HelpPage::class)->name('profile.help');
 });
 
 require __DIR__ . '/auth.php';
