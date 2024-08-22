@@ -1,93 +1,112 @@
 <nav class="bg-white dark:bg-gray-800/50 rounded-[0.70rem] shadow-none border border-gray-200 dark:border-gray-800/30 p-2 w-full">
-    <ul class="flex lg:flex-col space-x-1 lg:space-x-0 lg:space-y-1 justify-around lg:justify-start">
-        <li class="flex-1 lg:flex-initial">
+    <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-1">
+        <!-- Account Management -->
+        <li class="col-span-2 sm:col-span-3 lg:col-span-1 pt-2 pb-1">
+            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">Account</h3>
+        </li>
+        <li>
             <x-sidebar-nav-link :href="route('profile')" :active="request()->routeIs('profile')" wire:navigate>
-                <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                    @svg('heroicon-o-user', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Profile') }}</span>
+                <span class="flex items-center">
+                    @svg('heroicon-o-user', 'h-5 w-5 mr-2')
+                    <span>{{ __('My Profile') }}</span>
                 </span>
             </x-sidebar-nav-link>
         </li>
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.*')" wire:navigate>
-                <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                    @svg('heroicon-o-tag', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Tags') }}</span>
-                </span>
-            </x-sidebar-nav-link>
-        </li>
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('notification-streams.index')" :active="request()->routeIs('notification-streams.*')" wire:navigate>
-                <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                    @svg('heroicon-o-bell', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Notifications') }}</span>
-                </span>
-            </x-sidebar-nav-link>
-        </li>
-        <li class="flex-1 lg:flex-initial">
+        <li>
             <x-sidebar-nav-link :href="route('profile.api')" :active="request()->routeIs('profile.api*')" wire:navigate>
-                <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                    @svg('heroicon-o-code-bracket', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage API Tokens') }}</span>
+                <span class="flex items-center">
+                    @svg('heroicon-o-code-bracket', 'h-5 w-5 mr-2')
+                    <span>{{ __('API Tokens') }}</span>
                 </span>
             </x-sidebar-nav-link>
         </li>
-        <li class="flex-1 lg:flex-initial">
+        <li>
+            <x-sidebar-nav-link :href="route('profile.connections')" :active="request()->routeIs('profile.connections*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-puzzle-piece', 'h-5 w-5 mr-2')
+                    <span>{{ __('Connections') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+
+        <!-- Security -->
+        <li class="col-span-2 sm:col-span-3 lg:col-span-1 pt-4 pb-1">
+            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">Security</h3>
+        </li>
+        <li>
             <x-sidebar-nav-link :href="route('profile.mfa')" :active="request()->routeIs('profile.mfa*')" wire:navigate>
-        <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-            @svg('heroicon-o-lock-closed', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-            <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage 2FA') }}</span>
-        </span>
+                <span class="flex items-center">
+                    @svg('heroicon-o-lock-closed', 'h-5 w-5 mr-2')
+                    <span>{{ __('Two-Factor Auth') }}</span>
+                </span>
             </x-sidebar-nav-link>
         </li>
         @if (Config::get('session.driver') === 'database')
-            <li class="flex-1 lg:flex-initial">
+            <li>
                 <x-sidebar-nav-link :href="route('profile.sessions')" :active="request()->routeIs('profile.sessions*')" wire:navigate>
-            <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                @svg('heroicon-o-globe-alt', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage Sessions') }}</span>
-            </span>
+                    <span class="flex items-center">
+                        @svg('heroicon-o-globe-alt', 'h-5 w-5 mr-2')
+                        <span>{{ __('Active Sessions') }}</span>
+                    </span>
                 </x-sidebar-nav-link>
             </li>
         @endif
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('profile.experiments')" :active="request()->routeIs('profile.experiments*')" wire:navigate>
-            <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                @svg('heroicon-o-beaker', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage Experiments') }}</span>
-            </span>
-            </x-sidebar-nav-link>
+
+        <!-- Preferences -->
+        <li class="col-span-2 sm:col-span-3 lg:col-span-1 pt-4 pb-1">
+            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">Preferences</h3>
         </li>
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('profile.quiet-mode')" :active="request()->routeIs('profile.quiet-mode*')" wire:navigate>
-            <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                @svg('heroicon-o-bell-snooze', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage Quiet Mode') }}</span>
-            </span>
-            </x-sidebar-nav-link>
-        </li>
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('profile.connections')" :active="request()->routeIs('profile.connections*')" wire:navigate>
-            <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                @svg('heroicon-o-puzzle-piece', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Manage Connections') }}</span>
-            </span>
-            </x-sidebar-nav-link>
-        </li>
-        <li class="flex-1 lg:flex-initial">
-            <x-sidebar-nav-link :href="route('account.remove-account')" :active="request()->routeIs('account.remove-account')" wire:navigate>
-                <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                    @svg('heroicon-o-trash', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                    <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Remove Account') }}</span>
+        <li>
+            <x-sidebar-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-tag', 'h-5 w-5 mr-2')
+                    <span>{{ __('Manage Tags') }}</span>
                 </span>
             </x-sidebar-nav-link>
         </li>
-        <li class="flex-1 lg:flex-initial">
+        <li>
+            <x-sidebar-nav-link :href="route('notification-streams.index')" :active="request()->routeIs('notification-streams.*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-bell', 'h-5 w-5 mr-2')
+                    <span>{{ __('Notifications') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li>
+            <x-sidebar-nav-link :href="route('profile.quiet-mode')" :active="request()->routeIs('profile.quiet-mode*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-bell-snooze', 'h-5 w-5 mr-2')
+                    <span>{{ __('Quiet Mode') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li>
+            <x-sidebar-nav-link :href="route('profile.experiments')" :active="request()->routeIs('profile.experiments*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-beaker', 'h-5 w-5 mr-2')
+                    <span>{{ __('Experiments') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+
+        <!-- Support -->
+        <li class="col-span-2 sm:col-span-3 lg:col-span-1 pt-4 pb-1">
+            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">Support</h3>
+        </li>
+        <li>
             <x-sidebar-nav-link :href="route('profile.help')" :active="request()->routeIs('profile.help*')" wire:navigate>
-            <span class="flex flex-col lg:flex-row items-center justify-center lg:justify-start py-2 lg:py-1.5">
-                @svg('heroicon-o-lifebuoy', 'h-6 w-6 lg:h-5 lg:w-5 lg:mr-2')
-                <span class="text-xs mt-1 lg:mt-0 lg:text-sm">{{ __('Need Help?') }}</span>
-            </span>
+                <span class="flex items-center">
+                    @svg('heroicon-o-lifebuoy', 'h-5 w-5 mr-2')
+                    <span>{{ __('Get Help') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li>
+            <x-sidebar-nav-link :href="route('account.remove-account')" :active="request()->routeIs('account.remove-account')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('heroicon-o-trash', 'h-5 w-5 mr-2')
+                    <span>{{ __('Delete Account') }}</span>
+                </span>
             </x-sidebar-nav-link>
         </li>
     </ul>
