@@ -315,6 +315,18 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     }
 
     /**
+     * Get the user's external service connections.
+     *
+     * This relationship retrieves all connections (like GitHub, GitLab)
+     * associated with the user.
+     *
+     * @return HasMany<UserConnection> */
+    public function connections(): HasMany
+    {
+        return $this->hasMany(UserConnection::class);
+    }
+
+    /**
      * Get the casts array.
      *
      * @return array<string, string>
