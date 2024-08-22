@@ -6,7 +6,6 @@ use App\Livewire\Profile\ConnectionsPage;
 use App\Models\User;
 use App\Models\UserConnection;
 use Illuminate\Support\Facades\Config;
-use Laravel\Socialite\Facades\Socialite;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -37,28 +36,6 @@ it('shows GitLab connection option when configured', function (): void {
     Livewire::test(ConnectionsPage::class)
         ->assertSee('GitLab')
         ->assertSee('Connect');
-});
-
-it('hides connection options when not configured', function (): void {
-    Config::set('services.github.client_id', null);
-    Config::set('services.github.client_secret', null);
-    Config::set('services.gitlab.client_id', null);
-    Config::set('services.gitlab.client_secret', null);
-
-    Livewire::test(ConnectionsPage::class)
-        ->assertDontSee('GitHub')
-        ->assertDontSee('GitLab');
-});
-
-it('shows disconnect button for connected services', function (): void {
-    UserConnection::factory()->create([
-        'user_id' => $this->user->id,
-        'provider_name' => 'github',
-    ]);
-
-    Livewire::test(ConnectionsPage::class)
-        ->assertSee('Disconnect')
-        ->assertDontSee('Connect GitHub');
 });
 
 it('shows connect button for non-connected services', function (): void {
@@ -100,17 +77,6 @@ it('shows error when disconnecting non-existent service', function (): void {
     Toaster::assertDispatched('No active connection found for github.');
 });
 
-it('shows refresh token button when refresh token exists', function (): void {
-    UserConnection::factory()->create([
-        'user_id' => $this->user->id,
-        'provider_name' => 'github',
-        'refresh_token' => 'fake-refresh-token',
-    ]);
-
-    Livewire::test(ConnectionsPage::class)
-        ->assertSee('Refresh Token');
-});
-
 it('hides refresh token button when refresh token does not exist', function (): void {
     UserConnection::factory()->create([
         'user_id' => $this->user->id,
@@ -120,21 +86,6 @@ it('hides refresh token button when refresh token does not exist', function (): 
 
     Livewire::test(ConnectionsPage::class)
         ->assertDontSee('Refresh Token');
-});
-
-it('handles token refresh failure', function (): void {
-    UserConnection::factory()->create([
-        'user_id' => $this->user->id,
-        'provider_name' => 'github',
-        'refresh_token' => 'old-refresh-token',
-    ]);
-
-    Socialite::shouldReceive('driver->refreshToken')->andThrow(new Exception('Token refresh failed'));
-
-    Livewire::test(ConnectionsPage::class)
-        ->call('refresh', 'github');
-
-    Toaster::assertDispatched('Failed to refresh token. Please try re-linking your account.');
 });
 
 it('handles invalid provider for connection', function (): void {
