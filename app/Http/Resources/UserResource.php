@@ -50,7 +50,6 @@ class UserResource extends JsonResource
                 'timezone' => $this->resource->getAttribute('timezone'),
                 'language' => $this->resource->getAttribute('language'),
                 'is_admin' => $this->resource->isAdmin(),
-                'github_login_enabled' => $this->resource->canLoginWithGithub(),
                 'weekly_summary_enabled' => $this->resource->isOptedInForWeeklySummary(),
             ],
             'backup_tasks' => [

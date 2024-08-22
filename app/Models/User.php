@@ -43,7 +43,6 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         'email',
         'password',
         'timezone',
-        'github_id',
         'preferred_backup_destination_id',
         'language',
         'gravatar_email',
@@ -168,14 +167,6 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         return BackupTaskLog::whereHas('backupTask', function ($query): void {
             $query->where('user_id', $this->id);
         })->whereDate('created_at', today()->timezone($this->timezone ?? 'UTC'))->count();
-    }
-
-    /**
-     * Check if the user can log in with GitHub.
-     */
-    public function canLoginWithGithub(): bool
-    {
-        return $this->github_id !== null;
     }
 
     /**
@@ -312,6 +303,18 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         }
 
         $this->forceFill(['quiet_until' => null])->save();
+    }
+
+    /**
+     * Get the user's external service connections.
+     *
+     * This relationship retrieves all connections (like GitHub, GitLab)
+     * associated with the user.
+     *
+     * @return HasMany<UserConnection> */
+    public function connections(): HasMany
+    {
+        return $this->hasMany(UserConnection::class);
     }
 
     /**

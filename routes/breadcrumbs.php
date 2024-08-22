@@ -114,3 +114,7 @@ Breadcrumbs::for('profile.experiments', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('profile.quiet-mode', function (BreadcrumbTrail $trail) {
     $trail->push(__('Manage Quiet Mode'), route('profile.quiet-mode'));
 });
+
+Breadcrumbs::for('profile.connections', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Manage Connections'), route('profile.connections'));
+});

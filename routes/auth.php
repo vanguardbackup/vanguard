@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\GitHubSocialiteController;
-use App\Http\Controllers\Auth\GitLabSocialiteController;
 use App\Http\Controllers\Auth\TwoFactorRequiredController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Connections\GitHubController;
+use App\Http\Controllers\Connections\GitLabController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -12,18 +12,15 @@ Route::middleware('guest')->group(function () {
     Volt::route('login', 'pages.auth.login')->name('login');
     Volt::route('forgot-password', 'pages.auth.forgot-password')->name('password.request');
     Volt::route('reset-password/{token}', 'pages.auth.reset-password')->name('password.reset');
-
-    Route::get('auth/github', [GitHubSocialiteController::class, 'redirectToProvider'])
-        ->name('github.redirect');
-    Route::get('auth/gitlab', [GitLabSocialiteController::class, 'redirectToProvider'])
-        ->name('gitlab.redirect');
 });
 
-Route::get('auth/github/callback', [GitHubSocialiteController::class, 'handleProviderCallback'])
-    ->name('github.callback');
+// GitHub Routes
+Route::get('auth/github', [GitHubController::class, 'redirect'])->name('github.redirect');
+Route::get('auth/github/callback', [GitHubController::class, 'callback'])->name('github.callback');
 
-Route::get('auth/gitlab/callback', [GitLabSocialiteController::class, 'handleProviderCallback'])
-    ->name('gitlab.callback');
+// GitLab Routes
+Route::get('auth/gitlab', [GitLabController::class, 'redirect'])->name('gitlab.redirect');
+Route::get('auth/gitlab/callback', [GitLabController::class, 'callback'])->name('gitlab.callback');
 
 Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'pages.auth.verify-email')->name('verification.notice');
