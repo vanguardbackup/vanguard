@@ -90,30 +90,35 @@ new class extends Component
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile')" wire:navigate>
                                 <x-heroicon-o-user-circle class="w-5 h-5 mr-2 inline" />
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('tags.index')" wire:navigate>
-                                <x-heroicon-o-tag class="w-5 h-5 mr-2 inline" />
-                                {{ __('Tags') }}
+                                {{ __('My Profile') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
                                 <x-heroicon-o-bell class="w-5 h-5 mr-2 inline" />
                                 {{ __('Notifications') }}
                             </x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.api')" wire:navigate>
-                                <x-heroicon-o-code-bracket class="w-5 h-5 mr-2 inline" />
-                                {{ __('API Tokens') }}
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.mfa')" wire:navigate>
-                                <x-heroicon-o-lock-closed class="w-5 h-5 mr-2 inline" />
-                                {{ __('2FA Settings') }}
-                            </x-dropdown-link>
                             <x-dropdown-link :href="route('statistics')" wire:navigate>
                                 <x-heroicon-o-chart-pie class="w-5 h-5 mr-2 inline" />
                                 {{ __('Statistics') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('profile.api')" wire:navigate>
+                                <x-heroicon-o-code-bracket class="w-5 h-5 mr-2 inline" />
+                                {{ __('API Tokens') }}
+                            </x-dropdown-link>
+
+                            <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
+                            <x-dropdown-link :href="route('profile.mfa')" wire:navigate>
+                                <x-heroicon-o-lock-closed class="w-5 h-5 mr-2 inline" />
+                                {{ __('Security Settings') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('profile.help')" wire:navigate>
+                                <x-heroicon-o-lifebuoy class="w-5 h-5 mr-2 inline" />
+                                {{ __('Get Help') }}
+                            </x-dropdown-link>
+
                             @if (Auth::user()->isAdmin())
-                                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                                <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
                                 <x-dropdown-link href="{{ url('/pulse') }}">
                                     <x-heroicon-o-chart-bar class="w-5 h-5 mr-2 inline" />
                                     {{ __('Laravel Pulse') }}
@@ -123,7 +128,9 @@ new class extends Component
                                     {{ __('Laravel Horizon') }}
                                 </x-dropdown-link>
                             @endif
-                            <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                            <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
                             <button wire:click="logout" class="w-full text-start" role="menuitem">
                                 <x-dropdown-link>
                                     @svg('heroicon-o-arrow-left-on-rectangle', 'h-5 w-5 mr-2 inline')
