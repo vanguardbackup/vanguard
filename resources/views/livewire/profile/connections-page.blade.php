@@ -106,6 +106,53 @@
                 </div>
             @endif
 
+                @if (config('services.bitbucket.client_id') && config('services.bitbucket.client_secret'))
+                    <!-- Bitbucket Connection -->
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center mb-4 sm:mb-0">
+                                    <div class="flex-shrink-0 mr-4">
+                                        <svg class="h-10 w-10 text-gray-500 dark:text-gray-400" fill="currentColor" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Bitbucket</title><path d="M.778 1.213a.768.768 0 00-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 00.77-.646l3.27-20.03a.768.768 0 00-.768-.891zM14.52 15.53H9.522L8.17 8.466h7.561z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Bitbucket') }}</h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ __('Attach your Bitbucket account to unlock additional features.') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end sm:ml-4 sm:flex-shrink-0 space-x-2">
+                                    @if ($this->isConnected('bitbucket'))
+                                        @if ($this->hasRefreshToken('bitbucket'))
+                                            <x-secondary-button
+                                                wire:click="refresh('bitbucket')"
+                                                wire:loading.attr="disabled"
+                                                class="w-full sm:w-auto justify-center"
+                                            >
+                                                {{ __('Refresh Token') }}
+                                            </x-secondary-button>
+                                        @endif
+                                        <x-danger-button
+                                            wire:click="disconnect('bitbucket')"
+                                            wire:loading.attr="disabled"
+                                            class="w-full sm:w-auto justify-center"
+                                        >
+                                            {{ __('Disconnect') }}
+                                        </x-danger-button>
+                                    @else
+                                        <x-secondary-button
+                                            wire:click="connect('bitbucket')"
+                                            wire:loading.attr="disabled"
+                                            class="w-full sm:w-auto justify-center"
+                                        >
+                                            {{ __('Connect') }}
+                                        </x-secondary-button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             <!-- You can add more connections here by duplicating the above structure -->
 
         </div>

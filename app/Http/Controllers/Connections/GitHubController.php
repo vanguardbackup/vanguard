@@ -39,7 +39,7 @@ class GitHubController extends ConnectionsController
     protected function handleInvalidState(): RedirectResponse
     {
         return redirect()->route('login')
-            ->with('info', 'GitHub connection was cancelled or invalid. Please try again if you want to connect your account.');
+            ->with('loginError', 'GitHub connection was cancelled or invalid. Please try again if you want to connect your account.');
     }
 
     /**
@@ -51,6 +51,6 @@ class GitHubController extends ConnectionsController
         logger()->error('GitHub connection error', ['error' => $exception->getMessage()]);
 
         return redirect()->route('login')
-            ->with('error', 'An error occurred while connecting to GitHub. Please try again later.');
+            ->with('loginError', 'An error occurred while connecting to GitHub. Please try again later.');
     }
 }

@@ -45,6 +45,7 @@ class ConnectionsPage extends Component
         $route = match ($provider) {
             'github' => 'github.redirect',
             'gitlab' => 'gitlab.redirect',
+            'bitbucket' => 'bitbucket.redirect',
             default => null,
         };
 

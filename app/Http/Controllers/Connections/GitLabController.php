@@ -39,7 +39,7 @@ class GitLabController extends ConnectionsController
     protected function handleInvalidState(): RedirectResponse
     {
         return redirect()->route('login')
-            ->with('info', 'GitLab connection was cancelled or invalid. Please try again if you want to connect your account.');
+            ->with('loginError', 'GitLab connection was cancelled or invalid. Please try again if you want to connect your account.');
     }
 
     /**
@@ -51,6 +51,6 @@ class GitLabController extends ConnectionsController
         logger()->error('GitLab connection error', ['error' => $exception->getMessage()]);
 
         return redirect()->route('login')
-            ->with('error', 'An error occurred while connecting to GitLab. Please try again later.');
+            ->with('loginError', 'An error occurred while connecting to GitLab. Please try again later.');
     }
 }

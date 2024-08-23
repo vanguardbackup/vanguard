@@ -26,6 +26,7 @@ class UserConnectionFactory extends Factory
             'provider_name' => $this->faker->randomElement([
                 UserConnection::PROVIDER_GITHUB,
                 UserConnection::PROVIDER_GITLAB,
+                UserConnection::PROVIDER_BITBUCKET,
             ]),
             'provider_user_id' => $this->faker->uuid,
             'provider_email' => $this->faker->safeEmail,
@@ -53,6 +54,16 @@ class UserConnectionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'provider_name' => UserConnection::PROVIDER_GITLAB,
+        ]);
+    }
+
+    /**
+     * Indicate that the connection is for Bitbucket.
+     */
+    public function bitbucket(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'provider_name' => UserConnection::PROVIDER_BITBUCKET,
         ]);
     }
 }

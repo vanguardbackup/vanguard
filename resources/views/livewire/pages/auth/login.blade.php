@@ -116,6 +116,23 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         @endif
 
+        @if (config('services.bitbucket.client_id') && config('services.bitbucket.client_secret'))
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <a href="{{ route('bitbucket.redirect') }}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <x-icons.bitbucket class="w-5 h-5 mr-3"/>
+                        <span>{{ __('Login with Bitbucket') }}</span>
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <div class="text-center mt-8">
             <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
                 {{ __('By creating an account, you agree to our Terms of Service and our Privacy Policy.') }}

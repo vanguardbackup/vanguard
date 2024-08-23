@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\TwoFactorRequiredController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Connections\BitbucketController;
 use App\Http\Controllers\Connections\GitHubController;
 use App\Http\Controllers\Connections\GitLabController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,10 @@ Route::get('auth/github/callback', [GitHubController::class, 'callback'])->name(
 // GitLab Routes
 Route::get('auth/gitlab', [GitLabController::class, 'redirect'])->name('gitlab.redirect');
 Route::get('auth/gitlab/callback', [GitLabController::class, 'callback'])->name('gitlab.callback');
+
+// Bitbucket Routes
+Route::get('auth/bitbucket', [BitbucketController::class, 'redirect'])->name('bitbucket.redirect');
+Route::get('auth/bitbucket/callback', [BitbucketController::class, 'callback'])->name('bitbucket.callback');
 
 Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'pages.auth.verify-email')->name('verification.notice');

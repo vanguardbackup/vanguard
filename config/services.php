@@ -38,4 +38,10 @@ return [
         'client_secret' => env('GITLAB_CLIENT_SECRET'),
         'redirect' => config('app.url') . '/auth/gitlab/callback',
     ],
+
+    'bitbucket' => [
+        'client_id' => env('BITBUCKET_CLIENT_ID'),
+        'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
+        'redirect' => config('app.url') . '/auth/bitbucket/callback',
+    ],
 ];

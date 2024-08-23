@@ -27,3 +27,15 @@ test('it returns false if the provider is not gitlab', function (): void {
 
     $this->assertFalse($userProvider->isGitLab());
 });
+
+test('it returns true if the provider is bitbucket', function (): void {
+    $userProvider = UserConnection::factory()->bitbucket()->create();
+
+    $this->assertTrue($userProvider->isBitbucket());
+});
+
+test('it returns false if the provider is not bitbucket', function (): void {
+    $userProvider = UserConnection::factory()->github()->create();
+
+    $this->assertFalse($userProvider->isBitbucket());
+});

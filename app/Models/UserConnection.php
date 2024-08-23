@@ -31,6 +31,11 @@ class UserConnection extends Model
     public const string PROVIDER_GITLAB = 'gitlab';
 
     /**
+     * Provider name for Bitbucket connections.
+     */
+    public const string PROVIDER_BITBUCKET = 'bitbucket';
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array<int, string>
@@ -61,6 +66,14 @@ class UserConnection extends Model
     public function isGitLab(): bool
     {
         return $this->provider_name === self::PROVIDER_GITLAB;
+    }
+
+    /**
+     * Determine if the connection is for GitLab.
+     */
+    public function isBitbucket(): bool
+    {
+        return $this->provider_name === self::PROVIDER_BITBUCKET;
     }
 
     /**
