@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\TwoFactorRequiredController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Connections\BitbucketController;
 use App\Http\Controllers\Connections\GitHubController;
@@ -36,6 +35,5 @@ Route::middleware('auth')->group(function () {
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')->name('password.confirm');
 
-    Route::match(['get', 'post'], 'two-factor-challenge', TwoFactorRequiredController::class)
-        ->name('two-factor.challenge');
+    Volt::route('two-factor-challenge', 'pages.auth.two-factor-challenge')->name('two-factor.challenge');
 });
