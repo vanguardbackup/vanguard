@@ -25,10 +25,21 @@ new class extends Component {
         return $this->quietUntilDate !== null && Carbon::parse($this->quietUntilDate)->isFuture();
     }
 
+    #[Computed]
+    public function daysLeft(): int
+    {
+        if (!$this->isQuietModeActive) {
+            return 0;
+        }
+        return floor(now()->floatDiffInDays(Carbon::parse($this->quietUntilDate)));
+    }
+
     public function enableQuietMode(): void
     {
         $this->validate([
             'quietUntilDate' => 'required|date|after:today',
+        ], [
+            'quietUntilDate.required' => __('Please specify the duration for which notifications should be silenced.')
         ]);
 
         $user = Auth::user();
@@ -72,7 +83,7 @@ new class extends Component {
                             @if ($this->isQuietModeActive)
                                 @php
                                     $friendlyDate = Carbon::parse($quietUntilDate)->format('l, F j');
-                                    $daysLeft = now()->diffInDays(Carbon::parse($quietUntilDate), false);
+                                    $daysLeft = $this->daysLeft;
                                 @endphp
                                 @if ($daysLeft > 1)
                                     {{ __('Active for :count more days (until :date)', ['count' => $daysLeft, 'date' => $friendlyDate]) }}
@@ -87,6 +98,21 @@ new class extends Component {
                         </p>
                     </div>
                 </div>
+
+                @if ($this->isQuietModeActive)
+                    <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/50 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                @svg('heroicon-s-envelope', 'h-5 w-5 text-blue-400')
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700 dark:text-blue-300">
+                                    {{ __("You'll receive an email when your Quiet Mode period ends.") }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="mt-6">
                     @if (!$this->isQuietModeActive)

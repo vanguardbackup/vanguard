@@ -3,7 +3,7 @@
     $quietUntil = Auth::user()->quiet_until;
     $isOnQuietModePage = $currentRoute === 'profile.quiet-mode';
     $isQuietModeActive = $quietUntil && $quietUntil->isFuture();
-    $daysLeft = $isQuietModeActive ? round(now()->floatDiffInDays($quietUntil)) : 0;
+    $daysLeft = $isQuietModeActive ? floor(now()->floatDiffInDays($quietUntil)) : 0;
 @endphp
 
 @if ($isQuietModeActive)
@@ -26,7 +26,7 @@
                             @else
                                 {{ __('Ending today') }}
                             @endif
-                    </span>
+                        </span>
                     </div>
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-blue-600 dark:text-blue-300">
