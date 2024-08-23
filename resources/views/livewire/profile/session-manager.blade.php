@@ -246,13 +246,27 @@ new class extends Component {
                                             @endif
                                         </div>
                                         <div>
-                                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $session->device['browser'] }} on {{ $session->device['platform'] }}</h3>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                {{ $session->ip_address }} -
+                                            <div class="flex items-center">
+                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $session->device['browser'] }} on {{ $session->device['platform'] }}</h3>
                                                 @if ($session->is_current_device)
-                                                    <span class="text-green-500 font-semibold">{{ __('Current device') }}</span>
+                                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                                {{ __('Current') }}
+                            </span>
+                                                @endif
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                {{ $session->ip_address }} - {{ $session->location['city'] }}, {{ $session->location['country'] }}
+                                            </p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                {{ __('Last active') }}
+                                                @php
+                                                    $lastActiveTimestamp = Carbon::parse($session->last_active);
+                                                    $diffInSeconds = $lastActiveTimestamp->diffInSeconds(now());
+                                                @endphp
+                                                @if ($diffInSeconds < 60)
+                                                    {{ __('less than a minute ago') }}
                                                 @else
-                                                    {{ __('Last active') }} {{ $session->last_active }}
+                                                    {{ $session->last_active }}
                                                 @endif
                                             </p>
                                         </div>
@@ -272,10 +286,6 @@ new class extends Component {
                                             >
                                                 {{ __('Terminate') }}
                                             </x-danger-button>
-                                        @else
-                                            <span class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 dark:bg-green-800 dark:text-green-100">
-                                                {{ __('Current Device') }}
-                                            </span>
                                         @endif
                                     </div>
                                 </div>
@@ -355,33 +365,112 @@ new class extends Component {
 
                     @if ($selectedSession)
                         <div class="p-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                                {{ $selectedSession->device['browser'] }} on {{ $selectedSession->device['platform'] }}
-                            </h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                <strong>{{ __('IP Address') }}:</strong> {{ $selectedSession->ip_address }}
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                <strong>{{ __('Last Active') }}:</strong> {{ $selectedSession->last_active }}
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                <strong>{{ __('Location') }}:</strong> {{ $selectedSession->location['city'] }}, {{ $selectedSession->location['country'] }}
-                            </p>
+                            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="flex items-center">
+                                        @if ($selectedSession->device['desktop'])
+                                            <x-heroicon-o-computer-desktop class="w-8 h-8 mr-3 text-gray-500" />
+                                        @elseif ($selectedSession->device['mobile'])
+                                            <x-heroicon-o-device-phone-mobile class="w-8 h-8 mr-3 text-gray-500" />
+                                        @elseif ($selectedSession->device['tablet'])
+                                            <x-heroicon-o-device-tablet class="w-8 h-8 mr-3 text-gray-500" />
+                                        @else
+                                            <x-heroicon-o-globe-alt class="w-8 h-8 mr-3 text-gray-500" />
+                                        @endif
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Device Type') }}</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                @if ($selectedSession->device['desktop'])
+                                                    {{ __('Desktop') }}
+                                                @elseif ($selectedSession->device['mobile'])
+                                                    {{ __('Mobile') }}
+                                                @elseif ($selectedSession->device['tablet'])
+                                                    {{ __('Tablet') }}
+                                                @else
+                                                    {{ __('Unknown') }}
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <x-heroicon-o-clock class="w-8 h-8 mr-3 text-gray-500" />
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Last Active') }}</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">{{ $selectedSession->last_active }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                            @if (!$selectedSession->is_current_device)
-                                <div class="mt-6">
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                    {{ __('Device Information') }}
+                                </h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('Browser') }}:</strong> {{ $selectedSession->device['browser'] }}
+                                        </p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('Platform') }}:</strong> {{ $selectedSession->device['platform'] }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('IP Address') }}:</strong> {{ $selectedSession->ip_address }}
+                                        </p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('Current Device') }}:</strong>
+                                            @if ($selectedSession->is_current_device)
+                                                <span class="text-green-600 dark:text-green-400">{{ __('Yes') }}</span>
+                                            @else
+                                                {{ __('No') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                    {{ __('Estimated Location') }}
+                                </h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('City') }}:</strong> {{ $selectedSession->location['city'] }}
+                                        </p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            <strong>{{ __('Country') }}:</strong> {{ $selectedSession->location['country'] }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <div class="flex">
+                                    <div class="ml-3">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{ __('Location information is an estimate and may not be 100% accurate. The use of VPNs or other network configurations may affect the displayed location.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end">
+                                @if (!$selectedSession->is_current_device)
                                     <x-danger-button
                                         wire:click="logoutSession('{{ $selectedSession->id }}')"
                                         wire:loading.attr="disabled"
-                                        class="w-full justify-center"
                                     >
                                         {{ __('Terminate This Session') }}
                                     </x-danger-button>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     @endif
                 </x-modal>
+
             </x-form-wrapper>
         @endif
     </div>
