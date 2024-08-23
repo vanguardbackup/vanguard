@@ -120,7 +120,7 @@ new class extends Component
                 </x-slot>
                 <x-slot name="icon">heroicon-o-exclamation-triangle</x-slot>
 
-                <div class="mb-8 p-6 bg-red-50 dark:bg-red-950 rounded-lg shadow-md">
+                <div class="mb-8 p-6 bg-red-50 dark:bg-red-950 rounded-lg">
                     <div class="flex items-center mb-4">
                         @svg('heroicon-o-exclamation-circle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
                         <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Warning: Irreversible Action') }}</h3>

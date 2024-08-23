@@ -1,4 +1,11 @@
 <div>
+    <x-slot name="action">
+        <a href="{{ route('tags.create') }}" wire:navigate>
+          <x-primary-button x-data="" centered>
+              {{ __('Make Tag') }}
+          </x-primary-button>
+      </a>
+    </x-slot>
     @if ($tags->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">

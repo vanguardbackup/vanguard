@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-900">
+<div>
     @section('title', __('Need Help?'))
 
     <x-slot name="header">
