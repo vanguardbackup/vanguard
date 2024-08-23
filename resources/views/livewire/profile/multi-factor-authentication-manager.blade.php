@@ -52,9 +52,9 @@ new class extends Component {
                 'description' => __('Use a mobile app to generate secure, time-based codes for login.'),
                 'icon' => 'heroicon-o-device-phone-mobile',
                 'benefits' => [
-                    __('Works offline without cellular or internet connection'),
-                    __('Supports multiple accounts across various services'),
-                    __('Widely adopted and compatible with most online platforms'),
+                    __('Functions without internet or mobile network connection'),
+                    __('Allows management of multiple accounts across various services'),
+                    __('Widely accepted and compatible with most online platforms'),
                 ],
             ],
         ];
@@ -251,34 +251,11 @@ new class extends Component {
     <div wire:key="current-view-{{ $currentView }}">
         @if ($currentView === 'methods')
             <x-form-wrapper>
-                <x-slot name="title">{{ __('Multi-Factor Authentication (2FA)') }}</x-slot>
+                <x-slot name="title">{{ __('Two-Factor Authentication') }}</x-slot>
                 <x-slot name="description">
-                    {{ __('Enhance your account security by enabling 2FA. This adds an extra layer of protection to your account.') }}
+                    {{ __('Enhance your account security by enabling Two-Factor Authentication.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-shield-check</x-slot>
-
-                <div class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-sm">
-                    <div class="flex items-center mb-4">
-                        @svg('heroicon-o-light-bulb', 'w-8 h-8 text-blue-500 mr-3')
-                        <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('Why use 2FA?') }}</h3>
-                    </div>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span
-                                class="text-blue-700 dark:text-blue-300">{{ __('Adds an extra layer of security to your account') }}</span>
-                        </li>
-                        <li class="flex items-start">
-                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span
-                                class="text-blue-700 dark:text-blue-300">{{ __('Protects against unauthorized access even if your password is compromised') }}</span>
-                        </li>
-                        <li class="flex items-start">
-                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                            <span class="text-blue-700 dark:text-blue-300">{{ __('Easy to set up and use') }}</span>
-                        </li>
-                    </ul>
-                </div>
+                <x-slot name="icon">heroicon-o-lock-closed</x-slot>
 
                 <div class="space-y-6">
                     @foreach ($this->mfaMethods as $methodKey => $method)
@@ -458,84 +435,98 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-device-phone-mobile</x-slot>
 
-                <div class="mb-6 p-6 border-b border-gray-200 dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ __('Setup Instructions') }}</h3>
-                    <ol class="list-none space-y-6">
-                        <li class="flex items-start">
-                            <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">1</span>
-                            <div>
-                                <p class="text-gray-700 dark:text-gray-300 mb-3">{{ __('Open your preferred authenticator app:') }}</p>
-                                <div class="flex flex-wrap gap-4">
-                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-                                       target="_blank" rel="noopener noreferrer"
-                                       class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
-                                        <x-icons.google-auth
-                                            class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-100 fill-current"/>
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Google Authenticator</span>
-                                    </a>
-                                    <a href="https://authy.com/download/" target="_blank" rel="noopener noreferrer"
-                                       class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
-                                        <x-icons.authy
-                                            class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300 fill-current"/>
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Authy</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="flex items-start">
-                            <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">2</span>
-                            <p class="text-gray-700 dark:text-gray-300">{{ __('Scan the QR code or enter the secret key manually') }}</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">3</span>
-                            <p class="text-gray-700 dark:text-gray-300">{{ __('Enter the 6-digit code generated by the app below') }}</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">4</span>
-                            <p class="text-gray-700 dark:text-gray-300">{{ __('Click "Enable" to activate two-factor authentication') }}</p>
-                        </li>
-                    </ol>
+                <div x-data="{ open: false }" class="mb-6 border-b border-gray-200 dark:border-gray-600">
+                    <button @click="open = !open" class="flex justify-between items-center w-full p-6 text-left">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Two-Factor Authentication Setup Instructions') }}</h3>
+                        <svg x-show="!open" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        <svg x-show="open" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-collapse>
+                        <div class="p-6">
+                            <ol class="list-none space-y-6">
+                                <li class="flex items-start">
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">1</span>
+                                    <div>
+                                        <p class="text-gray-700 dark:text-gray-300 mb-3">{{ __('Install and open an authenticator app on your device:') }}</p>
+                                        <div class="flex flex-wrap gap-4">
+                                            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                                               target="_blank" rel="noopener noreferrer"
+                                               class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                                <x-icons.google-auth
+                                                    class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-100 fill-current"/>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Google Authenticator</span>
+                                            </a>
+                                            <a href="https://authy.com/download/" target="_blank" rel="noopener noreferrer"
+                                               class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                                <x-icons.authy
+                                                    class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300 fill-current"/>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Authy</span>
+                                            </a>
+                                            <a href="https://1password.com/downloads/" target="_blank" rel="noopener noreferrer"
+                                               class="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300">
+                                                <x-icons.onepassword
+                                                    class="w-6 h-6 mr-2 text-gray-600 dark:text-gray-300 fill-current"/>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">1Password</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">2</span>
+                                    <p class="text-gray-700 dark:text-gray-300">{{ __('In your authenticator app, add a new account by scanning the QR code below or manually entering the provided secret key') }}</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">3</span>
+                                    <p class="text-gray-700 dark:text-gray-300">{{ __('Once added, your app will display a 6-digit code that changes every 30 seconds') }}</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 mr-4 flex-shrink-0 text-lg font-semibold">4</span>
+                                    <p class="text-gray-700 dark:text-gray-300">{{ __('Enter the current 6-digit code from your app in the verification field below, then click "Enable Two-Factor Auth"') }}</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-6">
                     <div class="mt-4 max-w-xl text-sm text-gray-600 dark:text-gray-400">
                         <p class="font-semibold">
-                            {{ __('Scan the QR code or enter the setup key in your authenticator app.') }}
+                            {{ __('Scan the QR code or enter the secret key in your authenticator app.') }}
                         </p>
                     </div>
-
-                    <div class="flex flex-col md:flex-row items-center justify-center mt-6">
-                        <div class="w-48 h-48 mb-4 md:mb-0 md:mr-8">
+                    <div class="flex flex-col lg:flex-row items-center justify-between max-w-5xl mx-auto mt-8 space-y-8 lg:space-y-0 lg:space-x-8">
+                        <div class="w-72 h-72 flex-shrink-0">
                             <div id="qr-code-container"
-                                 class="w-full h-full flex items-center justify-center rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                                <div class="qr-code-wrapper">
+                                 class="w-full h-full flex items-center justify-center rounded-lg overflow-hidden">
+                                <div class="qr-code-wrapper p-2">
                                     {!! $this->qrCodeSvg !!}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="w-full md:w-64">
-                            <x-input-label for="setup_key" :value="__('Secret Key')" class="mb-2"/>
-                            <div class="flex flex-col sm:flex-row">
+                        <div class="w-full lg:w-2/3">
+                            <x-input-label for="setup_key" :value="__('Secret Key')" class="mb-3 text-lg font-medium"/>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                                 <x-text-input
                                     id="setup_key"
                                     type="text"
                                     name="setup_key"
-                                    class="block w-full mb-2 sm:mb-0 sm:mr-2"
+                                    class="block w-full text-lg py-2 px-3"
                                     :value="$this->twoFactorSecret"
                                     readonly
                                 />
                                 <x-secondary-button
                                     wire:click="copySetupKey"
-                                    iconOnly
                                     type="button"
-                                    class="w-full sm:w-auto justify-center inline-flex items-center ml-2"
+                                    class="whitespace-nowrap justify-center inline-flex items-center px-4 py-2"
                                 >
-                                    @svg('heroicon-o-clipboard', 'w-5 h-5')
+                                    {{ __('Copy') }}
+                                    @svg('heroicon-o-clipboard', 'w-5 h-5 ml-2')
                                 </x-secondary-button>
                             </div>
                         </div>
@@ -602,7 +593,7 @@ new class extends Component {
                 </x-slot>
                 <x-slot name="icon">heroicon-o-check-circle</x-slot>
 
-                <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg">
                     <div class="flex items-center mb-4">
                         <svg class="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
