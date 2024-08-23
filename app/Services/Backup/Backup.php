@@ -87,6 +87,7 @@ abstract class Backup
     ): bool {
         switch ($destinationDriver) {
             case BackupConstants::DRIVER_S3:
+            case BackupConstants::DRIVER_DO_SPACES:
             case BackupConstants::DRIVER_CUSTOM_S3:
                 $client = $backupDestination->getS3Client();
                 $bucketName = $backupDestination->getAttribute('s3_bucket_name');
@@ -623,6 +624,7 @@ abstract class Backup
     {
         switch ($backupDestination->getAttribute('type')) {
             case BackupConstants::DRIVER_CUSTOM_S3:
+            case BackupConstants::DRIVER_DO_SPACES:
             case BackupConstants::DRIVER_S3:
                 $client = $backupDestination->getS3Client();
 

@@ -32,6 +32,15 @@ it('returns false if the backup destination is not s3', function (): void {
     $this->assertFalse($backupDestination->isS3Connection());
 });
 
+it('returns true if the backup destination is do spaces', function (): void {
+
+    $backupDestination = BackupDestination::factory()->create([
+        'type' => BackupDestination::TYPE_DO_SPACES,
+    ]);
+
+    $this->assertTrue($backupDestination->isS3Connection());
+});
+
 it('throws an exception if the backup destination is not an s3 connection', function (): void {
 
     $backupDestination = BackupDestination::factory()->create([
@@ -73,6 +82,23 @@ it('returns an s3 client if the backup destination is a custom s3 connection', f
     $this->assertEquals('http://localhost:9000', $s3Client->getEndpoint());
 });
 
+it('returns an s3 client if the backup destination is a do spaces connection', function (): void {
+
+    $backupDestination = BackupDestination::factory()->create([
+        'type' => BackupDestination::TYPE_DO_SPACES,
+        'custom_s3_region' => 'us-east-1',
+        'custom_s3_endpoint' => 'https://ams.digitaloceanspaces.com',
+        's3_access_key' => 'access_key_id',
+        's3_secret_key' => 'secret_access_key',
+    ]);
+
+    $s3Client = $backupDestination->getS3Client();
+
+    $this->assertEquals('2006-03-01', $s3Client->getApi()->getApiVersion());
+    $this->assertEquals('us-east-1', $s3Client->getRegion());
+    $this->assertEquals('https://ams.digitaloceanspaces.com', $s3Client->getEndpoint());
+});
+
 it('returns the type of the backup destination', function (): void {
 
     $backupDestination = BackupDestination::factory()->create([
@@ -86,6 +112,12 @@ it('returns the type of the backup destination', function (): void {
     ]);
 
     $this->assertEquals('Custom S3', $backupDestination->type());
+
+    $backupDestination = BackupDestination::factory()->create([
+        'type' => BackupDestination::TYPE_DO_SPACES,
+    ]);
+
+    $this->assertEquals('DigitalOcean Spaces', $backupDestination->type());
 });
 
 it('returns a dummy region if the type is custom s3 and there isnt a region specified', function (): void {

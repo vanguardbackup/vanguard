@@ -26,7 +26,7 @@ class CreateBackupDestinationForm extends Component
     public ?string $s3AccessKey = null;
     public ?string $s3SecretKey = null;
     public ?string $s3BucketName = null;
-    public bool $usePathStyleEndpoint = false;
+    public bool $usePathStyleEndpoint = true;
     public ?string $customS3Region = null;
     public ?string $customS3Endpoint = null;
 
@@ -39,13 +39,13 @@ class CreateBackupDestinationForm extends Component
     {
         $this->validate([
             'label' => ['required', 'string'],
-            'type' => ['required', 'string', 'in:custom_s3,s3,local'],
-            's3AccessKey' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3SecretKey' => ['nullable', 'required_if:type,custom_s3,s3'],
-            's3BucketName' => ['nullable', 'required_if:type,custom_s3,s3'],
-            'customS3Region' => ['nullable', 'required_if:type,s3'], // Not required for custom S3 connections
-            'customS3Endpoint' => ['nullable', 'required_if:type,custom_s3'],
-            'usePathStyleEndpoint' => ['boolean', 'required_if:type,s3,custom_s3'],
+            'type' => ['required', 'string', 'in:custom_s3,s3,local,digitalocean_spaces'],
+            's3AccessKey' => ['nullable', 'required_if:type,custom_s3,s3,digitalocean_spaces'],
+            's3SecretKey' => ['nullable', 'required_if:type,custom_s3,s3,digitalocean_spaces'],
+            's3BucketName' => ['nullable', 'required_if:type,custom_s3,s3,digitalocean_spaces'],
+            'customS3Region' => ['nullable', 'required_if:type,s3'], // Not required for custom S3 connections or DO spaces.
+            'customS3Endpoint' => ['nullable', 'required_if:type,custom_s3,digitalocean_spaces'],
+            'usePathStyleEndpoint' => ['boolean', 'required_if:type,s3,custom_s3,digitalocean_spaces'],
         ],
             [
                 'label.required' => __('Please enter a label.'),

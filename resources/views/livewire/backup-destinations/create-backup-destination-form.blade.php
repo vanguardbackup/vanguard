@@ -22,12 +22,13 @@
                     <x-select id="type" class="block mt-1 w-full" wire:model.live="type" name="type">
                         <option value="s3">{{ __('Amazon S3') }}</option>
                         <option value="custom_s3">{{ __('Custom S3') }}</option>
+                        <option value="digitalocean_spaces">{{ __('DigitalOcean S3 Spaces') }}</option>
                         <option value="local">{{ __('Local') }}</option>
                     </x-select>
                     <x-input-error :messages="$errors->get('type')" class="mt-2"/>
                 </div>
             </div>
-            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3)
+            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3 || $type === \App\Models\BackupDestination::TYPE_DO_SPACES)
                 <div class="mt-4 flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
                     <div class="w-full md:w-3/6">
                         <x-input-label for="s3AccessKey" :value="__('Access Key')"/>
@@ -61,7 +62,7 @@
                     </div>
                 </div>
             @endif
-            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3)
+            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_DO_SPACES)
                 <div class="mt-4">
                     <x-input-label for="customS3Endpoint" :value="__('Endpoint')"/>
                     <x-text-input id="customS3Endpoint" class="block mt-1 w-full" type="text"
@@ -70,7 +71,7 @@
                     <x-input-error :messages="$errors->get('customS3Endpoint')" class="mt-2"/>
                 </div>
             @endif
-            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3)
+            @if ($type === \App\Models\BackupDestination::TYPE_CUSTOM_S3 || $type === \App\Models\BackupDestination::TYPE_S3 || $type === \App\Models\BackupDestination::TYPE_DO_SPACES)
                 <div class="mt-4">
                     <x-input-label for="usePathStyleEndpoint" :value="__('Use Path Style Endpoint')"/>
                     <x-toggle

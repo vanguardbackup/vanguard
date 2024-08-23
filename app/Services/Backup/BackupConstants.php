@@ -42,6 +42,11 @@ class BackupConstants
     public const string DRIVER_CUSTOM_S3 = 'custom_s3';
 
     /**
+     * Identifier for DigitalOcean S3-compatible storage driver.
+     */
+    public const string DRIVER_DO_SPACES = 'digitalocean_spaces';
+
+    /**
      * Identifier for local storage driver.
      */
     public const string DRIVER_LOCAL = 'local';
