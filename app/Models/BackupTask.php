@@ -481,6 +481,12 @@ class BackupTask extends Model
      */
     public function run(): void
     {
+        if ($this->user?->hasDisabledAccount()) {
+            Log::warning('Cannot run backup tasks for this user as they have a disabled account.');
+
+            return;
+        }
+
         if ($this->isPaused()) {
             Log::debug(sprintf('Task %s is paused, skipping run', $this->id));
 

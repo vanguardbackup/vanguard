@@ -391,6 +391,28 @@ it('does not run the database job if a task is already running on the same remot
     Queue::assertNotPushed(RunDatabaseBackupTaskJob::class);
 });
 
+it('does not run database backup task if the user account has been disabled', function (): void {
+    Queue::fake();
+    $disabledAccount = User::factory()->create(['account_disabled_at' => now()]);
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $disabledAccount->id]);
+    $task = BackupTask::factory()->paused()->create(['status' => 'ready', 'type' => 'database', 'remote_server_id' => $remoteServer->id, 'user_id' => $disabledAccount->id]);
+
+    $task->run();
+
+    Queue::assertNotPushed(RunDatabaseBackupTaskJob::class);
+});
+
+it('does not run file backup task if the user account has been disabled', function (): void {
+    Queue::fake();
+    $disabledAccount = User::factory()->create(['account_disabled_at' => now()]);
+    $remoteServer = RemoteServer::factory()->create(['user_id' => $disabledAccount->id]);
+    $task = BackupTask::factory()->paused()->create(['status' => 'ready', 'type' => 'files', 'remote_server_id' => $remoteServer->id, 'user_id' => $disabledAccount->id]);
+
+    $task->run();
+
+    Queue::assertNotPushed(RunFileBackupTaskJob::class);
+});
+
 it('returns true if the type is files', function (): void {
 
     $task = BackupTask::factory()->create(['type' => 'files']);
