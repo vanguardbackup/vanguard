@@ -53,4 +53,8 @@ return [
      * When false, the endpoint returns a 404 Not Found response.
      */
     'enable_device_authentication_endpoint' => env('ENABLE_DEVICE_AUTH_ENDPOINT', false),
+
+    'terms_of_service_url' => env('TERMS_OF_SERVICE_URL', ''),
+    'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
+    'status_page_url' => env('STATUS_PAGE_URL', ''),
 ];
