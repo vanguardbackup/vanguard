@@ -6,6 +6,7 @@ use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Models\NotificationStream;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
 it('renders successfully', function (): void {
@@ -435,4 +436,15 @@ it('validates Pushover additional fields during update', function (): void {
         ->set('form.additional_field_one', '') // Empty User Key
         ->call('submit')
         ->assertHasErrors(['form.additional_field_one']);
+});
+
+it('writes error to log on event', function (): void {
+    $user = User::factory()->create();
+    $notificationStream = NotificationStream::factory()->create(['user_id' => $user->id]);
+
+    Log::shouldReceive('error')->once()->with('Error from js script for Telegram authentication.', ['error' => 'Some js error']);
+
+    Livewire::actingAs($user)
+        ->test(UpdateNotificationStream::class, ['notificationStream' => $notificationStream])
+        ->dispatch('jsError', 'Some js error');
 });

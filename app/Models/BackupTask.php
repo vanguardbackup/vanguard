@@ -8,9 +8,11 @@ use App\Jobs\BackupTasks\SendDiscordNotificationJob;
 use App\Jobs\BackupTasks\SendPushoverNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
 use App\Jobs\BackupTasks\SendTeamsNotificationJob;
+use App\Jobs\BackupTasks\SendTelegramNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
+use App\Models\Traits\ComposesTelegramNotification;
 use App\Traits\HasTags;
 use Carbon\CarbonInterface;
 use Cron\CronExpression;
@@ -41,6 +43,7 @@ use RuntimeException;
  */
 class BackupTask extends Model
 {
+    use ComposesTelegramNotification;
     /** @use HasFactory<BackupTaskFactory> */
     use HasFactory;
     use HasTags;
@@ -661,6 +664,16 @@ class BackupTask extends Model
     }
 
     /**
+     * Check if the task has Telegram notifications enabled.
+     */
+    public function hasTelegramNotification(): bool
+    {
+        return $this->notificationStreams()
+            ->where('type', NotificationStream::TYPE_TELEGRAM)
+            ->exists();
+    }
+
+    /**
      * Send notifications for the latest backup task log.
      *
      * This method handles sending notifications through various streams (Email, Discord, Slack etc)
@@ -725,6 +738,7 @@ class BackupTask extends Model
             NotificationStream::TYPE_SLACK => SendSlackNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_TEAMS => SendTeamsNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             NotificationStream::TYPE_PUSHOVER => SendPushoverNotificationJob::dispatch($this, $backupTaskLog, $streamValue, $additionalStreamValueOne)->onQueue($queue),
+            NotificationStream::TYPE_TELEGRAM => SendTelegramNotificationJob::dispatch($this, $backupTaskLog, $streamValue)->onQueue($queue),
             default => throw new InvalidArgumentException("Unsupported notification type: {$notificationStream->getAttribute('type')}"),
         };
     }
@@ -953,6 +967,31 @@ class BackupTask extends Model
 
         if (! $response->successful()) {
             throw new RuntimeException('Pushover notification failed: ' . $response->body());
+        }
+    }
+
+    /**
+     * Send a Telegram notification for the backup task.
+     *
+     * @param  BackupTaskLog  $backupTaskLog  The log entry for the backup task
+     * @param  string  $chatID  The target Telegram chat ID
+     *
+     * @throws RuntimeException|ConnectionException If the Telegram request fails.
+     */
+    public function sendTelegramNotification(BackupTaskLog $backupTaskLog, string $chatID): void
+    {
+        $url = $this->getTelegramUrl();
+        $message = $this->composeTelegramNotificationText($this, $backupTaskLog);
+        $payload = [
+            'chat_id' => $chatID,
+            'text' => $message,
+            'parse_mode' => 'HTML',
+        ];
+
+        $response = Http::post($url, $payload);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('Telegram notification failed: ' . $response->body());
         }
     }
 

@@ -57,6 +57,10 @@ class NotificationStreamForm extends Form
             'label' => 'API Token',
             'input_type' => 'text',
         ],
+        NotificationStream::TYPE_TELEGRAM => [
+            'label' => 'ID',
+            'input_type' => 'text',
+        ],
     ];
 
     /**
@@ -133,6 +137,11 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_EMAIL => __('Email'),
             NotificationStream::TYPE_PUSHOVER => __('Pushover'),
         ]);
+
+        $config = config('services.telegram');
+        if ($config['bot_id']) {
+            $this->availableTypes = $this->availableTypes->merge([NotificationStream::TYPE_TELEGRAM => __('Telegram')]);
+        }
     }
 
     public function setNotificationStream(NotificationStream $notificationStream): void
@@ -177,6 +186,7 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_TEAMS => ['url', 'regex:/^https:\/\/.*\.webhook\.office\.com\/webhookb2\/.+/i'],
             NotificationStream::TYPE_PUSHOVER => ['required', 'string'],
             NotificationStream::TYPE_EMAIL => ['email'],
+            NotificationStream::TYPE_TELEGRAM => ['required', 'string', 'regex:/^\d+$/'],
             default => 'string',
         };
     }
@@ -189,6 +199,7 @@ class NotificationStreamForm extends Form
             NotificationStream::TYPE_TEAMS => __('Please enter a valid Microsoft Teams Webhook URL.'),
             NotificationStream::TYPE_EMAIL => __('Please enter a valid email address.'),
             NotificationStream::TYPE_PUSHOVER => __('Please enter a valid Pushover API Token.'),
+            NotificationStream::TYPE_TELEGRAM => __('Please enter a valid Telegram ID.'),
             default => __('Please enter a valid value for the selected notification type.'),
         };
     }

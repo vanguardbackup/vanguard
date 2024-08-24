@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\NotificationStreams\Forms;
 
+use App\Livewire\NotificationStreams\Forms\Traits\LogsJsErrors;
 use App\Models\NotificationStream;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -22,6 +23,8 @@ use Masmerise\Toaster\Toaster;
  */
 class CreateNotificationStream extends Component
 {
+    use LogsJsErrors;
+
     /** @var NotificationStreamForm The form object for creating a notification stream */
     public NotificationStreamForm $form;
 

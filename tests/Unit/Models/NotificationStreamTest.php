@@ -64,6 +64,16 @@ it('returns correct formatted type for discord', function (): void {
     expect($notificationStream->formatted_type)->toBe('Discord Webhook');
 });
 
+it('returns true if stream type is telegram', function (): void {
+    $notificationStream = NotificationStream::factory()->telegram()->create();
+    expect($notificationStream->isTelegram())->toBeTrue();
+});
+
+it('returns false if the stream type is not telegram', function (): void {
+    $notificationStream = NotificationStream::factory()->email()->create();
+    expect($notificationStream->isTelegram())->toBeFalse();
+});
+
 it('returns correct formatted type for slack', function (): void {
     $notificationStream = NotificationStream::factory()->slack()->create();
     expect($notificationStream->formatted_type)->toBe('Slack Webhook');
@@ -77,6 +87,11 @@ it('returns correct formatted type for microsoft teams', function (): void {
 it('returns correct formatted type for pushover', function (): void {
     $notificationStream = NotificationStream::factory()->pushover()->create();
     expect($notificationStream->formatted_type)->toBe('Pushover');
+});
+
+it('returns correct formatted type for telegram', function (): void {
+    $notificationStream = NotificationStream::factory()->telegram()->create();
+    expect($notificationStream->formatted_type)->toBe('Telegram');
 });
 
 it('returns correct type icon for email', function (): void {
@@ -102,6 +117,11 @@ it('returns correct type icon for teams', function (): void {
 it('returns correct type icon for pushover', function (): void {
     $notificationStream = NotificationStream::factory()->pushover()->create();
     expect($notificationStream->type_icon)->toBe('M11.6685 21.0473c5.2435.1831 9.6426-3.9191 9.8257-9.1627.1831-5.24355-3.9191-9.64267-9.1626-9.82578-5.24355-.18311-9.64265 3.91918-9.82576 9.16268-.18311 5.2435 3.91916 9.6427 9.16266 9.8258zM11.8206 8.47095l1.9374-.1867-2.0265 4.17345c.331-.0144.6576-.1144.9816-.3018.324-.1873.6257-.4274.9014-.7186.2775-.291.5191-.6168.7267-.9791.2075-.3603.3593-.7189.457-1.0701.0577-.2189.0892-.4295.0926-.6317s-.0442-.3822-.1409-.5378c-.0967-.1556-.2463-.2834-.4508-.3833-.2044-.1-.4828-.1561-.8389-.1686-.4153-.0145-.8256.038-1.2309.1594-.4071.1213-.7848.3049-1.1369.5507-.352.2458-.66.5562-.9274.933-.2676.3769-.4646.8082-.5911 1.2939-.0483.1598-.0768.2869-.0895.3849s-.0174.1776-.014.2408c.0015.0632.009.1136.0208.1474.0119.0339.0218.0676.028.1031-.4321-.015-.7443-.1132-.9366-.2926-.1924-.1794-.23-.4852-.1149-.9119.1177-.4452.3625-.8637.7364-1.2572.374-.3936.8129-.73655 1.3188-1.02705.5059-.29055 1.0559-.51825 1.6501-.67945.5942-.1612 1.1704-.2321 1.7285-.2126.4914.0172.9006.102 1.2295.2527.329.1508.5839.3453.7614.5799.1775.2346.2849.5057.3207.8114.0358.3057.0099.6223-.0777.9497-.1066.3936-.2967.7879-.5685 1.18135s-.609.7455-1.0079 1.0565c-.4008.3128-.8551.5605-1.3666.7469-.5096.1846-1.049.2679-1.6164.248l-.0631-.0022-1.7377 3.5597-1.82655-.0638z');
+});
+
+it('returns correct type icon for telegram', function (): void {
+    $notificationStream = NotificationStream::factory()->telegram()->create();
+    expect($notificationStream->type_icon)->toBe('M 18.632812 1.714844 L 0.519531 8.722656 C 0.507812 8.726562 0.5 8.730469 0.488281 8.738281 C 0.34375 8.820312 -0.683594 9.445312 0.761719 10.007812 L 0.777344 10.015625 L 5.089844 11.40625 C 5.15625 11.429688 5.230469 11.421875 5.289062 11.382812 L 15.984375 4.710938 C 16.011719 4.695312 16.042969 4.683594 16.070312 4.675781 C 16.222656 4.652344 16.648438 4.605469 16.378906 4.949219 C 16.070312 5.339844 8.765625 11.890625 7.953125 12.617188 C 7.90625 12.65625 7.878906 12.714844 7.875 12.777344 L 7.519531 16.996094 C 7.519531 17.085938 7.558594 17.167969 7.628906 17.21875 C 7.730469 17.28125 7.859375 17.273438 7.949219 17.195312 L 10.511719 14.902344 C 10.59375 14.828125 10.71875 14.824219 10.808594 14.890625 L 15.28125 18.132812 L 15.292969 18.144531 C 15.402344 18.210938 16.570312 18.890625 16.910156 17.371094 L 19.996094 2.699219 C 20 2.652344 20.042969 2.140625 19.675781 1.839844 C 19.292969 1.523438 18.75 1.683594 18.667969 1.699219 C 18.65625 1.703125 18.644531 1.707031 18.632812 1.714844 Z M 18.632812 1.714844');
 });
 
 it('returns default type icon for unknown type', function (): void {

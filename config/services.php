@@ -44,4 +44,9 @@ return [
         'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
         'redirect' => config('app.url') . '/auth/bitbucket/callback',
     ],
+
+    'telegram' => [
+        'bot_id' => env('TELEGRAM_BOT_ID'),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
 ];

@@ -6,6 +6,7 @@ use App\Jobs\BackupTasks\SendDiscordNotificationJob;
 use App\Jobs\BackupTasks\SendPushoverNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
 use App\Jobs\BackupTasks\SendTeamsNotificationJob;
+use App\Jobs\BackupTasks\SendTelegramNotificationJob;
 use App\Jobs\RunDatabaseBackupTaskJob;
 use App\Jobs\RunFileBackupTaskJob;
 use App\Mail\BackupTasks\OutputMail;
@@ -15,8 +16,11 @@ use App\Models\BackupTaskLog;
 use App\Models\NotificationStream;
 use App\Models\RemoteServer;
 use App\Models\Tag;
+use App\Models\Traits\ComposesTelegramNotification;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+
+uses(ComposesTelegramNotification::class);
 
 it('sets the last run at timestamp', function (): void {
 
@@ -679,6 +683,21 @@ it('returns false if there is no notification stream pushover set', function ():
     expect($task->hasPushoverNotification())->toBeFalse();
 });
 
+it('returns true if there is a notification stream telegram set', function (): void {
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->telegram()->create();
+
+    $task->notificationStreams()->attach($stream);
+
+    expect($task->hasTelegramNotification())->toBeTrue();
+});
+
+it('returns false if there is no notification stream telegram set', function (): void {
+    $task = BackupTask::factory()->create();
+
+    expect($task->hasEmailNotification())->toBeFalse();
+});
+
 it('queues up a teams notification job if a teams notification has been set', function (): void {
 
     Queue::fake();
@@ -824,6 +843,32 @@ it('does not queue up an email notification job if an email notification has not
     $task->sendNotifications();
 
     Mail::assertNotQueued(OutputMail::class);
+});
+
+it('queues up a telegram notification job if a telegram notification has been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+    $stream = NotificationStream::factory()->telegram()->create();
+    $task->notificationStreams()->attach($stream);
+
+    BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    $task->sendNotifications();
+
+    Queue::assertPushed(SendTelegramNotificationJob::class);
+});
+
+it('does not queue up a telegram notification job if a telegram notification has not been set', function (): void {
+
+    Queue::fake();
+
+    $task = BackupTask::factory()->create();
+
+    $task->sendNotifications();
+
+    Queue::assertNotPushed(SendTelegramNotificationJob::class);
 });
 
 it('can send multiple types of notifications simultaneously', function (): void {
@@ -982,6 +1027,46 @@ it('throws an exception when Pushover notification fails', function (): void {
 
     expect(fn () => $task->sendPushoverNotification($log, $pushoverToken, $userToken))
         ->toThrow(RuntimeException::class, 'Pushover notification failed: Error');
+});
+
+it('sends a Telegram notification successfully', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $userToken = 'def456';
+
+    Http::fake([
+        $this->getTelegramUrl() => Http::response('', 200),
+    ]);
+
+    $task->sendTelegramNotification($log, $userToken);
+
+    Http::assertSent(
+        fn ($request): bool => $request->url() === $this->getTelegramUrl() &&
+            $request['text'] === $this->composeTelegramNotificationText($task, $log) &&
+            $request['chat_id'] === $userToken &&
+            $request['parse_mode'] === 'HTML'
+    );
+});
+
+it('throws an exception when Telegram notification fails', function (): void {
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    Http::fake([
+        $this->getTelegramUrl() => Http::response('Error', 500),
+    ]);
+
+    expect(fn () => $task->sendTelegramNotification($log, 'fakeToken'))
+        ->toThrow(RuntimeException::class, 'Telegram notification failed: Error');
+});
+
+it('throws an exception when Telegram bot token missing', function (): void {
+    config()->set('services.telegram.bot_token', null);
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    expect(fn () => $task->sendTelegramNotification($log, 'fakeToken'))
+        ->toThrow(RuntimeException::class, 'Telegram bot token is not configured');
 });
 
 it('sends notifications based on backup task outcome and user preferences', function (): void {

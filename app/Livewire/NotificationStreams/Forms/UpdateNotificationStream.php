@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\NotificationStreams\Forms;
 
+use App\Livewire\NotificationStreams\Forms\Traits\LogsJsErrors;
 use App\Models\NotificationStream;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,7 @@ use Masmerise\Toaster\Toaster;
 class UpdateNotificationStream extends Component
 {
     use AuthorizesRequests;
-
+    use LogsJsErrors;
     /** @var NotificationStream The notification stream being updated */
     public NotificationStream $notificationStream;
 
