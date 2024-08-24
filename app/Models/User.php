@@ -318,6 +318,30 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     }
 
     /**
+     *  Returns whether the user's account has been disabled.
+     */
+    public function hasDisabledAccount(): bool
+    {
+        return $this->account_disabled_at !== null;
+    }
+
+    /**
+     *  It disables the user's account.
+     */
+    public function disableUserAccount(): bool
+    {
+        if ($this->hasDisabledAccount()) {
+            return false;
+        }
+
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        return $this->forceFill(['account_disabled_at' => now()])->save();
+    }
+
+    /**
      * Get the casts array.
      *
      * @return array<string, string>
@@ -330,6 +354,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'weekly_summary_opt_in_at' => 'datetime',
             'last_two_factor_at' => 'datetime',
             'quiet_until' => 'datetime',
+            'account_disabled_at' => 'datetime',
         ];
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckAccountState;
 use App\Http\Middleware\CustomCheckForAnyAbility;
 use App\Http\Middleware\EnforceTwoFactor;
 use App\Http\Middleware\UserLanguage;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'abilities' => CheckAbilities::class,
             'ability' => CustomCheckForAnyAbility::class,
             'two-factor' => EnforceTwoFactor::class,
+            'account-disabled' => CheckAccountState::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
