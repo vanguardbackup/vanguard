@@ -72,6 +72,8 @@ class TogglePauseButton extends Component
         return [
             "task-button-clicked-{$taskId}" => 'refreshSelf',
             "echo-private:backup-tasks.{$taskId},BackupTaskStatusChanged" => 'refreshSelf',
+            'backup-task-status-changed' => 'refreshSelf',
+            'refresh-backup-tasks-table' => 'refreshSelf',
         ];
     }
 
@@ -89,7 +91,7 @@ class TogglePauseButton extends Component
      * Execute the state toggle action.
      *
      * Determines the current state and calls the appropriate method to change it.
-     * Dispatches an event after the state change.
+     * Dispatches events after the state change.
      */
     private function executeStateToggle(): void
     {
@@ -100,6 +102,8 @@ class TogglePauseButton extends Component
         $toggleAction();
 
         $this->dispatch('toggle-pause-button-clicked-' . $this->backupTask->getAttribute('id'));
+        $this->dispatch('backup-task-status-changed', ['taskId' => $this->backupTask->getAttribute('id')]);
+        $this->dispatch('refresh-backup-tasks-table');
     }
 
     /**

@@ -1,5 +1,5 @@
 <div>
-    <x-modal name="copy-backup-task" :show="$errors->isNotEmpty()" focusable>
+    <x-modal name="copy-backup-task" focusable>
         <x-slot name="title">
             {{ __('Copy Backup Task') }}
         </x-slot>
@@ -83,7 +83,7 @@
                         </x-primary-button>
                     </div>
                     <div class="w-2/6 ml-2">
-                        <x-secondary-button type="button" class="mt-4" centered x-on:click="$dispatch('close')">
+                        <x-secondary-button type="button" class="mt-4" centered x-on:click="$dispatch('close-modal', 'copy-backup-task')">
                             {{ __('Cancel') }}
                         </x-secondary-button>
                     </div>

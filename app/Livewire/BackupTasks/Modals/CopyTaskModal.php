@@ -26,11 +26,15 @@ class CopyTaskModal extends Component
 
     public function mount(): void
     {
-        $user = Auth::user();
-        $this->backupTasks = $user instanceof User ? $user->getAttribute('backupTasks') : new Collection;
+        $this->resetModal();
     }
 
     #[On('open-modal.copy-backup-task')]
+    public function openModal(): void
+    {
+        $this->resetModal();
+    }
+
     public function resetModal(): void
     {
         $this->reset(['backupTaskToCopyId', 'optionalNewLabel', 'frequency', 'timeToRun']);

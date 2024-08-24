@@ -75,6 +75,15 @@ class BackupTaskHistoryTable extends Component
     }
 
     /**
+     * Refresh the component data.
+     */
+    public function refreshData(): void
+    {
+        $this->resetPage();
+        $this->dispatch('$refresh');
+    }
+
+    /**
      * Render the backup task history table.
      */
     public function render(): View
@@ -92,7 +101,8 @@ class BackupTaskHistoryTable extends Component
     protected function getListeners(): array
     {
         return [
-            'refreshBackupTaskHistory' => '$refresh',
+            'refreshBackupTaskHistory' => 'refreshData',
+            'backup-task-status-changed' => 'refreshData',
         ];
     }
 }

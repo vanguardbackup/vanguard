@@ -44,6 +44,7 @@ class IndexItem extends Component
         }
 
         $this->dispatch('backup-task-item-updated-' . $this->backupTask->getAttribute('id'));
+        $this->dispatch('backup-task-status-changed', ['taskId' => $this->backupTask->getAttribute('id')]);
     }
 
     /**
@@ -57,9 +58,8 @@ class IndexItem extends Component
 
         $this->dispatch('$refresh');
         $this->dispatch('update-run-button-' . $this->backupTask->getAttribute('id'));
-
         $this->dispatch('refresh-backup-tasks-table');
-        $this->dispatch('refreshBackupTaskHistory');
+        $this->dispatch('backup-task-status-changed', ['taskId' => $this->backupTask->getAttribute('id')]);
     }
 
     /**
@@ -102,10 +102,10 @@ class IndexItem extends Component
         return [
             sprintf('echo-private:new-backup-task-log.%s,CreatedBackupTaskLog', $this->backupTask->getAttribute('id')) => 'echoBackupTaskLogCreatedEvent',
             sprintf('echo-private:backup-tasks.%s,BackupTaskStatusChanged', $this->backupTask->getAttribute('id')) => 'echoBackupTaskStatusReceivedEvent',
-
             'task-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
-            'pause-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
+            'toggle-pause-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
             'log-modal-updated-' . $this->backupTask->getAttribute('id') => '$refresh',
+            'backup-task-status-changed' => '$refresh',
         ];
     }
 }

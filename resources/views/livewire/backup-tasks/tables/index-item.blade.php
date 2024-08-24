@@ -117,7 +117,8 @@
 
             <!-- Actions - Always visible, but reorganized for responsive view -->
             <div class="flex flex-wrap justify-start space-x-2 mt-3">
-                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask
+                                                               :wire:key="'run-task-button-' . $backupTask->id"/>
 
                 <x-secondary-button
                     x-data=""
@@ -132,7 +133,7 @@
 
                 <livewire:backup-tasks.buttons.toggle-pause-button
                     :backupTask="$backupTask"
-                    :key="'toggle-pause-button-' . $backupTask->id"
+                    :wire:key="'toggle-pause-button-' . $backupTask->id"
                 />
 
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
@@ -247,7 +248,8 @@
 
             <!-- Actions -->
             <div class="col-span-12 md:col-span-2 flex justify-end space-x-2">
-                <livewire:backup-tasks.buttons.run-task-button :$backupTask :key="'run-task-button-' . $backupTask->id"/>
+                <livewire:backup-tasks.buttons.run-task-button :$backupTask
+                                                               :wire:key="'run-task-button-large-' . $backupTask->id"/>
 
                 <x-secondary-button
                     x-data=""
@@ -262,7 +264,7 @@
 
                 <livewire:backup-tasks.buttons.toggle-pause-button
                     :backupTask="$backupTask"
-                    :key="'toggle-pause-button-' . $backupTask->id"
+                    :wire:key="'toggle-pause-button-large-' . $backupTask->id"
                 />
 
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>

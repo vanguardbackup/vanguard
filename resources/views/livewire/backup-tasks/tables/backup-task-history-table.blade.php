@@ -17,7 +17,7 @@
                 </x-table.table-header>
                 <x-table.table-body>
                     @foreach ($backupTaskLogs as $backupTaskLog)
-                        <x-table.table-row>
+                        <x-table.table-row wire:key="log-{{ $backupTaskLog->id }}">
                             <div class="col-span-12 sm:col-span-2 flex flex-col sm:flex-row sm:items-center">
                                 <p class="font-medium text-gray-900 dark:text-gray-100">{{ $backupTaskLog->backupTask->label }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 sm:hidden">

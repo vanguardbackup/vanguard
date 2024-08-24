@@ -41,7 +41,7 @@ class RunTaskButton extends Component
         $this->backupTask->run();
 
         $this->dispatch('task-button-clicked-' . $this->backupTask->getAttribute('id'));
-
+        $this->dispatch('backup-task-status-changed', ['taskId' => $this->backupTask->getAttribute('id')]);
         $this->dispatch('refresh-backup-tasks-table');
 
         Toaster::success('Backup task is running.');
@@ -65,8 +65,9 @@ class RunTaskButton extends Component
         return [
             sprintf('echo-private:backup-tasks.%s,BackupTaskStatusChanged', $this->backupTask->getAttribute('id')) => 'refreshSelf',
             'update-run-button-' . $this->backupTask->getAttribute('id') => 'refreshSelf',
-            'pause-button-clicked-' . $this->backupTask->getAttribute('id') => 'refreshSelf',
-            'refresh-backup-tasks-table' => 'refreshSelf', // Refresh everything!
+            'toggle-pause-button-clicked-' . $this->backupTask->getAttribute('id') => 'refreshSelf',
+            'backup-task-status-changed' => 'refreshSelf',
+            'refresh-backup-tasks-table' => 'refreshSelf',
         ];
     }
 }
