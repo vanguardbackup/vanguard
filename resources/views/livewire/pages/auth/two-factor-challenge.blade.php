@@ -250,7 +250,7 @@ new #[Layout('layouts.minimal')] class extends Component {
                 </div>
             </form>
                 <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
-                    <p>Having trouble accessing your account? Please refer to our <a href="https://docs.vanguardbackup.com/two-factor-auth#emergency-measures" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">documentation on emergency measures</a> for assistance.</p>
+                    <p>Having trouble accessing your account? Please refer to our <a href="https://docs.vanguardbackup.com/two-factor-auth#emergency-measures" class="text-gray-950 dark:text-gray-300 font-medium underline transition-all duration-300 ease-in-out hover:text-gray-700 dark:hover:text-gray-100" target="_blank" rel="noopener noreferrer">documentation on emergency measures</a> for assistance.</p>
                 </div>
         </div>
     </div>
