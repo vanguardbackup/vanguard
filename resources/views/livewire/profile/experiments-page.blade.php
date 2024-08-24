@@ -1,7 +1,7 @@
 <div>
-    @section('title', __('Manage Experiments'))
+    @section('title', __('Experiments'))
     <x-slot name="header">
-        {{ __('Manage Experiments') }}
+        {{ __('Experiments') }}
     </x-slot>
     @livewire('profile.experiments-manager')
 </div>

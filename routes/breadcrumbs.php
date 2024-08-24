@@ -13,12 +13,12 @@ Breadcrumbs::for('overview', function (BreadcrumbTrail $trail) {
 });
 
 Breadcrumbs::for('profile', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Profile'), route('profile'));
+    $trail->push(__('My Profile'), route('profile'));
 });
 
 Breadcrumbs::for('account.remove-account', function (BreadcrumbTrail $trail) {
     $trail->parent('profile');
-    $trail->push(__('Remove Account'), route('account.remove-account'));
+    $trail->push(__('Delete Account'), route('account.remove-account'));
 });
 
 Breadcrumbs::for('backup-tasks.index', function (BreadcrumbTrail $trail) {
@@ -64,7 +64,8 @@ Breadcrumbs::for('remote-servers.edit', function (BreadcrumbTrail $trail, $remot
 });
 
 Breadcrumbs::for('tags.index', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Tags'), route('tags.index'));
+    $trail->parent('profile');
+    $trail->push(__('Manage Tags'), route('tags.index'));
 });
 
 Breadcrumbs::for('tags.create', function (BreadcrumbTrail $trail) {
@@ -78,6 +79,7 @@ Breadcrumbs::for('tags.edit', function (BreadcrumbTrail $trail, $tag) {
 });
 
 Breadcrumbs::for('notification-streams.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('profile');
     $trail->push(__('Notification Streams'), route('notification-streams.index'));
 });
 
@@ -96,29 +98,36 @@ Breadcrumbs::for('statistics', function (BreadcrumbTrail $trail) {
 });
 
 Breadcrumbs::for('profile.api', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Manage API Tokens'), route('profile.api'));
+    $trail->parent('profile');
+    $trail->push(__('API Tokens'), route('profile.api'));
 });
 
 Breadcrumbs::for('profile.mfa', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Multi-Factor Authentication (2FA)'), route('profile.mfa'));
+    $trail->parent('profile');
+    $trail->push(__('Two-Factor Authentication'), route('profile.mfa'));
 });
 
 Breadcrumbs::for('profile.sessions', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Manage Sessions'), route('profile.sessions'));
+    $trail->parent('profile');
+    $trail->push(__('Active Sessions'), route('profile.sessions'));
 });
 
 Breadcrumbs::for('profile.experiments', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Manage Experiments'), route('profile.experiments'));
+    $trail->parent('profile');
+    $trail->push(__('Experiments'), route('profile.experiments'));
 });
 
 Breadcrumbs::for('profile.quiet-mode', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Manage Quiet Mode'), route('profile.quiet-mode'));
+    $trail->parent('profile');
+    $trail->push(__('Quiet Mode'), route('profile.quiet-mode'));
 });
 
 Breadcrumbs::for('profile.connections', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Manage Connections'), route('profile.connections'));
+    $trail->parent('profile');
+    $trail->push(__('Connections'), route('profile.connections'));
 });
 
 Breadcrumbs::for('profile.help', function (BreadcrumbTrail $trail) {
-    $trail->push(__('Need Help?'), route('profile.help'));
+    $trail->parent('profile');
+    $trail->push(__('Get Help'), route('profile.help'));
 });

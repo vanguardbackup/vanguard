@@ -146,7 +146,7 @@ new class extends Component
                 @if ($hasPassword)
                     <div class="flex justify-end items-center">
                         <x-danger-button wire:click="proceedToEligibilityCheck" type="button">
-                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2')
+                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2 inline')
                             {{ __('Proceed to Eligibility Check') }}
                         </x-danger-button>
                     </div>

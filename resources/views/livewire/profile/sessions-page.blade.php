@@ -1,7 +1,7 @@
 <div>
-    @section('title', __('Manage Sessions'))
+    @section('title', __('Active Sessions'))
     <x-slot name="header">
-        {{ __(' Manage Sessions') }}
+        {{ __(' Active Sessions') }}
     </x-slot>
     @livewire('profile.session-manager')
 </div>

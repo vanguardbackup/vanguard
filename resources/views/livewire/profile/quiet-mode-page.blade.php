@@ -1,7 +1,7 @@
 <div>
-    @section('title', __('Manage Quiet Mode'))
+    @section('title', __('Quiet Mode'))
     <x-slot name="header">
-        {{ __(' Manage Quiet Mode') }}
+        {{ __('Quiet Mode') }}
     </x-slot>
     @livewire('profile.quiet-mode-manager')
 </div>

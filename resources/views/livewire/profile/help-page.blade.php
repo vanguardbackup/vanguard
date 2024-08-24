@@ -1,8 +1,8 @@
 <div>
-    @section('title', __('Need Help?'))
+    @section('title', __('Get Help'))
 
     <x-slot name="header">
-        {{ __('Need Help?') }}
+        {{ __('Get Help') }}
     </x-slot>
 
     <x-form-wrapper>
@@ -11,7 +11,7 @@
         </x-slot>
 
         <x-slot name="title">
-            {{ __('Need Help?') }}
+            {{ __('Get Help') }}
         </x-slot>
 
         <x-slot name="description">

@@ -206,10 +206,10 @@ new class extends Component
 }?>
 <x-form-wrapper>
     <x-slot name="title">
-        {{ __('Your Profile') }}
+        {{ __('My Profile') }}
     </x-slot>
     <x-slot name="description">
-        {{ __('Update your profile details.') }}
+        {{ __('Customize your account information and preferences.') }}
     </x-slot>
     <x-slot name="icon">
         heroicon-o-user

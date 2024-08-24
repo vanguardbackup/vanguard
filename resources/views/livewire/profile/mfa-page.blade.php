@@ -1,7 +1,7 @@
 <div>
-    @section('title', __('Multi-Factor Authentication (2FA)'))
+    @section('title', __('Two-Factor Authentication'))
     <x-slot name="header">
-        {{ __(' Multi-Factor Authentication (2FA)') }}
+        {{ __('Two-Factor Authentication') }}
     </x-slot>
     @livewire('profile.multi-factor-authentication-manager')
 </div>

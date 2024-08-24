@@ -89,7 +89,7 @@ new class extends Component
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile')" wire:navigate>
-                                <x-heroicon-o-user-circle class="w-5 h-5 mr-2 inline" />
+                                <x-heroicon-o-user class="w-5 h-5 mr-2 inline" />
                                 {{ __('My Profile') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
@@ -205,8 +205,8 @@ new class extends Component
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                    <x-heroicon-o-user-circle class="w-5 h-5 mr-2 inline" />
-                    {{ __('Profile') }}
+                    <x-heroicon-o-user class="w-5 h-5 mr-2 inline" />
+                    {{ __('My Profile') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('tags.index')" wire:navigate>
                     <x-heroicon-o-tag class="w-5 h-5 mr-2 inline" />

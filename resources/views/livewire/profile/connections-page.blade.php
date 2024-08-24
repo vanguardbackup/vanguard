@@ -1,13 +1,13 @@
 <div>
-    @section('title', __('Manage Connections'))
+    @section('title', __('Connections'))
     <x-slot name="header">
-        {{ __('Manage Connections') }}
+        {{ __('Connections') }}
     </x-slot>
 
     <x-form-wrapper>
         <x-slot name="title">{{ __('External Service Connections') }}</x-slot>
         <x-slot name="description">
-            {{ __('Connect your account to external services for enhanced functionality and seamless integration.') }}
+            {{ __('Link accounts for expanded features.') }}
         </x-slot>
         <x-slot name="icon">heroicon-o-puzzle-piece</x-slot>
 

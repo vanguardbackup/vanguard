@@ -293,7 +293,7 @@ new class extends Component {
         </x-no-content>
     @elseif ($currentView === 'list')
         <x-form-wrapper>
-            <x-slot name="title">{{ __('Feature Experiments') }}</x-slot>
+            <x-slot name="title">{{ __('Experiments') }}</x-slot>
             <x-slot name="description">
                 {{ __('Explore and manage experimental features for your account.') }}
             </x-slot>

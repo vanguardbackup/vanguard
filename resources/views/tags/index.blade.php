@@ -1,4 +1,4 @@
-<x-account-wrapper pageTitle="{{ __('Tags') }}">
+<x-account-wrapper pageTitle="{{ __('Manage Tags') }}">
     <x-slot name="action">
         @if (!Auth::user()->tags->isEmpty())
             <a href="{{ route('tags.create') }}" wire:navigate class="w-full sm:w-auto">
