@@ -7,15 +7,14 @@
         </div>
 
         @if (!ssh_keys_exist())
-            <div class="bg-yellow-50 dark:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-8 text-center">
-                <div class="flex items-center justify-center text-yellow-800 dark:text-yellow-200">
-                    @svg('hugeicons-alert-02', 'h-5 w-5 mr-2')
-                    <span class="font-medium">{{ __('SSH Keys Required') }}</span>
-                </div>
-                <p class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                    {{ __('Please generate SSH keys before proceeding with the first step.') }}
-                </p>
-            </div>
+            <x-notice
+                type="warning"
+                title="{{ __('SSH Keys Required') }}"
+                text="{{ __('Please generate SSH keys before proceeding with the first step.') }}"
+                class="mb-8"
+                centered
+            >
+            </x-notice>
         @endif
 
         <div class="grid md:grid-cols-3 gap-8">

@@ -612,27 +612,12 @@ new class extends Component {
                 </div>
             @endif
 
-            <div x-show="showNeverExpirationWarning"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 class="rounded-md p-4 bg-yellow-50 dark:bg-yellow-900">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        @svg('hugeicons-alert-02', 'h-5 w-5 text-yellow-400 dark:text-yellow-300')
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-100">
-                            {{ __('Warning: Token Never Expires') }}
-                        </h3>
-                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-200">
-                            <p>
-                                {{ __('Creating a token that never expires can be a security risk. Only use this option if absolutely necessary.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-notice
+                type="warning"
+                title="{{ __('Warning: Token Never Expires') }}"
+                text="{{ __('Creating a token that never expires can be a security risk. Only use this option if absolutely necessary.') }}"
+                showIf="showNeverExpirationWarning">
+            </x-notice>
 
             <!-- Token Abilities -->
             <div>
@@ -646,27 +631,13 @@ new class extends Component {
                     </x-secondary-button>
                 </div>
                 @if (!$this->hasSelectedAbilities)
-                    <div x-show="showAbilitySelectionWarning"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform scale-95"
-                         x-transition:enter-end="opacity-100 transform scale-100"
-                         class="rounded-md p-4 bg-red-50 dark:bg-red-900 mb-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                @svg('hugeicons-alert-02', 'h-5 w-5 text-red-400 dark:text-red-300')
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800 dark:text-red-100">
-                                    {{ __('Warning!') }}
-                                </h3>
-                                <div class="mt-2 text-sm text-red-700 dark:text-red-200">
-                                    <p>
-                                        {{ __('At least one ability must be selected.') }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <x-notice
+                        type="error"
+                        title="{{ __('Warning!') }}"
+                        text="{{ __('At least one ability must be selected.') }}"
+                        class="mb-4"
+                    >
+                    </x-notice>
                 @endif
                 <div class="space-y-4">
                     @foreach ($this->availableAbilities as $group => $groupAbilities)
@@ -749,9 +720,14 @@ new class extends Component {
 
             @isset($token)
                 @if ($token->isMobileToken())
-                    <p class="bg-yellow-100 dark:bg-yellow-800 p-3 rounded-md">
-                        <strong>{{ __('Mobile Token Alert:') }}</strong> {{ __('This token is associated with a mobile device. Revoking it will log you out of the mobile application. You will need to log in again on your mobile device to regain access.') }}
-                    </p>
+                    <x-notice
+                        type="warning"
+                        title="{{ __('Mobile Token Alert:') }}"
+                    >
+                        <p>
+                            {{ __('This token is associated with a mobile device. Revoking it will log you out of the mobile application. You will need to log in again on your mobile device to regain access.') }}
+                        </p>
+                    </x-notice>
                 @endif
                 <p>
                     {{ __('Token Details:') }}

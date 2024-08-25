@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-200 dark:border-gray-700">
+        <div class="border-t border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
             @endif
 
             <div class="{{ isset($title) ? 'px-6 py-4' : 'p-6' }}">

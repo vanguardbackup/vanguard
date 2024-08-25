@@ -299,30 +299,6 @@ new class extends Component {
             </x-slot>
             <x-slot name="icon">hugeicons-test-tube-01</x-slot>
 
-            <div class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-sm">
-                <div class="flex items-center mb-4">
-                    @svg('hugeicons-idea-01', 'w-8 h-8 text-blue-500 mr-3')
-                    <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('About Feature Experiments') }}</h3>
-                </div>
-                <p class="text-blue-700 dark:text-blue-300 mb-4">
-                    {{ __('Feature experiments allow us to introduce new functionalities and improvements in a controlled manner. By participating, you help shape the future of our product and enjoy early access to new features.') }}
-                </p>
-                <ul class="space-y-3">
-                    <li class="flex items-start">
-                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                        <span class="text-blue-700 dark:text-blue-300">{{ __('Access new features before wide release') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                        <span class="text-blue-700 dark:text-blue-300">{{ __('Provide valuable insights to enhance functionality') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
-                        <span class="text-blue-700 dark:text-blue-300">{{ __('Tailor your experience by managing experiment participation') }}</span>
-                    </li>
-                </ul>
-            </div>
-
             <div class="space-y-6">
                 @foreach ($this->experiments->groupBy('group') as $group => $groupExperiments)
                     <div class="mb-6">

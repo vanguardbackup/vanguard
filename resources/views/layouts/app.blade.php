@@ -104,103 +104,69 @@
     </main>
 </div>
 <x-toaster-hub/>
-<footer class="relative py-8 sm:py-12 text-sm sm:text-base bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300">
-    <div class="absolute top-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-800"></div>
+<footer class="relative py-12 sm:py-16 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-300">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             <div class="text-center sm:text-left">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ config('app.name') }}</h2>
-                <p class="mb-2 text-gray-600 dark:text-gray-400">{{ __('Version :version', ['version' => obtain_vanguard_version()]) }}</p>
-                <div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-2">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{{ config('app.name') }}</h2>
+                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {{ __('Version :version', ['version' => obtain_vanguard_version()]) }}
+                </p>
+                <div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-4">
                     @if (config('app.env') === 'local')
-                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full dark:text-purple-300 dark:bg-purple-900">
-                            @svg('hugeicons-laptop', ['class' => 'h-3 w-3 mr-1'])
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-100 rounded-full shadow-sm ring-1 ring-indigo-500/20 dark:bg-indigo-900/40 dark:text-indigo-300 dark:ring-indigo-400/30">
+                            @svg('hugeicons-laptop', ['class' => 'h-3.5 w-3.5 mr-1.5 text-indigo-500 dark:text-indigo-400'])
                             {{ __('Local') }}
                         </span>
                     @endif
                     @if (config('app.debug'))
-                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full dark:text-red-300 dark:bg-red-900">
-                            @svg('hugeicons-bug-01', ['class' => 'h-3 w-3 mr-1'])
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-semibold text-rose-700 bg-rose-100 rounded-full shadow-sm ring-1 ring-rose-500/20 dark:bg-rose-900/40 dark:text-rose-300 dark:ring-rose-400/30">
+                            @svg('hugeicons-bug-01', ['class' => 'h-3.5 w-3.5 mr-1.5 text-rose-500 dark:text-rose-400'])
                             {{ __('Debug') }}
                         </span>
                     @endif
                 </div>
             </div>
-            <div class="text-center sm:text-left">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Account') }}</h2>
-                <ul class="space-y-2">
-                    <li>
-                        <a href="{{ route('profile') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-user', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('My Profile') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('notification-streams.index') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-notification-01', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Notifications') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('statistics') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-analytics-01', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Statistics') }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="text-center sm:text-left">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Resources') }}</h2>
-                <ul class="space-y-2">
-                    <li>
-                        <a href="https://docs.vanguardbackup.com" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-notebook', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Documentation') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/vanguardbackup/vanguard" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-github', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('GitHub') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('profile.help') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-mentoring', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Help Center') }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="text-center sm:text-left">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('Community') }}</h2>
-                <ul class="space-y-2">
-                    <li>
-                        <a href="https://github.com/vanguardbackup/vanguard/discussions" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-chatting-01', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Discussions') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/vanguardbackup/vanguard/issues" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-bug-01', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Report an Issue') }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/vanguardbackup/vanguard/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('hugeicons-agreement-01', ['class' => 'h-5 w-5 mr-2'])
-                            {{ __('Contribute') }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            @foreach ([
+                'Account' => [
+                    ['route' => 'profile', 'icon' => 'hugeicons-user', 'label' => __('My Profile')],
+                    ['route' => 'notification-streams.index', 'icon' => 'hugeicons-notification-02', 'label' => __('Notifications')],
+                    ['route' => 'statistics', 'icon' => 'hugeicons-analytics-01', 'label' => __('Statistics')],
+                ],
+                'Resources' => [
+                    ['url' => 'https://docs.vanguardbackup.com', 'icon' => 'hugeicons-book-02', 'label' => __('Documentation')],
+                    ['url' => 'https://github.com/vanguardbackup/vanguard', 'icon' => 'hugeicons-github', 'label' => __('GitHub')],
+                    ['route' => 'profile.help', 'icon' => 'hugeicons-mentoring', 'label' => __('Help Center')],
+                ],
+                'Community' => [
+                    ['url' => 'https://github.com/vanguardbackup/vanguard/discussions', 'icon' => 'hugeicons-chatting-01', 'label' => __('Discussions')],
+                    ['url' => 'https://github.com/vanguardbackup/vanguard/issues', 'icon' => 'hugeicons-bug-01', 'label' => __('Report an Issue')],
+                    ['url' => 'https://github.com/vanguardbackup/vanguard/blob/main/CONTRIBUTING.md', 'icon' => 'hugeicons-agreement-01', 'label' => __('Contribute')],
+                ],
+            ] as $title => $links)
+                <div class="text-center sm:text-left">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __($title) }}</h2>
+                    <ul class="space-y-3">
+                        @foreach ($links as $link)
+                            <li>
+                                <a href="{{ isset($link['route']) ? route($link['route']) : $link['url'] }}"
+                                   @if (isset($link['url'])) target="_blank" rel="noopener noreferrer" @endif
+                                   class="group text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
+                                    @svg($link['icon'], ['class' => 'h-5 w-5 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors duration-150 ease-in-out'])
+                                    <span class="group-hover:underline">{{ $link['label'] }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
         </div>
         <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-sm">
             <p class="text-gray-500 dark:text-gray-400">
                 &copy; {{ date('Y') }} {{ config('app.name') }}.
                 {{ __('This software is open source and available under the') }}
-                <a href="https://opensource.org/licenses/agpl-v3" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300" target="_blank" rel="noopener noreferrer">{{ __('AGPLv3 License') }}</a>.
+                <a href="https://opensource.org/licenses/agpl-v3" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 hover:underline" target="_blank" rel="noopener noreferrer">{{ __('AGPLv3 License') }}</a>.
             </p>
         </div>
     </div>

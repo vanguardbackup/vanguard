@@ -120,27 +120,26 @@ new class extends Component
                 </x-slot>
                 <x-slot name="icon">hugeicons-user-remove-01</x-slot>
 
-                <div class="mb-8 p-6 bg-red-50 dark:bg-red-950 rounded-lg">
-                    <div class="flex items-center mb-4">
-                        @svg('hugeicons-alert-circle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
-                        <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Warning: Irreversible Action') }}</h3>
+                <div class="mb-8 p-6">
+                    <div class="space-y-3">
+                        <p>
+                            {{ __('We want to ensure you fully understand the implications of deleting your account. This action is permanent and irreversible, affecting all aspects of your Vanguard experience.') }}
+                        </p>
+                        <p>
+                            {{ __('Once you proceed, all your personal information will be permanently erased from our systems. This includes any backup tasks you\'ve set up, remote servers you\'ve connected, and backup destinations you\'ve configured.') }}
+                        </p>
+                        <p>
+                            {{ __('You\'ll no longer have access to any services or features associated with your Vanguard account. It\'s important to note that we won\'t be able to recover this information once it\'s gone.') }}
+                        </p>
                     </div>
-                    <p class="text-red-700 dark:text-red-300 mb-4">
-                        {{ __('Deleting your account is a permanent action. Please consider the following consequences:') }}
-                    </p>
-                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-2">
-                        <li>{{ __('All your personal information will be permanently removed') }}</li>
-                        <li>{{ __('Your backup tasks, remote servers, and backup destinations will be deleted') }}</li>
-                        <li>{{ __('You will lose access to all services associated with this account') }}</li>
-                        <li>{{ __('This action cannot be undone') }}</li>
-                    </ul>
                 </div>
 
                 @if (!$hasPassword)
-                    <div class="mb-8 p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-lg">
-                        @svg('hugeicons-alert-02', 'w-6 h-6 inline-block mr-2')
-                        {{ __('You need to set a password before you can delete your account. Please request a password reset.') }}
-                    </div>
+                    <x-notice
+                        type="info"
+                        title="{{ __('Account Deletion Requires Password') }}"
+                        text="{{ __('You need to set a password before you can delete your account. Please request a password reset.') }}"
+                    />
                 @endif
 
                 @if ($hasPassword)

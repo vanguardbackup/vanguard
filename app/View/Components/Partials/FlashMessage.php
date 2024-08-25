@@ -42,39 +42,39 @@ class FlashMessage extends Component
     public function alertClasses(): string
     {
         return match ($this->type) {
-            'success' => 'border-green-500 text-green-800',
-            'error' => 'border-red-500 text-red-800',
-            'warning' => 'border-yellow-500 text-yellow-800',
-            'info' => 'border-blue-500 text-blue-800',
-            default => 'border-gray-500 text-gray-800',
+            'success' => 'text-emerald-900 dark:text-emerald-100',
+            'error' => 'text-rose-900 dark:text-rose-100',
+            'warning' => 'text-amber-900 dark:text-amber-100',
+            'info' => 'text-sky-900 dark:text-sky-100',
+            default => 'text-gray-900 dark:text-gray-100',
         };
     }
 
     /**
-     * Get the starting color for the gradient based on the message type.
+     * Get the background color class based on the message type.
      */
-    public function gradientStart(): string
+    public function bgClass(): string
     {
         return match ($this->type) {
-            'success' => '#f0fdf4',
-            'error' => '#fef2f2',
-            'warning' => '#fffbeb',
-            'info' => '#eff6ff',
-            default => '#f9fafb',
+            'success' => 'bg-emerald-50 dark:bg-emerald-900/30',
+            'error' => 'bg-rose-50 dark:bg-rose-900/30',
+            'warning' => 'bg-amber-50 dark:bg-amber-900/30',
+            'info' => 'bg-sky-50 dark:bg-sky-900/30',
+            default => 'bg-gray-50 dark:bg-gray-900/30',
         };
     }
 
     /**
-     * Get the ending color for the gradient based on the message type.
+     * Get the icon color class based on the message type.
      */
-    public function gradientEnd(): string
+    public function iconColorClass(): string
     {
         return match ($this->type) {
-            'success' => '#dcfce7',
-            'error' => '#fee2e2',
-            'warning' => '#fef3c7',
-            'info' => '#dbeafe',
-            default => '#f3f4f6',
+            'success' => 'text-emerald-500 dark:text-emerald-400',
+            'error' => 'text-rose-500 dark:text-rose-400',
+            'warning' => 'text-amber-500 dark:text-amber-400',
+            'info' => 'text-sky-500 dark:text-sky-400',
+            default => 'text-gray-500 dark:text-gray-400',
         };
     }
 
@@ -84,11 +84,11 @@ class FlashMessage extends Component
     public function buttonClasses(): string
     {
         return match ($this->type) {
-            'success' => 'hover:bg-green-200 focus:ring-green-400',
-            'error' => 'hover:bg-red-200 focus:ring-red-400',
-            'warning' => 'hover:bg-yellow-200 focus:ring-yellow-400',
-            'info' => 'hover:bg-blue-200 focus:ring-blue-400',
-            default => 'hover:bg-gray-200 focus:ring-gray-400',
+            'success' => 'hover:bg-emerald-100 dark:hover:bg-emerald-800 focus:ring-emerald-400',
+            'error' => 'hover:bg-rose-100 dark:hover:bg-rose-800 focus:ring-rose-400',
+            'warning' => 'hover:bg-amber-100 dark:hover:bg-amber-800 focus:ring-amber-400',
+            'info' => 'hover:bg-sky-100 dark:hover:bg-sky-800 focus:ring-sky-400',
+            default => 'hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-400',
         };
     }
 
