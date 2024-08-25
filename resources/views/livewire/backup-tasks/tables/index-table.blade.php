@@ -3,7 +3,7 @@
         @if ($backupTasks->isEmpty())
             <x-no-content withBackground>
                 <x-slot name="icon">
-                    @svg('heroicon-o-cloud-arrow-up', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                    @svg('hugeicons-archive-02', 'h-16 w-16 text-primary-900 dark:text-white inline')
                 </x-slot>
                 <x-slot name="title">
                     {{ __("You don't have any backup tasks!") }}
@@ -24,7 +24,7 @@
                 title="{{ __('Backup Tasks') }}"
                 description="{{ __('An overview of all configured backup tasks along with their current statuses.') }}">
                 <x-slot name="icon">
-                    <x-heroicon-o-archive-box class="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                    <x-hugeicons-archive-02 class="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 </x-slot>
                 <x-table.table-header>
                     <div class="col-span-12 md:col-span-3">{{ __('Task') }}</div>

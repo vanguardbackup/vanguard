@@ -12,7 +12,7 @@
                                     class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 dark:from-purple-600 dark:to-purple-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
                                 <div
                                     class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
-                                    @svg('heroicon-o-document-duplicate', 'h-5 w-5 text-purple-600
+                                    @svg('hugeicons-file-01', 'h-5 w-5 text-purple-600
                                     dark:text-purple-400')
                                 </div>
                             </div>
@@ -22,7 +22,7 @@
                                     class="absolute inset-0 bg-gradient-to-br from-cyan-300 to-cyan-400 dark:from-cyan-600 dark:to-cyan-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
                                 <div
                                     class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
-                                    @svg('heroicon-o-circle-stack', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
+                                    @svg('hugeicons-database', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
                                 </div>
                             </div>
                         @endif
@@ -35,7 +35,7 @@
                                      x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
                                     <span
                                         class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                        @svg('heroicon-o-tag', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                                        @svg('hugeicons-tags', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
                                         {{ $backupTask->tags->count() }}
                                     </span>
                                 </div>
@@ -46,7 +46,7 @@
                                      x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
                                         <span
                                             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                            @svg('heroicon-o-bell', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                                            @svg('hugeicons-notifications-01', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
                                             {{ $backupTask->notificationStreams->count() }}
                                         </span>
                                 </div>
@@ -58,16 +58,16 @@
                     @if ($backupTask->isPaused())
                         <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
-                            @svg('heroicon-o-pause', 'h-3.5 w-3.5 mr-1')
+                            @svg('hugeicons-pause', 'h-3.5 w-3.5 mr-1')
                             {{ __('Paused') }}
                         </span>
                     @else
                         <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
                             @if ($backupTask->status === 'ready')
-                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 mr-1')
+                                @svg('hugeicons-checkmark-circle-02', 'h-3.5 w-3.5 mr-1')
                             @else
-                                @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1 animate-spin')
+                                @svg('hugeicons-refresh', 'h-3.5 w-3.5 mr-1 animate-spin')
                             @endif
                             {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
                         </span>
@@ -81,10 +81,10 @@
                         class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none">
                     {{ __('Details') }}
                     <span x-show="!open">
-                        @svg('heroicon-o-chevron-down', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
+                        @svg('hugeicons-arrow-down-01', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
                     </span>
                     <span x-show="open">
-                         @svg('heroicon-o-chevron-up', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
+                         @svg('hugeicons-arrow-up-01', ['class' => 'h-4 w-4 text-gray-900 dark:text-gray-50 inline'])
                     </span>
                 </button>
                 <div x-show="open" class="mt-2 space-y-2 text-sm">
@@ -127,7 +127,7 @@
                     :disabled="!$backupTask->logs()->exists()"
                     :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
                 >
-                    @svg('heroicon-o-document-text', 'h-4 w-4')
+                    @svg('hugeicons-license', 'h-4 w-4')
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
 
@@ -139,7 +139,7 @@
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
                     <x-secondary-button class="!p-2">
                         <span class="sr-only">{{ __('Update Backup Task') }}</span>
-                        <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                        <x-hugeicons-task-edit-01 class="w-4 h-4"/>
                     </x-secondary-button>
                 </a>
             </div>
@@ -156,7 +156,8 @@
                                 class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 dark:from-purple-600 dark:to-purple-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
                             <div
                                 class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
-                                @svg('heroicon-o-document-duplicate', 'h-5 w-5 text-purple-600 dark:text-purple-400')
+                                @svg('hugeicons-file-01', 'h-5 w-5 text-purple-600
+                                dark:text-purple-400')
                             </div>
                         </div>
                     @elseif ($backupTask->isDatabaseType())
@@ -165,7 +166,7 @@
                                 class="absolute inset-0 bg-gradient-to-br from-cyan-300 to-cyan-400 dark:from-cyan-600 dark:to-cyan-700 rounded-lg transform rotate-3 transition-all duration-300 group-hover:rotate-6 group-hover:scale-105"></div>
                             <div
                                 class="relative bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all duration-300 group-hover:shadow-md">
-                                @svg('heroicon-o-circle-stack', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
+                                @svg('hugeicons-database', 'h-5 w-5 text-cyan-600 dark:text-cyan-400')
                             </div>
                         </div>
                     @endif
@@ -178,7 +179,7 @@
                                  x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
             <span
                 class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                @svg('heroicon-o-tag', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                @svg('hugeicons-tags', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
                 {{ $backupTask->tags->count() }}
             </span>
                             </div>
@@ -189,7 +190,7 @@
                                  x-on:mouseenter="$dispatch('show-tags-tooltip', { id: {{ $backupTask->id }}, tags: '{{ $backupTask->listOfAttachedTagLabels() }}' })">
             <span
                 class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                @svg('heroicon-o-bell', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
+                @svg('hugeicons-notification-01', 'h-3 w-3 mr-1 text-gray-500 dark:text-gray-400')
                 {{ $backupTask->notificationStreams->count() }}
             </span>
                             </div>
@@ -210,16 +211,16 @@
                 @if ($backupTask->isPaused())
                     <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
-                        @svg('heroicon-o-pause', 'h-3.5 w-3.5 mr-1')
+                        @svg('hugeicons-pause', 'h-3.5 w-3.5 mr-1')
                         {{ __('Paused') }}
                     </span>
                 @else
                     <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTask->status === 'ready' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' }}">
                             @if ($backupTask->status === 'ready')
-                            @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 mr-1')
+                            @svg('hugeicons-checkmark-circle-02', 'h-3.5 w-3.5 mr-1')
                         @else
-                            @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 mr-1 animate-spin')
+                            @svg('hugeicons-refresh', 'h-3.5 w-3.5 mr-1 animate-spin')
                         @endif
                         {{ $backupTask->status === 'ready' ? __('Ready') : __('Running') }}
                         </span>
@@ -258,7 +259,7 @@
                     :disabled="!$backupTask->logs()->exists()"
                     :title="$backupTask->logs()->exists() ? __('Click to view this log') : __('No log available')"
                 >
-                    @svg('heroicon-o-document-text', 'h-4 w-4')
+                    @svg('hugeicons-license', 'h-4 w-4')
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
 
@@ -270,7 +271,7 @@
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
                     <x-secondary-button class="!p-2">
                         <span class="sr-only">{{ __('Update Backup Task') }}</span>
-                        <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                        <x-hugeicons-task-edit-01 class="w-4 h-4"/>
                     </x-secondary-button>
                 </a>
             </div>

@@ -5,7 +5,7 @@
                 title="{{ __('Previously Executed Backup Tasks') }}"
                 description="{{ __('View your log of previously executed backup tasks.') }}">
                 <x-slot name="icon">
-                    <x-heroicon-o-archive-box class="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                    <x-hugeicons-work-history class="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 </x-slot>
                 <x-table.table-header>
                     <div class="col-span-2">{{ __('Label') }}</div>
@@ -27,7 +27,7 @@
 
                             <div class="col-span-12 sm:col-span-2 mt-2 sm:mt-0">
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $backupTaskLog->backupTask->type === 'files' ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
-            @svg($backupTaskLog->backupTask->type === 'files' ? 'heroicon-o-document-duplicate' : 'heroicon-o-circle-stack', 'h-4 w-4 mr-1')
+            @svg($backupTaskLog->backupTask->type === 'files' ? 'hugeicons-file-01' : 'hugeicons-database', 'h-4 w-4 mr-1')
             {{ ucfirst($backupTaskLog->backupTask->type) }}
         </span>
                             </div>
@@ -39,7 +39,7 @@
 
                             <div class="col-span-12 sm:col-span-2 mt-2 sm:mt-0">
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ (bool) $backupTaskLog->successful_at ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' }}">
-            @svg((bool) $backupTaskLog->successful_at ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle', 'h-4 w-4 mr-1')
+            @svg((bool) $backupTaskLog->successful_at ? 'hugeicons-checkmark-circle-02' : 'hugeicons-cancel-circle', 'h-4 w-4 mr-1')
             {{ (bool) $backupTaskLog->successful_at ? __('Finished') : __('Failed') }}
         </span>
                             </div>
@@ -57,7 +57,7 @@
                                     iconOnly
                                     title="{{ __('Click to view this log') }}"
                                 >
-                                    @svg('heroicon-o-document-text', 'h-4 w-4')
+                                    @svg('hugeicons-license', 'h-4 w-4')
                                     <span class="sr-only">{{ __('View Log') }}</span>
                                 </x-secondary-button>
                                 <x-secondary-button
@@ -66,7 +66,7 @@
                                     iconOnly
                                     title="{{ __('Remove this log') }}"
                                 >
-                                    @svg('heroicon-o-trash', 'h-4 w-4')
+                                    @svg('hugeicons-delete-02', 'h-4 w-4')
                                     <span class="sr-only">{{ __('Remove Log') }}</span>
                                 </x-secondary-button>
                             </div>
@@ -80,7 +80,7 @@
                                     {{ __('This log was generated :date.', ['date' => $backupTaskLog->created_at->timezone(Auth::user()->timezone ?? config('app.timezone'))->format('l, d F Y H:i')]) }}
                                 </x-slot>
                                 <x-slot name="icon">
-                                    heroicon-o-document-text
+                                    hugeicons-license
                                 </x-slot>
                                 <div class="text-center">
                                     <div class="mb-5">

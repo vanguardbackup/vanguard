@@ -21,7 +21,7 @@
                 <div class="-mx-1.5 -my-1.5">
                     <button @click="show = false" type="button" class="inline-flex rounded-full p-1.5 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $buttonClasses() }}">
                         <span class="sr-only">Dismiss</span>
-                        @svg('heroicon-o-x-mark', 'h-5 w-5')
+                        @svg('hugeicons-cancel-01', 'h-5 w-5')
                     </button>
                 </div>
             </div>

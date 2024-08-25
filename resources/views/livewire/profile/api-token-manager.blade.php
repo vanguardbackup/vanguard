@@ -490,7 +490,7 @@ new class extends Component {
     @if ($this->tokens->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-code-bracket', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-ticket-02', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No API Tokens') }}
@@ -510,7 +510,7 @@ new class extends Component {
             title="{{ __('API Tokens') }}"
             description="{{ __('Manage your API tokens for third-party access to Vanguard.') }}">
             <x-slot name="icon">
-                <x-heroicon-o-code-bracket class="h-6 w-6 text-primary-600 dark:text-primary-400"/>
+                <x-hugeicons-ticket-02 class="h-6 w-6 text-primary-600 dark:text-primary-400"/>
             </x-slot>
             <x-slot name="actions">
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-api-token')">
@@ -531,7 +531,7 @@ new class extends Component {
                                 {{ $token->name }}
                                 @if ($token->isMobileToken())
                                     <span class="ml-2 relative group">
-                                        @svg('heroicon-s-device-phone-mobile', 'w-4 h-4 text-cyan-600 dark:text-cyan-400 inline-block', ['aria-label' => __('Mobile Token'),'role' => 'img',])
+                                        @svg('hugeicons-smart-phone-01', 'w-4 h-4 text-cyan-600 dark:text-cyan-400 inline-block', ['aria-label' => __('Mobile Token'),'role' => 'img',])
                                         <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 w-max bg-gray-900 px-2 py-1 text-sm text-gray-100 rounded opacity-0 transition-opacity group-hover:opacity-100">
                                             {{ __('Mobile Token') }}
                                         </span>
@@ -557,11 +557,11 @@ new class extends Component {
                         <div class="col-span-12 sm:col-span-3 flex justify-start sm:justify-center space-x-2">
                             <x-secondary-button wire:click="viewTokenAbilities({{ $token->id }})" iconOnly>
                                 <span class="sr-only">{{ __('View Abilities') }}</span>
-                                @svg('heroicon-s-eye', 'w-4 h-4')
+                                @svg('hugeicons-eye', 'w-4 h-4')
                             </x-secondary-button>
                             <x-danger-button wire:click="confirmApiTokenDeletion({{ $token->id }})" iconOnly>
                                 <span class="sr-only">{{ __('Delete Token') }}</span>
-                                @svg('heroicon-s-trash', 'w-4 h-4')
+                                @svg('hugeicons-delete-02', 'w-4 h-4')
                             </x-danger-button>
                         </div>
                     </x-table.table-row>
@@ -578,7 +578,7 @@ new class extends Component {
             {{ __('Generate a new API token with specific abilities and expiration.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-code-bracket
+            hugeicons-ticket-02
         </x-slot>
         <form wire:submit.prevent="createApiToken" class="space-y-6">
             <!-- Token Name -->
@@ -619,7 +619,7 @@ new class extends Component {
                  class="rounded-md p-4 bg-yellow-50 dark:bg-yellow-900">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        @svg('heroicon-s-exclamation-triangle', 'h-5 w-5 text-yellow-400 dark:text-yellow-300')
+                        @svg('hugeicons-alert-02', 'h-5 w-5 text-yellow-400 dark:text-yellow-300')
                     </div>
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-100">
@@ -653,7 +653,7 @@ new class extends Component {
                          class="rounded-md p-4 bg-red-50 dark:bg-red-900 mb-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                @svg('heroicon-s-exclamation-circle', 'h-5 w-5 text-red-400 dark:text-red-300')
+                                @svg('hugeicons-alert-02', 'h-5 w-5 text-red-400 dark:text-red-300')
                             </div>
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-red-800 dark:text-red-100">
@@ -676,9 +676,9 @@ new class extends Component {
                                 <span class="font-medium">{{ $group }}</span>
                                 <span class="float-right">
                                 @if ($this->expandedGroups[$group])
-                                        @svg('heroicon-s-chevron-up', 'w-5 h-5 inline')
+                                        @svg('hugeicons-arrow-up-01', 'w-5 h-5 inline')
                                     @else
-                                        @svg('heroicon-s-chevron-down', 'w-5 h-5 inline')
+                                        @svg('hugeicons-arrow-down-01', 'w-5 h-5 inline')
                                     @endif
                             </span>
                             </button>
@@ -734,7 +734,7 @@ new class extends Component {
         </x-slot>
 
         <x-slot name="icon">
-            heroicon-o-exclamation-triangle
+            hugeicons-alert-02
         </x-slot>
 
         <div class="space-y-4 text-gray-800 dark:text-gray-200">
@@ -796,7 +796,7 @@ new class extends Component {
                 {{ __('Your new API token has been generated. Please copy it now, as it won\'t be shown again.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-code-bracket
+                hugeicons-ticket-02
             </x-slot>
             <div class="space-y-4">
                 <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
@@ -822,7 +822,7 @@ new class extends Component {
                 {{ __('View the abilities assigned to this API token.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-code-bracket
+                hugeicons-ticket-02
             </x-slot>
             <div>
                 @if ($viewingTokenId)
@@ -851,9 +851,9 @@ new class extends Component {
                                         @foreach ($groupAbilities as $key => $ability)
                                             <li class="flex items-center space-x-2">
                                                 @if (in_array('*', $token->abilities, true) || in_array($key, $token->abilities, true))
-                                                    @svg('heroicon-s-check-circle', 'w-5 h-5 text-green-500 flex-shrink-0')
+                                                    @svg('hugeicons-checkmark-circle-02', 'w-5 h-5 text-green-500 flex-shrink-0')
                                                 @else
-                                                    @svg('heroicon-s-x-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
+                                                    @svg('hugeicons-cancel-circle', 'w-5 h-5 text-red-500 flex-shrink-0')
                                                 @endif
                                                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $ability['name'] }}</span>
                                             </li>

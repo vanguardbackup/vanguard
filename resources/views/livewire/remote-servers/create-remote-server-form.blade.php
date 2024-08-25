@@ -2,7 +2,7 @@
     @if (!ssh_keys_exist())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-exclamation-triangle', 'h-12 w-12 sm:h-16 sm:w-16 inline mr-1 text-red-600 dark:text-red-400')
+                @svg('hugeicons-alert-02', 'h-12 w-12 sm:h-16 sm:w-16 inline mr-1 text-red-600 dark:text-red-400')
             </x-slot>
             <x-slot name="title">
                 {{ __('Error! Unable to locate an SSH Key.') }}
@@ -27,7 +27,7 @@
                 {{ __('Create a new remote server.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-server-stack
+                hugeicons-cloud-server
             </x-slot>
             @if (!$showingConnectionView)
                 <form wire:submit="submit">
@@ -47,10 +47,10 @@
                                             :class="{ 'bg-green-100 dark:bg-green-800': copied }"
                                     >
                                         <span x-show="!copied">
-                                            @svg('heroicon-o-clipboard-document', 'h-5 w-5')
+                                            @svg('hugeicons-task-01', 'h-5 w-5')
                                         </span>
                                         <span x-show="copied" x-cloak>
-                                            @svg('heroicon-o-clipboard-document-check', 'h-5 w-5 text-green-500')
+                                            @svg('hugeicons-task-done-02', 'h-5 w-5 text-green-500')
                                         </span>
                                     </button>
                                 </div>
@@ -67,10 +67,10 @@
                         </h4>
                         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                             <x-secondary-button type="button" wire:click="usingServerProvider('ploi')" class="w-full sm:w-auto justify-center">
-                                @svg('heroicon-o-server', 'w-5 h-5 mr-2') Ploi
+                                @svg('hugeicons-cloud', 'w-5 h-5 mr-2') Ploi
                             </x-secondary-button>
                             <x-secondary-button type="button" wire:click="usingServerProvider('forge')" class="w-full sm:w-auto justify-center">
-                                @svg('heroicon-o-server', 'w-5 h-5 mr-2') Laravel Forge
+                                @svg('hugeicons-cloud', 'w-5 h-5 mr-2') Laravel Forge
                             </x-secondary-button>
                         </div>
                     </div>
@@ -110,8 +110,8 @@
                                               name="databasePassword"/>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                     <button @click="show = !show" type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        <span x-show="!show">@svg('heroicon-o-eye', 'h-5 w-5')</span>
-                                        <span x-show="show">@svg('heroicon-o-eye-slash', 'h-5 w-5')</span>
+                                        <span x-show="!show">@svg('hugeicons-view-off', 'h-5 w-5')</span>
+                                        <span x-show="show">@svg('hugeicons-view', 'h-5 w-5')</span>
                                     </button>
                                 </div>
                             </div>
@@ -143,7 +143,7 @@
                 </form>
             @elseif ($canConnectToRemoteServer)
                 <div class="space-y-2 text-center">
-                    @svg('heroicon-o-check-circle', 'w-12 h-12 sm:w-16 sm:h-16 text-green-500 my-3 inline')
+                    @svg('hugeicons-checkmark-circle-02', 'w-12 h-12 sm:w-16 sm:h-16 text-green-500 my-3 inline')
                     <h1 class="text-gray-900 dark:text-white text-xl sm:text-2xl font-semibold">
                         {{ __('Connection Successful') }}
                     </h1>
@@ -159,7 +159,7 @@
                 </div>
             @else
                 <div class="space-y-2 text-center">
-                    @svg('heroicon-o-x-circle', 'w-12 h-12 sm:w-16 sm:h-16 text-red-500 my-3 inline')
+                    @svg('hugeicons-cancel-circle', 'w-12 h-12 sm:w-16 sm:h-16 text-red-500 my-3 inline')
                     <h1 class="text-gray-900 dark:text-white text-xl sm:text-2xl font-semibold">
                         {{ __('Connection Failed') }}
                     </h1>

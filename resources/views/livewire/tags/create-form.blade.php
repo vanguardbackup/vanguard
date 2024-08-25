@@ -7,7 +7,7 @@
             {{ __('Add a new tag to your account.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-tag
+            hugeicons-tags
         </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">

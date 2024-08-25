@@ -98,10 +98,10 @@ class FlashMessage extends Component
     public function icon(): string
     {
         return match ($this->type) {
-            'success' => 'heroicon-o-check-circle',
-            'warning' => 'heroicon-o-exclamation-triangle',
-            'error' => 'heroicon-o-x-circle',
-            default => 'heroicon-o-information-circle',
+            'success' => 'hugeicons-checkmark-circle-02',
+            'warning' => 'hugeicons-alert-02',
+            'error' => 'hugeicons-cancel-circle',
+            default => 'hugeicons-information-circle',
         };
     }
 }

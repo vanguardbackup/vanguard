@@ -77,7 +77,7 @@ class FeatureServiceProvider extends ServiceProvider
             //     'title' => 'Example Feature',
             //     'description' => 'Description of the example feature.',
             //     'group' => 'General',
-            //     'icon' => 'heroicon-o-beaker',
+            //     'icon' => 'hugeicons-test-tube-01',
             // ],
         ];
     }

@@ -7,7 +7,7 @@
             {{ __('Update your backup task.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-archive-box
+            hugeicons-archive-02
         </x-slot>
         <form wire:submit.prevent="submit">
             <x-form-section>

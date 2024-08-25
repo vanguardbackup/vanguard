@@ -10,7 +10,7 @@
                     @if (isset($icon))
                         <x-dynamic-component :component="$icon" :class="$iconClass" />
                     @else
-                        @svg('heroicon-o-server', ['class' => $iconClass])
+                        @svg('hugeicons-information-circle', ['class' => $iconClass])
                     @endif
                 </div>
                 <div>

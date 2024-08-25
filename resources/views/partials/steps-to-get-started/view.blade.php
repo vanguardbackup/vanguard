@@ -9,7 +9,7 @@
         @if (!ssh_keys_exist())
             <div class="bg-yellow-50 dark:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-8 text-center">
                 <div class="flex items-center justify-center text-yellow-800 dark:text-yellow-200">
-                    @svg('heroicon-o-exclamation-triangle', 'h-5 w-5 mr-2')
+                    @svg('hugeicons-alert-02', 'h-5 w-5 mr-2')
                     <span class="font-medium">{{ __('SSH Keys Required') }}</span>
                 </div>
                 <p class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
@@ -75,7 +75,7 @@
                             @if (Auth::user()->{$step['step'] == 1 ? 'remoteServers' : 'backupDestinations'}->isNotEmpty())
                                 <div class="bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 p-3 rounded-lg text-sm">
                                     <p class="flex items-center font-medium">
-                                        @svg('heroicon-o-check-circle', 'h-5 w-5 mr-2')
+                                        @svg('hugeicons-checkmark-circle-02', 'h-5 w-5 mr-2')
                                         <span>{{ __('You have completed this step.') }}</span>
                                     </p>
                                 </div>
@@ -83,13 +83,13 @@
                                 <a href="{{ route($step['route']) }}" wire:navigate class="block w-full">
                                     <x-primary-button class="w-full justify-center bg-primary-600 hover:bg-primary-700 transition-colors duration-300">
                                         <span>{{ $step['buttonText'] }}</span>
-                                        @svg('heroicon-o-arrow-right', 'h-5 w-5 ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1')
+                                        @svg('hugeicons-arrow-right-02', 'h-5 w-5 ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1')
                                     </x-primary-button>
                                 </a>
                             @else
                                 <x-secondary-button class="w-full justify-center opacity-50 cursor-not-allowed" disabled>
                                     <span>{{ $step['buttonText'] }}</span>
-                                    @svg('heroicon-o-lock-closed', 'h-5 w-5 ml-2 inline-block')
+                                    @svg('hugeicons-square-lock-02', 'h-5 w-5 ml-2 inline-block')
                                 </x-secondary-button>
                             @endif
                         </div>

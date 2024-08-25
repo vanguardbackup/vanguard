@@ -114,13 +114,13 @@
                 <div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-2">
                     @if (config('app.env') === 'local')
                         <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full dark:text-purple-300 dark:bg-purple-900">
-                            @svg('heroicon-s-beaker', ['class' => 'h-3 w-3 mr-1'])
+                            @svg('hugeicons-laptop', ['class' => 'h-3 w-3 mr-1'])
                             {{ __('Local') }}
                         </span>
                     @endif
                     @if (config('app.debug'))
                         <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full dark:text-red-300 dark:bg-red-900">
-                            @svg('heroicon-s-bug-ant', ['class' => 'h-3 w-3 mr-1'])
+                            @svg('hugeicons-bug-01', ['class' => 'h-3 w-3 mr-1'])
                             {{ __('Debug') }}
                         </span>
                     @endif
@@ -131,19 +131,19 @@
                 <ul class="space-y-2">
                     <li>
                         <a href="{{ route('profile') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-user', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-user', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('My Profile') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('notification-streams.index') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-bell', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-notification-01', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Notifications') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('statistics') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-chart-pie', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-analytics-01', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Statistics') }}
                         </a>
                     </li>
@@ -154,19 +154,19 @@
                 <ul class="space-y-2">
                     <li>
                         <a href="https://docs.vanguardbackup.com" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-book-open', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-notebook', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Documentation') }}
                         </a>
                     </li>
                     <li>
                         <a href="https://github.com/vanguardbackup/vanguard" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            <x-icons.github class="h-5 w-5 mr-2 fill-current"/>
+                            @svg('hugeicons-github', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('GitHub') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('profile.help') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-lifebuoy', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-mentoring', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Help Center') }}
                         </a>
                     </li>
@@ -177,19 +177,19 @@
                 <ul class="space-y-2">
                     <li>
                         <a href="https://github.com/vanguardbackup/vanguard/discussions" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-chat-bubble-left-right', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-chatting-01', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Discussions') }}
                         </a>
                     </li>
                     <li>
                         <a href="https://github.com/vanguardbackup/vanguard/issues" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-bug-ant', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-bug-01', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Report an Issue') }}
                         </a>
                     </li>
                     <li>
                         <a href="https://github.com/vanguardbackup/vanguard/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition duration-150 ease-in-out flex items-center justify-center sm:justify-start">
-                            @svg('heroicon-o-hand-raised', ['class' => 'h-5 w-5 mr-2'])
+                            @svg('hugeicons-agreement-01', ['class' => 'h-5 w-5 mr-2'])
                             {{ __('Contribute') }}
                         </a>
                     </li>

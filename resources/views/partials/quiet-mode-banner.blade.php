@@ -11,7 +11,7 @@
         <div class="max-w-6xl mx-auto">
             <div class="flex items-start">
                 <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-800 rounded-full p-2 mr-4">
-                    @svg('heroicon-s-bell-snooze', 'w-6 h-6 text-blue-500 dark:text-blue-300')
+                    @svg('hugeicons-notification-snooze-02', 'w-6 h-6 text-blue-500 dark:text-blue-300')
                 </div>
                 <div class="flex-grow">
                     <div class="flex justify-between items-center mb-2">
@@ -35,7 +35,7 @@
                         @unless ($isOnQuietModePage)
                             <a href="{{ route('profile.quiet-mode') }}" wire:navigate class="inline-flex items-center ml-4 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition ease-in-out duration-150">
                                 {{ __('Manage') }}
-                                @svg('heroicon-s-arrow-right', 'w-4 h-4 ml-1')
+                                @svg('hugeicons-arrow-right-double', 'w-4 h-4 ml-1')
                             </a>
                         @endunless
                     </div>

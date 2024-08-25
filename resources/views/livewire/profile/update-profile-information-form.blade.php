@@ -212,7 +212,7 @@ new class extends Component
         {{ __('Customize your account information and preferences.') }}
     </x-slot>
     <x-slot name="icon">
-        heroicon-o-user
+        hugeicons-user
     </x-slot>
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         <div class="mt-4">

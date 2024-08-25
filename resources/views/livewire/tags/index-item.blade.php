@@ -20,7 +20,7 @@
             <a href="{{ route('tags.edit', $tag) }}" wire:navigate>
                 <x-secondary-button iconOnly>
                     <span class="sr-only">{{ __('Update Tag') }}</span>
-                    <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                    <x-hugeicons-task-edit-01 class="w-4 h-4"/>
                 </x-secondary-button>
             </a>
         </div>

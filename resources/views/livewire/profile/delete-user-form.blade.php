@@ -118,11 +118,11 @@ new class extends Component
                 <x-slot name="description">
                     {{ __('Please review the consequences of account deletion before proceeding.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-exclamation-triangle</x-slot>
+                <x-slot name="icon">hugeicons-user-remove-01</x-slot>
 
                 <div class="mb-8 p-6 bg-red-50 dark:bg-red-950 rounded-lg">
                     <div class="flex items-center mb-4">
-                        @svg('heroicon-o-exclamation-circle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
+                        @svg('hugeicons-alert-circle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
                         <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Warning: Irreversible Action') }}</h3>
                     </div>
                     <p class="text-red-700 dark:text-red-300 mb-4">
@@ -138,7 +138,7 @@ new class extends Component
 
                 @if (!$hasPassword)
                     <div class="mb-8 p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-lg">
-                        @svg('heroicon-o-exclamation-triangle', 'w-6 h-6 inline-block mr-2')
+                        @svg('hugeicons-alert-02', 'w-6 h-6 inline-block mr-2')
                         {{ __('You need to set a password before you can delete your account. Please request a password reset.') }}
                     </div>
                 @endif
@@ -146,7 +146,7 @@ new class extends Component
                 @if ($hasPassword)
                     <div class="flex justify-end items-center">
                         <x-danger-button wire:click="proceedToEligibilityCheck" type="button">
-                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2 inline')
+                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 mr-2 inline')
                             {{ __('Proceed to Eligibility Check') }}
                         </x-danger-button>
                     </div>
@@ -159,7 +159,7 @@ new class extends Component
                 <x-slot name="description">
                     {{ __('We\'ll check if your account is eligible for deletion based on your current data and services.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-clipboard-document-check</x-slot>
+                <x-slot name="icon">hugeicons-check-list</x-slot>
 
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Account Summary') }}</h3>
@@ -178,12 +178,12 @@ new class extends Component
                 <div class="mb-8">
                     @if ($isEligible)
                         <div class="p-4 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-lg">
-                            @svg('heroicon-o-check-circle', 'w-6 h-6 inline-block mr-2')
+                            @svg('hugeicons-checkmark-circle-02', 'w-6 h-6 inline-block mr-2')
                             {{ __('Your account is eligible for deletion.') }}
                         </div>
                     @else
                         <div class="p-4 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 rounded-lg">
-                            @svg('heroicon-o-x-circle', 'w-6 h-6 inline-block mr-2')
+                            @svg('hugeicons-cancel-circle', 'w-6 h-6 inline-block mr-2')
                             {{ __('Your account is not eligible for deletion. Please remove all associated data and services before proceeding.') }}
                         </div>
                     @endif
@@ -191,12 +191,12 @@ new class extends Component
 
                 <div class="flex justify-between items-center">
                     <x-secondary-button wire:click="$set('currentView', 'notice')" type="button">
-                        @svg('heroicon-o-arrow-left', 'w-5 h-5 mr-2')
+                        @svg('hugeicons-arrow-left-03', 'w-5 h-5 mr-2')
                         {{ __('Go Back') }}
                     </x-secondary-button>
                     @if ($isEligible)
                         <x-danger-button wire:click="proceedToFinalConfirmation" type="button">
-                            @svg('heroicon-o-arrow-right', 'w-5 h-5 mr-2')
+                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 mr-2 inline')
                             {{ __('Proceed to Final Confirmation') }}
                         </x-danger-button>
                     @endif
@@ -209,13 +209,13 @@ new class extends Component
                 <x-slot name="description">
                     {{ __('This is your last chance to reconsider. Once confirmed, your account will be deleted.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-shield-exclamation</x-slot>
+                <x-slot name="icon">hugeicons-user-shield-01</x-slot>
 
                 <form wire:submit.prevent="deleteUser">
                     <div class="mb-8">
                         <div class="p-6 bg-red-50 dark:bg-red-950 rounded-lg mb-6">
                             <div class="flex items-center mb-4">
-                                @svg('heroicon-o-exclamation-triangle', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
+                                @svg('hugeicons-alert-02', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
                                 <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Final Warning') }}</h3>
                             </div>
                             <p class="text-red-700 dark:text-red-300 mb-4">
@@ -240,11 +240,11 @@ new class extends Component
 
                     <div class="flex justify-between items-center">
                         <x-secondary-button wire:click="$set('currentView', 'eligibility')" type="button">
-                            @svg('heroicon-o-arrow-left', 'w-5 h-5 mr-2')
+                            @svg('hugeicons-arrow-left-03', 'w-5 h-5 mr-2')
                             {{ __('Go Back') }}
                         </x-secondary-button>
                         <x-danger-button type="submit">
-                            @svg('heroicon-o-trash', 'w-5 h-5 mr-2')
+                            @svg('hugeicons-cancel-01', 'w-5 h-5 mr-2 inline')
                             {{ __('Permanently Delete Account') }}
                         </x-danger-button>
                     </div>

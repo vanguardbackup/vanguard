@@ -47,7 +47,7 @@
                 <x-chart-card
                     title="{{ __('Monthly Backup Task Activity') }}"
                     description="{{ __('Overview of backup tasks performed each month') }}."
-                    icon="heroicon-o-clock"
+                    icon="hugeicons-clock-01"
                 >
                     <div
                         x-data="{ loaded: false }"
@@ -63,7 +63,7 @@
                 <x-chart-card
                     title="{{ __('Backup Tasks Categorized by Type') }}"
                     description="{{ __('Distribution of backup tasks across different types') }}."
-                    icon="heroicon-o-document-duplicate"
+                    icon="hugeicons-file-02"
                 >
                     <div
                         x-data="{ loaded: false }"

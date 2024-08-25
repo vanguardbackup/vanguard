@@ -50,7 +50,7 @@ new class extends Component {
             User::TWO_FACTOR_APP => [
                 'name' => __('Authenticator App'),
                 'description' => __('Use a mobile app to generate secure, time-based codes for login.'),
-                'icon' => 'heroicon-o-device-phone-mobile',
+                'icon' => 'hugeicons-smart-phone-01',
                 'benefits' => [
                     __('Functions without internet or mobile network connection'),
                     __('Allows management of multiple accounts across various services'),
@@ -255,7 +255,7 @@ new class extends Component {
                 <x-slot name="description">
                     {{ __('Enhance your account security by enabling Two-Factor Authentication.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-lock-closed</x-slot>
+                <x-slot name="icon">hugeicons-square-lock-02</x-slot>
 
                 <div class="space-y-6">
                     @foreach ($this->mfaMethods as $methodKey => $method)
@@ -300,7 +300,7 @@ new class extends Component {
                                     <ul class="space-y-1">
                                         @foreach ($method['benefits'] as $benefit)
                                             <li class="flex items-start">
-                                                @svg('heroicon-o-check', 'w-5 h-5 text-green-500 mr-2 flex-shrink-0')
+                                                @svg('hugeicons-tick-01', 'w-5 h-5 text-green-500 mr-2 flex-shrink-0')
                                                 <span
                                                     class="text-sm text-gray-600 dark:text-gray-400">{{ $benefit }}</span>
                                             </li>
@@ -315,17 +315,17 @@ new class extends Component {
                 @if ($currentMethod !== 'none')
                     <div class="mt-8 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
                         <div class="flex items-center mb-4">
-                            @svg('heroicon-o-key', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
+                            @svg('hugeicons-security-lock', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Backup and Recovery') }}</h3>
                         </div>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('Access your backup codes or generate new ones for account recovery.') }}</p>
                         <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                             <x-secondary-button wire:click="viewBackupCodes" class="justify-center">
-                                @svg('heroicon-o-eye', 'w-5 h-5 mr-2')
+                                @svg('hugeicons-eye', 'w-5 h-5 mr-2')
                                 {{ __('View Backup Codes') }}
                             </x-secondary-button>
                             <x-secondary-button wire:click="regenerateBackupCodes" class="justify-center">
-                                @svg('heroicon-o-arrow-path', 'w-5 h-5 mr-2')
+                                @svg('hugeicons-refresh', 'w-5 h-5 mr-2')
                                 {{ __('Regenerate Codes') }}
                             </x-secondary-button>
                         </div>
@@ -341,12 +341,12 @@ new class extends Component {
                     {{ __('Please review the consequences before proceeding.') }}
                 </x-slot>
                 <x-slot name="icon">
-                    heroicon-o-shield-exclamation
+                    hugeicons-square-lock-password
                 </x-slot>
 
                 <div class="mb-6">
                     <div class="flex items-center mb-4 text-yellow-600 dark:text-yellow-500">
-                        @svg('heroicon-o-exclamation-triangle', 'w-6 h-6 mr-2')
+                        @svg('hugeicons-alert-02', 'w-6 h-6 mr-2')
                         <h3 class="text-lg font-semibold">{{ __('Warning: Reduced Security') }}</h3>
                     </div>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">
@@ -398,7 +398,7 @@ new class extends Component {
                     {{ __('Please enter your password to confirm this action.') }}
                 </x-slot>
                 <x-slot name="icon">
-                    heroicon-o-lock-closed
+                    hugeicons-signature
                 </x-slot>
                 <form wire:submit="confirmPassword">
                     <div>
@@ -433,7 +433,7 @@ new class extends Component {
                 <x-slot name="description">
                     {{ __('Secure your account using an authenticator app for two-factor authentication.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-device-phone-mobile</x-slot>
+                <x-slot name="icon">hugeicons-smart-phone-01</x-slot>
 
                 <div x-data="{ open: false }" class="mb-6 border-b border-gray-200 dark:border-gray-600">
                     <button @click="open = !open" class="flex justify-between items-center w-full p-6 text-left">
@@ -526,7 +526,7 @@ new class extends Component {
                                     class="whitespace-nowrap justify-center inline-flex items-center px-4 py-2"
                                 >
                                     {{ __('Copy') }}
-                                    @svg('heroicon-o-clipboard', 'w-5 h-5 ml-2')
+                                    @svg('hugeicons-task-add-01', 'w-5 h-5 ml-2')
                                 </x-secondary-button>
                             </div>
                         </div>
@@ -591,7 +591,7 @@ new class extends Component {
                 <x-slot name="description">
                     {{ __('Your two-factor authentication method has been successfully enabled.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-check-circle</x-slot>
+                <x-slot name="icon">hugeicons-checkmark-circle-02</x-slot>
 
                 <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg">
                     <div class="flex items-center mb-4">
@@ -638,11 +638,11 @@ new class extends Component {
 
                 <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <x-primary-button wire:click="viewBackupCodes" class="w-full sm:w-auto justify-center">
-                        @svg('heroicon-o-key', 'w-5 h-5 mr-2 inline')
+                        @svg('hugeicons-matrix', 'w-5 h-5 mr-2 inline')
                         {{ __('View Backup Codes') }}
                     </x-primary-button>
                     <x-secondary-button wire:click="goBackToMethodsView" class="w-full sm:w-auto justify-center">
-                        @svg('heroicon-o-arrow-left-circle', 'w-5 h-5 mr-2 inline')
+                        @svg('hugeicons-arrow-left-02', 'w-5 h-5 mr-2 inline')
                         {{ __('Back to 2FA Methods') }}
                     </x-secondary-button>
                 </div>
@@ -653,26 +653,26 @@ new class extends Component {
                 <x-slot name="description">
                     {{ __('Store these backup codes in a secure location. They can be used to access your account if you lose access to your primary 2FA method.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-key</x-slot>
+                <x-slot name="icon">hugeicons-matrix</x-slot>
 
                 <div class="mb-8 p-6">
                     <div class="flex items-center mb-4">
-                        @svg('heroicon-o-exclamation-triangle', 'w-8 h-8 text-yellow-500 mr-3')
+                        @svg('hugeicons-alert-02', 'w-8 h-8 text-yellow-500 mr-3')
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Important:') }}</h3>
                     </div>
                     <ul class="space-y-3">
                         <li class="flex items-start">
-                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            @svg('hugeicons-alert-02', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
                             <span
                                 class="text-gray-700 dark:text-gray-300">{{ __('Each code can only be used once') }}</span>
                         </li>
                         <li class="flex items-start">
-                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            @svg('hugeicons-alert-02', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
                             <span
                                 class="text-gray-700 dark:text-gray-300">{{ __('Store these codes in a secure password manager or print them') }}</span>
                         </li>
                         <li class="flex items-start">
-                            @svg('heroicon-o-exclamation-circle', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
+                            @svg('hugeicons-alert-02', 'w-5 h-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0')
                             <span
                                 class="text-gray-700 dark:text-gray-300">{{ __('Regenerating codes will invalidate all previous codes') }}</span>
                         </li>
@@ -700,16 +700,16 @@ new class extends Component {
                 <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                         <x-secondary-button wire:click="downloadBackupCodes" class="w-full sm:w-auto justify-center">
-                            @svg('heroicon-o-arrow-down-tray', 'w-5 h-5 mr-2 inline')
+                            @svg('hugeicons-download-04', 'w-5 h-5 mr-2 inline')
                             {{ __('Download Codes') }}
                         </x-secondary-button>
                         <x-secondary-button wire:click="regenerateBackupCodes" class="w-full sm:w-auto justify-center">
-                            @svg('heroicon-o-arrow-path', 'w-5 h-5 mr-2 inline')
+                            @svg('hugeicons-refresh', 'w-5 h-5 mr-2 inline')
                             {{ __('Regenerate Codes') }}
                         </x-secondary-button>
                     </div>
                     <x-primary-button wire:click="confirmBackupCodes" class="w-full sm:w-auto justify-center">
-                        @svg('heroicon-o-check', 'w-5 h-5 mr-2 inline')
+                        @svg('hugeicons-checkmark-circle-02', 'w-5 h-5 mr-2 inline')
                         {{ __('I Have Saved These Codes') }}
                     </x-primary-button>
                 </div>
@@ -726,7 +726,7 @@ new class extends Component {
                     {{ __('You are about to regenerate your two-factor authentication (2FA) backup codes. Please review the following information:') }}
                 </x-slot>
                 <x-slot name="icon">
-                    heroicon-o-exclamation-triangle
+                    hugeicons-alert-02
                 </x-slot>
 
                 <div class="mt-4 mb-6">

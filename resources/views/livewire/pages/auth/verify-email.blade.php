@@ -125,7 +125,7 @@ new #[Layout('layouts.guest')] class extends Component {
                 <a href="{{ $this->emailLink }}" target="_blank" rel="noopener noreferrer"
                    class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
                     {{ __('Open :provider Inbox', ['provider' => $this->emailProvider]) }}
-                    @svg('heroicon-o-arrow-top-right-on-square', 'w-4 h-4 ml-2')
+                    @svg('hugeicons-arrow-right-02', 'w-4 h-4 ml-2')
                 </a>
             </div>
         @else
@@ -156,7 +156,7 @@ new #[Layout('layouts.guest')] class extends Component {
             @else
                 {{ __('Resend Verification Email') }}
             @endif
-            @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
+                @svg('hugeicons-arrow-right-02', 'w-5 h-5 ms-2 inline')
         </x-primary-button>
 
         <div class="text-center mt-6">

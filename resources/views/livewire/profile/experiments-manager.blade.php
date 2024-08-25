@@ -248,7 +248,7 @@ new class extends Component {
             'title' => $metadata['title'] ?? $this->getExperimentTitle($experiment),
             'description' => $metadata['description'] ?? $this->getExperimentDescription($experiment),
             'group' => $metadata['group'] ?? 'Uncategorized',
-            'icon' => $metadata['icon'] ?? 'heroicon-o-beaker',
+            'icon' => $metadata['icon'] ?? 'hugeicons-test-tube-01',
             'active' => $isActive,
             'enabled' => $isEnabled,
         ];
@@ -282,7 +282,7 @@ new class extends Component {
     @if ($currentView === 'no-content')
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-beaker', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-test-tube-01', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Active Experiments') }}
@@ -297,11 +297,11 @@ new class extends Component {
             <x-slot name="description">
                 {{ __('Explore and manage experimental features for your account.') }}
             </x-slot>
-            <x-slot name="icon">heroicon-o-beaker</x-slot>
+            <x-slot name="icon">hugeicons-test-tube-01</x-slot>
 
             <div class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-sm">
                 <div class="flex items-center mb-4">
-                    @svg('heroicon-o-light-bulb', 'w-8 h-8 text-blue-500 mr-3')
+                    @svg('hugeicons-idea-01', 'w-8 h-8 text-blue-500 mr-3')
                     <h3 class="text-xl font-semibold text-blue-800 dark:text-blue-200">{{ __('About Feature Experiments') }}</h3>
                 </div>
                 <p class="text-blue-700 dark:text-blue-300 mb-4">
@@ -309,15 +309,15 @@ new class extends Component {
                 </p>
                 <ul class="space-y-3">
                     <li class="flex items-start">
-                        @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
                         <span class="text-blue-700 dark:text-blue-300">{{ __('Access new features before wide release') }}</span>
                     </li>
                     <li class="flex items-start">
-                        @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
                         <span class="text-blue-700 dark:text-blue-300">{{ __('Provide valuable insights to enhance functionality') }}</span>
                     </li>
                     <li class="flex items-start">
-                        @svg('heroicon-o-check-circle', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
+                        @svg('hugeicons-tick-01', 'w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0')
                         <span class="text-blue-700 dark:text-blue-300">{{ __('Tailor your experience by managing experiment participation') }}</span>
                     </li>
                 </ul>
@@ -367,7 +367,7 @@ new class extends Component {
                 {{ __('Learn more about this experiment and manage your participation.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-information-circle
+                hugeicons-test-tube-01
             </x-slot>
 
             @if ($selectedExperiment)
@@ -406,7 +406,7 @@ new class extends Component {
                         wire:click="openFeedbackModal"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-0"
                     >
-                        @svg('heroicon-o-chat-bubble-left-right', 'w-5 h-5 mr-2 -ml-1')
+                        @svg('hugeicons-comment-01', 'w-5 h-5 mr-2 -ml-1')
                         {{ __('Share Feedback') }}
                     </button>
                     <div class="flex space-x-3">
@@ -429,7 +429,7 @@ new class extends Component {
                 {{ __('Your feedback helps us improve this experimental feature.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-chat-bubble-left-right
+                hugeicons-comment-01
             </x-slot>
 
             <form wire:submit.prevent="submitFeedback">

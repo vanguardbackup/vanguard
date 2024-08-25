@@ -31,7 +31,7 @@
 
     @if ($hasError)
         <div class="absolute top-2 right-2 flex items-center pointer-events-none">
-            @svg('heroicon-o-exclamation-triangle', ['class' => 'w-5 h-5 text-red-600'])
+            @svg('hugeicons-alert-02', ['class' => 'w-5 h-5 text-red-600'])
         </div>
     @endif
 </div>

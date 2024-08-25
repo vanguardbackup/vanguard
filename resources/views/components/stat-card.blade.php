@@ -1,5 +1,5 @@
 @props([
-    'icon' => 'heroicon-o-question-mark-circle',
+    'icon' => 'hugeicons-information-circle',
     'title',
     'description',
 ])

@@ -42,13 +42,13 @@ new class extends Component
                 <!-- Primary Navigation Menu -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                     <x-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
-                        <x-dynamic-component :component="'heroicon-o-' . (Auth::user()->backupTasks->isNotEmpty() ? 'book-open' : 'rocket-launch')" class="h-5 w-5 mr-2" />
+                        <x-dynamic-component :component="'hugeicons-' . (Auth::user()->backupTasks->isNotEmpty() ? 'book-open-01' : 'rocket-01')" class="h-5 w-5 mr-2" />
                         {{ __(Auth::user()->backupTasks->isNotEmpty() ? 'Overview' : 'Get Started') }}
                     </x-nav-link>
 
                     @if (Auth::user()->backupTasks->isNotEmpty())
                         <x-nav-link :href="route('backup-tasks.index')" :active="request()->routeIs('backup-tasks.*')" wire:navigate>
-                            <x-heroicon-o-archive-box class="h-5 w-5 mr-2" />
+                            <x-hugeicons-archive-02 class="h-5 w-5 mr-2" />
                             {{ __('Backup Tasks') }}
                         </x-nav-link>
                     @endif
@@ -60,13 +60,13 @@ new class extends Component
                 <div class="flex items-center space-x-4">
                     @if (Auth::user()->backupDestinations->isNotEmpty())
                         <x-nav-link :href="route('backup-destinations.index')" :active="request()->routeIs('backup-destinations.*')" wire:navigate>
-                            <x-heroicon-o-globe-europe-africa class="h-5 w-5 mr-2" />
+                            <x-hugeicons-global class="h-5 w-5 mr-2" />
                             {{ __('Destinations') }}
                         </x-nav-link>
                     @endif
                     @if (Auth::user()->remoteServers->isNotEmpty())
                         <x-nav-link :href="route('remote-servers.index')" :active="request()->routeIs('remote-servers.*')" wire:navigate>
-                            <x-heroicon-o-server-stack class="h-5 w-5 mr-2" />
+                            <x-hugeicons-cloud-server class="h-5 w-5 mr-2" />
                             {{ __('Servers') }}
                         </x-nav-link>
                     @endif
@@ -81,38 +81,40 @@ new class extends Component
                                     <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}">
                                 </div>
                                 <span x-data="{ name: @js(auth()->user()->first_name) }" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></span>
-                                <svg class="ml-2 -mr-0.5 h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+
+
+                                <svg class="ml-2 -mr-0.5 h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                                    <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
                         </x-slot>
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile')" wire:navigate>
-                                <x-heroicon-o-user class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-user class="w-5 h-5 mr-2 inline" />
                                 {{ __('My Profile') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
-                                <x-heroicon-o-bell class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-notification-02 class="w-5 h-5 mr-2 inline" />
                                 {{ __('Notifications') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('statistics')" wire:navigate>
-                                <x-heroicon-o-chart-pie class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-analytics-01 class="w-5 h-5 mr-2 inline" />
                                 {{ __('Statistics') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('profile.api')" wire:navigate>
-                                <x-heroicon-o-code-bracket class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-ticket-02 class="w-5 h-5 mr-2 inline" />
                                 {{ __('API Tokens') }}
                             </x-dropdown-link>
 
                             <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
 
                             <x-dropdown-link :href="route('profile.mfa')" wire:navigate>
-                                <x-heroicon-o-lock-closed class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-square-lock-01 class="w-5 h-5 mr-2 inline" />
                                 {{ __('Security Settings') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('profile.help')" wire:navigate>
-                                <x-heroicon-o-lifebuoy class="w-5 h-5 mr-2 inline" />
+                                <x-hugeicons-mentoring class="w-5 h-5 mr-2 inline" />
                                 {{ __('Get Help') }}
                             </x-dropdown-link>
 
@@ -120,11 +122,11 @@ new class extends Component
                                 <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
 
                                 <x-dropdown-link href="{{ url('/pulse') }}">
-                                    <x-heroicon-o-chart-bar class="w-5 h-5 mr-2 inline" />
+                                    <x-hugeicons-dashboard-browsing class="w-5 h-5 mr-2 inline" />
                                     {{ __('Laravel Pulse') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link href="{{ url('/horizon/dashboard') }}">
-                                    <x-heroicon-o-cpu-chip class="w-5 h-5 mr-2 inline" />
+                                    <x-hugeicons-cpu class="w-5 h-5 mr-2 inline" />
                                     {{ __('Laravel Horizon') }}
                                 </x-dropdown-link>
                             @endif
@@ -133,7 +135,7 @@ new class extends Component
 
                             <button wire:click="logout" class="w-full text-start" role="menuitem">
                                 <x-dropdown-link>
-                                    @svg('heroicon-o-arrow-left-on-rectangle', 'h-5 w-5 mr-2 inline')
+                                    @svg('hugeicons-logout-03', 'h-5 w-5 mr-2 inline')
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </button>
@@ -166,27 +168,27 @@ new class extends Component
     <div x-show="mobileMenuOpen" class="sm:hidden" id="mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('overview')" :active="request()->routeIs('overview')" wire:navigate>
-                <x-dynamic-component :component="'heroicon-o-' . (Auth::user()->backupTasks->isNotEmpty() ? 'book-open' : 'rocket-launch')" class="h-5 w-5 mr-2 inline" />
+                <x-dynamic-component :component="'hugeicons-' . (Auth::user()->backupTasks->isNotEmpty() ? 'book-open-01' : 'rocket-01')" class="h-5 w-5 mr-2 inline" />
                 {{ __(Auth::user()->backupTasks->isNotEmpty() ? 'Overview' : 'Get Started') }}
             </x-responsive-nav-link>
 
             @if (Auth::user()->backupTasks->isNotEmpty())
                 <x-responsive-nav-link :href="route('backup-tasks.index')" :active="request()->routeIs('backup-tasks.*')" wire:navigate>
-                    <x-heroicon-o-archive-box class="h-5 w-5 mr-2 inline" />
+                    <x-hugeicons-archive-01 class="h-5 w-5 mr-2 inline" />
                     {{ __('Backup Tasks') }}
                 </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->backupDestinations->isNotEmpty())
                 <x-responsive-nav-link :href="route('backup-destinations.index')" :active="request()->routeIs('backup-destinations.*')" wire:navigate>
-                    <x-heroicon-o-globe-europe-africa class="h-5 w-5 mr-2 inline" />
+                    <x-hugeicons-global class="h-5 w-5 mr-2 inline" />
                     {{ __('Destinations') }}
                 </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->remoteServers->isNotEmpty())
                 <x-responsive-nav-link :href="route('remote-servers.index')" :active="request()->routeIs('remote-servers.*')" wire:navigate>
-                    <x-heroicon-o-server-stack class="h-5 w-5 mr-2 inline" />
+                    <x-hugeicons-cloud-server class="h-5 w-5 mr-2 inline" />
                     {{ __('Servers') }}
                 </x-responsive-nav-link>
             @endif
@@ -205,43 +207,43 @@ new class extends Component
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                    <x-heroicon-o-user class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-user class="w-5 h-5 mr-2 inline" />
                     {{ __('My Profile') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('tags.index')" wire:navigate>
-                    <x-heroicon-o-tag class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-tags class="w-5 h-5 mr-2 inline" />
                     {{ __('Tags') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('notification-streams.index')" wire:navigate>
-                    <x-heroicon-o-bell class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-notification-02 class="w-5 h-5 mr-2 inline" />
                     {{ __('Notifications') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('profile.api')" wire:navigate>
-                    <x-heroicon-o-code-bracket class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-ticket-02 class="w-5 h-5 mr-2 inline" />
                     {{ __('API Tokens') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('profile.mfa')" wire:navigate>
-                    <x-heroicon-o-lock-closed class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-square-lock-01 class="w-5 h-5 mr-2 inline" />
                     {{ __('2FA Settings') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('statistics')" wire:navigate>
-                    <x-heroicon-o-chart-pie class="w-5 h-5 mr-2 inline" />
+                    <x-hugeicons-analytics-01 class="w-5 h-5 mr-2 inline" />
                     {{ __('Statistics') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link href="{{ url('/pulse') }}">
-                        <x-heroicon-o-chart-bar class="w-5 h-5 mr-2 inline" />
+                        <x-hugeicons-dashboard-browsing class="w-5 h-5 mr-2 inline" />
                         {{ __('Laravel Pulse') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link href="{{ url('/horizon/dashboard') }}">
-                        <x-heroicon-o-cpu-chip class="w-5 h-5 mr-2 inline" />
+                        <x-hugeicons-cpu class="w-5 h-5 mr-2 inline" />
                         {{ __('Laravel Horizon') }}
                     </x-responsive-nav-link>
                 @endif
             </div>
             <button wire:click="logout" class="w-full text-start">
                 <x-responsive-nav-link>
-                    @svg('heroicon-o-arrow-left-on-rectangle', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    @svg('hugeicons-logout-03', 'h-5 w-5 text-gray-50 mr-2 inline')
                     {{ __('Log Out') }}
                 </x-responsive-nav-link>
             </button>

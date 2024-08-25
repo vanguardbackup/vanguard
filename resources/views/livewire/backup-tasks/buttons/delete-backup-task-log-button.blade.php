@@ -7,7 +7,7 @@
             {{ __('Please read this carefully before confirming this action.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-trash
+            hugeicons-delete-02
         </x-slot>
         <div>
             <p class="text-gray-800 dark:text-gray-200 mb-3">

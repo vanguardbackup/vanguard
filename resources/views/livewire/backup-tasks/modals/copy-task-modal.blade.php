@@ -7,7 +7,7 @@
             {{ __('Create a new backup task by replicating an existing configuration.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-document-duplicate
+            hugeicons-copy-01
         </x-slot>
         <form wire:submit.prevent="copyTask">
             <div>

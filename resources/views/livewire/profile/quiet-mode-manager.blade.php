@@ -88,7 +88,7 @@ new class extends Component {
         <x-slot name="description">
             {{ __('Manage your Quiet Mode settings to temporarily pause notifications.') }}
         </x-slot>
-        <x-slot name="icon">heroicon-o-bell-snooze</x-slot>
+        <x-slot name="icon">hugeicons-notification-snooze-02</x-slot>
 
         <div class="mb-6 p-4">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ __('What is Quiet Mode?') }}</h4>
@@ -185,9 +185,9 @@ new class extends Component {
                         <span class="text-lg font-semibold">{{ __('Frequently Asked Questions') }}</span>
                         <span class="ml-6 flex-shrink-0">
                             @if ($isFaqOpen)
-                                @svg('heroicon-m-chevron-up', 'h-6 w-6')
+                                @svg('hugeicons-arrow-up-01', 'h-6 w-6')
                             @else
-                                @svg('heroicon-m-chevron-down', 'h-6 w-6')
+                                @svg('hugeicons-arrow-down-01', 'h-6 w-6')
                             @endif
                         </span>
                     </button>

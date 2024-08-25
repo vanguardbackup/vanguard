@@ -93,7 +93,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         <x-primary-button class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">
             {{ __('Change Password') }}
-            @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
+            @svg('hugeicons-arrow-right-02', 'w-5 h-5 ms-2 inline')
         </x-primary-button>
 
         <div class="text-center mt-6">

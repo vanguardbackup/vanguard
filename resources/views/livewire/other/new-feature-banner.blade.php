@@ -32,7 +32,7 @@
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <div class="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
                 <span class="flex p-2 rounded-full bg-blue-700/50 backdrop-blur-sm">
-                    @svg('heroicon-o-sparkles', 'h-6 w-6 text-white')
+                    @svg('hugeicons-sparkles', 'h-6 w-6 text-white')
                 </span>
                         <p class="ml-3 font-medium text-base sm:text-lg">
                             {{ __('New Feature!') }}
@@ -50,7 +50,7 @@
                                 rel="noopener noreferrer"
                                 class="bg-white/10 hover:bg-white/20 backdrop-blur-sm px-3 py-1 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-blue-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
                             >
-                                @svg('heroicon-o-code-bracket', 'h-4 w-4 inline mr-1')
+                                @svg('hugeicons-github', 'h-4 w-4 inline mr-1')
                                 {{ __('View on GitHub') }}
                             </a>
                             <button

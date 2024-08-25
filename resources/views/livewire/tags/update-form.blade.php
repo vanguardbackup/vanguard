@@ -7,7 +7,7 @@
                 {{ __('Update a new tag that belongs to you.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-tag
+                hugeicons-tags
             </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">

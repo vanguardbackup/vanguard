@@ -7,7 +7,7 @@
 
     <x-form-wrapper>
         <x-slot name="icon">
-            heroicon-o-lifebuoy
+            hugeicons-mentoring
         </x-slot>
 
         <x-slot name="title">
@@ -26,9 +26,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 @php
                     $resources = [
-                        ['title' => 'Documentation', 'icon' => 'heroicon-o-book-open', 'url' => 'https://docs.vanguardbackup.com', 'description' => 'Comprehensive guides and API references'],
-                        ['title' => 'GitHub Discussions', 'icon' => 'heroicon-o-chat-bubble-left-right', 'url' => 'https://github.com/vanguardbackup/vanguard/discussions', 'description' => 'Community-driven Q&A and discussions'],
-                        ['title' => 'Vanguard Website', 'icon' => 'heroicon-o-globe-alt', 'url' => 'https://vanguardbackup.com', 'description' => 'Product information and latest updates'],
+                        ['title' => 'Documentation', 'icon' => 'hugeicons-book-open-01', 'url' => 'https://docs.vanguardbackup.com', 'description' => 'Comprehensive guides and API references'],
+                        ['title' => 'GitHub Discussions', 'icon' => 'hugeicons-chatting-01', 'url' => 'https://github.com/vanguardbackup/vanguard/discussions', 'description' => 'Community-driven Q&A and discussions'],
+                        ['title' => 'Vanguard Website', 'icon' => 'hugeicons-browser', 'url' => 'https://vanguardbackup.com', 'description' => 'Product information and latest updates'],
                     ];
                 @endphp
 
@@ -42,7 +42,7 @@
                             <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-grow">{{ __($resource['description']) }}</p>
                             <div class="mt-3 sm:mt-4 flex items-center text-gray-900 dark:text-white text-xs sm:text-sm font-medium underline">
                                 {{ __('Learn more') }}
-                                <x-heroicon-o-arrow-right class="ml-1 w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 ease-in-out transform group-hover:translate-x-1" />
+                                <x-hugeicons-arrow-right-02 class="ml-1 w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 ease-in-out transform group-hover:translate-x-1" />
                             </div>
                         </div>
                     </a>
@@ -56,13 +56,13 @@
                 </p>
                 <ul class="space-y-3 text-sm sm:text-base text-gray-700 dark:text-gray-300">
                     <li class="flex flex-wrap items-center">
-                        <x-heroicon-o-envelope class="w-5 h-5 mr-2 sm:mr-3 text-gray-600 dark:text-gray-400" />
+                        <x-hugeicons-mail-01 class="w-5 h-5 mr-2 sm:mr-3 text-gray-600 dark:text-gray-400" />
                         <span class="font-medium">{{ __('Support:') }}</span>
                         <a href="mailto:support@vanguardbackup.com" class="ml-1 sm:ml-2 text-gray-900 dark:text-white hover:underline underline">support@vanguardbackup.com</a>
                         <span class="w-full sm:w-auto sm:ml-2 mt-1 sm:mt-0 text-xs italic text-gray-500 dark:text-gray-400">({{ __('for urgent issues') }})</span>
                     </li>
                     <li class="flex items-center">
-                        <x-heroicon-o-chat-bubble-left-ellipsis class="w-5 h-5 mr-2 sm:mr-3 text-gray-600 dark:text-gray-400" />
+                        <x-hugeicons-mailbox-01 class="w-5 h-5 mr-2 sm:mr-3 text-gray-600 dark:text-gray-400" />
                         <span class="font-medium">{{ __('Feedback:') }}</span>
                         <a href="mailto:hello@vanguardbackup.com" class="ml-1 sm:ml-2 text-gray-900 dark:text-white hover:underline underline">hello@vanguardbackup.com</a>
                     </li>
