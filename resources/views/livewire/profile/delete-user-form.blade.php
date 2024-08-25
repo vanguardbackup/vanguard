@@ -145,8 +145,8 @@ new class extends Component
                 @if ($hasPassword)
                     <div class="flex justify-end items-center">
                         <x-danger-button wire:click="proceedToEligibilityCheck" type="button">
-                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 mr-2 inline')
                             {{ __('Proceed to Eligibility Check') }}
+                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 ml-2 inline')
                         </x-danger-button>
                     </div>
                 @endif
@@ -158,7 +158,24 @@ new class extends Component
                 <x-slot name="description">
                     {{ __('We\'ll check if your account is eligible for deletion based on your current data and services.') }}
                 </x-slot>
+
                 <x-slot name="icon">hugeicons-check-list</x-slot>
+
+                <div class="mb-8">
+                    @if ($isEligible)
+                        <x-notice
+                            type="success"
+                            title="{{ __('Eligible Account') }}"
+                            text="{{ __('Your account is eligible for deletion.') }}"
+                        />
+                    @else
+                        <x-notice
+                            type="error"
+                            title="{{ __('Ineligible Account') }}"
+                            text="{{ __('Your account is not eligible for deletion. Please remove your backup tasks, remote servers and backup destinations before proceeding.') }}"
+                        />
+                    @endif
+                </div>
 
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Account Summary') }}</h3>
@@ -174,20 +191,6 @@ new class extends Component
                     </ul>
                 </div>
 
-                <div class="mb-8">
-                    @if ($isEligible)
-                        <div class="p-4 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-lg">
-                            @svg('hugeicons-checkmark-circle-02', 'w-6 h-6 inline-block mr-2')
-                            {{ __('Your account is eligible for deletion.') }}
-                        </div>
-                    @else
-                        <div class="p-4 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 rounded-lg">
-                            @svg('hugeicons-cancel-circle', 'w-6 h-6 inline-block mr-2')
-                            {{ __('Your account is not eligible for deletion. Please remove all associated data and services before proceeding.') }}
-                        </div>
-                    @endif
-                </div>
-
                 <div class="flex justify-between items-center">
                     <x-secondary-button wire:click="$set('currentView', 'notice')" type="button">
                         @svg('hugeicons-arrow-left-03', 'w-5 h-5 mr-2')
@@ -195,8 +198,8 @@ new class extends Component
                     </x-secondary-button>
                     @if ($isEligible)
                         <x-danger-button wire:click="proceedToFinalConfirmation" type="button">
-                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 mr-2 inline')
                             {{ __('Proceed to Final Confirmation') }}
+                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 ml-2 inline')
                         </x-danger-button>
                     @endif
                 </div>
@@ -212,17 +215,13 @@ new class extends Component
 
                 <form wire:submit.prevent="deleteUser">
                     <div class="mb-8">
-                        <div class="p-6 bg-red-50 dark:bg-red-950 rounded-lg mb-6">
-                            <div class="flex items-center mb-4">
-                                @svg('hugeicons-alert-02', 'w-8 h-8 text-red-500 dark:text-red-400 mr-3')
-                                <h3 class="text-xl font-semibold text-red-700 dark:text-red-300">{{ __('Final Warning') }}</h3>
-                            </div>
-                            <p class="text-red-700 dark:text-red-300 mb-4">
-                                {{ __('You are about to permanently delete your account. This action cannot be undone.') }}
-                            </p>
-                        </div>
+                        <x-notice
+                            type="warning"
+                            title="{{ __('Final Warning') }}"
+                            text="{{ __('You are about to permanently delete your account. This action cannot be undone.') }}"
+                        />
 
-                        <div>
+                        <div class="mt-4">
                             <x-input-label for="password" :value="__('Confirm Your Password')" />
                             <x-text-input
                                 name="password"
@@ -243,8 +242,8 @@ new class extends Component
                             {{ __('Go Back') }}
                         </x-secondary-button>
                         <x-danger-button type="submit">
-                            @svg('hugeicons-cancel-01', 'w-5 h-5 mr-2 inline')
                             {{ __('Permanently Delete Account') }}
+                            @svg('hugeicons-sad-01', 'w-5 h-5 ml-1 -mt-0.5 inline')
                         </x-danger-button>
                     </div>
                 </form>
