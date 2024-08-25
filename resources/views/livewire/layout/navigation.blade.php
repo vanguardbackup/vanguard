@@ -76,14 +76,22 @@ new class extends Component
                 <div class="ml-3 relative">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button x-data="{ open: false }" @click="open = !open" class="flex items-center text-sm font-medium text-primary-200 hover:text-primary-100 focus:outline-none transition duration-150 ease-in-out">
+                            <button x-data="{ open: false }"
+                                    @click="open = !open"
+                                    @click.away="open = false"
+                                    class="flex items-center text-sm font-medium text-primary-200 hover:text-primary-100 focus:outline-none transition duration-150 ease-in-out">
                                 <div class="mr-3 relative">
                                     <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->gravatar() }}" alt="{{ Auth::user()->name }}">
                                 </div>
                                 <span x-data="{ name: @js(auth()->user()->first_name) }" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></span>
 
-
-                                <svg class="ml-2 -mr-0.5 h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                                <svg class="ml-2 -mr-0.5 h-4 w-4 transition-transform duration-200"
+                                     :class="{ 'rotate-180': open }"
+                                     xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24"
+                                     width="24"
+                                     height="24"
+                                     fill="none">
                                     <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
@@ -118,6 +126,13 @@ new class extends Component
                                 {{ __('Get Help') }}
                             </x-dropdown-link>
 
+                            <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
+                            <x-dropdown-link x-data="" @click="$dispatch('open-modal', 'theme-switcher'); $el.closest('.dropdown-menu').classList.add('hidden')">
+                                <x-hugeicons-paint-board class="w-5 h-5 mr-2 inline" />
+                                {{ __('Appearance') }}
+                            </x-dropdown-link>
+
                             @if (Auth::user()->isAdmin())
                                 <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
 
@@ -141,11 +156,6 @@ new class extends Component
                             </button>
                         </x-slot>
                     </x-dropdown>
-                </div>
-
-                <!-- Theme Switcher -->
-                <div class="ml-3">
-                    <x-theme-switcher />
                 </div>
             </div>
 
@@ -252,4 +262,5 @@ new class extends Component
             </div>
         </div>
     </div>
+    <x-theme-switcher />
 </nav>
