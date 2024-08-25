@@ -135,10 +135,44 @@ new #[Layout('layouts.guest')] class extends Component {
                 </div>
             @endif
 
-            <div class="text-center mt-8">
-                <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    {{ __('By creating an account, you agree to our Terms of Service and our Privacy Policy.') }}
+            @if (config('services.bitbucket.client_id') && config('services.bitbucket.client_secret'))
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <a href="{{ route('bitbucket.redirect') }}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700">
+                            <x-icons.bitbucket class="w-5 h-5 mr-3"/>
+                            <span>{{ __('Login with Bitbucket') }}</span>
+                        </a>
+                    </div>
                 </div>
+            @endif
+
+            <div class="text-center mt-8">
+                @php
+                    $showTerms = config('app.terms_of_service_url');
+                    $showPrivacy = config('app.privacy_policy_url');
+                @endphp
+
+                @if ($showTerms || $showPrivacy)
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                        {{ __('By creating an account, you agree to our') }}
+                        @if ($showTerms)
+                            <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
+                        @endif
+                        @if ($showTerms && $showPrivacy)
+                            {{ __('and') }}
+                        @endif
+                        @if ($showPrivacy)
+                            <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
+                        @endif
+                        {{ __('.') }}
+                    </div>
+                @endif
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     {{ __('Already have an account?') }}
                     <a href="{{ route('login') }}"

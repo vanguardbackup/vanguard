@@ -134,22 +134,26 @@ new #[Layout('layouts.guest')] class extends Component {
         @endif
 
         <div class="text-center mt-8">
-            <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                {{ __('By creating an account, you') }}
-                @if (config('app.terms_of_service_url') && config('app.privacy_policy_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
-                    {{ __('and our') }}
-                    <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
-                @elseif (config('app.terms_of_service_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
-                @elseif (config('app.privacy_policy_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
-                @endif
-                {{ __('.') }}
-            </div>
+            @php
+                $showTerms = config('app.terms_of_service_url');
+                $showPrivacy = config('app.privacy_policy_url');
+            @endphp
+
+            @if ($showTerms || $showPrivacy)
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    {{ __('By creating an account, you agree to our') }}
+                    @if ($showTerms)
+                        <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
+                    @endif
+                    @if ($showTerms && $showPrivacy)
+                        {{ __('and') }}
+                    @endif
+                    @if ($showPrivacy)
+                        <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
+                    @endif
+                    {{ __('.') }}
+                </div>
+            @endif
             <div class="text-sm text-gray-600 dark:text-gray-400">
                 {{ __('Don\'t have an account?') }}
                 <a href="{{ route('register') }}"
