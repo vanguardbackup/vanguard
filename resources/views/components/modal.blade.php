@@ -112,7 +112,7 @@
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
+        <div class="border-t border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-base px-6 py-5">
             {{ $slot }}
         </div>
     </div>

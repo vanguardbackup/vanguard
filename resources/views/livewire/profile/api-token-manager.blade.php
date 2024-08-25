@@ -737,7 +737,7 @@ new class extends Component {
             hugeicons-alert-02
         </x-slot>
 
-        <div class="space-y-4 text-gray-800 dark:text-gray-200">
+        <div class="space-y-4">
             <p>
                 {{ __('Revoking an API token has the following consequences:') }}
             </p>

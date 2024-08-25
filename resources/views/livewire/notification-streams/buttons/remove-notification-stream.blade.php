@@ -17,10 +17,10 @@
             hugeicons-delete-02
         </x-slot>
         <div>
-            <p class="text-gray-800 dark:text-gray-200 mb-3">
+            <p class="mb-3">
                 {{ __('Are you sure you want to remove the notification stream ":label"?', ['label' => $notificationStream->label]) }}
             </p>
-            <p class="text-gray-800 dark:text-gray-200 my-3">
+            <p class="my-3">
                 {{ __('This action cannot be undone.') }}
             </p>
             <div class="flex space-x-5">
