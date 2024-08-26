@@ -282,7 +282,7 @@ new class extends Component {
     @if ($currentView === 'no-content')
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-test-tube-01', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-test-tube', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Active Experiments') }}
@@ -297,7 +297,7 @@ new class extends Component {
             <x-slot name="description">
                 {{ __('Explore and manage experimental features for your account.') }}
             </x-slot>
-            <x-slot name="icon">hugeicons-test-tube-01</x-slot>
+            <x-slot name="icon">hugeicons-test-tube</x-slot>
 
             <div class="space-y-6">
                 @foreach ($this->experiments->groupBy('group') as $group => $groupExperiments)

@@ -27,7 +27,7 @@
                 {{ __('Create a new remote server.') }}
             </x-slot>
             <x-slot name="icon">
-                hugeicons-cloud-server
+                hugeicons-hard-drive
             </x-slot>
             @if (!$showingConnectionView)
                 <form wire:submit="submit">

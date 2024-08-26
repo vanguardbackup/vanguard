@@ -60,13 +60,13 @@ new class extends Component
                 <div class="flex items-center space-x-4">
                     @if (Auth::user()->backupDestinations->isNotEmpty())
                         <x-nav-link :href="route('backup-destinations.index')" :active="request()->routeIs('backup-destinations.*')" wire:navigate>
-                            <x-hugeicons-global class="h-5 w-5 mr-2" />
+                            <x-hugeicons-folder-cloud class="h-5 w-5 mr-2" />
                             {{ __('Destinations') }}
                         </x-nav-link>
                     @endif
                     @if (Auth::user()->remoteServers->isNotEmpty())
                         <x-nav-link :href="route('remote-servers.index')" :active="request()->routeIs('remote-servers.*')" wire:navigate>
-                            <x-hugeicons-cloud-server class="h-5 w-5 mr-2" />
+                            <x-hugeicons-hard-drive class="h-5 w-5 mr-2" />
                             {{ __('Servers') }}
                         </x-nav-link>
                     @endif
@@ -150,7 +150,7 @@ new class extends Component
 
                             <button wire:click="logout" class="w-full text-start" role="menuitem">
                                 <x-dropdown-link>
-                                    @svg('hugeicons-logout-03', 'h-5 w-5 mr-2 inline')
+                                    @svg('hugeicons-logout-04', 'h-5 w-5 mr-2 inline')
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </button>
@@ -191,14 +191,14 @@ new class extends Component
 
             @if (Auth::user()->backupDestinations->isNotEmpty())
                 <x-responsive-nav-link :href="route('backup-destinations.index')" :active="request()->routeIs('backup-destinations.*')" wire:navigate>
-                    <x-hugeicons-global class="h-5 w-5 mr-2 inline" />
+                    <x-hugeicons-folder-cloud class="h-5 w-5 mr-2 inline" />
                     {{ __('Destinations') }}
                 </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->remoteServers->isNotEmpty())
                 <x-responsive-nav-link :href="route('remote-servers.index')" :active="request()->routeIs('remote-servers.*')" wire:navigate>
-                    <x-hugeicons-cloud-server class="h-5 w-5 mr-2 inline" />
+                    <x-hugeicons-hard-drive class="h-5 w-5 mr-2 inline" />
                     {{ __('Servers') }}
                 </x-responsive-nav-link>
             @endif
@@ -253,7 +253,7 @@ new class extends Component
             </div>
             <button wire:click="logout" class="w-full text-start">
                 <x-responsive-nav-link>
-                    @svg('hugeicons-logout-03', 'h-5 w-5 text-gray-50 mr-2 inline')
+                    @svg('hugeicons-logout-04', 'h-5 w-5 text-gray-50 mr-2 inline')
                     {{ __('Log Out') }}
                 </x-responsive-nav-link>
             </button>

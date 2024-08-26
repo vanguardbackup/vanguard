@@ -7,7 +7,7 @@
             {{ __('Update your remote server details.') }}
         </x-slot>
         <x-slot name="icon">
-            hugeicons-cloud-server
+            hugeicons-hard-drive
         </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">

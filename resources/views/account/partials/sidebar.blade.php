@@ -83,7 +83,7 @@
         <li>
             <x-sidebar-nav-link :href="route('profile.experiments')" :active="request()->routeIs('profile.experiments*')" wire:navigate>
                 <span class="flex items-center">
-                    @svg('hugeicons-test-tube-01', 'h-5 w-5 mr-2')
+                    @svg('hugeicons-test-tube', 'h-5 w-5 mr-2')
                     <span>{{ __('Experiments') }}</span>
                 </span>
             </x-sidebar-nav-link>

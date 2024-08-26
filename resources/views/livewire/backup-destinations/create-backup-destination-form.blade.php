@@ -7,7 +7,7 @@
             {{ __('Create a new backup destination.') }}
         </x-slot>
         <x-slot name="icon">
-            hugeicons-global
+            hugeicons-folder-cloud
         </x-slot>
         <form wire:submit="submit">
             <div class="mt-4 flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">

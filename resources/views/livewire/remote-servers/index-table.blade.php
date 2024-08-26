@@ -2,7 +2,7 @@
     @if ($remoteServers->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-cloud-server', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-hard-dive', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __("You don't have any remote servers setup!") }}
@@ -24,7 +24,7 @@
             description="{{ __('A list of all linked remote servers, from which your data will be backed up.') }}"
         >
             <x-slot name="icon">
-                <x-hugeicons-cloud-server class="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                <x-hugeicons-hard-drive class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Server Label') }}</div>
