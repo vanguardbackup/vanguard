@@ -9,7 +9,7 @@
         <x-slot name="description">
             {{ __('Link accounts for expanded features.') }}
         </x-slot>
-        <x-slot name="icon">heroicon-o-puzzle-piece</x-slot>
+        <x-slot name="icon">hugeicons-puzzle</x-slot>
 
         <div class="space-y-6">
             @if (config('services.github.client_id') && config('services.github.client_secret'))

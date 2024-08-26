@@ -2,7 +2,7 @@
     <div class="my-3 flex justify-end">
         <a href="#" class="text-sm text-red-600 dark:text-red-400 font-medium hover:text-underline ease-in-out" x-data=""
            x-on:click.prevent="$dispatch('open-modal', 'remove-backup-task-{{ $backupTask->id }}')">
-            @svg('heroicon-o-x-mark', 'h-5 w-5 inline-block -mt-0.5')
+            @svg('hugeicons-delete-02', 'h-5 w-5 inline-block -mt-0.5')
             {{ __('Remove Backup Task') }}
         </a>
     </div>
@@ -14,13 +14,13 @@
             {{ __('Please read this carefully before confirming this action.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-trash
+            hugeicons-delete-02
         </x-slot>
         <div>
-            <p class="text-gray-800 dark:text-gray-200 mb-3">
+            <p class="mb-3">
                 {{ __('Are you sure you want to remove the backup task ":label"?', ['label' => $backupTask->label]) }}
             </p>
-            <p class="text-gray-800 dark:text-gray-200 my-3">
+            <p class="my-3">
                 {{ __('This action cannot be undone. All your backups will still exist but no more backups will be created.') }}
             </p>
             <div class="flex space-x-5">

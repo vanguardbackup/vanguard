@@ -7,7 +7,7 @@
         @if (!Auth::user()->backupTasks->isEmpty())
          <div class="space-x-2 flex">
              <x-secondary-button x-data="" x-on:click="$dispatch('open-modal', 'copy-backup-task')">
-                 @svg('heroicon-o-document-duplicate', 'h-5 w-5')
+                 @svg('hugeicons-copy-01', 'h-5 w-5')
              </x-secondary-button>
              <a href="{{ route('backup-tasks.create') }}" wire:navigate>
                  <x-primary-button centered>

@@ -158,81 +158,49 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 stagger-animation">
                     <div class="bg-white bg-opacity-10 rounded-lg p-6 hover-lift">
                         <h3 class="text-2xl font-medium mb-4 text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-primary-400" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
+                            @svg('hugeicons-zap', 'w-6 h-6 mr-2 text-primary-400')
                             Key Features
                         </h3>
                         <ul class="space-y-2 text-gray-300 font-light">
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                @svg('hugeicons-tick-01', 'w-5 h-5 mr-2 text-green-400')
                                 Automated backups
                             </li>
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                @svg('hugeicons-tick-01', 'w-5 h-5 mr-2 text-green-400')
                                 Multiple storage options
                             </li>
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                @svg('hugeicons-tick-01', 'w-5 h-5 mr-2 text-green-400')
                                 Support for Laravel
                             </li>
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                @svg('hugeicons-tick-01', 'w-5 h-5 mr-2 text-green-400')
                                 Powerful scheduling
                             </li>
                         </ul>
                     </div>
                     <div class="bg-white bg-opacity-10 rounded-lg p-6 hover-lift">
                         <h3 class="text-2xl font-medium mb-4 text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-primary-400" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
+                            @svg('hugeicons-user-group', 'w-6 h-6 mr-2 text-primary-400')
                             Community
                         </h3>
                         <ul class="space-y-2 text-gray-300 font-light">
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                                @svg('hugeicons-user-group', 'w-5 h-5 mr-2 text-white')
                                 Active contributors
                             </li>
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                                @svg('hugeicons-calendar-02', 'w-5 h-5 mr-2 text-white')
                                 Regular updates
                             </li>
                             <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                                @svg('hugeicons-github', 'w-5 h-5 mr-2 text-white')
                                 GitHub discussions
+                            </li>
+                            <li class="flex items-center">
+                                @svg('hugeicons-source-code-square', 'w-5 h-5 mr-2 text-white')
+                                Official SDKs
                             </li>
                         </ul>
                     </div>
@@ -240,11 +208,7 @@
 
                 <div class="mb-16 animate-rise">
                     <h3 class="text-3xl font-semibold mb-6 text-white flex items-center justify-center sm:justify-start">
-                        <svg class="w-8 h-8 mr-3 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                             xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path>
-                        </svg>
+                       @svg('hugeicons-puzzle', 'w-8 h-8 mr-3 text-primary-400')
                         Get Involved
                     </h3>
                     <p class="mb-8 text-xl font-light text-gray-300 text-center sm:text-left">Join our open-source
@@ -252,33 +216,20 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 stagger-animation">
                         <a href="https://github.com/vanguardbackup/vanguard" target="_blank" rel="noopener noreferrer"
                            class="group bg-white text-gray-900 hover:bg-gray-100 p-6 rounded-xl transition duration-300 hover-lift flex flex-col items-center text-center">
-                            <svg class="w-12 h-12 mb-4 text-gray-700 group-hover:text-black" fill="currentColor"
-                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                                      clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('hugeicons-github', 'w-12 h-12 mb-4 text-gray-700 group-hover:text-black')
                             <h4 class="text-xl font-medium mb-2">GitHub Repo</h4>
                             <p class="text-gray-600 group-hover:text-gray-800 font-light">Explore our code and
                                 contribute</p>
                         </a>
                         <a href="https://vanguardbackup.com" target="_blank"
                            class="group bg-gradient-to-br from-primary-500 to-primary-700 text-white p-6 rounded-xl transition duration-300 hover-lift flex flex-col items-center text-center">
-                            <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                 xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                            </svg>
+                            @svg('hugeicons-global', 'w-12 h-12 mb-4')
                             <h4 class="text-xl font-medium mb-2">Website</h4>
                             <p class="text-gray-100 group-hover:text-white font-light">Learn more about Vanguard</p>
                         </a>
                         <a href="https://docs.vanguardbackup.com" target="_blank"
                            class="group bg-gradient-to-br from-primary-500 to-primary-700 text-white p-6 rounded-xl transition duration-300 hover-lift flex flex-col items-center text-center">
-                            <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                 xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
+                            @svg('hugeicons-book-open-02', 'w-12 h-12 mb-4')
                             <h4 class="text-xl font-medium mb-2">Documentation</h4>
                             <p class="text-gray-100 group-hover:text-white font-light">Read guides and our FAQ</p>
                         </a>

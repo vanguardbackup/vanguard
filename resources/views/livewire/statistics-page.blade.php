@@ -8,7 +8,7 @@
             @if (Auth::user()->backupTasks->count() === 0)
                 <x-no-content withBackground>
                     <x-slot name="icon">
-                        @svg('heroicon-o-chart-pie', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                        @svg('hugeicons-analytics-01', 'h-16 w-16 text-primary-900 dark:text-white inline')
                     </x-slot>
                     <x-slot name="title">
                         {{ __('No Data Available') }}
@@ -22,7 +22,7 @@
                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
 
                     <x-stat-card
-                        icon="heroicon-o-server"
+                        icon="hugeicons-cloud-server"
                         title="{{ __('Backup Data Statistics') }}"
                         description="{{ __('Data backed up over different periods.') }}"
                     >
@@ -37,7 +37,7 @@
                     </x-stat-card>
 
                     <x-stat-card
-                        icon="heroicon-o-link"
+                        icon="hugeicons-wireless-cloud-access"
                         title="{{ __('Linked Resources') }}"
                         description="{{ __('Connected servers and destinations.') }}"
                     >
@@ -50,7 +50,7 @@
                     </x-stat-card>
 
                     <x-stat-card
-                        icon="heroicon-o-clipboard-document-list"
+                        icon="hugeicons-task-01"
                         title="{{ __('Backup Tasks') }}"
                         description="{{ __('Status of your backup tasks.') }}"
                     >

@@ -15,7 +15,7 @@
 
     @if ($errors->has($name))
         <div class="absolute inset-y-0 {{ $errorIconClass }} flex items-center pointer-events-none">
-            @svg('heroicon-o-exclamation-triangle', ['class' => 'w-5 h-5 text-red-600'])
+            @svg('hugeicons-alert-02', ['class' => 'w-5 h-5 text-red-600'])
         </div>
     @endif
 </div>

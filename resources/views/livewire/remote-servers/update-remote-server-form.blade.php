@@ -1,13 +1,13 @@
 <div>
     <x-form-wrapper>
         <x-slot name="title">
-            {{ __('Add Remote Server') }}
+            {{ __('Update Remote Server') }}
         </x-slot>
         <x-slot name="description">
-            {{ __('Create a new remote server.') }}
+            {{ __('Update your remote server details.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-server-stack
+            hugeicons-cloud-server
         </x-slot>
         <form wire:submit="submit">
             <div class="mt-4">

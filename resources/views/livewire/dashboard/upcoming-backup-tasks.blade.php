@@ -2,7 +2,7 @@
     @if ($scheduledBackupTasks->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-calendar', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-calendar-03', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Upcoming Backup Tasks') }}
@@ -23,7 +23,7 @@
             title="{{ __('Upcoming Backup Tasks') }}"
             description="{{ __('Scheduled backup tasks that are set to run soon.') }}">
             <x-slot name="icon">
-                <x-heroicon-o-calendar class="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                <x-hugeicons-calendar-03 class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Task Label') }}</div>
@@ -47,7 +47,7 @@
 
                         <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scheduledBackupTask->type === __('Files') ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
-                              @svg($scheduledBackupTask->type === __('Files') ? 'heroicon-o-document-duplicate' : 'heroicon-o-circle-stack', ['class' => 'h-4 w-4 mr-1'])
+                              @svg($scheduledBackupTask->type === __('Files') ? 'hugeicons-file-01' : 'hugeicons-database', ['class' => 'h-4 w-4 mr-1'])
                                 {{ ucfirst($scheduledBackupTask->type) }}
                             </span>
                         </div>

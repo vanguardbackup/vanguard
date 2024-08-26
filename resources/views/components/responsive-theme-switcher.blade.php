@@ -28,7 +28,7 @@
             :class="{'bg-primary-600': theme === 'light', 'bg-gray-600': theme !== 'light'}"
             class="flex-1 px-3 py-2 rounded-md text-sm font-medium text-white transition-colors duration-200"
         >
-            @svg('heroicon-o-sun', 'w-5 h-5 mx-auto')
+            @svg('hugeicons-sun-02', 'w-5 h-5 mx-auto')
             <span class="sr-only">{{ __('Light') }}</span>
         </button>
         <button
@@ -36,7 +36,7 @@
             :class="{'bg-primary-600': theme === 'dark', 'bg-gray-600': theme !== 'dark'}"
             class="flex-1 px-3 py-2 rounded-md text-sm font-medium text-white transition-colors duration-200"
         >
-            @svg('heroicon-o-moon', 'w-5 h-5 mx-auto')
+            @svg('hugeicons-moon-02', 'w-5 h-5 mx-auto')
             <span class="sr-only">{{ __('Dark') }}</span>
         </button>
         <button
@@ -44,7 +44,7 @@
             :class="{'bg-primary-600': theme === 'system', 'bg-gray-600': theme !== 'system'}"
             class="flex-1 px-3 py-2 rounded-md text-sm font-medium text-white transition-colors duration-200"
         >
-            @svg('heroicon-o-computer-desktop', 'w-5 h-5 mx-auto')
+            @svg('hugeicons-computer', 'w-5 h-5 mx-auto')
             <span class="sr-only">{{ __('System') }}</span>
         </button>
     </div>

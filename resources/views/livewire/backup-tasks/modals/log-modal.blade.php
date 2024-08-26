@@ -7,7 +7,7 @@
             {{ __('Viewing a Backup Task log.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-document-text
+            hugeicons-license
         </x-slot>
         <div>
             @if (app()->isLocal())
@@ -21,10 +21,10 @@
                     >
                         <div class="flex items-center justify-between">
                 <span class="flex items-center">
-                    <x-heroicon-o-bug-ant class="w-5 h-5 mr-2" />
+                    <x-hugeicons-bug-02 class="w-5 h-5 mr-2" />
                     {{ __('Debug Information') }}
                 </span>
-                            <x-heroicon-o-chevron-down
+                            <x-hugeicons-arrow-right-01
                                 class="w-5 h-5 transition-transform duration-200"
                                 ::class="{ 'transform rotate-180': showDebug }"
                             />
@@ -44,11 +44,11 @@
                         <ul class="space-y-2">
                             @php
                                 $debugItems = [
-                                    ['icon' => 'identification', 'label' => 'Component ID', 'value' => $this->getId()],
-                                    ['icon' => 'clipboard-document-list', 'label' => 'Backup Task ID', 'value' => $backupTaskId],
-                                    ['icon' => 'arrow-path', 'label' => 'Is Streaming', 'value' => $isStreaming ? 'Yes' : 'No'],
-                                    ['icon' => 'clock', 'label' => 'Is Loading', 'value' => $isLoading ? 'Yes' : 'No'],
-                                    ['icon' => 'document-text', 'label' => 'Log Output Length', 'value' => strlen($logOutput)],
+                                    ['icon' => 'profile', 'label' => 'Component ID', 'value' => $this->getId()],
+                                    ['icon' => 'task-01', 'label' => 'Backup Task ID', 'value' => $backupTaskId],
+                                    ['icon' => 'refresh', 'label' => 'Is Streaming', 'value' => $isStreaming ? 'Yes' : 'No'],
+                                    ['icon' => 'clock-01', 'label' => 'Is Loading', 'value' => $isLoading ? 'Yes' : 'No'],
+                                    ['icon' => 'license', 'label' => 'Log Output Length', 'value' => strlen($logOutput)],
                                 ];
                             @endphp
 
@@ -56,7 +56,7 @@
                                 <li class="flex items-center justify-between">
                         <span class="flex items-center text-gray-600 dark:text-gray-400">
                             <x-dynamic-component
-                                :component="'heroicon-o-' . $item['icon']"
+                                :component="'hugeicons-' . $item['icon']"
                                 class="w-4 h-4 mr-2"
                             />
                             {{ $item['label'] }}:
@@ -80,7 +80,7 @@
                         </x-textarea>
                         @if ($isStreaming)
                             <div class="flex items-center text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                @svg('heroicon-o-arrow-path', 'w-4 h-4 mr-2 animate-spin')
+                                @svg('hugeicons-refresh', 'w-4 h-4 mr-2 animate-spin')
                                 {{ __('Streaming live log data...') }}
                             </div>
                         @endif

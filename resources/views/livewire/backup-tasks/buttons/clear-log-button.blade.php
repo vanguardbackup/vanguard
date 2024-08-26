@@ -4,7 +4,7 @@
             <a href="#" class="text-sm text-red-600 dark:text-red-400 font-medium hover:text-underline ease-in-out"
                x-data=""
                x-on:click.prevent="$dispatch('open-modal', 'clear-all-backup-task-logs')">
-                @svg('heroicon-o-x-mark', 'h-5 w-5 inline-block -mt-0.5')
+                @svg('hugeicons-delete-02', 'h-5 w-5 inline-block -mt-0.5')
                 {{ __('Clear All Backup Task Logs') }}
             </a>
         </div>
@@ -16,13 +16,13 @@
                 {{ __('Please read this carefully before confirming this action.') }}
             </x-slot>
             <x-slot name="icon">
-                heroicon-o-trash
+                hugeicons-delete-02
             </x-slot>
             <div>
-                <p class="text-gray-800 dark:text-gray-200 mb-3">
+                <p class="mb-3">
                     {{ __('Are you sure you want to clear your backup task log history?') }}
                 </p>
-                <p class="text-gray-800 dark:text-gray-200 my-3">
+                <p class="my-3">
                     {{ __('All your backups will still exist at their backup destination but there will be no record of them within :app. Please confirm your request.', ['app' => config('app.name')]) }}
                 </p>
                 <div class="flex space-x-5">

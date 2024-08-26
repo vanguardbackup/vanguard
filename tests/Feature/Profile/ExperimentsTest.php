@@ -35,7 +35,7 @@ test('experiments are displayed correctly', function (): void {
     Feature::define('test-experiment', true);
 
     Volt::test('profile.experiments-manager')
-        ->assertSee('Feature Experiments')
+        ->assertSee('Experiments')
         ->assertSee('Test experiment');
 });
 

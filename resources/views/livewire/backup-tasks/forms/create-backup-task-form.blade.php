@@ -13,7 +13,7 @@
                     {{ __('Create a new backup task.') }}
                 </x-slot>
                 <x-slot name="icon">
-                    heroicon-o-archive-box
+                    hugeicons-archive-02
                 </x-slot>
                 <form wire:submit.prevent="submit">
 
@@ -21,12 +21,12 @@
                     <div class="w-full py-6 px-4 sm:px-6 md:px-8">
                         @php
                             $steps = [
-                                ['label' => __('Details'), 'icon' => 'heroicon-o-document-text'],
-                                ['label' => __('Configuration'), 'icon' => 'heroicon-o-cog'],
-                                ['label' => __('Backup Info'), 'icon' => 'heroicon-o-circle-stack'],
-                                ['label' => __('Schedule'), 'icon' => 'heroicon-o-calendar'],
-                                ['label' => __('Notifications'), 'icon' => 'heroicon-o-bell'],
-                                ['label' => __('Summary'), 'icon' => 'heroicon-o-clipboard-document-list']
+                                ['label' => __('Details'), 'icon' => 'hugeicons-profile'],
+                                ['label' => __('Configuration'), 'icon' => 'hugeicons-settings-02'],
+                                ['label' => __('Backup Info'), 'icon' => 'hugeicons-database'],
+                                ['label' => __('Schedule'), 'icon' => 'hugeicons-calendar-01'],
+                                ['label' => __('Notifications'), 'icon' => 'hugeicons-notification-02'],
+                                ['label' => __('Summary'), 'icon' => 'hugeicons-profile-02']
                             ];
                         @endphp
 
@@ -38,7 +38,7 @@
                     {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-50' : 'bg-gray-300 dark:bg-gray-700') }}
                     transition-all duration-300 ease-in-out">
                                         @if ($index < $currentStep - 1)
-                                            @svg('heroicon-o-check-circle', 'w-5 h-5 text-white')
+                                            @svg('hugeicons-checkmark-circle-02', 'w-5 h-5 text-white')
                                         @else
                                             @svg($step['icon'], 'w-5 h-5 ' . ($index <= $currentStep - 1 ? 'text-white
                                             dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
@@ -61,7 +61,7 @@
                         {{ $index < $currentStep - 1 ? 'bg-green-500' : ($index === $currentStep - 1 ? 'bg-gray-950 dark:bg-gray-50' : 'bg-gray-300 dark:bg-gray-700') }}
                         transition-all duration-300 ease-in-out transform hover:scale-105">
                                             @if ($index < $currentStep - 1)
-                                                @svg('heroicon-o-check-circle', 'w-6 h-6 text-white')
+                                                @svg('hugeicons-checkmark-circle-02', 'w-6 h-6 text-white')
                                             @else
                                                 @svg($step['icon'], 'w-6 h-6 ' . ($index <= $currentStep - 1 ?
                                                 'text-white dark:text-gray-950' : 'text-gray-500 dark:text-gray-200'))
@@ -318,7 +318,7 @@
                                         x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'cron-presets')"
                                     >
-                                        @svg('heroicon-o-clock', 'w-5 h-5 mr-1')
+                                        @svg('hugeicons-clock-01', 'w-5 h-5 mr-1')
                                         {{ __('Presets') }}
                                     </x-secondary-button>
                                 </div>
@@ -371,7 +371,7 @@
                             <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
                                 <div class="px-4 py-5 sm:px-6">
                                     <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 flex items-center">
-                                        @svg('heroicon-o-clipboard-document-check', 'w-6 h-6 mr-2 text-green-500')
+                                        @svg('hugeicons-profile-02', 'w-6 h-6 mr-2 text-green-500')
                                         {{ __('Review Your Backup Task') }}
                                     </h3>
                                     <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
@@ -389,52 +389,52 @@
                                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 mb-1 flex items-center">
                                                     @switch($key)
                                                         @case(__('Label'))
-                                                            @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-blue-500')
+                                                            @svg('hugeicons-tag-01', 'w-5 h-5 mr-2 text-blue-500')
                                                             @break
                                                         @case(__('Description'))
-                                                            @svg('heroicon-o-document-text', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-clipboard', 'w-5 h-5 mr-2
                                                             text-purple-500')
                                                             @break
                                                         @case(__('Remote Server'))
-                                                            @svg('heroicon-o-server', 'w-5 h-5 mr-2 text-green-500')
+                                                            @svg('hugeicons-cloud-server', 'w-5 h-5 mr-2 text-green-500')
                                                             @break
                                                         @case(__('Backup Type'))
-                                                            @svg('heroicon-o-archive-box', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-blockchain-01', 'w-5 h-5 mr-2
                                                             text-yellow-500')
                                                             @break
                                                         @case(__('Supplied Encryption Password'))
-                                                            @svg('heroicon-o-key', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-square-lock-02', 'w-5 h-5 mr-2
                                                             text-yellow-500')
                                                             @break
                                                         @case(__('Backup Destination'))
-                                                            @svg('heroicon-o-cloud', 'w-5 h-5 mr-2 text-indigo-500')
+                                                            @svg('hugeicons-folder-02', 'w-5 h-5 mr-2 text-indigo-500')
                                                             @break
                                                         @case(__('Maximum Backups to Keep'))
-                                                            @svg('heroicon-o-archive-box-arrow-down', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-compass', 'w-5 h-5 mr-2
                                                             text-red-500')
                                                             @break
                                                         @case(__('Source Path'))
-                                                            @svg('heroicon-o-folder', 'w-5 h-5 mr-2 text-orange-500')
+                                                            @svg('hugeicons-folder-01', 'w-5 h-5 mr-2 text-orange-500')
                                                             @break
                                                         @case(__('Database Name'))
-                                                            @svg('heroicon-o-circle-stack', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-database', 'w-5 h-5 mr-2
                                                             text-cyan-500')
                                                             @break
                                                         @case(__('Schedule'))
-                                                            @svg('heroicon-o-calendar', 'w-5 h-5 mr-2 text-pink-500')
+                                                            @svg('hugeicons-calendar-01', 'w-5 h-5 mr-2 text-pink-500')
                                                             @break
                                                         @case(__('Using Isolated Environment'))
-                                                            @svg('heroicon-o-shield-check', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-security-check', 'w-5 h-5 mr-2
                                                             text-teal-500')
                                                             @break
                                                         @case(__('Tags'))
-                                                            @svg('heroicon-o-tag', 'w-5 h-5 mr-2 text-lime-500')
+                                                            @svg('hugeicons-tags', 'w-5 h-5 mr-2 text-lime-500')
                                                             @break
                                                         @case(__('Notification Streams'))
-                                                            @svg('heroicon-o-bell', 'w-5 h-5 mr-2 text-amber-500')
+                                                            @svg('hugeicons-notification-02', 'w-5 h-5 mr-2 text-amber-500')
                                                             @break
                                                         @default
-                                                            @svg('heroicon-o-information-circle', 'w-5 h-5 mr-2
+                                                            @svg('hugeicons-information-circle', 'w-5 h-5 mr-2
                                                             text-gray-500')
                                                     @endswitch
                                                     {{ $key }}
@@ -549,13 +549,13 @@
             {{ __('Select a preset to quickly set up common backup schedules. The cron expression will be automatically filled in for you.') }}
         </x-slot>
         <x-slot name="icon">
-            heroicon-o-calendar-days
+            hugeicons-calendar-02
         </x-slot>
         <div class="p-6">
             <div class="mb-4">
                 <x-input-label for="cronPresetSearch" :value="__('Search Presets')"/>
                 <div class="relative">
-                    @svg('heroicon-o-magnifying-glass', 'w-5 h-5 text-gray-400 absolute left-3 top-3')
+                    @svg('hugeicons-search-01', 'w-5 h-5 text-gray-400 absolute left-3 top-3')
                     <x-text-input
                         name="cronPresetSearch"
                         id="cronPresetSearch"

@@ -76,7 +76,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <x-primary-button dusk="login-button" class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">
             {{ __('Login') }}
-            @svg('heroicon-o-arrow-right', 'w-5 h-5 ms-2 inline')
+            @svg('hugeicons-arrow-right-02', 'w-5 h-5 ms-2 inline')
         </x-primary-button>
 
         @if (config('services.github.client_id') && config('services.github.client_secret'))
@@ -134,22 +134,26 @@ new #[Layout('layouts.guest')] class extends Component {
         @endif
 
         <div class="text-center mt-8">
-            <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                {{ __('By creating an account, you') }}
-                @if (config('app.terms_of_service_url') && config('app.privacy_policy_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
-                    {{ __('and our') }}
-                    <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
-                @elseif (config('app.terms_of_service_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
-                @elseif (config('app.privacy_policy_url'))
-                    {{ __('agree to our') }}
-                    <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
-                @endif
-                {{ __('.') }}
-            </div>
+            @php
+                $showTerms = config('app.terms_of_service_url');
+                $showPrivacy = config('app.privacy_policy_url');
+            @endphp
+
+            @if ($showTerms || $showPrivacy)
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    {{ __('By creating an account, you agree to our') }}
+                    @if ($showTerms)
+                        <a href="{{ config('app.terms_of_service_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Terms of Service') }}</a>
+                    @endif
+                    @if ($showTerms && $showPrivacy)
+                        {{ __('and') }}
+                    @endif
+                    @if ($showPrivacy)
+                        <a href="{{ config('app.privacy_policy_url') }}" class="underline hover:text-gray-700 dark:hover:text-gray-300">{{ __('Privacy Policy') }}</a>
+                    @endif
+                    {{ __('.') }}
+                </div>
+            @endif
             <div class="text-sm text-gray-600 dark:text-gray-400">
                 {{ __('Don\'t have an account?') }}
                 <a href="{{ route('register') }}"

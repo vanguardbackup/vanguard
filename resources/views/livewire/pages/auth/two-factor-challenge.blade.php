@@ -244,7 +244,7 @@ new #[Layout('layouts.minimal')] class extends Component {
                 </div>
                 <div>
                     <x-primary-button type="button" wire:click="submit" centered fat action="submit" loadingText="Verifying...">
-                        @svg('heroicon-o-finger-print', 'w-5 h-5 mr-2 inline')
+                        @svg('hugeicons-finger-print', 'w-5 h-5 mr-2 inline')
                         {{ __('Verify and Proceed') }}
                     </x-primary-button>
                 </div>

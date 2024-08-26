@@ -2,7 +2,7 @@
     @if ($notificationStreams->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('heroicon-o-bell', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-notification-02', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Notification Streams') }}
@@ -23,7 +23,7 @@
             title="{{ __('Notification Streams') }}"
             description="{{ __('Configured Notification streams for your backup tasks.') }}">
             <x-slot name="icon">
-                <x-heroicon-o-bell class="h-6 w-6 text-primary-600 dark:text-primary-400"/>
+                <x-hugeicons-notification-02 class="h-6 w-6 text-primary-600 dark:text-primary-400"/>
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Label') }}</div>
@@ -59,7 +59,7 @@
                             <a href="{{ route('notification-streams.edit', $notificationStream) }}" wire:navigate>
                                 <x-secondary-button iconOnly>
                                     <span class="sr-only">{{ __('Update Notification Stream') }}</span>
-                                    <x-heroicon-o-pencil-square class="w-4 h-4"/>
+                                    <x-hugeicons-task-edit-01 class="w-4 h-4"/>
                                 </x-secondary-button>
                             </a>
                         </div>

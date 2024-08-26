@@ -226,7 +226,7 @@ new class extends Component {
                 <x-slot name="description">
                     {{ __('Monitor and manage your active login sessions across various devices and locations.') }}
                 </x-slot>
-                <x-slot name="icon">heroicon-o-globe-alt</x-slot>
+                <x-slot name="icon">hugeicons-gps-signal-01</x-slot>
 
                 <div class="space-y-6">
                     @foreach ($this->sessions as $session)
@@ -236,13 +236,13 @@ new class extends Component {
                                     <div class="flex items-center mb-4 sm:mb-0">
                                         <div class="flex-shrink-0 mr-4">
                                             @if ($session->device['desktop'])
-                                                @svg('heroicon-o-computer-desktop', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-computer', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['mobile'])
-                                                @svg('heroicon-o-device-phone-mobile', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-smart-phone-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['tablet'])
-                                                @svg('heroicon-o-device-tablet', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-tablet-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @else
-                                                @svg('heroicon-o-globe-alt', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-global', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @endif
                                         </div>
                                         <div>
@@ -296,7 +296,7 @@ new class extends Component {
 
                 <div class="mt-8 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
                     <div class="flex items-center mb-4">
-                        @svg('heroicon-o-arrow-left-on-rectangle', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
+                        @svg('hugeicons-logout-circle-02', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Terminate Other Sessions') }}</h3>
                     </div>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('For enhanced security, you can terminate all other active sessions across your devices. If you suspect any unauthorized access, it\'s recommended to change your password immediately after this action.') }}</p>
@@ -316,7 +316,7 @@ new class extends Component {
                         {{ __('Enhance your account security by terminating all sessions on other devices.') }}
                     </x-slot>
                     <x-slot name="icon">
-                        heroicon-o-arrow-left-on-rectangle
+                        hugeicons-logout-circle-02
                     </x-slot>
 
                     <form wire:submit="logoutOtherBrowserSessions">
@@ -360,7 +360,7 @@ new class extends Component {
                         {{ __('Detailed information about the selected session.') }}
                     </x-slot>
                     <x-slot name="icon">
-                        heroicon-o-information-circle
+                        hugeicons-gps-signal-01
                     </x-slot>
 
                     @if ($selectedSession)
@@ -369,13 +369,13 @@ new class extends Component {
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex items-center">
                                         @if ($selectedSession->device['desktop'])
-                                            <x-heroicon-o-computer-desktop class="w-8 h-8 mr-3 text-gray-500" />
+                                            @svg('hugeicons-computer', 'w-8 h-8 mr-3 text-gray-500')
                                         @elseif ($selectedSession->device['mobile'])
-                                            <x-heroicon-o-device-phone-mobile class="w-8 h-8 mr-3 text-gray-500" />
+                                            @svg('hugeicons-smart-phone-01', 'w-8 h-8 mr-3 text-gray-500')
                                         @elseif ($selectedSession->device['tablet'])
-                                            <x-heroicon-o-device-tablet class="w-8 h-8 mr-3 text-gray-500" />
+                                            @svg('hugeicons-tablet-01', 'w-8 h-8 mr-3 text-gray-500')
                                         @else
-                                            <x-heroicon-o-globe-alt class="w-8 h-8 mr-3 text-gray-500" />
+                                            @svg('hugeicons-global', 'w-8 h-8 mr-3 text-gray-500')
                                         @endif
                                         <div>
                                             <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Device Type') }}</p>
@@ -393,7 +393,7 @@ new class extends Component {
                                         </div>
                                     </div>
                                     <div class="flex items-center">
-                                        <x-heroicon-o-clock class="w-8 h-8 mr-3 text-gray-500" />
+                                        <x-hugeicons-clock-01 class="w-8 h-8 mr-3 text-gray-500" />
                                         <div>
                                             <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Last Active') }}</p>
                                             <p class="text-xs text-gray-600 dark:text-gray-400">{{ $selectedSession->last_active }}</p>

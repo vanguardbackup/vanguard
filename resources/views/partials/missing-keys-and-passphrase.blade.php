@@ -22,7 +22,7 @@
             <div class="flex flex-col sm:flex-row items-center justify-between">
                 <div class="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
                     <span class="flex p-2 rounded-full bg-red-700/50 backdrop-blur-sm">
-                        @svg('heroicon-o-exclamation-triangle', 'h-6 w-6 text-white')
+                        @svg('hugeicons-alert-02', 'h-6 w-6 text-white')
                     </span>
                     <p class="ml-3 font-medium text-sm sm:text-base">
                         @if (!ssh_keys_exist())
@@ -38,7 +38,7 @@
                             @click="$dispatch('open-modal', 'ssh-key-generation')"
                             class="flex-grow sm:flex-grow-0 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-2 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
                         >
-                            @svg('heroicon-o-command-line', ['class' => 'h-4 w-4 inline mr-2'])
+                            @svg('hugeicons-keyboard', ['class' => 'h-4 w-4 inline mr-2'])
                             {{ __('Show Command') }}
                         </button>
 
@@ -50,7 +50,7 @@
                                 {{ __('Easy, straightforward instructions on how to generate your SSH keys.') }}
                             </x-slot>
                             <x-slot name="icon">
-                                heroicon-o-command-line
+                                hugeicons-keyboard
                             </x-slot>
                             <div>
                                 <div>
@@ -67,10 +67,10 @@
                                             :aria-label="copied ? '{{ __('Copied!') }}' : '{{ __('Copy to Clipboard') }}'"
                                         >
                                             <span x-show="!copied" aria-hidden="true">
-                                                @svg('heroicon-o-clipboard-document', 'h-5 w-5')
+                                                @svg('hugeicons-task-01', 'h-5 w-5')
                                             </span>
                                             <span x-show="copied" x-cloak aria-hidden="true">
-                                                @svg('heroicon-o-clipboard-document-check', 'h-5 w-5')
+                                                @svg('hugeicons-task-done-02', 'h-5 w-5')
                                             </span>
                                         </button>
                                     </div>
@@ -92,7 +92,7 @@
                             @click="$dispatch('open-modal', 'set-passphrase')"
                             class="flex-grow sm:flex-grow-0 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-2 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
                         >
-                            @svg('heroicon-o-key', ['class' => 'h-4 w-4 inline mr-2'])
+                            @svg('hugeicons-license', ['class' => 'h-4 w-4 inline mr-2'])
                             {{ __('How to Set Passphrase') }}
                         </button>
 
@@ -104,7 +104,7 @@
                                 {{ __('Easy, straightforward instructions on how to set your passphrase.') }}
                             </x-slot>
                             <x-slot name="icon">
-                                heroicon-o-command-line
+                                hugeicons-keyboard
                             </x-slot>
                             <div>
                                 <div>
