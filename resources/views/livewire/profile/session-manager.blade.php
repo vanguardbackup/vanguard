@@ -238,7 +238,7 @@ new class extends Component {
                                             @if ($session->device['desktop'])
                                                 @svg('hugeicons-computer', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['mobile'])
-                                                @svg('hugeicons-o-smart-phone-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-smart-phone-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['tablet'])
                                                 @svg('hugeicons-tablet-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
                                             @else
