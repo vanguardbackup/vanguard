@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 use Number;
 use RuntimeException;
 
@@ -44,6 +45,7 @@ use RuntimeException;
 class BackupTask extends Model
 {
     use ComposesTelegramNotification;
+    use AuditableModel;
     /** @use HasFactory<BackupTaskFactory> */
     use HasFactory;
     use HasTags;

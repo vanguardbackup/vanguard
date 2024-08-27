@@ -10,8 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
-{
+new #[Layout('layouts.guest')] class extends Component {
     #[Locked]
     public string $token = '';
     public string $email = '';
@@ -33,17 +32,16 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $status = Password::reset(
-            $this->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) {
-                $user->forceFill([
+        $status = Password::reset($this->only('email', 'password', 'password_confirmation', 'token'), function ($user) {
+            $user
+                ->forceFill([
                     'password' => Hash::make($this->password),
                     'remember_token' => Str::random(60),
-                ])->save();
+                ])
+                ->save();
 
-                event(new PasswordReset($user));
-            }
-        );
+            event(new PasswordReset($user));
+        });
 
         if ($status != Password::PASSWORD_RESET) {
             $this->addError('email', __($status));
@@ -72,33 +70,75 @@ new #[Layout('layouts.guest')] class extends Component
     <form wire:submit="resetPassword" class="mt-8 space-y-6">
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" class="block text-sm font-medium text-gray-700 dark:text-gray-300" />
-            <x-text-input wire:model="email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="email" name="email" required autofocus autocomplete="username" />
+            <x-input-label
+                for="email"
+                :value="__('Email')"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            />
+            <x-text-input
+                wire:model="email"
+                id="email"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                type="email"
+                name="email"
+                required
+                autofocus
+                autocomplete="username"
+            />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div>
-            <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300" />
-            <x-text-input wire:model="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="password" name="password" required autocomplete="new-password" />
+            <x-input-label
+                for="password"
+                :value="__('Password')"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            />
+            <x-text-input
+                wire:model="password"
+                id="password"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                type="password"
+                name="password"
+                required
+                autocomplete="new-password"
+            />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
         <div>
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300" />
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm" type="password" name="password_confirmation" required autocomplete="new-password" />
+            <x-input-label
+                for="password_confirmation"
+                :value="__('Confirm Password')"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            />
+            <x-text-input
+                wire:model="password_confirmation"
+                id="password_confirmation"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                type="password"
+                name="password_confirmation"
+                required
+                autocomplete="new-password"
+            />
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <x-primary-button class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">
+        <x-primary-button
+            class="w-full justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600"
+        >
             {{ __('Change Password') }}
-            @svg('hugeicons-arrow-right-02', 'w-5 h-5 ms-2 inline')
+            @svg('hugeicons-arrow-right-02', 'ms-2 inline h-5 w-5')
         </x-primary-button>
 
-        <div class="text-center mt-6">
-            <a class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
-               href="{{ route('login') }}" wire:navigate>
+        <div class="mt-6 text-center">
+            <a
+                class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                href="{{ route('login') }}"
+                wire:navigate
+            >
                 {{ __('Back to login') }}
             </a>
         </div>

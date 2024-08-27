@@ -183,19 +183,26 @@ test('user cannot proceed to final confirmation if not eligible', function (): v
 test('account summary is generated correctly', function (): void {
     $user = User::factory()->create();
 
-    $backupTask = BackupTask::factory()->create(['user_id' => $user->id]);
-    $remoteServer = RemoteServer::factory()->create(['user_id' => $user->id]);
-    $backupDestination = BackupDestination::factory()->create(['user_id' => $user->id]);
+    BackupTask::factory()->create(['user_id' => $user->id]);
+    RemoteServer::factory()->create(['user_id' => $user->id]);
+    BackupDestination::factory()->create(['user_id' => $user->id]);
 
     $this->actingAs($user);
 
     $testable = Volt::test('profile.delete-user-form');
 
-    $this->assertEquals([
-        'backupTasks' => 1,
-        'remoteServers' => 1,
-        'backupDestinations' => 1,
-    ], $testable->get('accountSummary'));
+    $accountSummary = $testable->get('accountSummary');
+
+    expect($accountSummary)->toHaveCount(3);
+
+    foreach (['backupTasks', 'remoteServers', 'backupDestinations'] as $key) {
+        expect($accountSummary[$key])->toHaveKeys(['count', 'label', 'icon', 'description'])
+            ->and($accountSummary[$key]['count'])->toBe(1);
+    }
+
+    expect($accountSummary['backupTasks']['label'])->toBe('Backup Tasks')
+        ->and($accountSummary['remoteServers']['label'])->toBe('Remote Servers')
+        ->and($accountSummary['backupDestinations']['label'])->toBe('Backup Destinations');
 });
 
 test('the timezone must be valid', function (): void {

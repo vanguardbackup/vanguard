@@ -4,7 +4,7 @@
         {{ __('Backup Destinations') }}
     </x-slot>
     <x-slot name="action">
-        @if (!Auth::user()->backupDestinations->isEmpty())
+        @if (! Auth::user()->backupDestinations->isEmpty())
             <a href="{{ route('backup-destinations.create') }}" wire:navigate>
                 <x-primary-button centered>
                     {{ __('Add Backup Destination') }}

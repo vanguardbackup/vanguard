@@ -1,0 +1,59 @@
+name: Daily Cache Cleanup
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # Runs at 1 AM UTC every day
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup
+        run: |
+          gh extension install actions/gh-actions-cache
+
+          REPO=${{ github.repository }}
+
+          echo "Fetching list of cache keys"
+          cacheKeys=$(gh actions-cache list -R $REPO | cut -f 1 )
+
+          ## Setting this to not fail the workflow while deleting cache keys.
+          set +e
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeys
+          do
+              gh actions-cache delete $cacheKey -R $REPO --confirm
+          done
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  clean-old-caches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup old caches
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const currentTimestamp = new Date().getTime();
+
+            for (const cache of caches.data.actions_caches) {
+              const cacheCreatedAt = new Date(cache.created_at).getTime();
+              const cacheAgeDays = (currentTimestamp - cacheCreatedAt) / (1000 * 60 * 60 * 24);
+
+              if (cacheAgeDays > 7) {
+                console.log(`Deleting cache ${cache.id} (${cache.key}), created ${cacheAgeDays.toFixed(2)} days ago`);
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                });
+              }
+            }

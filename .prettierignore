@@ -1,0 +1,20 @@
+node_modules
+dist
+.env*
+vendor/
+/vendor
+public/
+.git
+**/.git
+package-lock.json
+composer.lock
+
+## Ignore all mailables due to using markdown where formatting is precious ##
+resources/views/mail/
+
+## Ignored due to prettier issues that can't be resolved automatically atm!
+resources/views/components/select.blade.php
+resources/views/components/textarea.blade.php
+resources/views/livewire/backup-tasks/forms/create-backup-task-form.blade.php
+resources/views/livewire/backup-tasks/tables/index-item.blade.php
+resources/views/livewire/pages/auth/register.blade.php

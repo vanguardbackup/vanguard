@@ -40,7 +40,7 @@ new class extends Component {
 
     public function loadSessions(): void
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
@@ -62,7 +62,7 @@ new class extends Component {
 
     public function logoutSession(string $sessionId): void
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
@@ -97,7 +97,7 @@ new class extends Component {
 
     protected function getSessions(): Collection
     {
-        if (!$this->isDatabaseDriver) {
+        if (! $this->isDatabaseDriver) {
             return collect();
         }
 
@@ -106,7 +106,7 @@ new class extends Component {
                 ->table(Config::get('session.table', 'sessions'))
                 ->where('user_id', Auth::id())
                 ->latest('last_activity')
-                ->get()
+                ->get(),
         )->map(function ($session) {
             $agent = $this->createAgent($session);
             $location = $this->getLocationFromIp($session->ip_address);
@@ -121,7 +121,11 @@ new class extends Component {
                     'platform' => $agent->platform(),
                 ],
                 'ip_address' => $session->ip_address,
-                'is_current_device' => $session->id === request()->session()->getId(),
+                'is_current_device' =>
+                    $session->id ===
+                    request()
+                        ->session()
+                        ->getId(),
                 'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
                 'location' => $location,
             ];
@@ -130,10 +134,7 @@ new class extends Component {
 
     protected function createAgent(object $session): Agent
     {
-        return tap(
-            new Agent(),
-            fn (Agent $agent) => $agent->setUserAgent($session->user_agent)
-        );
+        return tap(new Agent(), fn (Agent $agent) => $agent->setUserAgent($session->user_agent));
     }
 
     protected function getLocationFromIp(string $ip): array
@@ -165,13 +166,13 @@ new class extends Component {
     protected function doLogoutOtherBrowserSessions(): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             throw ValidationException::withMessages([
                 'user' => [__('User not found.')],
             ]);
         }
 
-        if (!Hash::check($this->password, $user->password)) {
+        if (! Hash::check($this->password, $user->password)) {
             throw ValidationException::withMessages([
                 'password' => [__('This password does not match our records.')],
             ]);
@@ -184,14 +185,20 @@ new class extends Component {
 
     protected function deleteOtherSessionRecords(): void
     {
-        if (!$this->isDatabaseDriver) {
+        if (! $this->isDatabaseDriver) {
             return;
         }
 
         DB::connection(Config::get('session.connection'))
             ->table(Config::get('session.table', 'sessions'))
             ->where('user_id', Auth::id())
-            ->where('id', '!=', request()->session()->getId())
+            ->where(
+                'id',
+                '!=',
+                request()
+                    ->session()
+                    ->getId(),
+            )
             ->delete();
     }
 
@@ -203,22 +210,24 @@ new class extends Component {
             ->latest('last_activity')
             ->first();
 
-        if (!$lastActivity) {
+        if (! $lastActivity) {
             return $human ? __('Never') : Carbon::now();
         }
 
         $timestamp = Carbon::createFromTimestamp($lastActivity->last_activity);
         return $human ? $timestamp->diffForHumans() : $timestamp;
     }
-}
+};
 ?>
 
 <div wire:key="{{ auth()->id() }}-browser-sessions">
     <div wire:key="current-view-sessions">
-        @if (!$this->isDatabaseDriver)
-            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+        @if (! $this->isDatabaseDriver)
+            <div class="mb-6 border-l-4 border-yellow-500 bg-yellow-100 p-4 text-yellow-700" role="alert">
                 <p class="font-bold">{{ __('Warning') }}</p>
-                <p>{{ __('The session driver is not configured to use the database. Session management functionality requires the database driver to operate correctly. Please update your session configuration to use the database driver.') }}</p>
+                <p>
+                    {{ __('The session driver is not configured to use the database. Session management functionality requires the database driver to operate correctly. Please update your session configuration to use the database driver.') }}
+                </p>
             </div>
         @else
             <x-form-wrapper>
@@ -230,39 +239,49 @@ new class extends Component {
 
                 <div class="space-y-6">
                     @foreach ($this->sessions as $session)
-                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 overflow-hidden">
+                        <div
+                            class="overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 dark:border-gray-600"
+                        >
                             <div class="p-6">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                    <div class="flex items-center mb-4 sm:mb-0">
-                                        <div class="flex-shrink-0 mr-4">
+                                    <div class="mb-4 flex items-center sm:mb-0">
+                                        <div class="mr-4 flex-shrink-0">
                                             @if ($session->device['desktop'])
-                                                @svg('hugeicons-computer', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-computer', 'h-10 w-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['mobile'])
-                                                @svg('hugeicons-smart-phone-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-smart-phone-01', 'h-10 w-10 text-gray-500 dark:text-gray-400')
                                             @elseif ($session->device['tablet'])
-                                                @svg('hugeicons-tablet-01', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-tablet-01', 'h-10 w-10 text-gray-500 dark:text-gray-400')
                                             @else
-                                                @svg('hugeicons-global', 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                                @svg('hugeicons-global', 'h-10 w-10 text-gray-500 dark:text-gray-400')
                                             @endif
                                         </div>
                                         <div>
                                             <div class="flex items-center">
-                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $session->device['browser'] }} on {{ $session->device['platform'] }}</h3>
+                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                                    {{ $session->device['browser'] }}
+                                                    on
+                                                    {{ $session->device['platform'] }}
+                                                </h3>
                                                 @if ($session->is_current_device)
-                                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                                {{ __('Current') }}
-                            </span>
+                                                    <span
+                                                        class="ml-2 inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                                    >
+                                                        {{ __('Current') }}
+                                                    </span>
                                                 @endif
                                             </div>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                {{ $session->ip_address }} - {{ $session->location['city'] }}, {{ $session->location['country'] }}
+                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                                {{ $session->ip_address }} - {{ $session->location['city'] }},
+                                                {{ $session->location['country'] }}
                                             </p>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                                                 {{ __('Last active') }}
                                                 @php
                                                     $lastActiveTimestamp = Carbon::parse($session->last_active);
                                                     $diffInSeconds = $lastActiveTimestamp->diffInSeconds(now());
                                                 @endphp
+
                                                 @if ($diffInSeconds < 60)
                                                     {{ __('less than a minute ago') }}
                                                 @else
@@ -278,11 +297,11 @@ new class extends Component {
                                         >
                                             {{ __('See More') }}
                                         </x-secondary-button>
-                                        @if (!$session->is_current_device)
+                                        @if (! $session->is_current_device)
                                             <x-danger-button
                                                 wire:click="logoutSession('{{ $session->id }}')"
                                                 wire:loading.attr="disabled"
-                                                class="w-full sm:w-auto justify-center"
+                                                class="w-full justify-center sm:w-auto"
                                             >
                                                 {{ __('Terminate') }}
                                             </x-danger-button>
@@ -294,12 +313,16 @@ new class extends Component {
                     @endforeach
                 </div>
 
-                <div class="mt-8 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
-                    <div class="flex items-center mb-4">
-                        @svg('hugeicons-logout-circle-02', 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ __('Terminate Other Sessions') }}</h3>
+                <div class="mt-8 rounded-lg bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
+                    <div class="mb-4 flex items-center">
+                        @svg('hugeicons-logout-circle-02', 'mr-3 h-8 w-8 text-gray-500 dark:text-gray-400')
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ __('Terminate Other Sessions') }}
+                        </h3>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('For enhanced security, you can terminate all other active sessions across your devices. If you suspect any unauthorized access, it\'s recommended to change your password immediately after this action.') }}</p>
+                    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                        {{ __('For enhanced security, you can terminate all other active sessions across your devices. If you suspect any unauthorized access, it\'s recommended to change your password immediately after this action.') }}
+                    </p>
                     <x-danger-button
                         x-data=""
                         x-on:click.prevent="$dispatch('open-modal', 'confirm-logout-other-browser-sessions')"
@@ -315,9 +338,7 @@ new class extends Component {
                     <x-slot name="description">
                         {{ __('Enhance your account security by terminating all sessions on other devices.') }}
                     </x-slot>
-                    <x-slot name="icon">
-                        hugeicons-logout-circle-02
-                    </x-slot>
+                    <x-slot name="icon">hugeicons-logout-circle-02</x-slot>
 
                     <form wire:submit="logoutOtherBrowserSessions">
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -325,7 +346,7 @@ new class extends Component {
                         </p>
 
                         <div class="mt-6">
-                            <x-input-label for="password" value="{{ __('Password') }}" class="sr-only"/>
+                            <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
 
                             <x-text-input
                                 autofocus
@@ -337,7 +358,7 @@ new class extends Component {
                                 placeholder="{{ __('Password') }}"
                             />
 
-                            <x-input-error :messages="$errors->get('password')" class="mt-2"/>
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
                         <div class="mt-6 flex justify-end">
@@ -359,26 +380,26 @@ new class extends Component {
                     <x-slot name="description">
                         {{ __('Detailed information about the selected session.') }}
                     </x-slot>
-                    <x-slot name="icon">
-                        hugeicons-gps-signal-01
-                    </x-slot>
+                    <x-slot name="icon">hugeicons-gps-signal-01</x-slot>
 
                     @if ($selectedSession)
                         <div class="p-6">
-                            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                            <div class="mb-6 rounded-lg bg-gray-100 p-4 dark:bg-gray-800">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex items-center">
                                         @if ($selectedSession->device['desktop'])
-                                            @svg('hugeicons-computer', 'w-8 h-8 mr-3 text-gray-500')
+                                            @svg('hugeicons-computer', 'mr-3 h-8 w-8 text-gray-500')
                                         @elseif ($selectedSession->device['mobile'])
-                                            @svg('hugeicons-smart-phone-01', 'w-8 h-8 mr-3 text-gray-500')
+                                            @svg('hugeicons-smart-phone-01', 'mr-3 h-8 w-8 text-gray-500')
                                         @elseif ($selectedSession->device['tablet'])
-                                            @svg('hugeicons-tablet-01', 'w-8 h-8 mr-3 text-gray-500')
+                                            @svg('hugeicons-tablet-01', 'mr-3 h-8 w-8 text-gray-500')
                                         @else
-                                            @svg('hugeicons-global', 'w-8 h-8 mr-3 text-gray-500')
+                                            @svg('hugeicons-global', 'mr-3 h-8 w-8 text-gray-500')
                                         @endif
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Device Type') }}</p>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ __('Device Type') }}
+                                            </p>
                                             <p class="text-xs text-gray-600 dark:text-gray-400">
                                                 @if ($selectedSession->device['desktop'])
                                                     {{ __('Desktop') }}
@@ -393,36 +414,46 @@ new class extends Component {
                                         </div>
                                     </div>
                                     <div class="flex items-center">
-                                        <x-hugeicons-clock-01 class="w-8 h-8 mr-3 text-gray-500" />
+                                        <x-hugeicons-clock-01 class="mr-3 h-8 w-8 text-gray-500" />
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Last Active') }}</p>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400">{{ $selectedSession->last_active }}</p>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ __('Last Active') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                {{ $selectedSession->last_active }}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
                                     {{ __('Device Information') }}
                                 </h3>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                            <strong>{{ __('Browser') }}:</strong> {{ $selectedSession->device['browser'] }}
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <strong>{{ __('Browser') }}:</strong>
+                                            {{ $selectedSession->device['browser'] }}
                                         </p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                            <strong>{{ __('Platform') }}:</strong> {{ $selectedSession->device['platform'] }}
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <strong>{{ __('Platform') }}:</strong>
+                                            {{ $selectedSession->device['platform'] }}
                                         </p>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                            <strong>{{ __('IP Address') }}:</strong> {{ $selectedSession->ip_address }}
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <strong>{{ __('IP Address') }}:</strong>
+                                            {{ $selectedSession->ip_address }}
                                         </p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
                                             <strong>{{ __('Current Device') }}:</strong>
+
                                             @if ($selectedSession->is_current_device)
-                                                <span class="text-green-600 dark:text-green-400">{{ __('Yes') }}</span>
+                                                <span class="text-green-600 dark:text-green-400">
+                                                    {{ __('Yes') }}
+                                                </span>
                                             @else
                                                 {{ __('No') }}
                                             @endif
@@ -432,16 +463,18 @@ new class extends Component {
                             </div>
 
                             <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
                                     {{ __('Estimated Location') }}
                                 </h3>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                            <strong>{{ __('City') }}:</strong> {{ $selectedSession->location['city'] }}
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <strong>{{ __('City') }}:</strong>
+                                            {{ $selectedSession->location['city'] }}
                                         </p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                            <strong>{{ __('Country') }}:</strong> {{ $selectedSession->location['country'] }}
+                                        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <strong>{{ __('Country') }}:</strong>
+                                            {{ $selectedSession->location['country'] }}
                                         </p>
                                     </div>
                                 </div>
@@ -458,7 +491,7 @@ new class extends Component {
                             </div>
 
                             <div class="flex justify-end">
-                                @if (!$selectedSession->is_current_device)
+                                @if (! $selectedSession->is_current_device)
                                     <x-danger-button
                                         wire:click="logoutSession('{{ $selectedSession->id }}')"
                                         wire:loading.attr="disabled"
@@ -470,7 +503,6 @@ new class extends Component {
                         </div>
                     @endif
                 </x-modal>
-
             </x-form-wrapper>
         @endif
     </div>

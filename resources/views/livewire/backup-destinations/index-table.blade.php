@@ -2,7 +2,7 @@
     @if ($backupDestinations->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-global', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-folder-cloud', 'inline h-16 w-16 text-primary-900 dark:text-white')
             </x-slot>
             <x-slot name="title">
                 {{ __("You don't have any backup destinations!") }}
@@ -24,7 +24,7 @@
             description="{{ __('A summary of configured backup destinations, where your backups will reside.') }}"
         >
             <x-slot name="icon">
-                <x-hugeicons-global class="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                <x-hugeicons-folder-cloud class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Label') }}</div>
@@ -34,8 +34,8 @@
             </x-table.table-header>
             <x-table.table-body>
                 @foreach ($backupDestinations as $backupDestination)
-                    @livewire('backup-destinations.index-item', ['backupDestination' => $backupDestination],
-                    key($backupDestination->id))
+                    @livewire(
+                    'backup-destinations.index-item', ['backupDestination' => $backupDestination], key($backupDestination->id)                    )
                 @endforeach
             </x-table.table-body>
         </x-table.table-wrapper>
@@ -44,4 +44,3 @@
         </div>
     @endif
 </div>
-

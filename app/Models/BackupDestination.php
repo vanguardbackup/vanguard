@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 use RuntimeException;
 
 /**
@@ -23,6 +24,7 @@ use RuntimeException;
  */
 class BackupDestination extends Model
 {
+    use AuditableModel;
     /** @use HasFactory<BackupDestinationFactory> */
     use HasFactory;
 

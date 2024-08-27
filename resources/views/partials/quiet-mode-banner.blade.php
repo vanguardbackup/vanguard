@@ -7,19 +7,21 @@
 @endphp
 
 @if ($isQuietModeActive)
-    <div class="bg-blue-50 dark:bg-blue-900/50 rounded-none p-4 shadow-none">
-        <div class="max-w-6xl mx-auto">
+    <div class="rounded-none bg-blue-50 p-4 shadow-none dark:bg-blue-900/50">
+        <div class="mx-auto max-w-6xl">
             <div class="flex items-start">
-                <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-800 rounded-full p-2 mr-4">
-                    @svg('hugeicons-notification-snooze-02', 'w-6 h-6 text-blue-500 dark:text-blue-300')
+                <div class="mr-4 flex-shrink-0 rounded-full bg-blue-100 p-2 dark:bg-blue-800">
+                    @svg('hugeicons-notification-snooze-02', 'h-6 w-6 text-blue-500 dark:text-blue-300')
                 </div>
                 <div class="flex-grow">
-                    <div class="flex justify-between items-center mb-2">
+                    <div class="mb-2 flex items-center justify-between">
                         <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200">
                             {{ __('Quiet Mode Active') }}
                         </h4>
-                        <span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded-full">
-                        @if ($daysLeft > 1)
+                        <span
+                            class="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-800 dark:text-blue-400"
+                        >
+                            @if ($daysLeft > 1)
                                 {{ __(':count days left', ['count' => $daysLeft]) }}
                             @elseif ($daysLeft == 1)
                                 {{ __('1 day left') }}
@@ -28,14 +30,18 @@
                             @endif
                         </span>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex items-center justify-between">
                         <p class="text-sm text-blue-600 dark:text-blue-300">
                             {{ __('Notifications are paused until :endDate.', ['endDate' => $quietUntil->format('F j, Y')]) }}
                         </p>
                         @unless ($isOnQuietModePage)
-                            <a href="{{ route('profile.quiet-mode') }}" wire:navigate class="inline-flex items-center ml-4 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition ease-in-out duration-150">
+                            <a
+                                href="{{ route('profile.quiet-mode') }}"
+                                wire:navigate
+                                class="ml-4 inline-flex items-center text-sm font-medium text-blue-600 transition duration-150 ease-in-out hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                            >
                                 {{ __('Manage') }}
-                                @svg('hugeicons-arrow-right-double', 'w-4 h-4 ml-1')
+                                @svg('hugeicons-arrow-right-double', 'ml-1 h-4 w-4')
                             </a>
                         @endunless
                     </div>

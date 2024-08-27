@@ -12,8 +12,7 @@ use Livewire\Volt\Component;
  * This component handles the account deletion process, including eligibility checks
  * and final confirmation.
  */
-new class extends Component
-{
+new class extends Component {
     /** @var string The current view of the deletion process */
     public string $currentView = 'notice';
 
@@ -46,7 +45,8 @@ new class extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        $this->isEligible = $user->backupTasks()->count() === 0 &&
+        $this->isEligible =
+            $user->backupTasks()->count() === 0 &&
             $user->remoteServers()->count() === 0 &&
             $user->backupDestinations()->count() === 0;
     }
@@ -59,9 +59,24 @@ new class extends Component
         /** @var User $user */
         $user = Auth::user();
         $this->accountSummary = [
-            'backupTasks' => $user->backupTasks()->count(),
-            'remoteServers' => $user->remoteServers()->count(),
-            'backupDestinations' => $user->backupDestinations()->count(),
+            'backupTasks' => [
+                'count' => $user->backupTasks()->count(),
+                'label' => 'Backup Tasks',
+                'icon' => 'hugeicons-archive-02',
+                'description' => 'Scheduled backup operations you have configured.',
+            ],
+            'remoteServers' => [
+                'count' => $user->remoteServers()->count(),
+                'label' => 'Remote Servers',
+                'icon' => 'hugeicons-hard-drive',
+                'description' => 'Linux servers you have connected to your account.',
+            ],
+            'backupDestinations' => [
+                'count' => $user->backupDestinations()->count(),
+                'label' => 'Backup Destinations',
+                'icon' => 'hugeicons-folder-cloud',
+                'description' => 'Storage locations (e.g., S3 buckets) for your backups.',
+            ],
         ];
     }
 
@@ -72,7 +87,7 @@ new class extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        $this->hasPassword = !is_null($user->password);
+        $this->hasPassword = ! is_null($user->password);
     }
 
     /**
@@ -134,7 +149,7 @@ new class extends Component
                     </div>
                 </div>
 
-                @if (!$hasPassword)
+                @if (! $hasPassword)
                     <x-notice
                         type="info"
                         title="{{ __('Account Deletion Requires Password') }}"
@@ -143,18 +158,19 @@ new class extends Component
                 @endif
 
                 @if ($hasPassword)
-                    <div class="flex justify-end items-center">
+                    <div class="flex items-center justify-end">
                         <x-danger-button wire:click="proceedToEligibilityCheck" type="button">
                             {{ __('Proceed to Eligibility Check') }}
-                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 ml-2 inline')
+                            @svg('hugeicons-arrow-right-03', 'ml-2 inline h-5 w-5')
                         </x-danger-button>
                     </div>
                 @endif
             </x-form-wrapper>
-
         @elseif ($currentView === 'eligibility')
             <x-form-wrapper>
-                <x-slot name="title">{{ __('Account Deletion Eligibility') }}</x-slot>
+                <x-slot name="title">
+                    {{ __('Account Deletion Eligibility') }}
+                </x-slot>
                 <x-slot name="description">
                     {{ __('We\'ll check if your account is eligible for deletion based on your current data and services.') }}
                 </x-slot>
@@ -178,36 +194,55 @@ new class extends Component
                 </div>
 
                 <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Account Summary') }}</h3>
+                    <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('Account Summary') }}
+                    </h3>
+                    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                        {{ __('Review the following summary of your account. To be eligible for deletion, all counts must be zero.') }}
+                    </p>
                     <ul class="space-y-4">
-                        @foreach (['backupTasks' => 'Backup Tasks', 'remoteServers' => 'Remote Servers', 'backupDestinations' => 'Backup Destinations'] as $key => $label)
-                            <li class="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                <span class="text-gray-700 dark:text-gray-300">{{ __($label) }}</span>
-                                <span class="font-semibold {{ $accountSummary[$key] > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400' }}">
-                                    {{ $accountSummary[$key] }}
-                                </span>
+                        @foreach (['backupTasks', 'remoteServers', 'backupDestinations'] as $key)
+                            <li class="rounded-lg bg-gray-100 p-4 dark:bg-gray-800">
+                                <div class="mb-2 flex items-center justify-between">
+                                    <span class="flex items-center text-gray-700 dark:text-gray-300">
+                                        <x-dynamic-component
+                                            :component="$accountSummary[$key]['icon']"
+                                            class="mr-2 inline h-5 w-5"
+                                        />
+                                        {{ __($accountSummary[$key]['label']) }}
+                                    </span>
+                                    <span
+                                        class="{{ $accountSummary[$key]['count'] > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400' }} font-semibold"
+                                    >
+                                        {{ $accountSummary[$key]['count'] }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ __($accountSummary[$key]['description']) }}
+                                </p>
                             </li>
                         @endforeach
                     </ul>
                 </div>
 
-                <div class="flex justify-between items-center">
+                <div class="flex items-center justify-between">
                     <x-secondary-button wire:click="$set('currentView', 'notice')" type="button">
-                        @svg('hugeicons-arrow-left-03', 'w-5 h-5 mr-2')
+                        @svg('hugeicons-arrow-left-03', 'mr-2 h-5 w-5')
                         {{ __('Go Back') }}
                     </x-secondary-button>
                     @if ($isEligible)
                         <x-danger-button wire:click="proceedToFinalConfirmation" type="button">
                             {{ __('Proceed to Final Confirmation') }}
-                            @svg('hugeicons-arrow-right-03', 'w-5 h-5 ml-2 inline')
+                            @svg('hugeicons-arrow-right-03', 'ml-2 inline h-5 w-5')
                         </x-danger-button>
                     @endif
                 </div>
             </x-form-wrapper>
-
         @elseif ($currentView === 'final-confirmation')
             <x-form-wrapper>
-                <x-slot name="title">{{ __('Final Account Deletion Confirmation') }}</x-slot>
+                <x-slot name="title">
+                    {{ __('Final Account Deletion Confirmation') }}
+                </x-slot>
                 <x-slot name="description">
                     {{ __('This is your last chance to reconsider. Once confirmed, your account will be deleted.') }}
                 </x-slot>
@@ -236,14 +271,14 @@ new class extends Component
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center">
+                    <div class="flex items-center justify-between">
                         <x-secondary-button wire:click="$set('currentView', 'eligibility')" type="button">
-                            @svg('hugeicons-arrow-left-03', 'w-5 h-5 mr-2')
+                            @svg('hugeicons-arrow-left-03', 'mr-2 h-5 w-5')
                             {{ __('Go Back') }}
                         </x-secondary-button>
                         <x-danger-button type="submit">
                             {{ __('Permanently Delete Account') }}
-                            @svg('hugeicons-sad-01', 'w-5 h-5 ml-1 -mt-0.5 inline')
+                            @svg('hugeicons-sad-01', '-mt-0.5 ml-1 inline h-5 w-5')
                         </x-danger-button>
                     </div>
                 </form>

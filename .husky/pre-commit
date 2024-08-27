@@ -1,6 +1,6 @@
+#!/bin/bash
+
 set -e
-
-
 
 GREEN='\033[0;32m'
 LIGHT_GREEN='\033[1;32m'
@@ -74,11 +74,6 @@ run_command() {
     end_time=$(date +%s.%N)
     duration=$(echo "$end_time - $start_time" | bc)
 
-    # Debug: Print full command output
-    #echo "Debug: Command output for $1:" >&2
-    #echo "$output" >&2
-    #echo "Debug: End of command output for $1" >&2
-
     if [ "$1" = "Running Static Analysis" ]; then
         if [ $exit_code -ne 0 ] || echo "$output" | grep -q "\[ERROR\]"; then
             print_result 1
@@ -98,7 +93,7 @@ run_command() {
         fi
     elif [ "$1" = "Running Pest tests" ] || [ "$1" = "Running Dusk tests" ]; then
         if echo "$output" | grep -q "No \"dirty\" tests found"; then
-            print_result 2  # Using 2 for the "SKIP" state
+            print_result 2
             printf " ${CYAN}(%.2fs) Tests skipped (no relevant changes)${NC}\n" "$duration"
             return 0
         elif echo "$output" | grep -q " FAILURES!"; then
@@ -156,6 +151,22 @@ run_command() {
             printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
             return 1
         fi
+    elif [ "$1" = "Checking Prettier formatting" ]; then
+        if [ $exit_code -eq 2 ] || echo "$output" | grep -q "\[warn\] Code style issues found in"; then
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Prettier found formatting issues:${NC}\n%s\n\n" "$output"
+            return 1
+        elif [ $exit_code -eq 0 ]; then
+            print_result 0
+            printf " ${GREEN}(%.2fs) No formatting issues found${NC}\n" "$duration"
+            return 0
+        else
+            print_result 1
+            printf " ${RED}(%.2fs)${NC}\n" "$duration"
+            printf "\n${RED}Error output:${NC}\n%s\n\n" "$output"
+            return 1
+        fi
     else
         if [ $exit_code -eq 0 ]; then
             print_result 0
@@ -184,6 +195,7 @@ commands=(
     "Running Dusk tests:php artisan dusk --dirty --bail"
     "Checking Code Style:./vendor/bin/duster lint"
     "Checking for Refactoring Opportunities:./vendor/bin/rector --no-progress-bar --dry-run"
+    "Checking Prettier formatting:npx prettier --check resources/"
     "Building Assets:npm run build"
 )
 
@@ -241,6 +253,9 @@ else
                     ;;
                 "Checking for refactoring opportunities")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/rector${YELLOW}' to apply suggested refactorings${NC}\n"
+                    ;;
+                "Checking Prettier formatting")
+                    printf "    ${YELLOW}To fix: Run '${CYAN}npx prettier --write resources/${YELLOW}' to automatically fix formatting issues${NC}\n"
                     ;;
                 "Building assets")
                     printf "    ${YELLOW}To fix: Run '${CYAN}npm run build${YELLOW}' and ensure it completes successfully${NC}\n"

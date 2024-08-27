@@ -8,6 +8,7 @@ use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 
 /**
  * Represents a tag in the system.
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Tag extends Model
 {
+    use AuditableModel;
     /** @use HasFactory<TagFactory> */
     use HasFactory;
 

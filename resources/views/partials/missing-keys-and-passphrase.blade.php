@@ -1,44 +1,48 @@
-@if (!ssh_keys_exist() || !config('app.ssh.passphrase'))
-    <div x-data="{
-        show: true,
-        copied: false,
-        copyCommand() {
-            navigator.clipboard.writeText(this.$refs.command.textContent);
-            this.copied = true;
-            setTimeout(() => this.copied = false, 2000);
-        }
-    }"
-         x-show="show"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform -translate-y-2"
-         x-transition:enter-end="opacity-100 transform translate-y-0"
-         x-transition:leave="transition ease-in duration-300"
-         x-transition:leave-start="opacity-100 transform translate-y-0"
-         x-transition:leave-end="opacity-0 transform -translate-y-2"
-         class="bg-gradient-to-r from-red-500/90 to-red-600/90 text-white relative shadow-lg"
-         role="alert"
-         aria-live="assertive">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row items-center justify-between">
-                <div class="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
-                    <span class="flex p-2 rounded-full bg-red-700/50 backdrop-blur-sm">
+@if (! ssh_keys_exist() || ! config('app.ssh.passphrase'))
+    <div
+        x-data="{
+            show: true,
+            copied: false,
+            copyCommand() {
+                navigator.clipboard.writeText(this.$refs.command.textContent)
+                this.copied = true
+                setTimeout(() => (this.copied = false), 2000)
+            },
+        }"
+        x-show="show"
+        x-transition:enter="transition duration-300 ease-out"
+        x-transition:enter-start="-translate-y-2 transform opacity-0"
+        x-transition:enter-end="translate-y-0 transform opacity-100"
+        x-transition:leave="transition duration-300 ease-in"
+        x-transition:leave-start="translate-y-0 transform opacity-100"
+        x-transition:leave-end="-translate-y-2 transform opacity-0"
+        class="relative bg-gradient-to-r from-red-500/90 to-red-600/90 text-white shadow-lg"
+        role="alert"
+        aria-live="assertive"
+    >
+        <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center justify-between sm:flex-row">
+                <div class="mb-4 flex w-full items-center sm:mb-0 sm:w-auto">
+                    <span class="flex rounded-full bg-red-700/50 p-2 backdrop-blur-sm">
                         @svg('hugeicons-alert-02', 'h-6 w-6 text-white')
                     </span>
-                    <p class="ml-3 font-medium text-sm sm:text-base">
-                        @if (!ssh_keys_exist())
+                    <p class="ml-3 text-sm font-medium sm:text-base">
+                        @if (! ssh_keys_exist())
                             {{ __('Warning! SSH key missing.') }}
                         @else
                             {{ __('Warning! SSH passphrase not set.') }}
                         @endif
                     </p>
                 </div>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-                    @if (!ssh_keys_exist())
+                <div
+                    class="flex w-full flex-col items-stretch space-y-2 sm:w-auto sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0"
+                >
+                    @if (! ssh_keys_exist())
                         <button
                             @click="$dispatch('open-modal', 'ssh-key-generation')"
-                            class="flex-grow sm:flex-grow-0 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-2 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
+                            class="flex-grow rounded-full border border-white/25 bg-white/10 px-6 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 sm:flex-grow-0"
                         >
-                            @svg('hugeicons-keyboard', ['class' => 'h-4 w-4 inline mr-2'])
+                            @svg('hugeicons-keyboard', ['class' => 'mr-2 inline h-4 w-4'])
                             {{ __('Show Command') }}
                         </button>
 
@@ -49,21 +53,21 @@
                             <x-slot name="description">
                                 {{ __('Easy, straightforward instructions on how to generate your SSH keys.') }}
                             </x-slot>
-                            <x-slot name="icon">
-                                hugeicons-keyboard
-                            </x-slot>
+                            <x-slot name="icon">hugeicons-keyboard</x-slot>
                             <div>
                                 <div>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ __('Run this command in your terminal to generate SSH keys:') }}
                                     </p>
-                                    <div class="mt-3 relative">
-                                        <div class="bg-gray-100 dark:bg-gray-700 rounded-md p-3 font-mono text-sm text-gray-800 dark:text-gray-200 break-all sm:break-normal">
+                                    <div class="relative mt-3">
+                                        <div
+                                            class="break-all rounded-md bg-gray-100 p-3 font-mono text-sm text-gray-800 sm:break-normal dark:bg-gray-700 dark:text-gray-200"
+                                        >
                                             <code x-ref="command">php artisan vanguard:generate-ssh-key</code>
                                         </div>
                                         <button
                                             @click="copyCommand"
-                                            class="absolute top-2 right-2 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors duration-150"
+                                            class="absolute right-2 top-2 rounded-md p-1 text-gray-400 transition-colors duration-150 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:text-gray-300 dark:focus:ring-offset-gray-800"
                                             :aria-label="copied ? '{{ __('Copied!') }}' : '{{ __('Copy to Clipboard') }}'"
                                         >
                                             <span x-show="!copied" aria-hidden="true">
@@ -90,30 +94,40 @@
                     @else
                         <button
                             @click="$dispatch('open-modal', 'set-passphrase')"
-                            class="flex-grow sm:flex-grow-0 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-2 text-sm font-medium text-white rounded-full border border-white/25 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 transition-all duration-150 ease-out hover:shadow-lg hover:-translate-y-0.5"
+                            class="flex-grow rounded-full border border-white/25 bg-white/10 px-6 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-red-600 sm:flex-grow-0"
                         >
-                            @svg('hugeicons-license', ['class' => 'h-4 w-4 inline mr-2'])
+                            @svg('hugeicons-license', ['class' => 'mr-2 inline h-4 w-4'])
                             {{ __('How to Set Passphrase') }}
                         </button>
 
-                        <x-modal name="set-passphrase" :focusable="true"  maxWidth="lg">
+                        <x-modal name="set-passphrase" :focusable="true" maxWidth="lg">
                             <x-slot name="title">
                                 {{ __('How to Set SSH Passphrase') }}
                             </x-slot>
                             <x-slot name="description">
                                 {{ __('Easy, straightforward instructions on how to set your passphrase.') }}
                             </x-slot>
-                            <x-slot name="icon">
-                                hugeicons-keyboard
-                            </x-slot>
+                            <x-slot name="icon">hugeicons-keyboard</x-slot>
                             <div>
                                 <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('To set the SSH passphrase:') }}</p>
-                                    <ol class="list-decimal list-inside text-sm space-y-2 mt-2">
-                                        <li>{{ __('Open your .env file') }}</li>
-                                        <li>{{ __('Add or update the following line:') }}</li>
-                                        <code class="block bg-gray-100 dark:bg-gray-700 p-2 rounded mt-1 text-xs break-all">SSH_PASSPHRASE=your_passphrase_here</code>
-                                        <li>{{ __('Save the file and restart your application') }}</li>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ __('To set the SSH passphrase:') }}
+                                    </p>
+                                    <ol class="mt-2 list-inside list-decimal space-y-2 text-sm">
+                                        <li>
+                                            {{ __('Open your .env file') }}
+                                        </li>
+                                        <li>
+                                            {{ __('Add or update the following line:') }}
+                                        </li>
+                                        <code
+                                            class="mt-1 block break-all rounded bg-gray-100 p-2 text-xs dark:bg-gray-700"
+                                        >
+                                            SSH_PASSPHRASE=your_passphrase_here
+                                        </code>
+                                        <li>
+                                            {{ __('Save the file and restart your application') }}
+                                        </li>
                                     </ol>
                                 </div>
 

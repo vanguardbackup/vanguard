@@ -56,7 +56,7 @@ new class extends Component {
     public function toggleExperiment(string $experiment): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -154,7 +154,7 @@ new class extends Component {
      */
     private function handleFeedbackResponse(\Illuminate\Http\Client\Response $response): void
     {
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $this->handleUnsuccessfulResponse($response);
         }
 
@@ -235,7 +235,7 @@ new class extends Component {
     private function getExperimentDetails(string $experiment): array
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 
@@ -282,7 +282,7 @@ new class extends Component {
     @if ($currentView === 'no-content')
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-test-tube-01', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-test-tube', 'inline h-16 w-16 text-primary-900 dark:text-white')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Active Experiments') }}
@@ -297,23 +297,29 @@ new class extends Component {
             <x-slot name="description">
                 {{ __('Explore and manage experimental features for your account.') }}
             </x-slot>
-            <x-slot name="icon">hugeicons-test-tube-01</x-slot>
+            <x-slot name="icon">hugeicons-test-tube</x-slot>
 
             <div class="space-y-6">
                 @foreach ($this->experiments->groupBy('group') as $group => $groupExperiments)
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $group }}</h3>
+                        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {{ $group }}
+                        </h3>
                         @foreach ($groupExperiments as $experiment)
-                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 overflow-hidden mb-4">
+                            <div
+                                class="mb-4 overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 dark:border-gray-600"
+                            >
                                 <div class="p-6">
                                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                        <div class="flex items-center mb-4 sm:mb-0">
-                                            <div class="flex-shrink-0 mr-4">
-                                                @svg($experiment['icon'], 'w-10 h-10 text-gray-500 dark:text-gray-400')
+                                        <div class="mb-4 flex items-center sm:mb-0">
+                                            <div class="mr-4 flex-shrink-0">
+                                                @svg($experiment['icon'], 'h-10 w-10 text-gray-500 dark:text-gray-400')
                                             </div>
                                             <div>
-                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $experiment['title'] }}</h3>
-                                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                                    {{ $experiment['title'] }}
+                                                </h3>
+                                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                                                     {{ $experiment['enabled'] ? __('Active for your account') : __('Inactive for your account') }}
                                                 </p>
                                             </div>
@@ -342,47 +348,58 @@ new class extends Component {
             <x-slot name="description">
                 {{ __('Learn more about this experiment and manage your participation.') }}
             </x-slot>
-            <x-slot name="icon">
-                hugeicons-test-tube-01
-            </x-slot>
+            <x-slot name="icon">hugeicons-test-tube-01</x-slot>
 
             @if ($selectedExperiment)
                 @php
                     $experiment = $this->experiments->firstWhere('name', $selectedExperiment);
                 @endphp
+
                 <div class="mb-6">
-                    <div class="flex items-center mb-4">
-                        @svg($experiment['icon'], 'w-8 h-8 text-gray-500 dark:text-gray-400 mr-3')
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $experiment['title'] }}</h3>
+                    <div class="mb-4 flex items-center">
+                        @svg($experiment['icon'], 'mr-3 h-8 w-8 text-gray-500 dark:text-gray-400')
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {{ $experiment['title'] }}
+                        </h3>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                         {{ $experiment['description'] }}
                     </p>
-                    <div class="flex items-center mb-2">
-                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Status:') }}</span>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $experiment['enabled'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                    {{ $experiment['enabled'] ? __('Active') : __('Inactive') }}
-                </span>
+                    <div class="mb-2 flex items-center">
+                        <span class="mr-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                            {{ __('Status:') }}
+                        </span>
+                        <span
+                            class="{{ $experiment['enabled'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} rounded-full px-2 py-1 text-xs font-semibold"
+                        >
+                            {{ $experiment['enabled'] ? __('Active') : __('Inactive') }}
+                        </span>
                     </div>
-                    <div class="flex items-center mb-2">
-                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">{{ __('Category:') }}</span>
-                        <span class="text-sm text-gray-900 dark:text-gray-100">{{ $experiment['group'] }}</span>
+                    <div class="mb-2 flex items-center">
+                        <span class="mr-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                            {{ __('Category:') }}
+                        </span>
+                        <span class="text-sm text-gray-900 dark:text-gray-100">
+                            {{ $experiment['group'] }}
+                        </span>
                     </div>
                 </div>
 
-                <div class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-md">
+                <div
+                    class="mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-700 dark:bg-yellow-900/20"
+                >
                     <p class="text-sm text-yellow-700 dark:text-yellow-200">
                         <span class="font-medium">{{ __('Note:') }}</span>
                         {{ __('You may need to refresh the page (F5 or Cmd/Ctrl + R) to see changes after activating or deactivating an experiment.') }}
                     </p>
                 </div>
 
-                <div class="mt-6 flex justify-between items-center">
+                <div class="mt-6 flex items-center justify-between">
                     <button
                         wire:click="openFeedbackModal"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-0"
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-0"
                     >
-                        @svg('hugeicons-comment-01', 'w-5 h-5 mr-2 -ml-1')
+                        @svg('hugeicons-comment-01', '-ml-1 mr-2 h-5 w-5')
                         {{ __('Share Feedback') }}
                     </button>
                     <div class="flex space-x-3">
@@ -404,14 +421,12 @@ new class extends Component {
             <x-slot name="description">
                 {{ __('Your feedback helps us improve this experimental feature.') }}
             </x-slot>
-            <x-slot name="icon">
-                hugeicons-comment-01
-            </x-slot>
+            <x-slot name="icon">hugeicons-comment-01</x-slot>
 
             <form wire:submit.prevent="submitFeedback">
                 <div>
                     <div class="mt-4">
-                        <x-input-label for="feedbackEmail" :value="__('Your Feedback')"/>
+                        <x-input-label for="feedbackEmail" :value="__('Your Feedback')" />
                         <x-textarea
                             autofocus
                             required
@@ -425,7 +440,7 @@ new class extends Component {
                     </div>
 
                     <div class="mt-4">
-                        <x-input-label for="feedbackEmail" :value="__('Contact Email (Optional)')"/>
+                        <x-input-label for="feedbackEmail" :value="__('Contact Email (Optional)')" />
                         <x-text-input
                             name="feedbackEmail"
                             wire:model="feedbackEmail"
@@ -454,5 +469,5 @@ new class extends Component {
                 </div>
             </form>
         </x-modal>
+    @endif
 </div>
-@endif

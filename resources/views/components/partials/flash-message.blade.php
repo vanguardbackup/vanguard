@@ -1,14 +1,16 @@
-<div x-data="{ show: true }"
-     x-show="show"
-     x-transition:enter="transition ease-out duration-300"
-     x-transition:enter-start="opacity-0 transform -translate-y-2"
-     x-transition:enter-end="opacity-100 transform translate-y-0"
-     x-transition:leave="transition ease-in duration-300"
-     x-transition:leave-start="opacity-100 transform translate-y-0"
-     x-transition:leave-end="opacity-0 transform -translate-y-2"
-     class="border-l-4 p-4 rounded-r-lg shadow-md {{ $alertClasses() }}"
-     role="alert"
-     style="background: linear-gradient(to right, {{ $gradientStart() }}, {{ $gradientEnd() }});">
+<div
+    x-data="{ show: true }"
+    x-show="show"
+    x-transition:enter="transition duration-300 ease-out"
+    x-transition:enter-start="-translate-y-2 transform opacity-0"
+    x-transition:enter-end="translate-y-0 transform opacity-100"
+    x-transition:leave="transition duration-300 ease-in"
+    x-transition:leave-start="translate-y-0 transform opacity-100"
+    x-transition:leave-end="-translate-y-2 transform opacity-0"
+    class="{{ $alertClasses() }} rounded-r-lg border-l-4 p-4 shadow-md"
+    role="alert"
+    style="background: linear-gradient(to right, {{ $gradientStart() }}, {{ $gradientEnd() }})"
+>
     <div class="flex items-center">
         <div class="flex-shrink-0">
             @svg($icon(), 'h-6 w-6')
@@ -19,7 +21,11 @@
         @if ($dismissible)
             <div class="ml-auto pl-3">
                 <div class="-mx-1.5 -my-1.5">
-                    <button @click="show = false" type="button" class="inline-flex rounded-full p-1.5 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $buttonClasses() }}">
+                    <button
+                        @click="show = false"
+                        type="button"
+                        class="{{ $buttonClasses() }} inline-flex rounded-full p-1.5 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    >
                         <span class="sr-only">Dismiss</span>
                         @svg('hugeicons-cancel-01', 'h-5 w-5')
                     </button>

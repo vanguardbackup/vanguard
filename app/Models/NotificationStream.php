@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 
 /**
  * Represents a notification stream in the system.
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class NotificationStream extends Model
 {
+    use AuditableModel;
     /** @use HasFactory<NotificationStreamFactory> */
     use HasFactory;
 

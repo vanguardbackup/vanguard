@@ -5,11 +5,11 @@
         {{ $pageTitle }}
     </x-slot>
     <div class="pb-8 md:pb-16">
-        <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            <nav class="w-full lg:w-64 xl:w-72 shrink-0 mt-3 md:mt-0">
-                <x-account-sidebar/>
+        <div class="flex flex-col gap-6 lg:flex-row lg:gap-8">
+            <nav class="mt-3 w-full shrink-0 md:mt-0 lg:w-64 xl:w-72">
+                <x-account-sidebar />
             </nav>
-            <main class="flex-1 min-w-0">
+            <main class="min-w-0 flex-1">
                 <x-slot name="action">
                     {{ $action }}
                 </x-slot>

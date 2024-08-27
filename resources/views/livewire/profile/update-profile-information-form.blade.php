@@ -10,8 +10,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 use Masmerise\Toaster\Toaster;
 
-new class extends Component
-{
+new class extends Component {
     public string $name = '';
     public string $email = '';
     public ?string $gravatar_email = null;
@@ -31,7 +30,7 @@ new class extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -54,7 +53,7 @@ new class extends Component
     public function updateProfileInformation(): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -78,7 +77,7 @@ new class extends Component
     public function sendVerification(): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -100,10 +99,21 @@ new class extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore(Auth::id())],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class)->ignore(Auth::id()),
+            ],
             'gravatar_email' => ['nullable', 'string', 'lowercase', 'email'],
             'timezone' => ['required', 'string', 'max:255', Rule::in(timezone_identifiers_list())],
-            'preferred_backup_destination_id' => ['nullable', 'integer', Rule::exists('backup_destinations', 'id')->where('user_id', Auth::id())],
+            'preferred_backup_destination_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('backup_destinations', 'id')->where('user_id', Auth::id()),
+            ],
             'receiving_weekly_summary_email' => ['boolean'],
             'pagination_count' => ['required', 'integer', 'min:1', 'max:100', 'in:15,30,50,100'],
             'language' => [
@@ -113,7 +123,7 @@ new class extends Component
                 'max:3',
                 'lowercase',
                 'alpha',
-                Rule::in(array_keys(config('app.available_languages')))
+                Rule::in(array_keys(config('app.available_languages'))),
             ],
         ];
     }
@@ -148,7 +158,7 @@ new class extends Component
      */
     private function getPaginationOptions(): Collection
     {
-        return collect([15, 30, 50, 100])->mapWithKeys(fn($value) => [$value => "{$value} per page"]);
+        return collect([15, 30, 50, 100])->mapWithKeys(fn ($value) => [$value => "{$value} per page"]);
     }
 
     /**
@@ -172,13 +182,11 @@ new class extends Component
     {
         $user = Auth::user();
 
-        if (!$user || !$user->language) {
+        if (! $user || ! $user->language) {
             return App::getLocale();
         }
 
-        return $this->isValidLanguage($user->language)
-            ? $user->language
-            : App::getLocale();
+        return $this->isValidLanguage($user->language) ? $user->language : App::getLocale();
     }
 
     /**
@@ -189,7 +197,9 @@ new class extends Component
      */
     private function isValidLanguage(string $language): bool
     {
-        $availableLanguages = config('app.available_languages', ['en' => 'English']);
+        $availableLanguages = config('app.available_languages', [
+            'en' => 'English',
+        ]);
         return array_key_exists($language, $availableLanguages);
     }
 
@@ -201,9 +211,12 @@ new class extends Component
      */
     private function formatDate(int $day): string
     {
-        return Carbon::now()->previous($day)->isoFormat('dddd Do');
+        return Carbon::now()
+            ->previous($day)
+            ->isoFormat('dddd Do');
     }
-}?>
+}; ?>
+
 <x-form-wrapper>
     <x-slot name="title">
         {{ __('My Profile') }}
@@ -211,33 +224,35 @@ new class extends Component
     <x-slot name="description">
         {{ __('Customize your account information and preferences.') }}
     </x-slot>
-    <x-slot name="icon">
-        hugeicons-user
-    </x-slot>
+    <x-slot name="icon">hugeicons-user</x-slot>
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         <div class="mt-4">
-            <x-input-label for="avatar" :value="__('Avatar')" class="mb-2"/>
+            <x-input-label for="avatar" :value="__('Avatar')" class="mb-2" />
             <div class="flex flex-col sm:flex-row sm:items-center">
-                <div x-data="{ imageLoaded: false }" class="relative w-20 h-20">
+                <div x-data="{ imageLoaded: false }" class="relative h-20 w-20">
                     <div
                         x-show="!imageLoaded"
-                        class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
+                        class="absolute inset-0 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"
                     ></div>
                     <img
                         x-on:load="imageLoaded = true"
-                        x-bind:class="{ 'opacity-0': !imageLoaded, 'opacity-100': imageLoaded }"
-                        class="w-20 h-20 rounded-full object-cover transition-opacity duration-300"
+                        x-bind:class="{ 'opacity-0': ! imageLoaded, 'opacity-100': imageLoaded }"
+                        class="h-20 w-20 rounded-full object-cover transition-opacity duration-300"
                         src="{{ Auth::user()->gravatar('160') }}"
                         alt="{{ __('User Avatar') }}"
                     />
                 </div>
-                <div class="mt-3 sm:mt-0 sm:ml-4">
+                <div class="mt-3 sm:ml-4 sm:mt-0">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         {{ __('Your avatar is managed through Gravatar.') }}
                     </p>
-                    <a href="https://gravatar.com" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center mt-2 text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 transition-colors ease-in-out">
-                        @svg('hugeicons-pencil', ['class' => 'w-4 h-4 mr-1'])
+                    <a
+                        href="https://gravatar.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="mt-2 inline-flex items-center text-sm font-medium text-primary-600 transition-colors ease-in-out hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                    >
+                        @svg('hugeicons-pencil', ['class' => 'mr-1 h-4 w-4'])
                         {{ __('Update on Gravatar') }}
                     </a>
                 </div>
@@ -245,87 +260,129 @@ new class extends Component
         </div>
         <!-- Grid layout for form fields -->
         <div class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div class="col-span-full md:col-span-1">
-                    <x-input-label for="name" :value="__('Name')"/>
-                    <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name"/>
-                    <x-input-error class="mt-2" :messages="$errors->get('name')"/>
+                    <x-input-label for="name" :value="__('Name')" />
+                    <x-text-input
+                        wire:model="name"
+                        id="name"
+                        name="name"
+                        type="text"
+                        class="mt-1 block w-full"
+                        required
+                        autofocus
+                        autocomplete="name"
+                    />
+                    <x-input-error class="mt-2" :messages="$errors->get('name')" />
                 </div>
 
                 <div class="col-span-full md:col-span-1">
-                    <x-input-label for="email" :value="__('Email')"/>
-                    <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username"/>
-                    <x-input-error class="mt-2" :messages="$errors->get('email')"/>
-                    @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                    <x-input-label for="email" :value="__('Email')" />
+                    <x-text-input
+                        wire:model="email"
+                        id="email"
+                        name="email"
+                        type="email"
+                        class="mt-1 block w-full"
+                        required
+                        autocomplete="username"
+                    />
+                    <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                    @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
                         <!-- Email verification section -->
                     @endif
                 </div>
 
                 <div class="col-span-full">
-                    <x-input-label for="gravatar_email" :value="__('Gravatar Email')"/>
-                    <x-text-input wire:model="gravatar_email" id="gravatar_email" name="gravatar_email" type="email" class="mt-1 block w-full" autofocus autocomplete="gravatar_email"/>
+                    <x-input-label for="gravatar_email" :value="__('Gravatar Email')" />
+                    <x-text-input
+                        wire:model="gravatar_email"
+                        id="gravatar_email"
+                        name="gravatar_email"
+                        type="email"
+                        class="mt-1 block w-full"
+                        autofocus
+                        autocomplete="gravatar_email"
+                    />
                     <x-input-explain>
                         {{ __('Enter an alternative email address to use for your Gravatar picture. If left blank, your primary email will be used.') }}
                     </x-input-explain>
-                    <x-input-error class="mt-2" :messages="$errors->get('gravatar_email')"/>
+                    <x-input-error class="mt-2" :messages="$errors->get('gravatar_email')" />
                 </div>
 
                 <div>
-                    <x-input-label for="timezone" :value="__('Timezone')"/>
+                    <x-input-label for="timezone" :value="__('Timezone')" />
                     <x-select wire:model="timezone" id="timezone" name="timezone" class="mt-1 block w-full">
                         @foreach (formatTimezones() as $identifier => $timezone)
-                            <option value="{{ $identifier }}">{{ $timezone }}</option>
+                            <option value="{{ $identifier }}">
+                                {{ $timezone }}
+                            </option>
                         @endforeach
                     </x-select>
                     <x-input-explain>
                         {{ __('Your timezone is used to display dates and times to you in your local time.') }}
                     </x-input-explain>
-                    <x-input-error class="mt-2" :messages="$errors->get('timezone')"/>
+                    <x-input-error class="mt-2" :messages="$errors->get('timezone')" />
                 </div>
 
                 <div>
-                    <x-input-label for="language" :value="__('Language')"/>
+                    <x-input-label for="language" :value="__('Language')" />
                     <x-select wire:model.live="language" id="language" name="language" class="mt-1 block w-full">
                         @foreach (config('app.available_languages') as $code => $language)
-                            <option value="{{ $code }}">{{ $language }}</option>
+                            <option value="{{ $code }}">
+                                {{ $language }}
+                            </option>
                         @endforeach
                     </x-select>
                     <x-input-explain>
                         {{ __('Please select your preferred language from the dropdown list. This will change the language used throughout the application.') }}
                     </x-input-explain>
-                    <x-input-error class="mt-2" :messages="$errors->get('language')"/>
+                    <x-input-error class="mt-2" :messages="$errors->get('language')" />
                 </div>
 
-                @if (!Auth::user()->backupDestinations->isEmpty())
+                @if (! Auth::user()->backupDestinations->isEmpty())
                     <div class="col-span-full">
-                        <x-input-label for="preferred_backup_destination_id" :value="__('Default Backup Destination')"/>
-                        <x-select wire:model="preferred_backup_destination_id" id="preferred_backup_destination_id" name="preferred_backup_destination_id" class="mt-1 block w-full">
+                        <x-input-label
+                            for="preferred_backup_destination_id"
+                            :value="__('Default Backup Destination')"
+                        />
+                        <x-select
+                            wire:model="preferred_backup_destination_id"
+                            id="preferred_backup_destination_id"
+                            name="preferred_backup_destination_id"
+                            class="mt-1 block w-full"
+                        >
                             <option value="">{{ __('None') }}</option>
                             @foreach (Auth::user()->backupDestinations as $backupDestination)
-                                <option value="{{ $backupDestination->id }}">{{ $backupDestination->label }} - {{ $backupDestination->type() }}</option>
+                                <option value="{{ $backupDestination->id }}">
+                                    {{ $backupDestination->label }} -
+                                    {{ $backupDestination->type() }}
+                                </option>
                             @endforeach
                         </x-select>
                         <x-input-explain>
                             {{ __('The backup destination you select here will be set as the default location for storing new backup tasks.') }}
                         </x-input-explain>
-                        <x-input-error class="mt-2" :messages="$errors->get('preferred_backup_destination_id')"/>
+                        <x-input-error class="mt-2" :messages="$errors->get('preferred_backup_destination_id')" />
                     </div>
                 @endif
 
                 <div>
-                    <x-input-label for="weekly_summary_opt_in" :value="__('Weekly Backup Summary Emails')"/>
-                    <x-toggle
-                        name="receiving_weekly_summary_email"
-                        model="receiving_weekly_summary_email"
-                    />
+                    <x-input-label for="weekly_summary_opt_in" :value="__('Weekly Backup Summary Emails')" />
+                    <x-toggle name="receiving_weekly_summary_email" model="receiving_weekly_summary_email" />
                     <x-input-explain>
                         {{ __('Receive a summary of your weekly backup activities every Monday morning. The upcoming summary will cover all backup tasks from :lastMonday through :lastFriday.', ['lastMonday' => $lastMonday, 'lastFriday' => $lastFriday]) }}
                     </x-input-explain>
                 </div>
 
                 <div>
-                    <x-input-label for="pagination_count" :value="__('Items per Page')"/>
-                    <x-select wire:model="pagination_count" id="pagination_count" name="pagination_count" class="mt-1 block w-full">
+                    <x-input-label for="pagination_count" :value="__('Items per Page')" />
+                    <x-select
+                        wire:model="pagination_count"
+                        id="pagination_count"
+                        name="pagination_count"
+                        class="mt-1 block w-full"
+                    >
                         @foreach ($pagination_options as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
@@ -333,11 +390,11 @@ new class extends Component
                     <x-input-explain>
                         {{ __('Select the number of items you want to see per page in lists throughout the application. This setting affects how many backup tasks, servers, and other items are displayed at once.') }}
                     </x-input-explain>
-                    <x-input-error class="mt-2" :messages="$errors->get('pagination_count')"/>
+                    <x-input-error class="mt-2" :messages="$errors->get('pagination_count')" />
                 </div>
             </div>
         </div>
-        <div class="mt-6 pb-4 max-w-3xl mx-auto">
+        <div class="mx-auto mt-6 max-w-3xl pb-4">
             <div class="flex justify-center">
                 <div class="w-full sm:w-4/6">
                     <x-primary-button type="submit" class="w-full justify-center" centered action="submit">

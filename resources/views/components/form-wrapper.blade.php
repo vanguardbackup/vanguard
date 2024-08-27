@@ -1,12 +1,14 @@
 @props([
-    'iconClass' => 'h-6 w-6 text-primary-600 dark:text-primary-400'
+    'iconClass' => 'h-6 w-6 text-primary-600 dark:text-primary-400',
 ])
 
-<div class="bg-white dark:bg-gray-800/50 dark:border-gray-800/30 rounded-[0.70rem] overflow-hidden border sm:rounded-[0.70rem] shadow-none">
+<div
+    class="overflow-hidden rounded-[0.70rem] border bg-white shadow-none sm:rounded-[0.70rem] dark:border-gray-800/30 dark:bg-gray-800/50"
+>
     @if (isset($title))
         <div class="px-6 py-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-800 rounded-full p-3 mr-4">
+                <div class="mr-4 flex-shrink-0 rounded-full bg-primary-100 p-3 dark:bg-primary-800">
                     @if (isset($icon))
                         <x-dynamic-component :component="$icon" :class="$iconClass" />
                     @else
@@ -25,14 +27,11 @@
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-            @endif
-
-            <div class="{{ isset($title) ? 'px-6 py-4' : 'p-6' }}">
-                {{ $slot }}
-            </div>
-
-            @if (isset($title))
-        </div>
     @endif
+
+    <div
+        class="{{ isset($title) ? 'border-t border-gray-200 px-6 py-4 dark:border-gray-700' : 'p-6' }} text-sm leading-relaxed text-gray-700 sm:text-base dark:text-gray-300"
+    >
+        {{ $slot }}
+    </div>
 </div>

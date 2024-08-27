@@ -4,7 +4,7 @@
         {{ __('Remote Servers') }}
     </x-slot>
     <x-slot name="action">
-        @if (!Auth::user()->remoteServers->isEmpty())
+        @if (! Auth::user()->remoteServers->isEmpty())
             <a href="{{ route('remote-servers.create') }}" wire:navigate>
                 <x-primary-button centered>
                     {{ __('Add Remote Server') }}

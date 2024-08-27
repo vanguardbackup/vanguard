@@ -1,0 +1,23 @@
+name: Prettier
+on:
+  workflow_call:
+  workflow_dispatch:
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+      - run: npm ci
+      - run: npm run format
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: automated changes to blade files"
+          commit_user_name: GitHub Action
+          commit_user_email: actions@github.com
+          branch: ${{ github.head_ref }}

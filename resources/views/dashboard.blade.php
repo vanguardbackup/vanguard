@@ -10,12 +10,15 @@
         </x-slot>
         <div>
             <div class="mb-6">
-                <div x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 1000)"
-                     class="flex flex-col sm:flex-row items-center bg-white dark:bg-gray-800/50 rounded-lg shadow-sm p-4">
+                <div
+                    x-data="{ loaded: false }"
+                    x-init="setTimeout(() => (loaded = true), 1000)"
+                    class="flex flex-col items-center rounded-lg bg-white p-4 shadow-sm sm:flex-row dark:bg-gray-800/50"
+                >
                     <div class="relative h-16 w-16">
                         <div
                             x-show="!loaded"
-                            class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
+                            class="absolute inset-0 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"
                         ></div>
                         <img
                             x-show="loaded"
@@ -26,36 +29,52 @@
                             src="{{ Auth::user()->gravatar('200') }}"
                         />
                     </div>
-                    <div class="ml-4 mt-4 sm:mt-0 text-center sm:text-left">
-                        <h3 x-show="!loaded" class="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></h3>
-                        <h3 x-show="loaded" x-transition:enter="transition-opacity duration-300"
-                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                            class="font-semibold text-2xl text-gray-900 dark:text-gray-100">
+                    <div class="ml-4 mt-4 text-center sm:mt-0 sm:text-left">
+                        <h3
+                            x-show="!loaded"
+                            class="h-8 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+                        ></h3>
+                        <h3
+                            x-show="loaded"
+                            x-transition:enter="transition-opacity duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                        >
                             {{ \App\Facades\Greeting::auto(Auth::user()->timezone) }}, {{ Auth::user()->first_name }}!
                         </h3>
-                        <p x-show="!loaded"
-                           class="h-4 w-64 mt-2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></p>
-                        <p x-show="loaded" x-transition:enter="transition-opacity duration-300"
-                           x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                           class="text-gray-600 dark:text-gray-400 mt-1">
-                            {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }} {{ __('been run today.') }}
+                        <p
+                            x-show="!loaded"
+                            class="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+                        ></p>
+                        <p
+                            x-show="loaded"
+                            x-transition:enter="transition-opacity duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="mt-1 text-gray-600 dark:text-gray-400"
+                        >
+                            {{ trans_choice(':count backup task has|:count backup tasks have', Auth::user()->backupTasklogCountToday(), ['count' => Auth::user()->backupTasklogCountToday()]) }}
+                            {{ __('been run today.') }}
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <x-chart-card
                     title="{{ __('Monthly Backup Task Activity') }}"
                     description="{{ __('Overview of backup tasks performed each month') }}."
                     icon="hugeicons-clock-01"
                 >
-                    <div
-                        x-data="{ loaded: false }"
-                        x-init="setTimeout(() => loaded = true, 1500)"
-                    >
-                        <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                        <div x-show="loaded" x-transition:enter="transition-opacity duration-300"
-                             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                    <div x-data="{ loaded: false }" x-init="setTimeout(() => (loaded = true), 1500)">
+                        <div x-show="!loaded" class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+                        <div
+                            x-show="loaded"
+                            x-transition:enter="transition-opacity duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="h-64"
+                        >
                             <canvas id="totalBackupsPerMonth"></canvas>
                         </div>
                     </div>
@@ -65,13 +84,15 @@
                     description="{{ __('Distribution of backup tasks across different types') }}."
                     icon="hugeicons-file-02"
                 >
-                    <div
-                        x-data="{ loaded: false }"
-                        x-init="setTimeout(() => loaded = true, 1500)"
-                    >
-                        <div x-show="!loaded" class="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                        <div x-show="loaded" x-transition:enter="transition-opacity duration-300"
-                             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="h-64">
+                    <div x-data="{ loaded: false }" x-init="setTimeout(() => (loaded = true), 1500)">
+                        <div x-show="!loaded" class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+                        <div
+                            x-show="loaded"
+                            x-transition:enter="transition-opacity duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="h-64"
+                        >
                             <canvas id="backupTasksByType"></canvas>
                         </div>
                     </div>
@@ -94,78 +115,82 @@
                         type: 'line',
                         data: {
                             labels: {!! $months !!},
-                            datasets: [{
-                                label: label,
-                                data: {!! $counts !!},
-                                borderColor: textColor,
-                                backgroundColor: backgroundColor,
-                                tension: 0.2
-                            }]
+                            datasets: [
+                                {
+                                    label: label,
+                                    data: {!! $counts !!},
+                                    borderColor: textColor,
+                                    backgroundColor: backgroundColor,
+                                    tension: 0.2,
+                                },
+                            ],
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    display: false
-                                }
+                                    display: false,
+                                },
                             },
                             scales: {
                                 x: {
-                                    ticks: {color: textColor}
+                                    ticks: { color: textColor },
                                 },
                                 y: {
-                                    ticks: {color: textColor}
-                                }
-                            }
+                                    ticks: { color: textColor },
+                                },
+                            },
                         },
                     });
 
                     const type = '{!! __('Type') !!}';
                     const ctx2 = document.getElementById('backupTasksByType').getContext('2d');
                     const translations = {
-                        'Files': '{!! __('Files') !!}',
-                        'Database': '{!! __('Database') !!}'
+                        Files: '{!! __('Files') !!}',
+                        Database: '{!! __('Database') !!}',
                     };
-                    const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}
-                        .map(label => translations[label] || label)
-                        .map(label => label.charAt(0).toUpperCase() + label.slice(1));
+                    const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(
+                        (label) => translations[label] || label,
+                    ).map((label) => label.charAt(0).toUpperCase() + label.slice(1));
                     const backupTasksByType = new Chart(ctx2, {
                         type: 'bar',
                         data: {
                             labels: labels,
-                            datasets: [{
-                                label: type,
-                                data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
-                                backgroundColor: isDarkMode
-                                    ? ['rgb(55, 65, 81)', 'rgb(75, 85, 99)']  // dark:bg-gray-700, dark:bg-gray-600
-                                    : ['rgb(237,254,255)', 'rgb(250,245,255)'],
-                                borderColor: isDarkMode
-                                    ? ['rgb(107, 114, 128)', 'rgb(156, 163, 175)']  // dark:border-gray-500, dark:border-gray-400
-                                    : ['rgb(189,220,223)', 'rgb(192,180,204)'],
-                                borderWidth: 0.8
-                            }]
+                            datasets: [
+                                {
+                                    label: type,
+                                    data: {!! json_encode(array_values($backupTasksCountByType), JSON_THROW_ON_ERROR) !!},
+                                    backgroundColor: isDarkMode
+                                        ? ['rgb(55, 65, 81)', 'rgb(75, 85, 99)'] // dark:bg-gray-700, dark:bg-gray-600
+                                        : ['rgb(237,254,255)', 'rgb(250,245,255)'],
+                                    borderColor: isDarkMode
+                                        ? ['rgb(107, 114, 128)', 'rgb(156, 163, 175)'] // dark:border-gray-500, dark:border-gray-400
+                                        : ['rgb(189,220,223)', 'rgb(192,180,204)'],
+                                    borderWidth: 0.8,
+                                },
+                            ],
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    display: false
-                                }
+                                    display: false,
+                                },
                             },
                             scales: {
                                 x: {
-                                    ticks: {color: textColor}
+                                    ticks: { color: textColor },
                                 },
                                 y: {
-                                    ticks: {color: textColor}
-                                }
-                            }
+                                    ticks: { color: textColor },
+                                },
+                            },
                         },
                     });
 
-                    return {totalBackupsPerMonth, backupTasksByType};
+                    return { totalBackupsPerMonth, backupTasksByType };
                 }
 
                 let charts = createCharts();

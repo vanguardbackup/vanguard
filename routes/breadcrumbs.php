@@ -131,3 +131,8 @@ Breadcrumbs::for('profile.help', function (BreadcrumbTrail $trail) {
     $trail->parent('profile');
     $trail->push(__('Get Help'), route('profile.help'));
 });
+
+Breadcrumbs::for('profile.audit-logs', function (BreadcrumbTrail $trail) {
+    $trail->parent('profile');
+    $trail->push(__('Audit Logs'), route('profile.audit-logs'));
+});

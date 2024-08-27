@@ -16,6 +16,7 @@ uses(RefreshDatabase::class);
 beforeEach(function (): void {
     $this->user = User::factory()->create(['timezone' => 'UTC']);
     Auth::shouldReceive('user')->andReturn($this->user);
+    Auth::shouldReceive('id')->andReturn($this->user->id);
     $this->remoteServer = RemoteServer::factory()->create(['user_id' => $this->user->id]);
     $this->remoteServerId = $this->remoteServer->id;
 });
