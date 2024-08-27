@@ -12,7 +12,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import { Chart } from 'chart.js/auto';
 window.Chart = Chart;
 
-import ClipboardJS from "clipboard";
+import ClipboardJS from 'clipboard';
 window.ClipboardJS = ClipboardJS;
 
 import './echo';

@@ -12,6 +12,11 @@ jobs:
     permissions:
       contents: write
 
+  prettier:
+    uses: ./.github/workflows/prettier.yml
+    permissions:
+      contents: write
+
   static-analysis:
     needs: duster
     uses: ./.github/workflows/static-analysis.yml

@@ -6,8 +6,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Livewire\Volt\Component;
 
-new class extends Component
-{
+new class extends Component {
     public string $current_password = '';
     public string $password = '';
     public string $password_confirmation = '';
@@ -15,15 +14,20 @@ new class extends Component
     public function updatePassword(): void
     {
         try {
-            $validated = $this->validate([
-                'current_password' => ['required', 'string', 'current_password'],
-                'password' => ['required', 'string', Password::defaults(), 'confirmed'],
-            ], [
-                'current_password.required' => __('Please enter your password.'),
-                'current_password.current_password' => __('The password you have entered is incorrect. Please try again.'),
-                'password.required' => __('Please enter your password.'),
-                'password.confirmed' => __('Please confirm your password.'),
-            ]);
+            $validated = $this->validate(
+                [
+                    'current_password' => ['required', 'string', 'current_password'],
+                    'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+                ],
+                [
+                    'current_password.required' => __('Please enter your password.'),
+                    'current_password.current_password' => __(
+                        'The password you have entered is incorrect. Please try again.',
+                    ),
+                    'password.required' => __('Please enter your password.'),
+                    'password.confirmed' => __('Please confirm your password.'),
+                ],
+            );
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
 
@@ -47,12 +51,10 @@ new class extends Component
     <x-slot name="description">
         {{ __('Ensure your account is using a long, random password to stay secure.') }}
     </x-slot>
-    <x-slot name="icon">
-        hugeicons-password-validation
-    </x-slot>
+    <x-slot name="icon">hugeicons-password-validation</x-slot>
     <form wire:submit="updatePassword" class="mt-6 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2 grid md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div class="grid gap-6 md:col-span-2 md:grid-cols-2">
                 <div>
                     <x-input-label for="update_password_current_password" :value="__('Current Password')" />
                     <x-text-input
@@ -93,7 +95,7 @@ new class extends Component
                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
             </div>
         </div>
-        <div class="mt-6 pb-4 max-w-3xl mx-auto">
+        <div class="mx-auto mt-6 max-w-3xl pb-4">
             <div class="flex justify-center">
                 <div class="w-full sm:w-4/6">
                     <x-primary-button type="submit" class="w-full justify-center" centered action="submit">

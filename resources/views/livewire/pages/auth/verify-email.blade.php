@@ -25,7 +25,7 @@ new #[Layout('layouts.guest')] class extends Component {
     {
         $userEmail = filter_var($this->userEmail, FILTER_SANITIZE_EMAIL);
 
-        if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
             $this->emailProvider = '';
             $this->emailLink = '';
             return;
@@ -33,13 +33,34 @@ new #[Layout('layouts.guest')] class extends Component {
 
         $domain = strtolower(explode('@', $userEmail)[1] ?? '');
         $providers = [
-            'gmail.com' => ['name' => 'Gmail', 'link' => 'https://mail.google.com/'],
-            'outlook.com' => ['name' => 'Outlook', 'link' => 'https://outlook.live.com/'],
-            'hotmail.com' => ['name' => 'Outlook', 'link' => 'https://outlook.live.com/'],
-            'live.com' => ['name' => 'Outlook', 'link' => 'https://outlook.live.com/'],
-            'yahoo.com' => ['name' => 'Yahoo', 'link' => 'https://mail.yahoo.com/'],
-            'protonmail.com' => ['name' => 'ProtonMail', 'link' => 'https://mail.proton.me/'],
-            'icloud.com' => ['name' => 'iCloud', 'link' => 'https://www.icloud.com/mail'],
+            'gmail.com' => [
+                'name' => 'Gmail',
+                'link' => 'https://mail.google.com/',
+            ],
+            'outlook.com' => [
+                'name' => 'Outlook',
+                'link' => 'https://outlook.live.com/',
+            ],
+            'hotmail.com' => [
+                'name' => 'Outlook',
+                'link' => 'https://outlook.live.com/',
+            ],
+            'live.com' => [
+                'name' => 'Outlook',
+                'link' => 'https://outlook.live.com/',
+            ],
+            'yahoo.com' => [
+                'name' => 'Yahoo',
+                'link' => 'https://mail.yahoo.com/',
+            ],
+            'protonmail.com' => [
+                'name' => 'ProtonMail',
+                'link' => 'https://mail.proton.me/',
+            ],
+            'icloud.com' => [
+                'name' => 'iCloud',
+                'link' => 'https://www.icloud.com/mail',
+            ],
         ];
 
         if (isset($providers[$domain])) {
@@ -64,7 +85,10 @@ new #[Layout('layouts.guest')] class extends Component {
             return;
         }
 
-        if ($this->lastVerificationSentAt && $this->lastVerificationSentAt->diffInSeconds(now()) < $this->resendCooldown) {
+        if (
+            $this->lastVerificationSentAt &&
+            $this->lastVerificationSentAt->diffInSeconds(now()) < $this->resendCooldown
+        ) {
             $this->addError('cooldown', __('Please wait before requesting another verification email.'));
             return;
         }
@@ -77,7 +101,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
     public function getCooldownRemaining(): int
     {
-        if (!$this->lastVerificationSentAt) {
+        if (! $this->lastVerificationSentAt) {
             return 0;
         }
         $remaining = $this->resendCooldown - $this->lastVerificationSentAt->diffInSeconds(now());
@@ -89,7 +113,7 @@ new #[Layout('layouts.guest')] class extends Component {
         $logout();
         $this->redirect('/', true);
     }
-}
+};
 
 ?>
 
@@ -102,17 +126,24 @@ new #[Layout('layouts.guest')] class extends Component {
     </x-slot>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')"/>
-    <x-auth-session-error class="mb-4" :loginError="session('loginError')"/>
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-auth-session-error class="mb-4" :loginError="session('loginError')" />
 
     <div class="mt-8 space-y-6">
         <!-- User Avatar and Name -->
-        <div class="flex items-center justify-center mb-6">
+        <div class="mb-6 flex items-center justify-center">
             <div class="flex flex-col items-center">
-                <img class="w-20 h-20 rounded-full mb-2" src="{{ $this->getGravatarUrl() }}"
-                     alt="{{ Auth::user()->name }}'s avatar">
-                <span class="text-lg font-semibold text-gray-700 dark:text-gray-300">{{ Auth::user()->name }}</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $this->userEmail }}</span>
+                <img
+                    class="mb-2 h-20 w-20 rounded-full"
+                    src="{{ $this->getGravatarUrl() }}"
+                    alt="{{ Auth::user()->name }}'s avatar"
+                />
+                <span class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                    {{ Auth::user()->name }}
+                </span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ $this->userEmail }}
+                </span>
             </div>
         </div>
 
@@ -121,47 +152,55 @@ new #[Layout('layouts.guest')] class extends Component {
         </div>
 
         @if ($this->emailLink)
-            <div class="text-center mt-4">
-                <a href="{{ $this->emailLink }}" target="_blank" rel="noopener noreferrer"
-                   class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+            <div class="mt-4 text-center">
+                <a
+                    href="{{ $this->emailLink }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-blue-600 focus:border-blue-700 focus:outline-none focus:ring focus:ring-blue-300 active:bg-blue-700 disabled:opacity-25"
+                >
                     {{ __('Open :provider Inbox', ['provider' => $this->emailProvider]) }}
-                    @svg('hugeicons-arrow-right-02', 'w-4 h-4 ml-2')
+                    @svg('hugeicons-arrow-right-02', 'ml-2 h-4 w-4')
                 </a>
             </div>
         @else
-            <div class="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 {{ __("We couldn't detect your email provider. Please check your email inbox manually.") }}
             </div>
         @endif
 
         @if (session('status') === 'verification-link-sent')
-            <div class="font-medium text-sm text-green-600 dark:text-green-400 text-center">
+            <div class="text-center text-sm font-medium text-green-600 dark:text-green-400">
                 {{ __('A new verification link has been sent to the email address you provided during registration.') }}
             </div>
         @endif
 
         @error('cooldown')
-        <div class="font-medium text-sm text-red-600 dark:text-red-400 text-center">
-            {{ $message }}
-        </div>
+            <div class="text-center text-sm font-medium text-red-600 dark:text-red-400">
+                {{ $message }}
+            </div>
         @enderror
 
         <x-primary-button
             wire:click="sendVerification"
-            class="w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600"
+            class="w-full justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600"
             :disabled="$this->getCooldownRemaining() > 0"
         >
             @if ($this->getCooldownRemaining() > 0)
-                {{ __('Resend Verification Email') }} ({{ $this->getCooldownRemaining() }}s)
+                {{ __('Resend Verification Email') }}
+                ({{ $this->getCooldownRemaining() }}s)
             @else
                 {{ __('Resend Verification Email') }}
             @endif
-                @svg('hugeicons-arrow-right-02', 'w-5 h-5 ms-2 inline')
+            @svg('hugeicons-arrow-right-02', 'ms-2 inline h-5 w-5')
         </x-primary-button>
 
-        <div class="text-center mt-6">
-            <button wire:click="logout" type="button"
-                    class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+        <div class="mt-6 text-center">
+            <button
+                wire:click="logout"
+                type="button"
+                class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+            >
                 {{ __('Sign Out') }}
             </button>
         </div>

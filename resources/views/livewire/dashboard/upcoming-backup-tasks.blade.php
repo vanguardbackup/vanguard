@@ -2,7 +2,7 @@
     @if ($scheduledBackupTasks->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-calendar-03', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-calendar-03', 'inline h-16 w-16 text-primary-900 dark:text-white')
             </x-slot>
             <x-slot name="title">
                 {{ __('No Upcoming Backup Tasks') }}
@@ -21,7 +21,8 @@
     @else
         <x-table.table-wrapper
             title="{{ __('Upcoming Backup Tasks') }}"
-            description="{{ __('Scheduled backup tasks that are set to run soon.') }}">
+            description="{{ __('Scheduled backup tasks that are set to run soon.') }}"
+        >
             <x-slot name="icon">
                 <x-hugeicons-calendar-03 class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
@@ -34,25 +35,31 @@
             <x-table.table-body>
                 @foreach ($scheduledBackupTasks as $scheduledBackupTask)
                     <x-table.table-row>
-                        <div class="col-span-12 sm:col-span-3 flex flex-col sm:flex-row sm:items-center">
-                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $scheduledBackupTask->task->label }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 sm:hidden">
+                        <div class="col-span-12 flex flex-col sm:col-span-3 sm:flex-row sm:items-center">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">
+                                {{ $scheduledBackupTask->task->label }}
+                            </p>
+                            <p class="mt-1 text-xs text-gray-500 sm:hidden dark:text-gray-400">
                                 {{ $scheduledBackupTask->due_to_run }}
                             </p>
                         </div>
 
-                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $scheduledBackupTask->task->remoteServer->label }}</p>
+                        <div class="col-span-12 mt-2 sm:col-span-3 sm:mt-0">
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                {{ $scheduledBackupTask->task->remoteServer->label }}
+                            </p>
                         </div>
 
-                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scheduledBackupTask->type === __('Files') ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }}">
-                              @svg($scheduledBackupTask->type === __('Files') ? 'hugeicons-file-01' : 'hugeicons-database', ['class' => 'h-4 w-4 mr-1'])
+                        <div class="col-span-12 mt-2 sm:col-span-3 sm:mt-0">
+                            <span
+                                class="{{ $scheduledBackupTask->type === __('Files') ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100' }} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                            >
+                                @svg($scheduledBackupTask->type === __('Files') ? 'hugeicons-file-01' : 'hugeicons-database', ['class' => 'mr-1 h-4 w-4'])
                                 {{ ucfirst($scheduledBackupTask->type) }}
                             </span>
                         </div>
 
-                        <div class="col-span-12 sm:col-span-3 mt-2 sm:mt-0 hidden sm:block">
+                        <div class="col-span-12 mt-2 hidden sm:col-span-3 sm:mt-0 sm:block">
                             <p class="text-sm text-gray-600 dark:text-gray-300">
                                 {{ $scheduledBackupTask->due_to_run }}
                             </p>

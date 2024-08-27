@@ -5,7 +5,7 @@
     </x-slot>
     <x-slot name="action">
         <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-api-token')" centered>
-          {{ __('Create New Token') }}
+            {{ __('Create New Token') }}
         </x-primary-button>
     </x-slot>
     @livewire('profile.api-token-manager')

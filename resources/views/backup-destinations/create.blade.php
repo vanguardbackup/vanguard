@@ -1,4 +1,4 @@
-@section('title',  __('Add Backup Destination'))
+@section('title', __('Add Backup Destination'))
 <x-app-layout>
     <x-slot name="header">
         {{ __('Add Backup Destination') }}

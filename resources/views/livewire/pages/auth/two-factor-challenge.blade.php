@@ -22,7 +22,7 @@ new #[Layout('layouts.minimal')] class extends Component {
     {
         $user = Auth::user();
 
-        if (!$user || !$user->hasTwoFactorEnabled()) {
+        if (! $user || ! $user->hasTwoFactorEnabled()) {
             return redirect()->route('overview');
         }
 
@@ -35,7 +35,7 @@ new #[Layout('layouts.minimal')] class extends Component {
     {
         $twoFactorCookie = request()->cookie('two_factor_verified');
 
-        if (!is_string($twoFactorCookie)) {
+        if (! is_string($twoFactorCookie)) {
             return false;
         }
 
@@ -51,7 +51,7 @@ new #[Layout('layouts.minimal')] class extends Component {
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             $this->error = 'User not authenticated.';
             return;
         }
@@ -131,25 +131,25 @@ new #[Layout('layouts.minimal')] class extends Component {
 
     private function generateSecureToken(int $userId): string
     {
-        return hash_hmac('sha256', $userId . uniqid('', true), (string)config('app.key'));
+        return hash_hmac('sha256', $userId . uniqid('', true), (string) config('app.key'));
     }
 
     private function getUnusedRecoveryCodeCount($user): int
     {
         $recoveryCodes = $user->getRecoveryCodes();
-        return $recoveryCodes->filter(fn($code): bool => $code['used_at'] === null)->count();
+        return $recoveryCodes->filter(fn ($code): bool => $code['used_at'] === null)->count();
     }
 
     private function wasRecoveryCodeUsed($user, ?string $code): bool
     {
-        if (!$code) {
+        if (! $code) {
             return false;
         }
 
         $recoveryCodes = $user->getRecoveryCodes();
         $usedCode = $recoveryCodes->firstWhere('code', $code);
 
-        if (!$usedCode || !isset($usedCode['used_at'])) {
+        if (! $usedCode || ! isset($usedCode['used_at'])) {
             return false;
         }
 
@@ -158,7 +158,7 @@ new #[Layout('layouts.minimal')] class extends Component {
 
     public function updatedCode(): void
     {
-        if (!$this->isRecoveryCode && strlen($this->code) === 6) {
+        if (! $this->isRecoveryCode && strlen($this->code) === 6) {
             $this->submit();
             $this->code = '';
         }
@@ -166,7 +166,7 @@ new #[Layout('layouts.minimal')] class extends Component {
 
     public function toggleCodeType(): void
     {
-        $this->isRecoveryCode = !$this->isRecoveryCode;
+        $this->isRecoveryCode = ! $this->isRecoveryCode;
         $this->code = '';
         $this->error = null;
     }
@@ -174,11 +174,11 @@ new #[Layout('layouts.minimal')] class extends Component {
 
 ?>
 
-<div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
+<div class="flex min-h-screen flex-col items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
     <div class="w-full max-w-md space-y-8">
-        <div class="flex flex-col sm:flex-row items-center justify-between">
-            <x-application-logo class="h-11 w-auto fill-current text-primary-950 dark:text-white"/>
-            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
+        <div class="flex flex-col items-center justify-between sm:flex-row">
+            <x-application-logo class="h-11 w-auto fill-current text-primary-950 dark:text-white" />
+            <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-x-4 sm:space-y-0">
                 <img
                     class="h-12 w-12 rounded-full border-2 border-gray-300 dark:border-gray-700"
                     src="{{ Auth::user()->gravatar(60) }}"
@@ -189,9 +189,9 @@ new #[Layout('layouts.minimal')] class extends Component {
                 </span>
             </div>
         </div>
-        <div class="mt-8 bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div class="mt-8 bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10 dark:bg-gray-800">
             @if ($error)
-                <div class="rounded-md bg-red-50 dark:bg-red-900 p-4 mb-4">
+                <div class="mb-4 rounded-md bg-red-50 p-4 dark:bg-red-900">
                     <div class="flex">
                         <div class="text-sm text-red-700 dark:text-red-200">
                             {{ $error }}
@@ -201,21 +201,27 @@ new #[Layout('layouts.minimal')] class extends Component {
             @endif
 
             <div class="mb-6 text-sm text-gray-600 dark:text-gray-400">
-                <p class="font-semibold mb-3 text-lg">Welcome back, {{ Auth::user()->first_name }}!</p>
+                <p class="mb-3 text-lg font-semibold">Welcome back, {{ Auth::user()->first_name }}!</p>
                 <p class="mb-3">Please enter your two-factor authentication code.</p>
                 <p class="mt-2.5">If you can't access your two-factor device, use a recovery code.</p>
             </div>
 
             <form wire:submit.prevent="submit" class="space-y-6">
-                <div class="flex items-center mb-4">
-                    <x-checkbox wire:model="isRecoveryCode" id="recovery-code-toggle" type="checkbox" name="recovery-code-toggle" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                <div class="mb-4 flex items-center">
+                    <x-checkbox
+                        wire:model="isRecoveryCode"
+                        id="recovery-code-toggle"
+                        type="checkbox"
+                        name="recovery-code-toggle"
+                        class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                    />
                     <label for="recovery-code-toggle" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
                         Use recovery code
                     </label>
                 </div>
 
                 <div x-show="!$wire.isRecoveryCode">
-                    <x-input-label for="code" value="Authentication code"/>
+                    <x-input-label for="code" value="Authentication code" />
                     <x-text-input
                         name="code"
                         id="code"
@@ -231,7 +237,7 @@ new #[Layout('layouts.minimal')] class extends Component {
                 </div>
 
                 <div x-show="$wire.isRecoveryCode">
-                    <x-input-label for="recoveryCode" value="Recovery code"/>
+                    <x-input-label for="recoveryCode" value="Recovery code" />
                     <x-text-input
                         id="recoveryCode"
                         name="recoveryCode"
@@ -243,27 +249,57 @@ new #[Layout('layouts.minimal')] class extends Component {
                     />
                 </div>
                 <div>
-                    <x-primary-button type="button" wire:click="submit" centered fat action="submit" loadingText="Verifying...">
-                        @svg('hugeicons-finger-print', 'w-5 h-5 mr-2 inline')
+                    <x-primary-button
+                        type="button"
+                        wire:click="submit"
+                        centered
+                        fat
+                        action="submit"
+                        loadingText="Verifying..."
+                    >
+                        @svg('hugeicons-finger-print', 'mr-2 inline h-5 w-5')
                         {{ __('Verify and Proceed') }}
                     </x-primary-button>
                 </div>
             </form>
-                <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
-                    <p>Having trouble accessing your account? Please refer to our <a href="https://docs.vanguardbackup.com/two-factor-auth#emergency-measures" class="text-gray-950 dark:text-gray-300 font-medium underline transition-all duration-300 ease-in-out hover:text-gray-700 dark:hover:text-gray-100" target="_blank" rel="noopener noreferrer">documentation on emergency measures</a> for assistance.</p>
-                </div>
+            <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+                <p>
+                    Having trouble accessing your account? Please refer to our
+                    <a
+                        href="https://docs.vanguardbackup.com/two-factor-auth#emergency-measures"
+                        class="font-medium text-gray-950 underline transition-all duration-300 ease-in-out hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        documentation on emergency measures
+                    </a>
+                    for assistance.
+                </p>
+            </div>
         </div>
     </div>
     <footer class="mt-8 text-center">
         <div class="mt-2 flex justify-center space-x-6">
-            <a href="https://github.com/vanguardbackup/vanguard"
-               class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" target="_blank"
-               rel="noopener noreferrer">
+            <a
+                href="https://github.com/vanguardbackup/vanguard"
+                class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
                 <span class="sr-only">GitHub</span>
-                <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32"
-                     data-view-component="true" class="octicon octicon-mark-github v-align-middle">
-                    <path fill-rule="evenodd"
-                          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                <svg
+                    height="32"
+                    aria-hidden="true"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="32"
+                    data-view-component="true"
+                    class="octicon octicon-mark-github v-align-middle"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                    ></path>
                 </svg>
             </a>
         </div>

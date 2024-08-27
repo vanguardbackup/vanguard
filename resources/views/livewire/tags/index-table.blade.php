@@ -1,21 +1,21 @@
 <div>
     <x-slot name="action">
         <a href="{{ route('tags.create') }}" wire:navigate>
-          <x-primary-button x-data="" centered>
-              {{ __('Make Tag') }}
-          </x-primary-button>
-      </a>
+            <x-primary-button x-data="" centered>
+                {{ __('Make Tag') }}
+            </x-primary-button>
+        </a>
     </x-slot>
     @if ($tags->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-tags', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-tags', 'inline h-16 w-16 text-primary-900 dark:text-white')
             </x-slot>
             <x-slot name="title">
                 {{ __("You don't have any tags setup!") }}
             </x-slot>
             <x-slot name="description">
-                {{ __("Tags are a great way to organize backup tasks! Create your first tag below.") }}
+                {{ __('Tags are a great way to organize backup tasks! Create your first tag below.') }}
             </x-slot>
             <x-slot name="action">
                 <a href="{{ route('tags.create') }}" wire:navigate>
