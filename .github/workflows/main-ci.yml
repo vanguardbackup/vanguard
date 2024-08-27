@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/dusk-tests.yml
 
   ci-passed:
-    needs: [duster, static-analysis, rector, pest-tests, dusk-tests]
+    needs: [duster, prettier, static-analysis, rector, pest-tests, dusk-tests]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI checks passed!"
