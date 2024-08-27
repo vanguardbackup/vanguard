@@ -370,6 +370,9 @@ it('submits successfully with Teams webhook and both notification preferences en
 });
 
 it('submits successfully with Telegram ID and both notification preferences enabled', function (): void {
+    Config::set('services.telegram.bot_token', '456');
+    Config::set('services.telegram.bot_id', '123');
+
     $testData = [
         'label' => 'Telegram',
         'type' => 'telegram',
@@ -386,6 +389,7 @@ it('submits successfully with Telegram ID and both notification preferences enab
         ->set('form.success_notification', $testData['success_notification'])
         ->set('form.failed_notification', $testData['failed_notification'])
         ->call('submit')
+        ->assertHasNoErrors(['form.type']) // Check specifically for 'form.type' errors
         ->assertHasNoErrors()
         ->assertRedirect(route('notification-streams.index'));
 

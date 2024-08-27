@@ -18,6 +18,7 @@ use App\Models\RemoteServer;
 use App\Models\Tag;
 use App\Models\Traits\ComposesTelegramNotification;
 use App\Models\User;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Carbon;
 
 uses(ComposesTelegramNotification::class);
@@ -1030,27 +1031,33 @@ it('throws an exception when Pushover notification fails', function (): void {
 });
 
 it('sends a Telegram notification successfully', function (): void {
-    $task = BackupTask::factory()->create();
-    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+    $botToken = 'abc123';
     $userToken = 'def456';
 
+    Config::set('services.telegram.bot_token', $botToken);
+
+    $task = BackupTask::factory()->create();
+    $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
     Http::fake([
-        $this->getTelegramUrl() => Http::response('', 200),
+        "https://api.telegram.org/bot{$botToken}/sendMessage" => Http::response('', 200),
     ]);
 
     $task->sendTelegramNotification($log, $userToken);
 
-    Http::assertSent(
-        fn ($request): bool => $request->url() === $this->getTelegramUrl() &&
+    Http::assertSent(function (Request $request) use ($botToken, $userToken, $task, $log): bool {
+        return $request->url() === "https://api.telegram.org/bot{$botToken}/sendMessage" &&
             $request['text'] === $this->composeTelegramNotificationText($task, $log) &&
             $request['chat_id'] === $userToken &&
-            $request['parse_mode'] === 'HTML'
-    );
+            $request['parse_mode'] === 'HTML';
+    });
 });
 
 it('throws an exception when Telegram notification fails', function (): void {
     $task = BackupTask::factory()->create();
     $log = BackupTaskLog::factory()->create(['backup_task_id' => $task->id]);
+
+    Config::set('services.telegram.bot_token', '456');
 
     Http::fake([
         $this->getTelegramUrl() => Http::response('Error', 500),

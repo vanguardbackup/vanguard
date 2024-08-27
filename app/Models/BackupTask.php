@@ -44,8 +44,8 @@ use RuntimeException;
  */
 class BackupTask extends Model
 {
-    use ComposesTelegramNotification;
     use AuditableModel;
+    use ComposesTelegramNotification;
     /** @use HasFactory<BackupTaskFactory> */
     use HasFactory;
     use HasTags;
