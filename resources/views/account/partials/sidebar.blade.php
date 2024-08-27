@@ -51,6 +51,14 @@
                 </x-sidebar-nav-link>
             </li>
         @endif
+        <li>
+            <x-sidebar-nav-link :href="route('profile.audit-logs')" :active="request()->routeIs('profile.audit-logs*')" wire:navigate>
+                <span class="flex items-center">
+                    @svg('hugeicons-license', 'h-5 w-5 mr-2')
+                    <span>{{ __('Audit Logs') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
 
         <!-- Preferences -->
         <li class="col-span-2 sm:col-span-3 lg:col-span-1 pt-4 pb-1">

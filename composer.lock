@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e7ba92ee8731943919bef780cc48b774",
+    "content-hash": "eb1028ea90deb8674f5de0f4812de57f",
     "packages": [
         {
             "name": "afatmustafa/blade-hugeicons",
@@ -4146,6 +4146,69 @@
                 }
             ],
             "time": "2024-06-28T09:40:51+00:00"
+        },
+        {
+            "name": "motomedialab/simple-laravel-audit",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/motomedialab/simple-laravel-audit.git",
+                "reference": "8a6cb8321d4b42df2a09c49d44251d2b69f75fdf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/motomedialab/simple-laravel-audit/zipball/8a6cb8321d4b42df2a09c49d44251d2b69f75fdf",
+                "reference": "8a6cb8321d4b42df2a09c49d44251d2b69f75fdf",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^9.0|^10.0|^11.0"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.0",
+                "laravel/pint": "^1.17",
+                "orchestra/testbench": "^7.0|^8.0|^9.0",
+                "pestphp/pest": "^1.0|^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Motomedialab\\SimpleLaravelAudit\\Providers\\SimpleAuditServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Motomedialab\\SimpleLaravelAudit\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Page",
+                    "email": "chris@motocom.co.uk"
+                }
+            ],
+            "description": "A simple audit helper that integrates directly with Laravel & FilamentPHP",
+            "keywords": [
+                "Audit",
+                "chrispage1",
+                "filament",
+                "laravel",
+                "motomedialab"
+            ],
+            "support": {
+                "issues": "https://github.com/motomedialab/simple-laravel-audit/issues",
+                "source": "https://github.com/motomedialab/simple-laravel-audit/tree/v1.2.1"
+            },
+            "time": "2024-08-19T08:37:41+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",

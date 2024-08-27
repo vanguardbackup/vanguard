@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 
 /**
  * Represents a remote server in the system.
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Log;
  */
 class RemoteServer extends Model
 {
+    use AuditableModel;
     /** @use HasFactory<RemoteServerFactory> */
     use HasFactory;
 

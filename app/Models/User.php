@@ -18,6 +18,7 @@ use Laragear\TwoFactor\TwoFactorAuthentication;
 use Laravel\Pennant\Concerns\HasFeatures;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
+use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 
 /**
  * Represents a user in the system.
@@ -27,8 +28,9 @@ use Laravel\Sanctum\NewAccessToken;
  */
 class User extends Authenticatable implements TwoFactorAuthenticatable
 {
-    use HasApiTokens;
+    use AuditableModel;
 
+    use HasApiTokens;
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use HasFeatures;

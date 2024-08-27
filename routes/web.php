@@ -12,6 +12,7 @@ use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Livewire\NotificationStreams\Forms\UpdateNotificationStream;
 use App\Livewire\NotificationStreams\Index as NotificationStreamIndex;
 use App\Livewire\Profile\APIPage;
+use App\Livewire\Profile\AuditLogPage;
 use App\Livewire\Profile\ConnectionsPage;
 use App\Livewire\Profile\ExperimentsPage;
 use App\Livewire\Profile\HelpPage;
@@ -77,6 +78,7 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
     Route::get('profile/quiet-mode', QuietModePage::class)->name('profile.quiet-mode');
     Route::get('profile/connections', ConnectionsPage::class)->name('profile.connections');
     Route::get('profile/help', HelpPage::class)->name('profile.help');
+    Route::get('profile/audit-logs', AuditLogPage::class)->name('profile.audit-logs');
 });
 
 require __DIR__ . '/auth.php';
