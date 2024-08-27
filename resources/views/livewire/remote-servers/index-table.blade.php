@@ -2,7 +2,7 @@
     @if ($remoteServers->isEmpty())
         <x-no-content withBackground>
             <x-slot name="icon">
-                @svg('hugeicons-hard-dive', 'h-16 w-16 text-primary-900 dark:text-white inline')
+                @svg('hugeicons-hard-drive', 'h-16 w-16 text-primary-900 dark:text-white inline')
             </x-slot>
             <x-slot name="title">
                 {{ __("You don't have any remote servers setup!") }}
