@@ -77,8 +77,6 @@ class AuditLogPage extends Component
         $this->dispatch('close-modal', 'audit-log-details');
     }
 
-    // Assuming Toaster is properly imported
-
     /**
      * Export the filtered audit logs in the specified format.
      */
@@ -261,9 +259,11 @@ class AuditLogPage extends Component
 
         $encryptedFields = $this->getEncryptedFields();
 
-        foreach (array_keys($filteredContext) as $field) {
+        foreach ($filteredContext as $field => $value) {
             if (in_array($field, $encryptedFields, true)) {
                 $filteredContext[$field] = '[encrypted]';
+            } elseif ($value === null || $value === '') {
+                unset($filteredContext[$field]);
             }
         }
 
