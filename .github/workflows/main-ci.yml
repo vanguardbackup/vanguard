@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  duster:
+  code-style:
     uses: ./.github/workflows/duster-fix-blame.yml
     permissions:
       contents: write
@@ -18,7 +18,7 @@ jobs:
       contents: write
 
   static-analysis:
-    needs: duster
+    needs: [code-style, prettier]
     uses: ./.github/workflows/static-analysis.yml
 
   rector:
@@ -30,11 +30,11 @@ jobs:
     uses: ./.github/workflows/pest-tests.yml
 
   dusk-tests:
-    needs: pest-tests
+    needs: rector
     uses: ./.github/workflows/dusk-tests.yml
 
   ci-passed:
-    needs: [duster, prettier, static-analysis, rector, pest-tests, dusk-tests]
+    needs: [pest-tests, dusk-tests]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI checks passed!"
