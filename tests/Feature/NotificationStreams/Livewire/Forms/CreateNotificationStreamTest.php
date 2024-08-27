@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Livewire\NotificationStreams\Forms\CreateNotificationStream;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -176,6 +177,24 @@ it('validates Teams webhook format', function (): void {
         ->set('form.value', 'https://invalid-teams-webhook.com')
         ->call('submit')
         ->assertHasErrors(['form.value']);
+});
+
+it('validates Telegraf format', function (): void {
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', 'Test')
+        ->set('form.type', 'telegram')
+        ->set('form.value', 'abcdef')
+        ->call('submit')
+        ->assertHasErrors(['form.value']);
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', 'Test')
+        ->set('form.type', 'telegram')
+        ->set('form.value', '123456789')
+        ->call('submit')
+        ->assertHasNoErrors(['form.value']);
 });
 
 it('clears validation errors when type changes', function (): void {
@@ -350,6 +369,42 @@ it('submits successfully with Teams webhook and both notification preferences en
     $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
 });
 
+it('submits successfully with Telegram ID and both notification preferences enabled', function (): void {
+    Config::set('services.telegram.bot_token', '456');
+    Config::set('services.telegram.bot_id', '123');
+
+    $testData = [
+        'label' => 'Telegram',
+        'type' => 'telegram',
+        'value' => '1234567890',
+        'success_notification' => true,
+        'failed_notification' => true,
+    ];
+
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->set('form.label', $testData['label'])
+        ->set('form.type', $testData['type'])
+        ->set('form.value', $testData['value'])
+        ->set('form.success_notification', $testData['success_notification'])
+        ->set('form.failed_notification', $testData['failed_notification'])
+        ->call('submit')
+        ->assertHasNoErrors(['form.type']) // Check specifically for 'form.type' errors
+        ->assertHasNoErrors()
+        ->assertRedirect(route('notification-streams.index'));
+
+    $this->assertDatabaseHas('notification_streams', [
+        'user_id' => $this->user->id,
+        'label' => $testData['label'],
+        'type' => $testData['type'],
+        'value' => $testData['value'],
+    ]);
+
+    $notificationStream = $this->user->notificationStreams()->latest()->first();
+    $this->assertNotNull($notificationStream->receive_successful_backup_notifications);
+    $this->assertNotNull($notificationStream->receive_failed_backup_notifications);
+});
+
 it('submits successfully with both notification preferences disabled', function (): void {
     $testData = [
         'label' => 'Test Notification',
@@ -454,4 +509,11 @@ it('validates Pushover additional fields', function (): void {
         ->set('form.additional_field_one', '') // Empty User Key
         ->call('submit')
         ->assertHasErrors(['form.additional_field_one']);
+});
+
+it('writes error to log on event', function (): void {
+    Log::shouldReceive('error')->once()->with('Error from js script for Telegram authentication.', ['error' => 'Some js error']);
+    Livewire::actingAs($this->user)
+        ->test(CreateNotificationStream::class)
+        ->dispatch('jsError', 'Some js error');
 });

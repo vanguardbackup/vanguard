@@ -178,6 +178,7 @@ class NotificationStreamController extends Controller
                 NotificationStream::TYPE_SLACK,
                 NotificationStream::TYPE_TEAMS,
                 NotificationStream::TYPE_PUSHOVER,
+                NotificationStream::TYPE_TELEGRAM,
             ])],
             'value' => ['required', 'string', 'max:255'],
             'notifications' => ['required', 'array'],

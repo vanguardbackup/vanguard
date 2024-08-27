@@ -21,6 +21,7 @@ class NotificationStreamFactory extends Factory
             NotificationStream::TYPE_DISCORD,
             NotificationStream::TYPE_TEAMS,
             NotificationStream::TYPE_PUSHOVER,
+            NotificationStream::TYPE_TELEGRAM,
         ]);
 
         return [
@@ -89,6 +90,17 @@ class NotificationStreamFactory extends Factory
     }
 
     /**
+     * Indicate that the notification stream is for Telegram.
+     */
+    public function telegram(): static
+    {
+        return $this->state([
+            'type' => NotificationStream::TYPE_TELEGRAM,
+            'value' => $this->generateTelegram(),
+        ]);
+    }
+
+    /**
      * Indicate that the notification stream will send successful notifications.
      */
     public function successEnabled(): static
@@ -138,6 +150,7 @@ class NotificationStreamFactory extends Factory
             NotificationStream::TYPE_SLACK => $this->generateSlackWebhook(),
             NotificationStream::TYPE_DISCORD => $this->generateDiscordWebhook(),
             NotificationStream::TYPE_TEAMS => $this->generateTeamsWebhook(),
+            NotificationStream::TYPE_TELEGRAM => $this->generateTelegram(),
             default => $this->faker->url,
         };
     }
@@ -185,5 +198,13 @@ class NotificationStreamFactory extends Factory
     private function generatePushover(): string
     {
         return $this->faker->regexify('[a-zA-Z0-9]{30}');
+    }
+
+    /**
+     * Generate a realistic Telegram chatID.
+     */
+    private function generateTelegram(): string
+    {
+        return $this->faker->regexify('[0-9]{10}');
     }
 }

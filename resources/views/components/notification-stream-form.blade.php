@@ -52,7 +52,9 @@
                 <x-input-error :messages="$message" class="mt-2" />
             @enderror
         </div>
-
+        <template x-if="$wire.form.type === 'telegram'">
+            <x-telegram-form />
+        </template>
         @foreach ($form->getAdditionalFieldsConfig() as $field => $config)
             <div class="mt-4">
                 <x-input-label for="form.{{ $field }}" :value="__($config['label'])" />
