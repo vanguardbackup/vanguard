@@ -59,9 +59,24 @@ new class extends Component
         /** @var User $user */
         $user = Auth::user();
         $this->accountSummary = [
-            'backupTasks' => $user->backupTasks()->count(),
-            'remoteServers' => $user->remoteServers()->count(),
-            'backupDestinations' => $user->backupDestinations()->count(),
+            'backupTasks' => [
+                'count' => $user->backupTasks()->count(),
+                'label' => 'Backup Tasks',
+                'icon' => 'hugeicons-archive-02',
+                'description' => 'Scheduled backup operations you have configured.',
+            ],
+            'remoteServers' => [
+                'count' => $user->remoteServers()->count(),
+                'label' => 'Remote Servers',
+                'icon' => 'hugeicons-hard-drive',
+                'description' => 'Linux servers you have connected to your account.',
+            ],
+            'backupDestinations' => [
+                'count' => $user->backupDestinations()->count(),
+                'label' => 'Backup Destinations',
+                'icon' => 'hugeicons-folder-cloud',
+                'description' => 'Storage locations (e.g., S3 buckets) for your backups.',
+            ],
         ];
     }
 
@@ -179,13 +194,24 @@ new class extends Component
 
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ __('Account Summary') }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {{ __('Review the following summary of your account. To be eligible for deletion, all counts must be zero.') }}
+                    </p>
                     <ul class="space-y-4">
-                        @foreach (['backupTasks' => 'Backup Tasks', 'remoteServers' => 'Remote Servers', 'backupDestinations' => 'Backup Destinations'] as $key => $label)
-                            <li class="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                <span class="text-gray-700 dark:text-gray-300">{{ __($label) }}</span>
-                                <span class="font-semibold {{ $accountSummary[$key] > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400' }}">
-                                    {{ $accountSummary[$key] }}
-                                </span>
+                        @foreach (['backupTasks', 'remoteServers', 'backupDestinations'] as $key)
+                            <li class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="flex items-center text-gray-700 dark:text-gray-300">
+                                        <x-dynamic-component :component="$accountSummary[$key]['icon']" class="h-5 w-5 mr-2 inline" />
+                                        {{ __($accountSummary[$key]['label']) }}
+                                    </span>
+                                    <span class="font-semibold {{ $accountSummary[$key]['count'] > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400' }}">
+                                        {{ $accountSummary[$key]['count'] }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ __($accountSummary[$key]['description']) }}
+                                </p>
                             </li>
                         @endforeach
                     </ul>
