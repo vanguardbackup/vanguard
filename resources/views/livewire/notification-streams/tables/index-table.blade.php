@@ -28,7 +28,7 @@
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Label') }}</div>
-                <div class="col-span-3">{{ __('Used') }}</div>
+                <div class="col-span-3">{{ __('Usage') }}</div>
                 <div class="col-span-3">{{ __('Type') }}</div>
                 <div class="col-span-3">{{ __('Actions') }}</div>
             </x-table.table-header>
@@ -43,7 +43,7 @@
 
                         <div class="col-span-12 mt-2 sm:col-span-3 sm:mt-0">
                             <span class="text-gray-600 dark:text-gray-300">
-                                {{ trans_choice('{0} Not Used|{1} Once|[2,*] :count Times', $notificationStream->backupTasks?->count() ?? 0, ['count' => $notificationStream->backupTasks?->count() ?? 0]) }}
+                                {{ trans_choice('{0} Unused|{1} One Task|[2,*] :count Tasks', $notificationStream->backupTasks?->count() ?? 0, ['count' => $notificationStream->backupTasks?->count() ?? 0]) }}
                             </span>
                         </div>
 
