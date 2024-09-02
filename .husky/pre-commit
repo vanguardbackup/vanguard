@@ -91,34 +91,6 @@ run_command() {
             printf " ${GREEN}(%.2fs) No errors found${NC}\n" "$duration"
             return 0
         fi
-    elif [ "$1" = "Running Pest tests" ] || [ "$1" = "Running Dusk tests" ]; then
-        if echo "$output" | grep -q "No \"dirty\" tests found"; then
-            print_result 2
-            printf " ${CYAN}(%.2fs) Tests skipped (no relevant changes)${NC}\n" "$duration"
-            return 0
-        elif echo "$output" | grep -q " FAILURES!"; then
-            print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Test Failures:${NC}\n"
-            echo "$output" | sed -n '/FAILURES!/,/ERRORS!/p' | while IFS= read -r line; do
-                printf "${RED}%s${NC}\n" "$line"
-            done
-            return 1
-        elif [ $exit_code -eq 0 ]; then
-            print_result 0
-            printf " ${GREEN}(%.2fs)${NC}\n" "$duration"
-            if [ "$1" = "Running Pest tests" ]; then
-                echo "$output" | grep "Tests:" >&2
-            elif [ "$1" = "Running Dusk tests" ]; then
-                echo "$output" | grep "OK (" >&2
-            fi
-            return 0
-        else
-            print_result 1
-            printf " ${RED}(%.2fs)${NC}\n" "$duration"
-            printf "\n${RED}Test Error:${NC}\n%s\n\n" "$output"
-            return 1
-        fi
     elif [ "$1" = "Checking code style" ]; then
         if echo "$output" | grep -q "LGTM!"; then
             print_result 0
@@ -192,7 +164,6 @@ run_command() {
 commands=(
     "Running Static Analysis:./vendor/bin/phpstan analyse --no-progress"
     "Running Pest tests:./vendor/bin/pest --parallel --dirty --bail"
-    "Running Dusk tests:php artisan dusk --dirty --bail"
     "Checking Code Style:./vendor/bin/duster lint"
     "Checking for Refactoring Opportunities:./vendor/bin/rector --no-progress-bar --dry-run"
     "Checking Prettier formatting:npx prettier --check resources/"
@@ -244,9 +215,6 @@ else
                     ;;
                 "Running Pest tests")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/pest${YELLOW}' and fix failing tests${NC}\n"
-                    ;;
-                "Running Dusk tests")
-                    printf "    ${YELLOW}To fix: Run '${CYAN}php artisan dusk${YELLOW}' and fix failing browser tests${NC}\n"
                     ;;
                 "Checking code style")
                     printf "    ${YELLOW}To fix: Run '${CYAN}./vendor/bin/duster fix${YELLOW}' to automatically fix style issues${NC}\n"

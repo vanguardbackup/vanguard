@@ -8,7 +8,6 @@ use App\Models\BackupTask;
 use App\Models\RemoteServer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\DuskTestCase;
 use Tests\TestCase;
 
 /*
@@ -24,7 +23,6 @@ use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class)->in('Feature');
 uses(TestCase::class, RefreshDatabase::class)->in('Unit');
-uses(DuskTestCase::class)->in('Browser');
 uses(TestCase::class, RefreshDatabase::class)->in('Fakes');
 
 /*

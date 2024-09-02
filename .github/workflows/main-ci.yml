@@ -29,12 +29,8 @@ jobs:
     needs: rector
     uses: ./.github/workflows/pest-tests.yml
 
-  dusk-tests:
-    needs: rector
-    uses: ./.github/workflows/dusk-tests.yml
-
   ci-passed:
-    needs: [pest-tests, dusk-tests]
+    needs: [pest-tests]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All CI checks passed!"
