@@ -67,8 +67,32 @@
                     {{ __('Need Further Assistance?') }}
                 </h3>
                 <p class="mb-4 text-sm text-gray-700 sm:text-base dark:text-gray-300">
-                    {{ __('If you couldn\'t find what you\'re looking for in the resources above, we can help:') }}
+                    {{ __('If you couldn\'t find what you\'re looking for in the resources above, we offer the following support options:') }}
                 </p>
+
+                <div
+                    class="mb-4 rounded-md border-2 border-gray-300 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700"
+                >
+                    <h4 class="mb-2 text-base font-semibold text-gray-900 dark:text-white">
+                        {{ __('Premium Paid Support') }}
+                    </h4>
+                    <p class="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                        {{ __('For priority assistance and expert guidance:') }}
+                    </p>
+                    <a
+                        href="https://psp.vanguardbackup.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-white transition duration-150 ease-in-out hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
+                    >
+                        <x-hugeicons-customer-support class="mr-2 h-5 w-5" />
+                        {{ __('Access Paid Support Platform') }}
+                    </a>
+                </div>
+
+                <h4 class="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
+                    {{ __('Free Support Options') }}
+                </h4>
                 <ul class="space-y-3 text-sm text-gray-700 sm:text-base dark:text-gray-300">
                     <li class="flex flex-wrap items-center">
                         <x-hugeicons-mail-01 class="mr-2 h-5 w-5 text-gray-600 sm:mr-3 dark:text-gray-400" />
