@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -60,12 +59,6 @@ class CreateBackupTaskForm extends Component
     public ?string $storePath = null;
 
     public ?string $excludedDatabaseTables = null;
-
-    public bool $useIsolatedCredentials = false;
-
-    public ?string $isolatedUsername = null;
-
-    public ?string $isolatedPassword = null;
 
     public ?string $encryptionPassword = null;
 
@@ -222,19 +215,6 @@ class CreateBackupTaskForm extends Component
     }
 
     /**
-     * Handle changes to the isolated credentials toggle.
-     *
-     * This method clears isolated credential fields when toggled off.
-     */
-    public function updatedUseIsolatedCredentials(): void
-    {
-        if (! $this->useIsolatedCredentials) {
-            $this->isolatedUsername = null;
-            $this->isolatedPassword = null;
-        }
-    }
-
-    /**
      * Handle changes to the backup type.
      *
      * This method updates the available remote servers based on the selected backup type.
@@ -311,8 +291,6 @@ class CreateBackupTaskForm extends Component
             . '$/';
 
         $baseRules = [
-            'isolatedUsername' => ['nullable', 'string'],
-            'isolatedPassword' => ['nullable', 'string'],
             'encryptionPassword' => ['nullable', 'string'],
             'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
@@ -398,7 +376,6 @@ class CreateBackupTaskForm extends Component
             'Schedule' => $this->useCustomCron
                 ? "Custom: {$this->cronExpression}"
                 : ucfirst((string) $this->frequency) . " at {$this->timeToRun}",
-            'Using Isolated Environment' => $this->useIsolatedCredentials ? 'Yes' : 'No',
             'Supplied Encryption Password' => $this->encryptionPassword ? 'Yes' : 'No',
             'Tags' => $this->getSelectedTagLabels(),
             'Notification Streams' => $this->getSelectedStreamLabels(),
@@ -555,7 +532,6 @@ class CreateBackupTaskForm extends Component
             return;
         }
 
-        $this->useIsolatedCredentials = false;
         $this->availableTags = $user->tags;
         $this->availableNotificationStreams = $user->notificationStreams;
         $this->userTimezone = $user->timezone ?? 'UTC';
@@ -655,8 +631,6 @@ class CreateBackupTaskForm extends Component
             'appended_file_name' => $this->appendedFileName,
             'store_path' => $this->storePath,
             'excluded_database_tables' => $this->excludedDatabaseTables,
-            'isolated_username' => $this->isolatedUsername,
-            'isolated_password' => $this->isolatedPassword ? Crypt::encryptString($this->isolatedPassword) : null,
             'encryption_password' => $this->encryptionPassword,
         ];
     }

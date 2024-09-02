@@ -311,7 +311,7 @@ abstract class Backup
 
         $sftp = $this->createSFTP($remoteServer->ip_address, (int) $remoteServer->port, 120);
 
-        $loginSuccess = $backupTask->hasIsolatedCredentials() ? $sftp->login($backupTask->getAttribute('isolated_username'), $asymmetricKey) : $sftp->login($remoteServer->username, $asymmetricKey);
+        $loginSuccess = $sftp->login($remoteServer->username, $asymmetricKey);
 
         if (! $loginSuccess) {
             $error = $sftp->getLastError();

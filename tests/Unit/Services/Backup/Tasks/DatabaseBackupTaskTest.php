@@ -215,28 +215,6 @@ test('perform backup fails when dump file is empty', function (): void {
     ]);
 });
 
-test('perform backup with isolated credentials', function (): void {
-    $this->backupTask->update(['isolated_username' => 'isolated_user']);
-
-    $this->sftpMock->shouldReceive('exec')->with('mysql --version 2>&1')->andReturn('mysql  Ver 8.0.26');
-    $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/mysqldump/'))->andReturn('');
-    $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/test -s/'))->andReturn('exists');
-    $this->sftpMock->shouldReceive('exec')->with(Mockery::pattern('/cat/'))->andReturn('-- MySQL dump');
-    $this->sftpMock->shouldReceive('delete')->andReturn(true);
-
-    $this->databaseBackupTask->shouldReceive('backupDestinationDriver')->andReturn(true);
-    $this->databaseBackupTask->shouldReceive('getDatabaseType')->andReturn(BackupConstants::DATABASE_TYPE_MYSQL);
-    $this->databaseBackupTask->shouldReceive('dumpRemoteDatabase')->andReturnNull();
-    $this->databaseBackupTask->shouldReceive('createBackupDestinationInstance')->andReturn($this->s3Mock);
-
-    $this->databaseBackupTask->handle();
-
-    $this->assertDatabaseHas('backup_tasks', [
-        'id' => $this->backupTask->id,
-        'status' => BackupTask::STATUS_READY,
-    ]);
-});
-
 test('generate backup file name', function (): void {
     // Test without appended file name
     $fileName = $this->databaseBackupTask->generateBackupFileName('sql');

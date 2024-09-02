@@ -1410,26 +1410,6 @@ it('returns the attached tags as a string', function (): void {
     expect($task->listOfAttachedTagLabels())->toBe('Tag 1, Tag 2');
 });
 
-it('returns true if the isolated credentials are set', function (): void {
-
-    $task = BackupTask::factory()->create([
-        'isolated_username' => 'john_doe',
-        'isolated_password' => 'password123',
-    ]);
-
-    $this->assertTrue($task->hasIsolatedCredentials());
-});
-
-it('returns false if the isolated credentials are set', function (): void {
-
-    $task = BackupTask::factory()->create([
-        'isolated_username' => null,
-        'isolated_password' => null,
-    ]);
-
-    $this->assertFalse($task->hasIsolatedCredentials());
-});
-
 beforeEach(function (): void {
     Carbon::setTestNow(Carbon::create(2024, 6, 12, 18, 57));
 });
@@ -1745,7 +1725,7 @@ it('returns true if an encryption password is set', function (): void {
 it('returns false if an encryption password is not set', function (): void {
 
     $task = BackupTask::factory()->create([
-        'isolated_username' => null,
+        'encryption_password' => null,
     ]);
 
     $this->assertFalse($task->hasEncryptionPassword());

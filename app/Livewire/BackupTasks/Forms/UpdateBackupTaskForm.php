@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -62,12 +61,6 @@ class UpdateBackupTaskForm extends Component
     public ?string $storePath = null;
 
     public ?string $excludedDatabaseTables = null;
-
-    public bool $useIsolatedCredentials = false;
-
-    public ?string $isolatedUsername = null;
-
-    public ?string $isolatedPassword = null;
 
     public ?string $encryptionPassword = null;
 
@@ -165,10 +158,6 @@ class UpdateBackupTaskForm extends Component
         if ($this->cronExpression) {
             $this->useCustomCron = true;
         }
-
-        if ($this->backupTask->hasIsolatedCredentials()) {
-            $this->useIsolatedCredentials = true;
-        }
     }
 
     private function fillFormFromBackupTask(): void
@@ -187,7 +176,6 @@ class UpdateBackupTaskForm extends Component
             'appended_file_name' => 'appendedFileName',
             'store_path' => 'storePath',
             'excluded_database_tables' => 'excludedDatabaseTables',
-            'isolated_username' => 'isolatedUsername',
             'encryption_password' => null,
         ];
 
@@ -196,7 +184,6 @@ class UpdateBackupTaskForm extends Component
         }
 
         $this->backupsToKeep = (int) $this->backupTask->getAttribute('maximum_backups_to_keep');
-        $this->isolatedPassword = null;
 
         if ($this->backupTask->getAttribute('time_to_run_at')) {
             $this->timeToRun = Carbon::createFromFormat('H:i', $this->backupTask->getAttribute('time_to_run_at'), 'UTC')?->setTimezone($this->userTimezone)->format('H:i');
@@ -236,8 +223,6 @@ class UpdateBackupTaskForm extends Component
     {
         $baseRules = [
             'encryptionPassword' => ['nullable', 'string'],
-            'isolatedUsername' => ['nullable', 'string'],
-            'isolatedPassword' => ['nullable', 'string'],
             'selectedStreams' => ['nullable', 'array', Rule::exists('notification_streams', 'id')->where('user_id', Auth::id())],
             'selectedTags' => ['nullable', 'array', Rule::exists('tags', 'id')->where('user_id', Auth::id())],
             'excludedDatabaseTables' => ['nullable', 'string', 'regex:/^([a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*)$/'],
@@ -323,14 +308,7 @@ class UpdateBackupTaskForm extends Component
             'database_name' => $this->databaseName,
             'appended_file_name' => $this->appendedFileName,
             'store_path' => $this->storePath,
-            'isolated_username' => $this->isolatedUsername,
         ]);
-
-        if ($this->isolatedPassword) {
-            $this->backupTask->updateQuietly([
-                'isolated_password' => Crypt::encrypt($this->isolatedPassword),
-            ]);
-        }
 
         if (! is_null($this->encryptionPassword)) {
             $this->backupTask->updateQuietly([

@@ -1041,14 +1041,6 @@ class BackupTask extends Model
     }
 
     /**
-     * Check if the task has isolated credentials.
-     */
-    public function hasIsolatedCredentials(): bool
-    {
-        return $this->getAttribute('isolated_username') !== null && $this->getAttribute('isolated_password') !== null;
-    }
-
-    /**
      * Check if the task has an encryption password set.
      */
     public function hasEncryptionPassword(): bool
