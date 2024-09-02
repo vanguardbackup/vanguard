@@ -67,7 +67,7 @@ class BackupTaskHistoryTable extends Component
             })
             ->orderBy('created_at', 'desc')
             ->paginate(
-                Auth::user()?->getAttribute('pagination_count') ?? 15,
+                10,
                 ['*'],
                 $this->paginationQueryString,
                 $this->page
