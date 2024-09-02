@@ -14,11 +14,7 @@
                                 <div
                                     class="relative rounded-lg bg-white p-2 shadow-sm transition-all duration-300 group-hover:shadow-md dark:bg-gray-800"
                                 >
-                                    @svg(
-                                        'hugeicons-file-01',
-                                        'h-5 w-5 text-purple-600
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dark:text-purple-400'
-                                    )
+                                    @svg('hugeicons-file-01', 'h-5 w-5 text-purple-600 dark:text-purple-400')
                                 </div>
                             </div>
                         @elseif ($backupTask->isDatabaseType())
@@ -40,41 +36,25 @@
                         </h3>
                         <div class="flex space-x-2">
                             @if ($backupTask->tags()->exists())
-                                <div
-                                    x-data
-                                    x-on:mouseenter="
-                                        $dispatch('show-tags-tooltip', {
-                                            id: {{ $backupTask->id }},
-                                            tags: '{{ $backupTask->listOfAttachedTagLabels() }}',
-                                        })
-                                    "
+                                <button
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'view-tags-{{ $backupTask->id }}')"
+                                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                                 >
-                                    <span
-                                        class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                                    >
-                                        @svg('hugeicons-tags', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
-                                        {{ $backupTask->tags->count() }}
-                                    </span>
-                                </div>
+                                    @svg('hugeicons-tags', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
+                                    {{ $backupTask->tags->count() }}
+                                </button>
                             @endif
 
                             @if ($backupTask->notificationStreams()->exists())
-                                <div
-                                    x-data
-                                    x-on:mouseenter="
-                                        $dispatch('show-tags-tooltip', {
-                                            id: {{ $backupTask->id }},
-                                            tags: '{{ $backupTask->listOfAttachedTagLabels() }}',
-                                        })
-                                    "
+                                <button
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'view-notification-streams-{{ $backupTask->id }}')"
+                                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                                 >
-                                    <span
-                                        class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                                    >
-                                        @svg('hugeicons-notification-02', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
-                                        {{ $backupTask->notificationStreams->count() }}
-                                    </span>
-                                </div>
+                                    @svg('hugeicons-notification-02', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
+                                    {{ $backupTask->notificationStreams->count() }}
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -194,11 +174,7 @@
                             <div
                                 class="relative rounded-lg bg-white p-2 shadow-sm transition-all duration-300 group-hover:shadow-md dark:bg-gray-800"
                             >
-                                @svg(
-                                    'hugeicons-file-01',
-                                    'h-5 w-5 text-purple-600
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dark:text-purple-400'
-                                )
+                                @svg('hugeicons-file-01', 'h-5 w-5 text-purple-600 dark:text-purple-400')
                             </div>
                         </div>
                     @elseif ($backupTask->isDatabaseType())
@@ -220,41 +196,25 @@
                     </h3>
                     <div class="ms-1.5 mt-1.5 flex space-x-2">
                         @if ($backupTask->tags()->exists())
-                            <div
-                                x-data
-                                x-on:mouseenter="
-                                    $dispatch('show-tags-tooltip', {
-                                        id: {{ $backupTask->id }},
-                                        tags: '{{ $backupTask->listOfAttachedTagLabels() }}',
-                                    })
-                                "
+                            <button
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'view-tags-{{ $backupTask->id }}')"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                             >
-                                <span
-                                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                                >
-                                    @svg('hugeicons-tags', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
-                                    {{ $backupTask->tags->count() }}
-                                </span>
-                            </div>
+                                @svg('hugeicons-tags', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
+                                {{ $backupTask->tags->count() }}
+                            </button>
                         @endif
 
                         @if ($backupTask->notificationStreams()->exists())
-                            <div
-                                x-data
-                                x-on:mouseenter="
-                                    $dispatch('show-tags-tooltip', {
-                                        id: {{ $backupTask->id }},
-                                        tags: '{{ $backupTask->listOfAttachedTagLabels() }}',
-                                    })
-                                "
+                            <button
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'view-notification-streams-{{ $backupTask->id }}')"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                             >
-                                <span
-                                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                                >
-                                    @svg('hugeicons-notification-02', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
-                                    {{ $backupTask->notificationStreams->count() }}
-                                </span>
-                            </div>
+                                @svg('hugeicons-notification-02', 'mr-1 h-3 w-3 text-gray-500 dark:text-gray-400')
+                                {{ $backupTask->notificationStreams->count() }}
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -350,5 +310,64 @@
             </div>
         </div>
     </div>
+
+    <!-- Log Modal -->
     <livewire:backup-tasks.modals.log-modal :backupTask="$backupTask" :key="'show-log-modal-' . $backupTask->id" />
+
+    <!-- Tags Modal -->
+    <x-modal name="view-tags-{{ $backupTask->id }}" :key="'tags-modal-' . $backupTask->id" focusable>
+        <x-slot name="title">
+            {{ __('Tags for :task', ['task' => $backupTask->label]) }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('View tags associated with this backup task.') }}
+        </x-slot>
+        <x-slot name="icon">hugeicons-tags</x-slot>
+        <div class="max-h-96 space-y-4 overflow-y-auto">
+            @forelse ($backupTask->tags as $tag)
+                <div class="flex items-center justify-between rounded-lg bg-gray-100 p-3 dark:bg-gray-700">
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $tag->label }}</span>
+                </div>
+            @empty
+                <div class="py-8 text-center text-gray-500 dark:text-gray-400">
+                    {{ __('No tags assigned to this backup task.') }}
+                </div>
+            @endforelse
+        </div>
+        <div class="mt-6">
+            <x-secondary-button x-on:click="$dispatch('close')" class="w-full justify-center">
+                {{ __('Close') }}
+            </x-secondary-button>
+        </div>
+    </x-modal>
+
+    <!-- Notification Streams Modal -->
+    <x-modal name="view-notification-streams-{{ $backupTask->id }}" :key="'notification-streams-modal-' . $backupTask->id" focusable>
+        <x-slot name="title">
+            {{ __('Notification Streams for :task', ['task' => $backupTask->label]) }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('View notification streams associated with this backup task.') }}
+        </x-slot>
+        <x-slot name="icon">hugeicons-notification-02</x-slot>
+        <div class="max-h-96 space-y-4 overflow-y-auto">
+            @forelse ($backupTask->notificationStreams as $stream)
+                <div class="flex items-center justify-between rounded-lg bg-gray-100 p-3 dark:bg-gray-700">
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $stream->label }}</span>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+                        {{ $stream->type }}
+                    </span>
+                </div>
+            @empty
+                <div class="py-8 text-center text-gray-500 dark:text-gray-400">
+                    {{ __('No notification streams assigned to this backup task.') }}
+                </div>
+            @endforelse
+        </div>
+        <div class="mt-6">
+            <x-secondary-button x-on:click="$dispatch('close')" class="w-full justify-center">
+                {{ __('Close') }}
+            </x-secondary-button>
+        </div>
+    </x-modal>
 </div>
