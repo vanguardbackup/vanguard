@@ -42,6 +42,17 @@ class BackupDestination extends Model
     protected $guarded = [];
 
     /**
+     * Define the model values that shouldn't be audited.
+     *
+     * @var string[]
+     */
+    protected array $excludedFromAuditing = [
+        'status',
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
      * Get the user that owns the backup destination.
      *
      * @return BelongsTo<User, BackupDestination>

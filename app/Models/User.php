@@ -61,6 +61,18 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     ];
 
     /**
+     * Define the model values that shouldn't be audited.
+     *
+     * @var string[]
+     */
+    protected array $excludedFromAuditing = [
+        'quiet_until',
+        'last_two_factor_at',
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
      * Get the user's remote servers.
      *
      * @return HasMany<RemoteServer>

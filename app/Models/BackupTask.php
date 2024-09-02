@@ -60,6 +60,17 @@ class BackupTask extends Model
     protected $guarded = [];
 
     /**
+     * Define the model values that shouldn't be audited.
+     *
+     * @var string[]
+     */
+    protected array $excludedFromAuditing = [
+        'status',
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
      * Get the count of tasks per month for the last six months for a given user.
      *
      * @param  int  $userId  The ID of the user
