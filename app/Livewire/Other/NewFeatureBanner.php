@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Other;
 
+use App\Models\UserDismissal;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -15,18 +16,11 @@ use Livewire\Component;
  *
  * This Livewire component fetches the latest feature from cache,
  * displays it to the user, and allows them to dismiss it. The dismissal
- * state is stored in the user's session to prevent the same feature
+ * state is stored using the UserDismissal model to prevent the same feature
  * from being shown repeatedly.
  */
 class NewFeatureBanner extends Component
 {
-    /**
-     * The session key used to store the dismissed feature version.
-     *
-     * @var string
-     */
-    private const string SESSION_KEY = 'dismissed_feature_version';
-
     /**
      * The latest feature to be displayed in the banner.
      *
@@ -59,13 +53,20 @@ class NewFeatureBanner extends Component
      * Dismiss the currently displayed feature.
      *
      * This method is called when the user chooses to dismiss the feature banner.
-     * It stores the dismissed version in the session and clears the latestFeature property.
+     * It creates a new UserDismissal record and clears the latestFeature property.
      */
     public function dismiss(): void
     {
-        if ($this->latestFeature) {
-            Session::put(self::SESSION_KEY, $this->latestFeature['version'] ?? 'unknown');
-            $this->latestFeature = null;
+        if ($this->latestFeature && Auth::check()) {
+            $userId = Auth::id();
+            if (is_int($userId)) {
+                UserDismissal::dismiss(
+                    $userId,
+                    'feature',
+                    $this->latestFeature['version'] ?? 'unknown'
+                );
+                $this->latestFeature = null;
+            }
         }
         $this->dispatch('featureDismissed');
     }
@@ -74,8 +75,8 @@ class NewFeatureBanner extends Component
      * Load the latest feature from cache if it hasn't been dismissed.
      *
      * This method checks the cache for the latest feature and compares it
-     * against the dismissed version stored in the session. If the feature
-     * is new or hasn't been dismissed, it's loaded into the component state.
+     * against the user's dismissals. If the feature is new or hasn't been
+     * dismissed, it's loaded into the component state.
      */
     private function loadLatestFeature(): void
     {
@@ -89,11 +90,13 @@ class NewFeatureBanner extends Component
             return;
         }
 
-        $dismissedVersion = Session::get(self::SESSION_KEY);
         $currentVersion = $cachedFeature['version'] ?? 'unknown';
 
-        if ($dismissedVersion !== $currentVersion) {
-            $this->latestFeature = $cachedFeature;
+        if (Auth::check()) {
+            $userId = Auth::id();
+            if (is_int($userId) && ! UserDismissal::isDismissed($userId, 'feature', $currentVersion)) {
+                $this->latestFeature = $cachedFeature;
+            }
         }
     }
 }
