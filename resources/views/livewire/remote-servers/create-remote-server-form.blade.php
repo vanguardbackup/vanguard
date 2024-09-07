@@ -1,3 +1,4 @@
+{{-- blade-formatter-disable --}}
 <div>
     @if (! ssh_keys_exist())
         <x-no-content withBackground>
@@ -39,9 +40,7 @@
                                     class="overflow-x-auto whitespace-pre-wrap break-all p-4 font-mono text-sm text-gray-800 dark:text-gray-200"
                                     x-ref="sshKey"
                                     style="max-height: 200px"
-                                >
-                                    {{ $ourPublicKey }}
-                                </div>
+                                >{{ $ourPublicKey }}</div>
                                 <div class="absolute right-2 top-2 flex space-x-2">
                                     <button
                                         type="button"
