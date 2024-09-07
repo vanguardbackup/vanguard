@@ -15,6 +15,9 @@ resources/views/mail/
 ## Ignore create remote server form due to the importance of maintaining the textarea
 resources/views/livewire/remote-servers/create-remote-server-form.blade.php
 
+## ignore api key so there's no issues when copying and pasting!
+resources/views/livewire/profile/api-token-manager.blade.php
+
 ## Ignored due to prettier issues that can't be resolved automatically atm!
 resources/views/components/select.blade.php
 resources/views/components/textarea.blade.php

@@ -811,9 +811,7 @@ new class extends Component {
         <x-slot name="icon">hugeicons-ticket-02</x-slot>
         <div class="space-y-4">
             <div class="rounded-md bg-gray-100 p-4 dark:bg-gray-700">
-                <code class="break-all text-sm text-gray-800 dark:text-gray-200" x-ref="tokenDisplay">
-                    {{ $plainTextToken }}
-                </code>
+                <code class="break-all text-sm text-gray-800 dark:text-gray-200" x-ref="tokenDisplay">{{ $plainTextToken }}</code>
             </div>
             <div class="mt-6">
                 <x-secondary-button
