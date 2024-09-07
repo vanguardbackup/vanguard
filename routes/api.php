@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RemoteServerController;
 use App\Http\Controllers\Api\RunBackupTaskController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ViewPublicSSHKeyController;
 use App\Http\Middleware\TrackAPIUsage;
 use Illuminate\Support\Facades\Route;
 
@@ -114,6 +115,11 @@ Route::middleware(['auth:sanctum', 'throttle:60,1,default', TrackAPIUsage::class
         Route::post('remote-servers', [RemoteServerController::class, 'store'])->middleware('ability:create-remote-servers');
         Route::put('remote-servers/{id}', [RemoteServerController::class, 'update'])->middleware('ability:update-remote-servers');
         Route::delete('remote-servers/{id}', [RemoteServerController::class, 'destroy'])->middleware('ability:delete-remote-servers');
+
+        /**
+         * View Public SSH Key
+         */
+        Route::get('ssh-key', [ViewPublicSSHKeyController::class, '__invoke'])->middleware('ability:create-remote-servers');
 
         /**
          * Notification Streams
