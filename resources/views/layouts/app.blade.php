@@ -238,4 +238,5 @@
             </div>
         </footer>
     </body>
+    @livewire('livewire-ui-spotlight')
 </html>

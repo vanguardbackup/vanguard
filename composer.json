@@ -25,7 +25,8 @@
         "masmerise/livewire-toaster": "^2.2",
         "motomedialab/simple-laravel-audit": "^1.2",
         "phpseclib/phpseclib": "~3.0",
-        "socialiteproviders/bitbucket": "^4.1"
+        "socialiteproviders/bitbucket": "^4.1",
+        "wire-elements/spotlight": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",

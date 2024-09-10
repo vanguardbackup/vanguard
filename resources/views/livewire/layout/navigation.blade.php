@@ -22,6 +22,11 @@ new class extends Component {
     {
         $this->isUserDropdownOpen = ! $this->isUserDropdownOpen;
     }
+
+    public function search(): void
+    {
+        $this->dispatch('toggle-spotlight');
+    }
 }; ?>
 
 <nav
@@ -88,6 +93,10 @@ new class extends Component {
                             {{ __('Servers') }}
                         </x-nav-link>
                     @endif
+
+                    <x-nav-link wire:click="search" wire:navigate>
+                        <x-hugeicons-search-02 class="mr-2 h-5 w-5" />
+                    </x-nav-link>
                 </div>
 
                 <!-- User Dropdown -->
@@ -287,6 +296,11 @@ new class extends Component {
                     {{ __('Servers') }}
                 </x-responsive-nav-link>
             @endif
+
+            <x-responsive-nav-link href="#" wire:click="search">
+                <x-hugeicons-search-02 class="inline h-5 w-5" />
+                {{ __('Search') }}
+            </x-responsive-nav-link>
         </div>
 
         <div class="border-t border-primary-700 pb-1 pt-4">
