@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\InstanceDetailsController;
 use App\Http\Controllers\BackupDestinations;
 use App\Http\Controllers\BackupTasks;
 use App\Http\Controllers\OverviewController;
@@ -79,6 +80,8 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
     Route::get('profile/connections', ConnectionsPage::class)->name('profile.connections');
     Route::get('profile/help', HelpPage::class)->name('profile.help');
     Route::get('profile/audit-logs', AuditLogPage::class)->name('profile.audit-logs');
+
+    Route::get('admin/instance-details', [InstanceDetailsController::class, '__invoke'])->name('admin.instance-details');
 });
 
 require __DIR__ . '/auth.php';
