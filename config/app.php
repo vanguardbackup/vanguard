@@ -44,6 +44,7 @@ return [
     'available_languages' => [
         'en' => 'English (English)',
         'da' => 'Danish (Dansk)',
+        'de' => 'German (Deutsch)',
     ],
 
     /**
