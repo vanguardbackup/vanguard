@@ -152,7 +152,15 @@ test('the appended file name cannot contain spaces', function (): void {
 });
 
 test("the time to run at is converted to the user's timezone", function (): void {
-    $this->user->update(['timezone' => 'America/New_York']);
+    $userTimezone = 'America/New_York';
+    $timeToRunLocal = '00:00'; // 12:00 AM in America/New_York
+
+    // Calculate the expected UTC time dynamically
+    $localTime = new DateTime($timeToRunLocal, new DateTimeZone($userTimezone));
+    $localTime->setTimezone(new DateTimeZone('UTC'));
+    $timeToRunUTC = $localTime->format('H:i');
+
+    $this->user->update(['timezone' => $userTimezone]);
 
     Livewire::test(CreateBackupTaskForm::class)
         ->set('label', 'Test Backup Task')
@@ -160,11 +168,11 @@ test("the time to run at is converted to the user's timezone", function (): void
         ->set('remoteServerId', $this->server->id)
         ->set('backupDestinationId', $this->destination->id)
         ->set('frequency', 'daily')
-        ->set('timeToRun', '00:00')
+        ->set('timeToRun', $timeToRunLocal)
         ->call('submit');
 
     $this->assertDatabaseHas('backup_tasks', [
-        'time_to_run_at' => '04:00', // 00:00 in America/New_York
+        'time_to_run_at' => $timeToRunUTC,
     ]);
 });
 

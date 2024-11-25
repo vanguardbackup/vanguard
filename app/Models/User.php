@@ -247,8 +247,8 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     {
         $plainTextToken = $this->generateTokenString();
 
-        /** @var PersonalAccessToken $model */
-        $model = $this->tokens()->forceCreate([
+        /** @var PersonalAccessToken $personalAccessToken */
+        $personalAccessToken = $this->tokens()->forceCreate([
             'name' => $name,
             'token' => hash('sha256', $plainTextToken),
             'mobile_at' => now(),
@@ -256,7 +256,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'expires_at' => $expiresAt,
         ]);
 
-        return new NewAccessToken($model, $model->getKey() . '|' . $plainTextToken);
+        return new NewAccessToken($personalAccessToken, $personalAccessToken->getKey() . '|' . $plainTextToken);
     }
 
     /**

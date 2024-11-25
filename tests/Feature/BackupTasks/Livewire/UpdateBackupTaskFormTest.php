@@ -200,21 +200,29 @@ describe('validation rules', function (): void {
 
 describe('time and timezone handling', function (): void {
     test('the time to run at is converted from the users timezone to UTC', function (): void {
-        $this->data['user']->update(['timezone' => 'America/New_York']);
+        $userTimezone = 'America/New_York';
+        $timeToRunLocal = '12:00'; // 12:00 PM in America/New_York
+
+        // Calculate the expected UTC time dynamically
+        $localTime = new DateTime($timeToRunLocal, new DateTimeZone($userTimezone));
+        $localTime->setTimezone(new DateTimeZone('UTC'));
+        $timeToRunUTC = $localTime->format('H:i');
+
+        $this->data['user']->update(['timezone' => $userTimezone]);
 
         $testable = Livewire::test(UpdateBackupTaskForm::class, [
             'backupTask' => $this->data['backupTask'],
             'remoteServers' => RemoteServer::all(),
         ]);
 
-        $testable->set('timeToRun', '12:00') // 12:00 PM in America/New_York
+        $testable->set('timeToRun', $timeToRunLocal)
             ->set('description', '')
             ->set('sourcePath', '/var/www/html')
             ->call('submit')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('backup_tasks', [
-            'time_to_run_at' => '16:00', // 4:00 PM in UTC
+            'time_to_run_at' => $timeToRunUTC,
         ]);
     });
 
