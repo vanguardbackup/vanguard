@@ -26,7 +26,7 @@ class Taggable extends Model
     /**
      * Get the tag associated with this taggable relationship.
      *
-     * @return BelongsTo<Tag, Taggable>
+     * @return BelongsTo<Tag, $this>
      */
     public function tag(): BelongsTo
     {

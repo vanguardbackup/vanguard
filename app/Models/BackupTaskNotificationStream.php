@@ -18,7 +18,7 @@ class BackupTaskNotificationStream extends Pivot
     /**
      * Get the backup task associated with this pivot.
      *
-     * @return BelongsTo<BackupTask, BackupTaskNotificationStream>
+     * @return BelongsTo<BackupTask, $this>
      */
     public function backupTask(): BelongsTo
     {
@@ -28,7 +28,7 @@ class BackupTaskNotificationStream extends Pivot
     /**
      * Get the notification stream associated with this pivot.
      *
-     * @return BelongsTo<NotificationStream, BackupTaskNotificationStream>
+     * @return BelongsTo<NotificationStream, $this>
      */
     public function notificationStream(): BelongsTo
     {

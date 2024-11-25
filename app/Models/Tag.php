@@ -32,7 +32,7 @@ class Tag extends Model
     /**
      * Get the user who created this tag.
      *
-     * @return BelongsTo<User, Tag>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

@@ -42,7 +42,7 @@ class BackupTaskLog extends Model
     /**
      * Get the backup task associated with this log entry.
      *
-     * @return BelongsTo<BackupTask, BackupTaskLog>
+     * @return BelongsTo<BackupTask, $this>
      */
     public function backupTask(): BelongsTo
     {

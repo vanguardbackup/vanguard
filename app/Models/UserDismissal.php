@@ -74,7 +74,7 @@ class UserDismissal extends Model
     /**
      * Get the user that owns the dismissal.
      *
-     * @return BelongsTo<User, UserDismissal>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

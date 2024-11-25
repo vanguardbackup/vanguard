@@ -75,7 +75,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the user's remote servers.
      *
-     * @return HasMany<RemoteServer>
+     * @return HasMany<RemoteServer, $this>
      */
     public function remoteServers(): HasMany
     {
@@ -85,7 +85,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the user's backup destinations.
      *
-     * @return HasMany<BackupDestination>
+     * @return HasMany<BackupDestination, $this>
      */
     public function backupDestinations(): HasMany
     {
@@ -95,7 +95,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the user's backup tasks.
      *
-     * @return HasMany<BackupTask>
+     * @return HasMany<BackupTask, $this>
      */
     public function backupTasks(): HasMany
     {
@@ -105,7 +105,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the user's notification streams.
      *
-     * @return HasMany<NotificationStream>
+     * @return HasMany<NotificationStream, $this>
      */
     public function notificationStreams(): HasMany
     {
@@ -115,7 +115,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the user's tags.
      *
-     * @return HasMany<Tag>
+     * @return HasMany<Tag, $this>
      */
     public function tags(): HasMany
     {
@@ -325,7 +325,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
      * This relationship retrieves all connections (like GitHub, GitLab)
      * associated with the user.
      *
-     * @return HasMany<UserConnection> */
+     * @return HasMany<UserConnection, $this> */
     public function connections(): HasMany
     {
         return $this->hasMany(UserConnection::class);

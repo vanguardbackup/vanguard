@@ -55,7 +55,7 @@ class BackupDestination extends Model
     /**
      * Get the user that owns the backup destination.
      *
-     * @return BelongsTo<User, BackupDestination>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -65,7 +65,7 @@ class BackupDestination extends Model
     /**
      * Get the backup tasks for the backup destination.
      *
-     * @return HasMany<BackupTask>
+     * @return HasMany<BackupTask, $this>
      */
     public function backupTasks(): HasMany
     {

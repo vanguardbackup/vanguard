@@ -45,7 +45,7 @@ class UserConnection extends Model
     /**
      * Get the user that owns the connection.
      *
-     * @return BelongsTo<User, UserConnection>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

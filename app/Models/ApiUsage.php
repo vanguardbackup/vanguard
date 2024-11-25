@@ -150,7 +150,7 @@ class ApiUsage extends Model
     /**
      * Get the user associated with this API usage.
      *
-     * @return BelongsTo<User, ApiUsage>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

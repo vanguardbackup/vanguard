@@ -299,7 +299,7 @@ class BackupTask extends Model
     /**
      * Get the user that owns the backup task.
      *
-     * @return BelongsTo<User, BackupTask>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -309,7 +309,7 @@ class BackupTask extends Model
     /**
      * Get the backup destination for this task.
      *
-     * @return BelongsTo<BackupDestination, BackupTask>
+     * @return BelongsTo<BackupDestination, $this>
      */
     public function backupDestination(): BelongsTo
     {
@@ -319,7 +319,7 @@ class BackupTask extends Model
     /**
      * Get the remote server for this task.
      *
-     * @return BelongsTo<RemoteServer, BackupTask>
+     * @return BelongsTo<RemoteServer, $this>
      */
     public function remoteServer(): BelongsTo
     {
@@ -329,7 +329,7 @@ class BackupTask extends Model
     /**
      * Get the logs for this backup task.
      *
-     * @return HasMany<BackupTaskLog>
+     * @return HasMany<BackupTaskLog, $this>
      */
     public function logs(): HasMany
     {
@@ -339,7 +339,7 @@ class BackupTask extends Model
     /**
      * Get the data associated with this backup task.
      *
-     * @return HasMany<BackupTaskData>
+     * @return HasMany<BackupTaskData, $this>
      */
     public function data(): HasMany
     {

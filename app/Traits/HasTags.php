@@ -18,7 +18,7 @@ trait HasTags
     /**
      * Get all the tags for the model.
      *
-     * @return MorphToMany<Tag>
+     * @return MorphToMany<Tag, $this>
      */
     public function tags(): MorphToMany
     {

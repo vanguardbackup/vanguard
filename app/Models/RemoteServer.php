@@ -55,7 +55,7 @@ class RemoteServer extends Model
     /**
      * Get the user that owns the remote server.
      *
-     * @return BelongsTo<User, RemoteServer>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -65,7 +65,7 @@ class RemoteServer extends Model
     /**
      * Get the backup tasks for the remote server.
      *
-     * @return HasMany<BackupTask>
+     * @return HasMany<BackupTask, $this>
      */
     public function backupTasks(): HasMany
     {

@@ -51,7 +51,7 @@ class NotificationStream extends Model
     /**
      * Get the user that owns the notification stream.
      *
-     * @return BelongsTo<User, NotificationStream>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
