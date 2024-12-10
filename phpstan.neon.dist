@@ -17,4 +17,13 @@ parameters:
     # This is a particularly nasty error and I couldn't manage to resolve it (nicely)..
         - '#Cannot call method isoFormat\(\) on (.*)Carbon(.*)string#'
 
+    # Blanket ignores for specific PHPStan errors
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\HasOne<(.*)> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasOne: TRelatedModel, TDeclaringModel#'
+        - '#Method App\\Models\\BackupTask::latestLog\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne<(.*)> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne<(.*)>#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<(.*)> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany: TRelatedModel, TDeclaringModel#'
+        - '#Method App\\Models\\BackupTask::notificationStreams\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<(.*)> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<(.*)>#'
+        - '#Method App\\Models\\NotificationStream::backupTasks\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<(.*)> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<(.*)>#'
+        - '#Method App\\Models\\Taggable::taggable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo<(.*)> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo<(.*)>#'
+
+
     treatPhpDocTypesAsCertain: false

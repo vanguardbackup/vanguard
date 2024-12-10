@@ -36,7 +36,7 @@ uses(TestCase::class, RefreshDatabase::class)->in('Fakes');
 |
 */
 
-expect()->extend('toBeOne', fn() => $this->toBe(1));
+expect()->extend('toBeOne', fn () => $this->toBe(1));
 
 /*
 |--------------------------------------------------------------------------
@@ -109,4 +109,3 @@ function createUserWithBackupTaskAndDependencies(): array
         'backupDestination' => $backupDestination,
     ];
 }
-
