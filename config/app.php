@@ -58,4 +58,15 @@ return [
     'terms_of_service_url' => env('TERMS_OF_SERVICE_URL', ''),
     'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
     'status_page_url' => env('STATUS_PAGE_URL', ''),
+
+    /**
+     * Enables the == Year in Review == system that takes place at the end of the calendar year.
+     * Note: The system won't show unless the current date falls within the start/end dates specified in the configuration below.
+     * When the system is active, the page will be active and the Year in Review data will be available to view.
+     */
+    'year_in_review' => [
+        'enabled' => env('YEAR_IN_REVIEW', false),
+        'starts_at' => '12-01', // Start date as MM-DD
+        'ends_at' => '01-01',   // End date as MM-DD
+    ],
 ];

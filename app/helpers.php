@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
@@ -105,4 +106,41 @@ function obtain_vanguard_version(): string
 
         return trim(File::get($versionFile));
     });
+}
+
+/**
+ * Determine if the Year in Review feature is active.
+ *
+ * The Year in Review feature is considered active if:
+ * 1. The `ENABLE_YEAR_IN_REVIEW_SYSTEM` setting in the .env file is set to true.
+ * 2. The current date falls within the configured start and end dates (`starts_at` and `ends_at`).
+ *
+ * If these conditions are met, the feature will be visible in the Account Settings and its route will be active.
+ *
+ * @return bool True if the feature is active, otherwise false.
+ */
+function year_in_review_active(): bool
+{
+    $isEnabled = config('app.year_in_review.enabled');
+
+    if (! $isEnabled) {
+        return false;
+    }
+
+    $currentYear = now()->year;
+
+    // Parse the static MM-DD dates into full dates with dynamic year.
+    $startDateString = $currentYear . '-' . config('app.year_in_review.starts_at');
+    $endDateString = ($currentYear + 1) . '-' . config('app.year_in_review.ends_at');
+
+    try {
+        $startDate = Carbon::createFromFormat('Y-m-d', $startDateString)?->startOfDay();
+        $endDate = Carbon::createFromFormat('Y-m-d', $endDateString)?->endOfDay();
+    } catch (Exception $e) {
+        Log::error('[YEAR IN REVIEW SYSTEM] There was a problem obtaining the start date and end date: ' . $e->getMessage());
+
+        return false; // Ensure invalid configuration doesn't cause errors
+    }
+
+    return now()->between((string) $startDate, (string) $endDate);
 }

@@ -20,6 +20,7 @@ use App\Livewire\Profile\HelpPage;
 use App\Livewire\Profile\MFAPage;
 use App\Livewire\Profile\QuietModePage;
 use App\Livewire\Profile\SessionsPage;
+use App\Livewire\Profile\YearInReviewPage;
 use App\Livewire\StatisticsPage;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +81,7 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
     Route::get('profile/connections', ConnectionsPage::class)->name('profile.connections');
     Route::get('profile/help', HelpPage::class)->name('profile.help');
     Route::get('profile/audit-logs', AuditLogPage::class)->name('profile.audit-logs');
+    Route::get('profile/year-in-review', YearInReviewPage::class)->name('profile.year-in-review');
 
     Route::get('admin/instance-details', [InstanceDetailsController::class, '__invoke'])->name('admin.instance-details');
 });

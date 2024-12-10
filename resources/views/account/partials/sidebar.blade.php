@@ -16,6 +16,20 @@
                 </span>
             </x-sidebar-nav-link>
         </li>
+        @if (year_in_review_active())
+            <li>
+                <x-sidebar-nav-link
+                    :href="route('profile.year-in-review')"
+                    :active="request()->routeIs('profile.year-in-review*')"
+                    wire:navigate
+                >
+                <span class="flex items-center">
+                    @svg('hugeicons-cheese-cake-01', 'mr-2 h-5 w-5')
+                    <span>{{ __('Year in Review') }}</span>
+                </span>
+                </x-sidebar-nav-link>
+            </li>
+        @endif
         <li>
             <x-sidebar-nav-link
                 :href="route('profile.api')"

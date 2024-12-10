@@ -137,6 +137,11 @@ Breadcrumbs::for('profile.audit-logs', function (BreadcrumbTrail $trail) {
     $trail->push(__('Audit Logs'), route('profile.audit-logs'));
 });
 
+Breadcrumbs::for('profile.year-in-review', function (BreadcrumbTrail $trail) {
+    $trail->parent('profile');
+    $trail->push(__('Year in Review'), route('profile.year-in-review'));
+});
+
 Breadcrumbs::for('admin.instance-details', function (BreadcrumbTrail $trail) {
     $trail->push(__('Instance Details'), route('admin.instance-details'));
 });
