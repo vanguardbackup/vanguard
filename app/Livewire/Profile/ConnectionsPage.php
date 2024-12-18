@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserConnection;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -59,6 +60,71 @@ class ConnectionsPage extends Component
     }
 
     /**
+     * Contacts the relevant provider to retrieve basic user account details, such as username, profile link, and avatar URL.
+     * The data is cached to avoid repetitive API calls when navigating to the connections route.
+     *
+     * @return array{username: string|null, link: string|null, avatar_url: string|null} Normalized user details.
+     */
+    public function contactProvider(string $provider): array
+    {
+        $baseApiUrl = match ($provider) {
+            'github' => 'https://api.github.com/user',
+            'gitlab' => 'https://gitlab.com/api/v4/user',
+            'bitbucket' => 'https://api.bitbucket.org/2.0/user',
+            default => throw new RuntimeException("Unsupported provider: {$provider}"),
+        };
+
+        /** @var User $user */
+        $user = Auth::user();
+        $connection = $user->connections()->where('provider_name', $provider)->first();
+
+        if (! $connection || ! $connection->getAttribute('access_token')) {
+            throw new RuntimeException("No valid connection found for {$provider}.");
+        }
+
+        // Generate a cache key
+        $cacheKey = "provider_data:{$provider}:user:{$user->getAttribute('id')}";
+
+        return cache()->remember($cacheKey, now()->addMinutes(15), function () use ($baseApiUrl, $provider, $connection): array {
+            try {
+                $response = Http::withToken($connection->getAttribute('access_token'))->get($baseApiUrl);
+
+                if ($response->failed()) {
+                    throw new RuntimeException("Failed to contact {$provider} API.");
+                }
+
+                $data = $response->json();
+
+                // Normalize response
+                return match ($provider) {
+                    'github' => [
+                        'username' => $data['login'] ?? null,
+                        'link' => $data['html_url'] ?? null,
+                        'avatar_url' => $data['avatar_url'] ?? null,
+                    ],
+                    'gitlab' => [
+                        'username' => $data['username'] ?? null,
+                        'link' => $data['web_url'] ?? null,
+                        'avatar_url' => $data['avatar_url'] ?? null,
+                    ],
+                    'bitbucket' => [
+                        'username' => $data['username'] ?? ($data['display_name'] ?? null),
+                        'link' => $data['links']['html']['href'] ?? null,
+                        'avatar_url' => $data['links']['avatar']['href'] ?? null,
+                    ],
+                    default => ['username' => null, 'link' => null, 'avatar_url' => null],
+                };
+            } catch (Exception $e) {
+                report($e);
+                Toaster::error("Error retrieving data from {$provider}.");
+
+                // Return the structure with null values in case of an error
+                return ['username' => null, 'link' => null, 'avatar_url' => null];
+            }
+        });
+    }
+
+    /**
      * Disconnects a service for the current user.
      */
     public function disconnect(string $provider): void
@@ -68,6 +134,10 @@ class ConnectionsPage extends Component
         $deleted = $user->connections()->where('provider_name', $provider)->delete();
 
         if ($deleted) {
+            // Clear cached data for the disconnected provider
+            $cacheKey = "provider_data:{$provider}:user:{$user->getAttribute('id')}";
+            cache()->forget($cacheKey);
+
             $this->loadActiveConnections();
             Toaster::success(ucfirst($provider) . ' account unlinked successfully!');
         } else {
@@ -104,8 +174,13 @@ class ConnectionsPage extends Component
             $connection->setAttribute('token_expires_at', $newToken->expiresIn ? now()->addSeconds($newToken->expiresIn)->toDateTimeString() : null);
             $connection->save();
 
+            // Clear cached data for the refreshed provider
+            $cacheKey = "provider_data:{$provider}:user:{$user->getAttribute('id')}";
+            cache()->forget($cacheKey);
+
             Toaster::success(ucfirst($provider) . ' token refreshed successfully!');
-        } catch (Exception) {
+        } catch (Exception $e) {
+            report($e);
             Toaster::error('Failed to refresh token. Please try re-linking your account.');
         }
     }

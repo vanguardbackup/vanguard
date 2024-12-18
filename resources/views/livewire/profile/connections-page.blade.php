@@ -75,6 +75,25 @@
                                 @endif
                             </div>
                         </div>
+                        @if ($this->isConnected('github'))
+                            <div
+                                class="mt-3 w-fit rounded-lg border border-gray-300 bg-gray-800 p-1.5 text-xs dark:border-gray-700"
+                            >
+                                {{ __('Connected as') }}
+                                <a
+                                    target="_blank"
+                                    class="underline"
+                                    href="{{ $this->contactProvider('github')['link'] }}"
+                                >
+                                    {{ $this->contactProvider('github')['username'] }}
+                                </a>
+                                <img
+                                    src="{{ $this->contactProvider('github')['avatar_url'] }}"
+                                    title="{{ __('GitHub avatar') }}"
+                                    class="mx-3 inline h-5 w-5 rounded-full"
+                                />
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif
