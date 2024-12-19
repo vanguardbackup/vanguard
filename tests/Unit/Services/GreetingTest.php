@@ -38,3 +38,48 @@ it('handles different timezones correctly', function (): void {
 
     Carbon::setTestNow();
 });
+
+it('returns holiday greeting on Christmas', function (): void {
+    $currentYear = Carbon::now()->year;
+    Carbon::setTestNow(Carbon::createMidnightDate($currentYear, 12, 25, 'UTC'));
+
+    expect(Greeting::auto('UTC'))->toBe('Merry Christmas');
+
+    Carbon::setTestNow();
+});
+
+it('returns holiday greeting on New Year', function (): void {
+    $currentYear = Carbon::now()->year;
+    Carbon::setTestNow(Carbon::createMidnightDate($currentYear, 1, 1, 'UTC'));
+
+    expect(Greeting::auto('UTC'))->toBe('Happy New Year');
+
+    Carbon::setTestNow();
+});
+
+it('returns holiday greeting on Halloween', function (): void {
+    $currentYear = Carbon::now()->year;
+    Carbon::setTestNow(Carbon::createMidnightDate($currentYear, 10, 31, 'UTC'));
+
+    expect(Greeting::auto('UTC'))->toBe('Happy Halloween');
+
+    Carbon::setTestNow();
+});
+
+it('returns holiday greeting on Boxing Day', function (): void {
+    $currentYear = Carbon::now()->year;
+    Carbon::setTestNow(Carbon::createMidnightDate($currentYear, 12, 26, 'UTC'));
+
+    expect(Greeting::auto('UTC'))->toBe('Happy Boxing Day');
+
+    Carbon::setTestNow();
+});
+
+it("returns holiday greeting on April Fools' Day", function (): void {
+    $currentYear = Carbon::now()->year;
+    Carbon::setTestNow(Carbon::createMidnightDate($currentYear, 4, 1, 'UTC'));
+
+    expect(Greeting::auto('UTC'))->toBe("Happy April Fools' Day");
+
+    Carbon::setTestNow();
+});
