@@ -5,7 +5,7 @@
         <!-- Account Management -->
         <li class="col-span-2 pb-1 pt-2 sm:col-span-3 lg:col-span-1">
             <h3 class="px-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Account
+                {{ __('Account') }}
             </h3>
         </li>
         <li>
@@ -59,7 +59,7 @@
         <!-- Security -->
         <li class="col-span-2 pb-1 pt-4 sm:col-span-3 lg:col-span-1">
             <h3 class="px-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Security
+                {{ __('Security') }}
             </h3>
         </li>
         <li>
@@ -105,7 +105,7 @@
         <!-- Preferences -->
         <li class="col-span-2 pb-1 pt-4 sm:col-span-3 lg:col-span-1">
             <h3 class="px-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Preferences
+                {{ __('Preferences') }}
             </h3>
         </li>
         <li>
@@ -156,7 +156,7 @@
         <!-- Support -->
         <li class="col-span-2 pb-1 pt-4 sm:col-span-3 lg:col-span-1">
             <h3 class="px-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Support
+                {{ __('Support') }}
             </h3>
         </li>
         <li>
