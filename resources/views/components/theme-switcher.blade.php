@@ -15,23 +15,25 @@
                             [
                                 {
                                     value: 'light',
-                                    label: 'Light',
+                                    label: '{{ __('Light') }}',
                                     icon: 'sun',
-                                    description: 'Bright and clear for daytime use.',
+                                    description: '{{ __('Bright and clear for daytime use.') }}',
                                     color: 'yellow',
                                 },
                                 {
                                     value: 'dark',
-                                    label: 'Dark',
+                                    label: '{{ __('Dark') }}',
                                     icon: 'moon',
-                                    description: 'Easy on the eyes in low-light environments.',
+                                    description:
+                                        '{{ __('Easy on the eyes in low-light environments.') }}',
                                     color: 'indigo',
                                 },
                                 {
                                     value: 'system',
-                                    label: 'System',
+                                    label: '{{ __('System') }}',
                                     icon: 'computer-desktop',
-                                    description: 'Automatically matches your device settings.',
+                                    description:
+                                        '{{ __('Automatically matches your device settings.') }}',
                                     color: 'green',
                                 },
                             ]
@@ -53,9 +55,10 @@
                         <svg
                             class="mb-4 h-12 w-12 transition-transform duration-300 ease-in-out group-hover:scale-110"
                             :class="{
-                        'text-amber-500 dark:text-amber-400': option.value === 'light',
-                        'text-blue-600 dark:text-blue-400': option.value === 'dark',
-                        'text-emerald-600 dark:text-emerald-400': option.value === 'system'}"
+                                'text-amber-500 dark:text-amber-400': option.value === 'light',
+                                'text-blue-600 dark:text-blue-400': option.value === 'dark',
+                                'text-emerald-600 dark:text-emerald-400': option.value === 'system'
+                            }"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -102,6 +105,7 @@
         </div>
     </x-modal>
 </div>
+
 <script>
     function setupThemeSwitcher() {
         return {

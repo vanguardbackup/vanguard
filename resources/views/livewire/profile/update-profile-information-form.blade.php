@@ -158,7 +158,9 @@ new class extends Component {
      */
     private function getPaginationOptions(): Collection
     {
-        return collect([15, 30, 50, 100])->mapWithKeys(fn ($value) => [$value => "{$value} per page"]);
+        return collect([15, 30, 50, 100])->mapWithKeys(
+            fn ($value) => [$value => __(':value per page', ['value' => $value])],
+        );
     }
 
     /**

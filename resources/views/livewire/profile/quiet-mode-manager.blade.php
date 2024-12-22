@@ -136,13 +136,16 @@ new class extends Component {
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             @if ($this->isQuietModeActive)
                                 @php
-                                    $friendlyDate = Auth::user()->quiet_until->format('l, F j');
+                                    Carbon::setLocale(Auth::user()->language ?? 'en');
+                                    $friendlyDate = Auth::user()
+                                        ->quiet_until->locale(Auth::user()->language ?? 'en')
+                                        ->isoFormat('dddd, MMMM Do');
                                     $daysLeft = $this->daysLeft;
                                 @endphp
 
                                 @if ($daysLeft > 1)
                                     {{ __('Active for :count more days (until :date)', ['count' => $daysLeft, 'date' => $friendlyDate]) }}
-                                @elseif ($daysLeft == 1)
+                                @elseif ($daysLeft === 1)
                                     {{ __('Active for 1 more day (until :date)', ['date' => $friendlyDate]) }}
                                 @else
                                     {{ __('Ending today (:date)', ['date' => $friendlyDate]) }}
@@ -184,7 +187,7 @@ new class extends Component {
                                             wire:click="selectSuggestedDate({{ $days }})"
                                             class="inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition-all duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
-                                            {{ $label }}
+                                            {{ __($label) }}
                                         </button>
                                     @endforeach
                                 </div>
