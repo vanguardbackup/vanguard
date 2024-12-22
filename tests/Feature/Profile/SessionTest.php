@@ -25,6 +25,18 @@ test('the page can be visited by authenticated users', function (): void {
         ->assertSeeLivewire('profile.session-manager');
 });
 
+// There was a bug where the page was broken when visiting with another language set due to locale setting.
+test('the page can be visited by authenticated users when another language is set for their account', function (): void {
+
+    $userWithAnotherLanguage = User::factory()
+        ->create(['password' => Hash::make('password')]);
+
+    $this->actingAs($userWithAnotherLanguage)
+        ->withSession(['app_locale' => 'da'])
+        ->get(route('profile.sessions'))
+        ->assertOk();
+});
+
 test('the page cannot be visited by guests', function (): void {
     Auth::logout();
     $this->get(route('profile.sessions'))

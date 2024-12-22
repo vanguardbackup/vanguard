@@ -826,5 +826,12 @@
     "This password does not match our records." : "Adgangskoden stemmer ikke overens med vores optegnelser.",
     "User not found." : "Bruger ikke fundet.",
     "Warning" : "Advarsel",
-    "The session driver is not configured to use the database. Session management functionality requires the database driver to operate correctly. Please update your session configuration to use the database driver." : "Sessiondriveren er ikke konfigureret til at bruge databasen. Funktionalitet for sessionhåndtering kræver, at database-driveren fungerer korrekt. Opdater venligst din sessionkonfiguration til at bruge database-driveren."
+    "The session driver is not configured to use the database. Session management functionality requires the database driver to operate correctly. Please update your session configuration to use the database driver." : "Sessiondriveren er ikke konfigureret til at bruge databasen. Funktionalitet for sessionhåndtering kræver, at database-driveren fungerer korrekt. Opdater venligst din sessionkonfiguration til at bruge database-driveren.",
+    "Less than a minute ago": "Mindre end et minut siden",
+    "Please enter your password to confirm that you want to terminate all other active sessions across your devices. This action cannot be reversed.": "Indtast venligst din adgangskode for at bekræfte, at du vil afslutte alle andre aktive sessioner på tværs af dine enheder. Denne handling kan ikke fortrydes.",
+    "For enhanced security, you can terminate all other active sessions across your devices. If you suspect any unauthorized access, it's recommended to change your password immediately after this action.": "For øget sikkerhed kan du afslutte alle andre aktive sessioner på tværs af dine enheder. Hvis du mistænker uautoriseret adgang, anbefales det at ændre din adgangskode straks efter denne handling.",
+    "Last Active": "Sidst Aktiv",
+    "Desktop": "Desktop",
+    "Mobile": "Mobil",
+    "Tablet": "Tablet"
 }

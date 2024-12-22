@@ -127,6 +127,7 @@ new class extends Component {
                         ->session()
                         ->getId(),
                 'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
+                'last_active_raw' => $session->last_activity,
                 'location' => $location,
             ];
         });
@@ -145,19 +146,20 @@ new class extends Component {
             if ($response->successful()) {
                 $data = $response->json();
                 return [
-                    'city' => $data['city'] ?? 'Unknown',
-                    'country' => $data['country'] ?? 'Unknown',
+                    'city' => $data['city'] ?? __('Unknown'),
+                    'country' => $data['country'] ?? __('Unknown'),
                     'latitude' => $data['lat'] ?? 0,
                     'longitude' => $data['lon'] ?? 0,
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            Log::error('An error occurred when attempting to retrieve IP details.');
             // Log the error if needed
         }
 
         return [
-            'city' => 'Unknown',
-            'country' => 'Unknown',
+            'city' => __('Unknown'),
+            'country' => __('Unknown'),
             'latitude' => 0,
             'longitude' => 0,
         ];
@@ -204,6 +206,8 @@ new class extends Component {
 
     protected function getUserLastActivity(bool $human = false): Carbon|string
     {
+        Carbon::setLocale(Auth::user()->language);
+
         $lastActivity = DB::connection(Config::get('session.connection'))
             ->table(Config::get('session.table', 'sessions'))
             ->where('user_id', Auth::id())
@@ -216,6 +220,32 @@ new class extends Component {
 
         $timestamp = Carbon::createFromTimestamp($lastActivity->last_activity);
         return $human ? $timestamp->diffForHumans() : $timestamp;
+    }
+
+    protected function getLastActivePerSession($session): string
+    {
+        Carbon::setLocale(Auth::user()->language ?? 'en');
+        Carbon::setFallbackLocale('en');
+
+        $lastActiveString = $session->last_active_raw; // epoch timestamp
+
+        try {
+            $lastActiveTimestamp = Carbon::createFromTimestamp($lastActiveString);
+        } catch (Exception $e) {
+            Log::error('Error parsing last active time:', [
+                'error' => $e->getMessage(),
+                'last_active_raw' => $lastActiveString,
+            ]);
+            return __('Unknown');
+        }
+
+        $diffInSeconds = $lastActiveTimestamp->diffInSeconds(now());
+
+        if ($diffInSeconds < 60) {
+            return __('Less than a minute ago');
+        }
+
+        return $lastActiveTimestamp->diffForHumans();
     }
 };
 ?>
@@ -276,17 +306,7 @@ new class extends Component {
                                                 {{ $session->location['country'] }}
                                             </p>
                                             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                {{ __('Last active') }}
-                                                @php
-                                                    $lastActiveTimestamp = Carbon::parse($session->last_active);
-                                                    $diffInSeconds = $lastActiveTimestamp->diffInSeconds(now());
-                                                @endphp
-
-                                                @if ($diffInSeconds < 60)
-                                                    {{ __('less than a minute ago') }}
-                                                @else
-                                                    {{ $session->last_active }}
-                                                @endif
+                                                {{ $this->getLastActivePerSession($session) }}
                                             </p>
                                         </div>
                                     </div>
