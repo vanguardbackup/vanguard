@@ -164,15 +164,18 @@ new class extends Component {
     }
 
     /**
-     * Set the formatted dates for last Friday and Monday.
+     * Set the formatted date for last Monday and Friday.
      */
     private function setFormattedDates(): void
     {
         $userLanguage = $this->getUserLanguage();
         Carbon::setLocale($userLanguage);
 
-        $this->lastFriday = $this->formatDate(Carbon::FRIDAY);
-        $this->lastMonday = $this->formatDate(Carbon::MONDAY);
+        $lastFriday = Carbon::now()->previous(Carbon::FRIDAY);
+        $lastMonday = Carbon::now()->previous(Carbon::MONDAY);
+
+        $this->lastFriday = $this->formatDate($lastFriday);
+        $this->lastMonday = $this->formatDate($lastMonday);
     }
 
     /**
@@ -206,16 +209,14 @@ new class extends Component {
     }
 
     /**
-     * Format the date for the given day of the week.
+     * Format the date for the given day.
      *
-     * @param int $day
+     * @param Carbon $date
      * @return string
      */
-    private function formatDate(int $day): string
+    private function formatDate(Carbon $date): string
     {
-        return Carbon::now()
-            ->previous($day)
-            ->isoFormat('dddd Do');
+        return $date->isoFormat('dddd Do');
     }
 }; ?>
 
