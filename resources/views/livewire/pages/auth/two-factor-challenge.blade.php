@@ -201,7 +201,9 @@ new #[Layout('layouts.minimal')] class extends Component {
             @endif
 
             <div class="mb-6 text-sm text-gray-600 dark:text-gray-400">
-                <p class="mb-3 text-lg font-semibold">Welcome back, {{ Auth::user()->first_name }}!</p>
+                <p class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
+                    Welcome back, {{ Auth::user()->first_name }}!
+                </p>
                 <p class="mb-3">Please enter your two-factor authentication code.</p>
                 <p class="mt-2.5">If you can't access your two-factor device, use a recovery code.</p>
             </div>
@@ -221,7 +223,7 @@ new #[Layout('layouts.minimal')] class extends Component {
                 </div>
 
                 <div x-show="!$wire.isRecoveryCode">
-                    <x-input-label for="code" value="Authentication code" />
+                    <x-input-label for="code" value="Authentication code" class="dark:text-gray-300" />
                     <x-text-input
                         name="code"
                         id="code"
@@ -231,20 +233,20 @@ new #[Layout('layouts.minimal')] class extends Component {
                         autocomplete="one-time-code"
                         autofocus
                         maxlength="6"
-                        class="mt-1 block w-full"
+                        class="mt-1 block w-full dark:bg-gray-700 dark:text-gray-300"
                         placeholder="Enter your 6-digit code"
                     />
                 </div>
 
                 <div x-show="$wire.isRecoveryCode">
-                    <x-input-label for="recoveryCode" value="Recovery code" />
+                    <x-input-label for="recoveryCode" value="Recovery code" class="dark:text-gray-300" />
                     <x-text-input
                         id="recoveryCode"
                         name="recoveryCode"
                         wire:model="code"
                         type="text"
                         autocomplete="off"
-                        class="mt-1 block w-full"
+                        class="mt-1 block w-full dark:bg-gray-700 dark:text-gray-300"
                         placeholder="Enter your recovery code"
                     />
                 </div>
