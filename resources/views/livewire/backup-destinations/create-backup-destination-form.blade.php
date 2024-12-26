@@ -8,6 +8,15 @@
         </x-slot>
         <x-slot name="icon">hugeicons-folder-cloud</x-slot>
         <form wire:submit="submit">
+            @if ($type === 'local')
+                <!-- Show a little banner explaining more about local configuration -->
+                <x-notice
+                    type="warning"
+                    title="{{ __('About Local Configuration') }}"
+                    text="{{ __('You will specify a local path when creating a Backup Task.') }}"
+                />
+            @endif
+
             <div class="mt-4 flex flex-col space-y-4 md:flex-row md:space-x-6 md:space-y-0">
                 <div class="w-full md:w-3/6">
                     <x-input-label for="label" :value="__('Label')" />

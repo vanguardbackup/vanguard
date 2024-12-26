@@ -868,5 +868,7 @@
     "The pagination count must be at least 1.": "Paginationstællingen skal være mindst 1.",
     "The pagination count may not be greater than 100.": "Paginationstællingen må ikke være større end 100.",
     "The pagination count must be 15, 30, 50, or 100.": "Paginationstællingen skal være 15, 30, 50 eller 100.",
-    ":count per page": ":count per side"
+    ":count per page": ":count per side",
+    "About Local Configuration": "Om lokal konfiguration",
+    "You will specify a local path when creating a Backup Task.": "Du vil angive en lokal sti, når du opretter en sikkerhedskopieringsopgave."
 }
