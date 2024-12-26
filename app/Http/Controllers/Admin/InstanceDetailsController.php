@@ -62,9 +62,12 @@ class InstanceDetailsController extends Controller
     private function isHorizonRunning(): bool
     {
         try {
-            $status = Artisan::call('horizon:status');
+            // Capture the output of the horizon:status command
+            Artisan::call('horizon:status');
+            $output = Artisan::output();
 
-            return $status === 0;
+            // Check if the output contains the string "Horizon is running"
+            return str_contains($output, 'Horizon is running');
         } catch (Exception) {
             return false;
         }

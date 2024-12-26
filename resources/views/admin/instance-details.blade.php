@@ -10,71 +10,79 @@
                 <!-- Left Column: Dashboard Details -->
                 <div class="w-full space-y-6 lg:w-2/3">
                     <!-- System Information -->
-                    <div class="rounded-lg bg-white p-6" x-data="{ expanded: false }">
-                        <button @click="expanded = !expanded" class="flex w-full items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-900">System Information</h2>
-                            <x-hugeicons-arrow-down-01
-                                x-bind:class="expanded ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-gray-500"
-                            />
-                        </button>
-                        <div x-show="expanded" x-collapse class="mt-4 space-y-4">
+                    <div
+                        class="overflow-hidden rounded-lg border bg-white p-6 shadow sm:rounded-lg dark:border-gray-800 dark:bg-gray-800"
+                    >
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('System Information') }}</h2>
+                        <div class="mt-4 space-y-4">
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-hard-drive class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-php class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">PHP Version</h3>
-                                    <p class="text-gray-600">{{ $details['php_version'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('PHP Version') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['php_version'] }}</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-search-01 class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-hard-drive class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Server Information</h3>
-                                    <p class="text-gray-600">{{ $details['server_info'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Server Information') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['server_info'] }}</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-earth class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-computer class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Domain</h3>
-                                    <p class="text-gray-600">{{ $details['domain'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Domain') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['domain'] }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Laravel Components -->
-                    <div class="rounded-lg bg-white p-6" x-data="{ expanded: false }">
-                        <button @click="expanded = !expanded" class="flex w-full items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-900">Laravel Components</h2>
-                            <x-hugeicons-arrow-down-01
-                                x-bind:class="expanded ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-gray-500"
-                            />
-                        </button>
-                        <div x-show="expanded" x-collapse class="mt-4 space-y-4">
+                    <div
+                        class="overflow-hidden rounded-lg border bg-white p-6 shadow sm:rounded-lg dark:border-gray-800 dark:bg-gray-800"
+                    >
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Laravel Components') }}</h2>
+                        <div class="mt-4 space-y-4">
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-browser class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-browser class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Laravel Version</h3>
-                                    <p class="text-gray-600">{{ $details['laravel_version'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Laravel Version') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['laravel_version'] }}</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-new-job class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-permanent-job class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Laravel Horizon</h3>
-                                    <p class="{{ $details['horizon_running'] ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ $details['horizon_running'] ? 'Running' : 'Not Running' }}
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Laravel Horizon') }}
+                                    </h3>
+                                    <p
+                                        class="{{ $details['horizon_running'] ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                                    >
+                                        {{ $details['horizon_running'] ? __('Running') : __('Not Running') }}
                                     </p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-waterfall-up-02 class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-analytics-down class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Laravel Pulse</h3>
-                                    <p class="{{ $details['pulse_running'] ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ $details['pulse_running'] ? 'Running' : 'Not Running' }}
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Laravel Pulse') }}
+                                    </h3>
+                                    <p
+                                        class="{{ $details['pulse_running'] ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                                    >
+                                        {{ $details['pulse_running'] ? __('Running') : __('Not Running') }}
                                     </p>
                                 </div>
                             </div>
@@ -82,85 +90,99 @@
                     </div>
 
                     <!-- User Management -->
-                    <div class="rounded-lg bg-white p-6" x-data="{ expanded: false }">
-                        <button @click="expanded = !expanded" class="flex w-full items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-900">User Management</h2>
-                            <x-hugeicons-arrow-down-01
-                                x-bind:class="expanded ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-gray-500"
-                            />
-                        </button>
-                        <div x-show="expanded" x-collapse class="mt-4 space-y-4">
+                    <div
+                        class="overflow-hidden rounded-lg border bg-white p-6 shadow sm:rounded-lg dark:border-gray-800 dark:bg-gray-800"
+                    >
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('User Management') }}</h2>
+                        <div class="mt-4 space-y-4">
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-crown class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-crown class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Administrators</h3>
-                                    <p class="text-gray-600">{{ $details['admin_count'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Administrators') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['admin_count'] }}</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-user-multiple-02 class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-user-multiple-02 class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Total Users</h3>
-                                    <p class="text-gray-600">{{ $details['user_count'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Total Users') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['user_count'] }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Database and Backups -->
-                    <div class="rounded-lg bg-white p-6" x-data="{ expanded: false }">
-                        <button @click="expanded = !expanded" class="flex w-full items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-900">Database and Backups</h2>
-                            <x-hugeicons-arrow-down-01
-                                x-bind:class="expanded ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-gray-500"
-                            />
-                        </button>
-                        <div x-show="expanded" x-collapse class="mt-4 space-y-4">
+                    <div
+                        class="overflow-hidden rounded-lg border bg-white p-6 shadow sm:rounded-lg dark:border-gray-800 dark:bg-gray-800"
+                    >
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                            {{ __('Database and Backups') }}
+                        </h2>
+                        <div class="mt-4 space-y-4">
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-database class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-database class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Database Information</h3>
-                                    <p class="text-gray-600">Type: {{ $details['database_type'] }}</p>
-                                    <p class="text-gray-600">Version: {{ $details['database_version'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Database Information') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Type') }}: {{ $details['database_type'] }}
+                                    </p>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Version') }}: {{ $details['database_version'] }}
+                                    </p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-archive-02 class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-archive-02 class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Total Backup Tasks</h3>
-                                    <p class="text-gray-600">{{ $details['backup_task_count'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('Total Backup Tasks') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">{{ $details['backup_task_count'] }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Application Details -->
-                    <div class="rounded-lg bg-white p-6" x-data="{ expanded: false }">
-                        <button @click="expanded = !expanded" class="flex w-full items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-900">Application Details</h2>
-                            <x-hugeicons-arrow-down-01
-                                x-bind:class="expanded ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-gray-500"
-                            />
-                        </button>
-                        <div x-show="expanded" x-collapse class="mt-4 space-y-4">
+                    <div
+                        class="overflow-hidden rounded-lg border bg-white p-6 shadow sm:rounded-lg dark:border-gray-800 dark:bg-gray-800"
+                    >
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                            {{ __('Application Details') }}
+                        </h2>
+                        <div class="mt-4 space-y-4">
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-profile class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-profile class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Vanguard</h3>
-                                    <p class="text-gray-600">Version: {{ $details['vanguard_version'] }}</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ config('app.name') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Version') }}: {{ $details['vanguard_version'] }}
+                                    </p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-4">
-                                <x-hugeicons-mail-02 class="h-6 w-6 flex-shrink-0 text-gray-500" />
+                                <x-hugeicons-mail-02 class="h-6 w-6 text-gray-500 dark:text-gray-400" />
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">SMTP Configuration</h3>
-                                    <p class="text-gray-600">Host: {{ $details['smtp_config']['host'] }}</p>
-                                    <p class="text-gray-600">Port: {{ $details['smtp_config']['port'] }}</p>
-                                    <p class="text-gray-600">
-                                        Encryption: {{ $details['smtp_config']['encryption'] }}
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ __('SMTP Configuration') }}
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Host') }}: {{ $details['smtp_config']['host'] }}
+                                    </p>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Port') }}: {{ $details['smtp_config']['port'] }}
+                                    </p>
+                                    <p class="text-gray-600 dark:text-gray-300">
+                                        {{ __('Encryption') }}: {{ $details['smtp_config']['encryption'] }}
                                     </p>
                                 </div>
                             </div>
@@ -170,30 +192,21 @@
 
                 <!-- Right Column: Explanatory Information -->
                 <div class="w-full space-y-6 lg:w-1/3">
-                    <div class="rounded-lg bg-white p-6">
-                        <h2 class="mb-4 text-xl font-bold text-gray-900">About This Dashboard</h2>
-                        <p class="text-gray-600">
-                            This dashboard provides a comprehensive overview of your Vanguard instance. It displays
-                            crucial information about your system, Laravel components, user management, database, and
-                            application details.
+                    <div class="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+                            {{ __('About This Dashboard') }}
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            {{ __('This dashboard provides a comprehensive overview of your Vanguard instance. It displays crucial information about your system and application details.') }}
                         </p>
                     </div>
-                    <div class="rounded-lg bg-white p-6">
-                        <h2 class="mb-4 text-xl font-bold text-gray-900">Why It Matters</h2>
-                        <ul class="list-inside list-disc space-y-2 text-gray-600">
-                            <li>System Information helps you understand your server environment.</li>
-                            <li>Laravel Components show the status of key Laravel features.</li>
-                            <li>User Management gives an overview of your user base.</li>
-                            <li>Database and Backups information ensures your data is secure.</li>
-                            <li>Application Details provide insights into your Vanguard setup.</li>
-                        </ul>
-                    </div>
-                    <div class="rounded-lg bg-white p-6">
-                        <h2 class="mb-4 text-xl font-bold text-gray-900">Need Help?</h2>
-                        <p class="text-gray-600">
-                            If you need assistance understanding any part of this dashboard or have questions about your
-                            Vanguard instance, please don't hesitate to
-                            <a class="font-medium underline" href="{{ route('profile.help') }}">contact us.</a>
+                    <div class="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">{{ __('Need Help?') }}</h2>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            {{ __('If you need assistance understanding any part of this dashboard or have questions about your Vanguard instance, please don\'t hesitate to') }}
+                            <a class="font-medium underline" href="{{ route('profile.help') }}">
+                                {{ __('contact us') }}.
+                            </a>
                         </p>
                     </div>
                 </div>

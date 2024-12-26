@@ -183,7 +183,10 @@ new class extends Component {
 
                             @if (Auth::user()->isAdmin())
                                 <div class="my-1 border-t border-gray-200 dark:border-gray-600"></div>
-
+                                <x-dropdown-link href="{{ url('/admin/instance-details') }}">
+                                    <x-hugeicons-database-locked class="mr-2 inline h-5 w-5" />
+                                    {{ __('Instance Details') }}
+                                </x-dropdown-link>
                                 <x-dropdown-link href="{{ url('/pulse') }}">
                                     <x-hugeicons-dashboard-browsing class="mr-2 inline h-5 w-5" />
                                     {{ __('Laravel Pulse') }}
@@ -351,6 +354,10 @@ new class extends Component {
                     {{ __('Statistics') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
+                    <x-responsive-nav-link href="{{ url('/admin/dashboard') }}">
+                        <x-hugeicons-database-locked class="mr-2 inline h-5 w-5" />
+                        {{ __('Instance Details') }}
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link href="{{ url('/pulse') }}">
                         <x-hugeicons-dashboard-browsing class="mr-2 inline h-5 w-5" />
                         {{ __('Laravel Pulse') }}
