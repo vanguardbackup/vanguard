@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Ensure that the correct branch is being checked out for PRs
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.head_ref }}
 
       - name: "Duster Fix"
         uses: tighten/duster-action@v3
