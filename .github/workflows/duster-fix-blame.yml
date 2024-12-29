@@ -21,12 +21,18 @@ jobs:
 
       # Check if the branch exists on the remote repository
       - name: Check if branch exists
+        id: check_branch
         run: |
-          git ls-remote --heads https://github.com/vanguardbackup/vanguard.git ${{ github.event.pull_request.head.ref || github.ref_name }}
+          if ! git ls-remote --heads https://github.com/vanguardbackup/vanguard.git ${{ github.event.pull_request.head.ref || github.ref_name }}; then
+            echo "Branch does not exist!"
+            exit 1
+          fi
 
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        if: success()
+        uses: actions/checkout@v4
         with:
-          # Ensure that the correct branch is being checked out for PRs
+          # Ensure that the correct branch is being checked out for PRs or normal branches
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: "Duster Fix"
@@ -50,3 +56,4 @@ jobs:
           commit_message: "ci: ignoring commit change in git blame"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
+          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
