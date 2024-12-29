@@ -8,8 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Use PR head ref for pull requests or ref_name for normal branches
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          # Ensure that the correct ref is being used for PRs or normal branches
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
@@ -21,4 +21,4 @@ jobs:
           commit_message: "style: automated changes to blade files"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
-          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          branch: ${{ github.head_ref || github.ref_name }}
