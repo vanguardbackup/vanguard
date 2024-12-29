@@ -3,8 +3,6 @@ on:
   workflow_call:
   workflow_dispatch:
 
-# Commits made in here will not trigger any workflows
-# Checkout Duster's documentation for a workaround
 jobs:
   duster:
     runs-on: ubuntu-latest
@@ -15,7 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          # Use `github.ref` for PR refs and `github.head_ref` for normal branches
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: "Duster Fix"
         uses: tighten/duster-action@v3
