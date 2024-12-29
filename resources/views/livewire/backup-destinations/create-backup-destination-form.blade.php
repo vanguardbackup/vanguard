@@ -15,6 +15,12 @@
                     title="{{ __('About Local Configuration') }}"
                     text="{{ __('You will specify a local path when creating a Backup Task.') }}"
                 />
+            @else
+                <x-notice
+                    type="info"
+                    title="{{ __('Security Notice') }}"
+                    text="{{ __('All keys entered here are encrypted and securely stored in the database.') }}"
+                />
             @endif
 
             <div class="mt-4 flex flex-col space-y-4 md:flex-row md:space-x-6 md:space-y-0">

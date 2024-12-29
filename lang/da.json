@@ -901,5 +901,7 @@
     "Click to pin this task": "Klik for at fastgøre sikkerhedskopieringsopgaven",
     "Task Pinned": "Sikkerhedskopieringsopgave fastgjort",
     "Backup task has been pinned.": "Sikkerhedskopieringsopgaven er blevet fastgjort.",
-    "Backup task has been unpinned.": "Sikkerhedskopieringsopgaven er blevet fjernet fra fastgørelse."
+    "Backup task has been unpinned.": "Sikkerhedskopieringsopgaven er blevet fjernet fra fastgørelse.",
+    "Security Notice": "Sikkerhedsmeddelelse",
+    "All keys entered here are encrypted and securely stored in the database.": "Alle nøgler indtastet her er krypteret og sikkert gemt i databasen."
 }
