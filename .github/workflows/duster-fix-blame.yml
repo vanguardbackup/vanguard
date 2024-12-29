@@ -29,11 +29,7 @@ jobs:
           fi
 
       - name: Checkout Code
-        if: success()
         uses: actions/checkout@v4
-        with:
-          # Ensure that the correct branch is being checked out for PRs or normal branches
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: "Duster Fix"
         uses: tighten/duster-action@v3
@@ -56,4 +52,3 @@ jobs:
           commit_message: "ci: ignoring commit change in git blame"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
-          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
