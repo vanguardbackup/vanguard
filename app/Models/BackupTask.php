@@ -601,6 +601,32 @@ class BackupTask extends Model
     }
 
     /**
+     * Check if the task is favourited.
+     */
+    public function isFavourited(): bool
+    {
+        return ! is_null($this->favourited_at);
+    }
+
+    /**
+     * Favour the backup task.
+     */
+    public function favourite(): void
+    {
+        $this->update(['favourited_at' => now()]);
+        $this->save();
+    }
+
+    /**
+     * Unfavour the backup task.
+     */
+    public function unfavourite(): void
+    {
+        $this->update(['favourited_at' => null]);
+        $this->save();
+    }
+
+    /**
      * Check if the task has a file name appended.
      */
     public function hasFileNameAppended(): bool

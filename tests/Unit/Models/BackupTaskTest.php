@@ -562,6 +562,18 @@ it('returns false if the backup task is not paused', function (): void {
     expect($task->isPaused())->toBeFalse();
 });
 
+it('returns true if the backup task is favourited', function (): void {
+    $task = BackupTask::factory()->favourited()->create();
+
+    expect($task->isFavourited())->toBeTrue();
+});
+
+it('returns false if the backup task is not favourited', function (): void {
+    $task = BackupTask::factory()->create();
+
+    expect($task->isFavourited())->toBeFalse();
+});
+
 it('pauses the backup task', function (): void {
     $task = BackupTask::factory()->create();
 
@@ -576,6 +588,22 @@ it('unpauses the backup task', function (): void {
     $task->resume();
 
     expect($task->isPaused())->toBeFalse();
+});
+
+it('favourites the backup task', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $task->favourite();
+
+    expect($task->isFavourited())->toBeTrue();
+});
+
+it('unfavourites the backup task', function (): void {
+    $task = BackupTask::factory()->paused()->create();
+
+    $task->unfavourite();
+
+    expect($task->isFavourited())->toBeFalse();
 });
 
 it('scopes all the unpaused backup tasks', function (): void {

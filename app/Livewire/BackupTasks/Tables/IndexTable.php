@@ -102,7 +102,9 @@ class IndexTable extends Component
             $query->where('label', 'like', "%{$this->search}%");
         }
 
-        return $query->latest('id');
+        return $query->orderByRaw('favourited_at IS NULL')
+            ->orderBy('favourited_at', 'desc')
+            ->latest('id');
     }
 
     /**
