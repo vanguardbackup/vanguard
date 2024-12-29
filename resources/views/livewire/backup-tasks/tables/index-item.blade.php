@@ -150,6 +150,11 @@
                     :wire:key="'toggle-pause-button-' . $backupTask->id"
                 />
 
+                <livewire:backup-tasks.buttons.toggle-favourite-button
+                    :backupTask="$backupTask"
+                    :wire:key="'toggle-favourite-button-' . $backupTask->id"
+                />
+
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>
                     <x-secondary-button class="!p-2">
                         <span class="sr-only">
@@ -297,6 +302,11 @@
                 <livewire:backup-tasks.buttons.toggle-pause-button
                     :backupTask="$backupTask"
                     :wire:key="'toggle-pause-button-large-' . $backupTask->id"
+                />
+
+                <livewire:backup-tasks.buttons.toggle-favourite-button
+                    :backupTask="$backupTask"
+                    :wire:key="'toggle-favourite-button-large-' . $backupTask->id"
                 />
 
                 <a href="{{ route('backup-tasks.edit', $backupTask) }}" wire:navigate>

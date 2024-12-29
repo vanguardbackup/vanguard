@@ -104,6 +104,7 @@ class IndexItem extends Component
             sprintf('echo-private:backup-tasks.%s,BackupTaskStatusChanged', $this->backupTask->getAttribute('id')) => 'echoBackupTaskStatusReceivedEvent',
             'task-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
             'toggle-pause-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
+            'toggle-favourite-button-clicked-' . $this->backupTask->getAttribute('id') => '$refresh',
             'log-modal-updated-' . $this->backupTask->getAttribute('id') => '$refresh',
             'backup-task-status-changed' => '$refresh',
         ];

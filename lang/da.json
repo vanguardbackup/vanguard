@@ -895,5 +895,11 @@
     "Need Help?": "Brug for hjælp?",
     "If you need assistance understanding any part of this dashboard or have questions about your Vanguard instance, please don't hesitate to": "Hvis du har brug for hjælp til at forstå nogen del af dette dashboard eller har spørgsmål om din Vanguard-forekomst, skal du ikke tøve med at",
     "contact us": "kontakte os",
-    "This dashboard provides a comprehensive overview of your Vanguard instance. It displays crucial information about your system and application details.": "Dette dashboard giver et omfattende overblik over din Vanguard-instans. Det viser vigtige oplysninger om dit system og applikationsdetaljer."
+    "This dashboard provides a comprehensive overview of your Vanguard instance. It displays crucial information about your system and application details.": "Dette dashboard giver et omfattende overblik over din Vanguard-instans. Det viser vigtige oplysninger om dit system og applikationsdetaljer.",
+    "Click to unpin this task": "Klik for at fjerne sikkerhedskopieringsopgaven fra fastgørelse",
+    "Task Unpinned": "Sikkerhedskopieringsopgave ikke længere fastgjort",
+    "Click to pin this task": "Klik for at fastgøre sikkerhedskopieringsopgaven",
+    "Task Pinned": "Sikkerhedskopieringsopgave fastgjort",
+    "Backup task has been pinned.": "Sikkerhedskopieringsopgaven er blevet fastgjort.",
+    "Backup task has been unpinned.": "Sikkerhedskopieringsopgaven er blevet fjernet fra fastgørelse."
 }

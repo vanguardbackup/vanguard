@@ -34,4 +34,13 @@ class BackupTaskFactory extends Factory
             ];
         });
     }
+
+    public function favourited(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'favourited_at' => now(),
+            ];
+        });
+    }
 }
