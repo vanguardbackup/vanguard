@@ -11,9 +11,17 @@ jobs:
       contents: write
 
     steps:
+      # Debug branch context to ensure correct ref is being used
+      - name: Debug Branch Context
+        run: |
+          echo "github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "github.head_ref: ${{ github.head_ref }}"
+          echo "github.ref: ${{ github.ref }}"
+
       - uses: actions/checkout@v4
         with:
-          # Use `github.ref` for PR refs and `github.head_ref` for normal branches
+          # Dynamically resolve the branch or PR reference
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: "Duster Fix"
