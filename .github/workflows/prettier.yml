@@ -6,13 +6,6 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug Ref Context
-        run: |
-          echo "github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
-          echo "github.ref_name: ${{ github.ref_name }}"
-          echo "github.head_ref: ${{ github.head_ref }}"
-          echo "github.ref: ${{ github.ref }}"
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
