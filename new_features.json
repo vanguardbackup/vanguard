@@ -1,8 +1,8 @@
 [
     {
-        "title": "Year in Review Added!",
-        "description": "Check out your Year in Review in your account settings!",
-        "version": "1.8.4",
-        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.8.4"
+        "title": "Pinned Backup Tasks!",
+        "description": "You can now pin your favourite backup tasks.",
+        "version": "1.10.0",
+        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.10.0"
     }
 ]
