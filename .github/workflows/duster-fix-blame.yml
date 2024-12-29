@@ -19,10 +19,14 @@ jobs:
           echo "github.head_ref: ${{ github.head_ref }}"
           echo "github.ref: ${{ github.ref }}"
 
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # Check if the branch exists on the remote repository
+      - name: Check if branch exists
+        run: |
+          git ls-remote --heads https://github.com/vanguardbackup/vanguard.git ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - uses: actions/checkout@v4
         with:
-          # Ensure that the correct branch is being checked out for PRs or normal branches
+          # Ensure that the correct branch is being checked out for PRs
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: "Duster Fix"
@@ -36,7 +40,6 @@ jobs:
           commit_message: "style: automated changes to code style"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
-          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: Ignore Duster commit in git blame
         if: steps.auto_commit_action.outputs.changes_detected == 'true'
@@ -47,4 +50,3 @@ jobs:
           commit_message: "ci: ignoring commit change in git blame"
           commit_user_name: GitHub Action
           commit_user_email: actions@github.com
-          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
