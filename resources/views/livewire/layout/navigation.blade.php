@@ -273,7 +273,7 @@ new class extends Component {
                     :active="request()->routeIs('backup-tasks.*')"
                     wire:navigate
                 >
-                    <x-hugeicons-archive-01 class="mr-2 inline h-5 w-5" />
+                    <x-hugeicons-archive-02 class="mr-2 inline h-5 w-5" />
                     {{ __('Backup Tasks') }}
                 </x-responsive-nav-link>
             @endif

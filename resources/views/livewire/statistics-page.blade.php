@@ -3,7 +3,7 @@
     <x-slot name="header">
         {{ __('Statistics') }}
     </x-slot>
-    <div class="py-6">
+    <div class="pb-6">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             @if (Auth::user()->backupTasks->count() === 0)
                 <x-no-content withBackground>
