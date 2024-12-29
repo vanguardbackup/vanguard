@@ -229,7 +229,9 @@ new class extends Component {
     </x-slot>
     <x-slot name="icon">hugeicons-user</x-slot>
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
-        <div class="mt-4">
+        <div
+            class="mt-4 rounded-[0.7rem] border border-gray-200/70 bg-gray-100/20 p-3 dark:border-gray-500/40 dark:bg-gray-500/15"
+        >
             <x-input-label for="avatar" :value="__('Avatar')" class="mb-2" />
             <div class="flex flex-col sm:flex-row sm:items-center">
                 <div x-data="{ imageLoaded: false }" class="relative h-20 w-20">
