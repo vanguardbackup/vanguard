@@ -40,5 +40,5 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
-    'admin_email_addresses' => explode(',', env('ADMIN_EMAIL_ADDRESSES')),
+    'admin_email_addresses' => explode(',', env('ADMIN_EMAIL_ADDRESSES', '')),
 ];
