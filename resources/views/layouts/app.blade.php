@@ -222,7 +222,7 @@
                 </div>
                 <div class="mt-12 border-t border-gray-200 pt-8 text-center text-sm dark:border-gray-700">
                     <p class="text-gray-500 dark:text-gray-400">
-                        &copy; {{ date('Y') }} {{ config('app.name') }}.
+                        &copy; 2024 - {{ date('Y') }} {{ config('app.name') }}.
                         {{ __('This software is open source and available under the') }}
                         <a
                             href="https://opensource.org/licenses/agpl-v3"
@@ -230,9 +230,8 @@
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            {{ __('AGPLv3 License') }}
+                            {{ __('AGPLv3 License.') }}
                         </a>
-                        .
                     </p>
                 </div>
             </div>
