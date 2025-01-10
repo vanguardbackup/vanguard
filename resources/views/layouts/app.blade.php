@@ -122,6 +122,12 @@
                         </h2>
                         <p class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
                             {{ __('Version :version', ['version' => obtain_vanguard_version()]) }}
+                            <a
+                                target="_blank"
+                                href="https://github.com/vanguardbackup/vanguard/releases/tag/{{ obtain_vanguard_version() }}"
+                            >
+                                @svg('hugeicons-link-square-02', ['class' => 'mr-2.5 inline h-3.5 w-3.5 dark:text-gray-300'])
+                            </a>
                         </p>
                         <div class="mb-4 flex flex-wrap justify-center gap-2 sm:justify-start">
                             @if (config('app.env') === 'local')
