@@ -32,7 +32,7 @@
                 <form wire:submit="submit">
                     @if (ssh_keys_exist())
                         <div class="mt-4" x-data="{ copied: false }">
-                            <x-input-label for="ssh_key" :value="__('Public SSH Key')" class="mb-2" />
+                            <x-input-label for="ssh_key" :value="__('Public SSH Key')" class="mb-2"/>
                             <div
                                 class="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
                             >
@@ -93,7 +93,7 @@
 
                     <div class="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
                         <div class="sm:col-span-3">
-                            <x-input-label for="label" :value="__('Label')" />
+                            <x-input-label for="label" :value="__('Label')"/>
                             <x-text-input
                                 id="label"
                                 class="mt-1 block w-full"
@@ -102,11 +102,11 @@
                                 name="label"
                                 autofocus
                             />
-                            <x-input-error :messages="$errors->get('label')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('label')" class="mt-2"/>
                         </div>
 
                         <div class="sm:col-span-3">
-                            <x-input-label for="host" :value="__('Host')" />
+                            <x-input-label for="host" :value="__('Host')"/>
                             <x-text-input
                                 id="host"
                                 class="mt-1 block w-full"
@@ -114,11 +114,11 @@
                                 wire:model="host"
                                 name="host"
                             />
-                            <x-input-error :messages="$errors->get('host')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('host')" class="mt-2"/>
                         </div>
 
                         <div class="sm:col-span-3">
-                            <x-input-label for="port" :value="__('SSH Port')" />
+                            <x-input-label for="port" :value="__('SSH Port')"/>
                             <x-text-input
                                 id="port"
                                 class="mt-1 block w-full"
@@ -126,11 +126,11 @@
                                 wire:model="port"
                                 name="port"
                             />
-                            <x-input-error :messages="$errors->get('port')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('port')" class="mt-2"/>
                         </div>
 
                         <div class="sm:col-span-3">
-                            <x-input-label for="username" :value="__('SSH Username')" />
+                            <x-input-label for="username" :value="__('SSH Username')"/>
                             <x-text-input
                                 id="username"
                                 class="mt-1 block w-full"
@@ -139,11 +139,11 @@
                                 name="username"
                                 placeholder="{{ __('user') }}"
                             />
-                            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('username')" class="mt-2"/>
                         </div>
 
                         <div class="sm:col-span-6" x-data="{ show: false }">
-                            <x-input-label for="databasePassword" :value="__('Database Password')" />
+                            <x-input-label for="databasePassword" :value="__('Database Password')"/>
                             <div class="relative mt-1 rounded-md shadow-sm">
                                 <x-text-input
                                     id="databasePassword"
@@ -167,7 +167,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <x-input-error :messages="$errors->get('databasePassword')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('databasePassword')" class="mt-2"/>
                             <x-input-explain>
                                 {{ __('The password is essential for performing database backup tasks. We encrypt the password upon receiving it.') }}
                             </x-input-explain>
@@ -208,7 +208,7 @@
                     <p class="text-base text-gray-700 sm:text-lg dark:text-gray-100">
                         {{ __(':app has connected to your remote server!', ['app' => config('app.name')]) }}
                     </p>
-                    <hr class="my-4" />
+                    <hr class="my-4"/>
                     <a href="{{ route('backup-destinations.index') }}" wire:navigate>
                         <x-primary-button type="button" class="mt-7 w-full sm:w-auto" centered>
                             {{ __('Configure Backup Destination') }}
@@ -216,25 +216,57 @@
                     </a>
                 </div>
             @else
-                <div class="space-y-2 text-center">
-                    @svg('hugeicons-cancel-circle', 'my-3 inline h-12 w-12 text-red-500 sm:h-16 sm:w-16')
-                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                        {{ __('Connection Failed') }}
-                    </h1>
+                <div class="space-y-6 text-center">
+                    <div class="flex items-center justify-center space-x-3">
+                        @svg('hugeicons-cancel-circle', 'h-12 w-12 text-red-500 sm:h-12 sm:w-12')
+                        <h1 class="text-2xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+                            {{ __('Connection Failed') }}
+                        </h1>
+                    </div>
                     <p class="text-base text-gray-700 sm:text-lg dark:text-gray-100">
                         {{ __('Unfortunately :app was not able to connect. Find the error message below.', ['app' => config('app.name')]) }}
                     </p>
-                    <div>
-                        <x-input-label for="error" :value="__('Error')" />
-                        <x-textarea rows="6">
-                            {{ $connectionError }}
-                        </x-textarea>
+
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg dark:bg-red-900 dark:border-red-700 flex items-start space-x-4">
+                        @svg('hugeicons-alert-02', 'h-8 w-8 text-red-500 flex-shrink-0')
+                        <div>
+                            <h2 class="text-lg font-semibold text-red-700 dark:text-red-300">
+                                {{ __('Error Details') }}
+                            </h2>
+                            <p class="mt-3 text-base text-gray-800 dark:text-gray-100">
+                                {{ $connectionError }}
+                            </p>
+                        </div>
                     </div>
-                    <hr class="my-4" />
-                    <x-secondary-button type="button" class="mt-7 w-full sm:w-auto" centered wire:click="returnToForm">
+
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg dark:bg-blue-900 dark:border-blue-700 mt-6 flex items-start space-x-4">
+                        @svg('hugeicons-idea-01', 'inline h-8 w-8 text-blue-500 flex-shrink-0')
+                        <div>
+                            <h2 class="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                                {{ __('Troubleshooting Tips') }}
+                            </h2>
+                            <ul class="mt-3 space-y-2 list-disc pl-5 text-base text-gray-700 dark:text-gray-300">
+                                @if (str_contains($connectionError, 'timeout'))
+                                    <li>{{ __('Ensure the server is online and accessible from your network.') }}</li>
+                                    <li>{{ __('Verify the IP address and port are correct.') }}</li>
+                                @elseif (str_contains($connectionError, 'authentication'))
+                                    <li>{{ __('Check that your SSH username and public key are correctly configured.') }}</li>
+                                    <li>{{ __('Ensure the server allows SSH access for the provided user.') }}</li>
+                                @else
+                                    <li>{{ __('Double-check all connection details, including the IP address, port, and credentials.') }}</li>
+                                    <li>{{ __('Ensure the server firewall allows SSH connections from this app.') }}</li>
+                                @endif
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="my-6 border-t border-gray-300 dark:border-gray-600"/>
+
+                    <x-secondary-button type="button" class="mt-6 w-full sm:w-auto px-6 py-3 text-lg font-semibold" centered wire:click="returnToForm">
                         {{ __('Edit Connection Details') }}
                     </x-secondary-button>
                 </div>
+
             @endif
         </x-form-wrapper>
     @endif

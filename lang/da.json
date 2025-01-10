@@ -19,7 +19,7 @@
     "Add your Backup Destination": "Tilføj din backupdestination",
     "Add your S3 bucket API details to store your backups safely.": "Tilføj dine S3-bucket API-oplysninger for at gemme dine backups sikkert.",
     "Additional Filename Text": "Yderligere filnavnstekst",
-    "AGPLv3 License": "AGPLv3-licensen",
+    "AGPLv3 License.": "AGPLv3-licensen.",
     "All backups over the past ninety days.": "Alle sikkerhedskopieringer over de sidste halvfems dage.",
     "All tags used to organize and identify your backup tasks.": "Alle tags, der bruges til at organisere og identificere dine sikkerhedskopieringsopgaver.",
     "All your backup task logs have been removed.": "Alle dine sikkerhedskopieringsopgavelogfiler er blevet fjernet.",
@@ -903,5 +903,12 @@
     "Backup task has been pinned.": "Sikkerhedskopieringsopgaven er blevet fastgjort.",
     "Backup task has been unpinned.": "Sikkerhedskopieringsopgaven er blevet fjernet fra fastgørelse.",
     "Security Notice": "Sikkerhedsmeddelelse",
-    "All keys entered here are encrypted and securely stored in the database.": "Alle nøgler indtastet her er krypteret og sikkert gemt i databasen."
+    "All keys entered here are encrypted and securely stored in the database.": "Alle nøgler indtastet her er krypteret og sikkert gemt i databasen.",
+    "Troubleshooting Tips": "Fejlfindingstips",
+    "Ensure the server is online and accessible from your network.": "Sørg for, at serveren er online og tilgængelig fra dit netværk.",
+    "Verify the IP address and port are correct.": "Bekræft, at IP-adressen og porten er korrekte.",
+    "Check that your SSH username and public key are correctly configured.": "Kontroller, at dit SSH-brugernavn og din offentlige nøgle er korrekt konfigureret.",
+    "Ensure the server allows SSH access for the provided user.": "Sørg for, at serveren tillader SSH-adgang for den angivne bruger.",
+    "Double-check all connection details, including the IP address, port, and credentials.": "Dobbelttjek alle forbindelsesdetaljer, inklusive IP-adresse, port og legitimationsoplysninger.",
+    "Ensure the server firewall allows SSH connections from this app.": "Sørg for, at serverens firewall tillader SSH-forbindelser fra denne app."
 }
