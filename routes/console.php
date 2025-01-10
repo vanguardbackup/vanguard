@@ -29,7 +29,7 @@ Schedule::command(SendSummaryBackupTaskEmails::class)
 Schedule::command(FetchNewFeatures::class)
     ->dailyAt('02:00');
 
-Schedule::command(PruneExpired::class)
+Schedule::command(PruneExpired::class, ['hours' => 24])
     ->dailyAt('05:00');
 
 Schedule::command(SendPersonalAccessTokenExpiringSoon::class)

@@ -101,7 +101,7 @@ new class extends Component {
 
                 <!-- User Dropdown -->
                 <div class="relative ml-3">
-                    <x-dropdown align="right" width="52">
+                    <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button
                                 x-data="{ open: false }"
@@ -143,37 +143,31 @@ new class extends Component {
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('profile')" wire:navigate class="mt-0.5">
-                                <x-hugeicons-user class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white" />
+                            <x-dropdown-link :href="route('profile')" wire:navigate>
+                                <x-hugeicons-user class="mr-2 inline h-5 w-5" />
                                 {{ __('My Profile') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('notification-streams.index')" wire:navigate>
-                                <x-hugeicons-notification-02
-                                    class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
-                                />
+                                <x-hugeicons-notification-02 class="mr-2 inline h-5 w-5" />
                                 {{ __('Notifications') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('statistics')" wire:navigate>
-                                <x-hugeicons-analytics-01
-                                    class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
-                                />
+                                <x-hugeicons-analytics-01 class="mr-2 inline h-5 w-5" />
                                 {{ __('Statistics') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('profile.api')" wire:navigate>
-                                <x-hugeicons-ticket-02 class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white" />
+                                <x-hugeicons-ticket-02 class="mr-2 inline h-5 w-5" />
                                 {{ __('API Tokens') }}
                             </x-dropdown-link>
 
                             <div class="my-1 border-t border-gray-200 dark:border-gray-600"></div>
 
                             <x-dropdown-link :href="route('profile.mfa')" wire:navigate>
-                                <x-hugeicons-square-lock-01
-                                    class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
-                                />
+                                <x-hugeicons-square-lock-01 class="mr-2 inline h-5 w-5" />
                                 {{ __('Security Settings') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('profile.help')" wire:navigate>
-                                <x-hugeicons-mentoring class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white" />
+                                <x-hugeicons-mentoring class="mr-2 inline h-5 w-5" />
                                 {{ __('Get Help') }}
                             </x-dropdown-link>
 
@@ -183,26 +177,22 @@ new class extends Component {
                                 x-data=""
                                 @click="$dispatch('open-modal', 'theme-switcher'); $el.closest('.dropdown-menu').classList.add('hidden')"
                             >
-                                <x-hugeicons-paint-board class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white" />
+                                <x-hugeicons-paint-board class="mr-2 inline h-5 w-5" />
                                 {{ __('Appearance') }}
                             </x-dropdown-link>
 
                             @if (Auth::user()->isAdmin())
                                 <div class="my-1 border-t border-gray-200 dark:border-gray-600"></div>
                                 <x-dropdown-link href="{{ url('/admin/instance-details') }}">
-                                    <x-hugeicons-database-locked
-                                        class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
-                                    />
+                                    <x-hugeicons-database-locked class="mr-2 inline h-5 w-5" />
                                     {{ __('Instance Details') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link href="{{ url('/pulse') }}">
-                                    <x-hugeicons-dashboard-browsing
-                                        class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
-                                    />
+                                    <x-hugeicons-dashboard-browsing class="mr-2 inline h-5 w-5" />
                                     {{ __('Laravel Pulse') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link href="{{ url('/horizon/dashboard') }}">
-                                    <x-hugeicons-cpu class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white" />
+                                    <x-hugeicons-cpu class="mr-2 inline h-5 w-5" />
                                     {{ __('Laravel Horizon') }}
                                 </x-dropdown-link>
                             @endif
@@ -211,7 +201,7 @@ new class extends Component {
 
                             <button wire:click="logout" class="w-full text-start" role="menuitem">
                                 <x-dropdown-link>
-                                    @svg('hugeicons-logout-03', 'mr-2 inline h-5 w-5 text-primary-800 dark:text-white')
+                                    @svg('hugeicons-logout-04', 'mr-2 inline h-5 w-5')
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </button>
@@ -351,24 +341,20 @@ new class extends Component {
                     <x-hugeicons-notification-02 class="mr-2 inline h-5 w-5" />
                     {{ __('Notifications') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('statistics')" wire:navigate>
-                    <x-hugeicons-analytics-01 class="mr-2 inline h-5 w-5" />
-                    {{ __('Statistics') }}
-                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('profile.api')" wire:navigate>
                     <x-hugeicons-ticket-02 class="mr-2 inline h-5 w-5" />
                     {{ __('API Tokens') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('profile.mfa')" wire:navigate>
                     <x-hugeicons-square-lock-01 class="mr-2 inline h-5 w-5" />
-                    {{ __('Security Settings') }}
+                    {{ __('2FA Settings') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('profile.help')" wire:navigate>
-                    <x-hugeicons-mentoring class="mr-2 inline h-5 w-5" />
-                    {{ __('Get Help') }}
+                <x-responsive-nav-link :href="route('statistics')" wire:navigate>
+                    <x-hugeicons-analytics-01 class="mr-2 inline h-5 w-5" />
+                    {{ __('Statistics') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
-                    <x-responsive-nav-link href="{{ url('/admin/instance-details') }}">
+                    <x-responsive-nav-link href="{{ url('/admin/dashboard') }}">
                         <x-hugeicons-database-locked class="mr-2 inline h-5 w-5" />
                         {{ __('Instance Details') }}
                     </x-responsive-nav-link>
@@ -384,7 +370,7 @@ new class extends Component {
             </div>
             <button wire:click="logout" class="w-full text-start">
                 <x-responsive-nav-link>
-                    @svg('hugeicons-logout-03', 'mr-2 inline h-5 w-5 text-gray-50')
+                    @svg('hugeicons-logout-04', 'mr-2 inline h-5 w-5 text-gray-50')
                     {{ __('Log Out') }}
                 </x-responsive-nav-link>
             </button>

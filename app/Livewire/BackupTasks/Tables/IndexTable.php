@@ -99,17 +99,7 @@ class IndexTable extends Component
         }
 
         if ($this->search !== '') {
-            $connection = config('database.default');
-            $driver = config("database.connections.{$connection}.driver");
-
-            if ($driver === 'pgsql') {
-                // Use ilike for PostgreSQL to make the search case-insensitive
-                $query->where('label', 'ilike', "%{$this->search}%");
-            } else {
-                // TODO: Investigate approaches like 'ilike' in other engines to improve the experience.
-                // Use like for other database engines
-                $query->where('label', 'like', "%{$this->search}%");
-            }
+            $query->where('label', 'like', "%{$this->search}%");
         }
 
         return $query->orderByRaw('favourited_at IS NULL')

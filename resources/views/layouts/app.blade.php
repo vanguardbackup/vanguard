@@ -122,12 +122,6 @@
                         </h2>
                         <p class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
                             {{ __('Version :version', ['version' => obtain_vanguard_version()]) }}
-                            <a
-                                target="_blank"
-                                href="https://github.com/vanguardbackup/vanguard/releases/tag/{{ obtain_vanguard_version() }}"
-                            >
-                                @svg('hugeicons-link-square-02', ['class' => 'mr-2.5 inline h-3.5 w-3.5 dark:text-gray-300'])
-                            </a>
                         </p>
                         <div class="mb-4 flex flex-wrap justify-center gap-2 sm:justify-start">
                             @if (config('app.env') === 'local')
@@ -228,7 +222,7 @@
                 </div>
                 <div class="mt-12 border-t border-gray-200 pt-8 text-center text-sm dark:border-gray-700">
                     <p class="text-gray-500 dark:text-gray-400">
-                        &copy; 2024 - {{ date('Y') }} {{ config('app.name') }}.
+                        &copy; {{ date('Y') }} {{ config('app.name') }}.
                         {{ __('This software is open source and available under the') }}
                         <a
                             href="https://opensource.org/licenses/agpl-v3"
@@ -236,8 +230,9 @@
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            {{ __('AGPLv3 License.') }}
+                            {{ __('AGPLv3 License') }}
                         </a>
+                        .
                     </p>
                 </div>
             </div>

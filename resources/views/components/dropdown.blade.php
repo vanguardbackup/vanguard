@@ -9,7 +9,7 @@
     };
 
     $width = match ($width) {
-        '52' => 'w-52',
+        '48' => 'w-48',
         default => $width,
     };
 @endphp
@@ -27,11 +27,11 @@
         x-transition:leave="transition duration-200 ease-in"
         x-transition:leave-start="translate-y-0 scale-100 transform opacity-100"
         x-transition:leave-end="translate-y-2 scale-95 transform opacity-0"
-        class="{{ $width }} {{ $alignmentClasses }} absolute z-50 mt-2 rounded-[0.70rem] shadow-lg"
+        class="{{ $width }} {{ $alignmentClasses }} absolute z-50 mt-2 rounded-md shadow-lg"
         style="display: none"
         @click="open = false"
     >
-        <div class="{{ $contentClasses }} overflow-hidden rounded-[0.70rem] p-2.5 ring-1 ring-black ring-opacity-5">
+        <div class="{{ $contentClasses }} overflow-hidden rounded-md ring-1 ring-black ring-opacity-5">
             {{ $content }}
         </div>
     </div>
