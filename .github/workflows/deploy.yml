@@ -1,0 +1,21 @@
+name: Deploy on new release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # This allows the workflow to be manually triggered
+
+jobs:
+  ploi-deploy:
+    name: 'Ploi Deployment'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: Glennmen/ploi-deploy-action@v1.2.0
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+        # This deploys the latest release to app.vanguardbackup.com
