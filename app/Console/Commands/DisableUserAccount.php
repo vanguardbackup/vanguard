@@ -9,7 +9,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class DisableUserAccount extends Command
 {
@@ -26,27 +25,36 @@ class DisableUserAccount extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(): void
     {
         $userId = $this->argument('user');
-        $user = User::find($userId);
+
+        if (! is_numeric($userId)) {
+            $this->components->error('The value provided is not an id.');
+
+            return;
+        }
+
+        $userId = (int) $userId;
+
+        $user = User::whereId($userId)->first();
 
         if (! $user) {
             $this->components->error("User with ID {$userId} not found.");
 
-            return CommandAlias::FAILURE;
+            return;
         }
 
         if ($user->isAdmin()) {
             $this->components->error('Cannot disable an admin account.');
 
-            return CommandAlias::FAILURE;
+            return;
         }
 
         if ($user->hasDisabledAccount()) {
             $this->components->info('User account is already disabled.');
 
-            return CommandAlias::SUCCESS;
+            return;
         }
 
         DB::transaction(function () use ($user): void {
@@ -56,7 +64,6 @@ class DisableUserAccount extends Command
 
         $this->components->info('User account has been disabled and all sessions cleared.');
 
-        return CommandAlias::SUCCESS;
     }
 
     /**

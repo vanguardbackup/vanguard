@@ -15,10 +15,16 @@ test('a user ID is required', function (): void {
     $this->artisan(DisableUserAccount::class);
 });
 
+test('the entered value must be an integer', function (): void {
+    $this->artisan(DisableUserAccount::class, ['user' => 'not-an-integer'])
+        ->expectsOutputToContain('The value provided is not an id.')
+        ->assertExitCode(0);
+});
+
 test('a user must exist', function (): void {
     $this->artisan(DisableUserAccount::class, ['user' => 999])
         ->expectsOutputToContain('User with ID 999 not found.')
-        ->assertExitCode(1);
+        ->assertExitCode(0);
 });
 
 test('an admin account cannot be disabled', function (): void {
@@ -27,7 +33,7 @@ test('an admin account cannot be disabled', function (): void {
 
     $this->artisan(DisableUserAccount::class, ['user' => $user->id])
         ->expectsOutputToContain('Cannot disable an admin account.')
-        ->assertExitCode(1);
+        ->assertExitCode(0);
 
     $this->assertNull($user->fresh()->account_disabled_at);
 });
