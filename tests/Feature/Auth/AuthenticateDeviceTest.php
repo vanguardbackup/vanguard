@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Mail\User\DeviceAuthenticationLogIn;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
@@ -34,11 +35,17 @@ test('authenticates user and returns a token when endpoint is enabled', function
 
     expect($response->json('token'))->toBeString()->not->toBeEmpty();
 
-    $this->assertDatabaseHas('personal_access_tokens', [
-        'tokenable_id' => $this->user->id,
-        'name' => 'test_device',
-        'mobile_at' => now(),
-    ]);
+    $tokenRecord = DB::table('personal_access_tokens')
+        ->where('tokenable_id', $this->user->id)
+        ->where('name', 'test_device')
+        ->first();
+
+    $this->assertNotNull($tokenRecord);
+
+    // Allow a small window of leniency for the timestamp
+    // fixes https://github.com/vanguardbackup/vanguard/actions/runs/12943293244/job/36102496786
+    $mobileAt = Carbon::now()->subSeconds(5);
+    $this->assertTrue(Carbon::parse($tokenRecord->mobile_at)->greaterThanOrEqualTo($mobileAt));
 
     Mail::assertQueued(DeviceAuthenticationLogIn::class);
 });
