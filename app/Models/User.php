@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Override;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use DateTimeInterface;
@@ -360,6 +361,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

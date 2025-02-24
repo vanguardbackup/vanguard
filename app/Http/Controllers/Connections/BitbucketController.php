@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse
 class BitbucketController extends ConnectionsController
 {
     /** @var string The provider name for Bitbucket */
-    private const PROVIDER_NAME = UserConnection::PROVIDER_BITBUCKET;
+    private const string PROVIDER_NAME = UserConnection::PROVIDER_BITBUCKET;
 
     /**
      * Redirect the user to Bitbucket's authentication page.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Rules;
 
+use Override;
 use App\Models\BackupTask;
 use App\Models\User;
 use Closure;
@@ -24,6 +25,7 @@ readonly class UniqueScheduledTimePerRemoteServer implements ValidationRule
         public ?int $taskId = null,
     ) {}
 
+    #[Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         /** @var User $user */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
+use Override;
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -48,6 +49,7 @@ class ClearLogButton extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

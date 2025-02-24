@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\RemoteServers;
 
+use Override;
 use App\Models\RemoteServer;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -55,6 +56,7 @@ class CheckConnectionButton extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

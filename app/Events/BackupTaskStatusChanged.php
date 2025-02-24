@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use Override;
 use App\Models\BackupTask;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -42,6 +43,7 @@ class BackupTaskStatusChanged implements ShouldBroadcast
      *
      * @return array<Channel>
      */
+    #[Override]
     public function broadcastOn(): array
     {
         return [

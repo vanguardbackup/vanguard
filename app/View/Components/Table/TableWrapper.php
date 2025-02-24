@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components\Table;
 
+use Override;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\View\Component;
@@ -36,6 +37,7 @@ class TableWrapper extends Component
      *
      * @return Factory|\Illuminate\Contracts\View\View|Application The view instance for the table wrapper
      */
+    #[Override]
     public function render(): Factory|\Illuminate\Contracts\View\View|Application
     {
         return view('components.table.table-wrapper');

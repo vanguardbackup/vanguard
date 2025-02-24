@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Destinations;
 
+use Override;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
@@ -45,6 +46,7 @@ class S3 implements BackupDestinationInterface
      * @param  string  $pattern  The pattern to match files against
      * @return array<string> An array of file keys matching the pattern
      */
+    #[Override]
     public function listFiles(string $pattern): array
     {
         $result = $this->s3Client->listObjects([
@@ -59,6 +61,7 @@ class S3 implements BackupDestinationInterface
      *
      * @param  string  $filePath  The key of the file to delete
      */
+    #[Override]
     public function deleteFile(string $filePath): void
     {
         $this->s3Client->deleteObject([
@@ -80,6 +83,7 @@ class S3 implements BackupDestinationInterface
      *
      * @throws FilesystemException If an error occurs during the file system operations
      */
+    #[Override]
     public function streamFiles(
         SFTPInterface $sftp,
         string $remoteZipPath,

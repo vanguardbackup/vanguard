@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Override;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
 
@@ -26,6 +27,7 @@ class FeatureServiceProvider extends ServiceProvider
      * This method is called by Laravel during the service provider registration
      * process. It's used to bind things in the service container.
      */
+    #[Override]
     public function register(): void
     {
         //

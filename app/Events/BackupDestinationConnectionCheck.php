@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use Override;
 use App\Models\BackupDestination;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -41,6 +42,7 @@ class BackupDestinationConnectionCheck implements ShouldBroadcast
      *
      * @return array<int, PrivateChannel>
      */
+    #[Override]
     public function broadcastOn(): array
     {
         return [

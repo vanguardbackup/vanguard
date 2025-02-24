@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection\Fakes;
 
+use Override;
 use App\Support\ServerConnection\Connection;
 use phpseclib3\Net\SSH2;
 use RuntimeException;
@@ -32,6 +33,7 @@ class ConnectionFake extends Connection
      *
      * @return bool True if the fake connection is active, false otherwise
      */
+    #[Override]
     public function connected(): bool
     {
         return $this->serverConnectionFake->isConnected();
@@ -40,6 +42,7 @@ class ConnectionFake extends Connection
     /**
      * Simulate disconnecting from the server.
      */
+    #[Override]
     public function disconnect(): void
     {
         $this->serverConnectionFake->disconnect();
@@ -53,6 +56,7 @@ class ConnectionFake extends Connection
      *
      * @throws RuntimeException If the connection is closed
      */
+    #[Override]
     public function run(string $command): string
     {
         $this->ensureConnected();
@@ -70,6 +74,7 @@ class ConnectionFake extends Connection
      *
      * @throws RuntimeException If the connection is closed
      */
+    #[Override]
     public function upload(string $localPath, string $remotePath): bool
     {
         $this->ensureConnected();
@@ -87,6 +92,7 @@ class ConnectionFake extends Connection
      *
      * @throws RuntimeException If the connection is closed
      */
+    #[Override]
     public function download(string $remotePath, string $localPath): bool
     {
         $this->ensureConnected();

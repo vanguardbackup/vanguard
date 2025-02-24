@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Tables;
 
+use Override;
 use App\Models\BackupTaskLog;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
@@ -98,6 +99,7 @@ class BackupTaskHistoryTable extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

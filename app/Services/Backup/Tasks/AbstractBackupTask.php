@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
+use Override;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
@@ -171,6 +172,7 @@ abstract class AbstractBackupTask extends Backup
      *
      * @throws Exception If an error occurs during timestamp generation
      */
+    #[Override]
     protected function logWithTimestamp(string $message, string $timezone): string
     {
         $timestampedMessage = parent::logWithTimestamp($message, $timezone);

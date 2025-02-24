@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Override;
 use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\GreetingService;
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register application services.
      */
+    #[Override]
     public function register(): void
     {
         $this->registerGreetingService();

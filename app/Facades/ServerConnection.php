@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Facades;
 
+use Override;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Fakes\ServerConnectionFake;
 use App\Support\ServerConnection\PendingConnection;
@@ -48,6 +49,7 @@ class ServerConnection extends Facade
     /**
      * Get the registered name of the component.
      */
+    #[Override]
     protected static function getFacadeAccessor(): string
     {
         return ServerConnectionManager::class;

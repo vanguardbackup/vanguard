@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection\Fakes;
 
+use Override;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Connection;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
@@ -90,6 +91,7 @@ class ServerConnectionFake extends PendingConnection
      * @param  RemoteServer  $remoteServer  The RemoteServer model instance
      * @return $this
      */
+    #[Override]
     public function connectFromModel(RemoteServer $remoteServer): self
     {
         $this->connectionAttempts[] = [
@@ -109,6 +111,7 @@ class ServerConnectionFake extends PendingConnection
      * @param  string  $username  The username
      * @return $this
      */
+    #[Override]
     public function connect(string $host = '', int $port = 22, string $username = 'root'): self
     {
         $this->connectionAttempts[] = ['host' => $host, 'port' => $port, 'username' => $username];
@@ -121,6 +124,7 @@ class ServerConnectionFake extends PendingConnection
      *
      * @throws ConnectionException If the connection should fail
      */
+    #[Override]
     public function establish(): Connection
     {
         if (! $this->shouldConnect) {
@@ -171,6 +175,7 @@ class ServerConnectionFake extends PendingConnection
      * @param  int  $seconds  The timeout in seconds
      * @return $this
      */
+    #[Override]
     public function timeout(int $seconds): self
     {
         $this->timeout = $seconds;
@@ -185,6 +190,7 @@ class ServerConnectionFake extends PendingConnection
      * @param  string|null  $passphrase  The passphrase for the private key
      * @return $this
      */
+    #[Override]
     public function withPrivateKey(?string $privateKeyPath = null, ?string $passphrase = null): self
     {
         // Simulate setting private key

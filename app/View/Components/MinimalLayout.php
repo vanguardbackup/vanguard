@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components;
 
+use Override;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -25,6 +26,7 @@ class MinimalLayout extends Component
      *
      * @return View The view instance for the minimal layout
      */
+    #[Override]
     public function render(): View
     {
         return view('layouts.minimal');

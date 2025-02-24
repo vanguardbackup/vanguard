@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use Override;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use Illuminate\Broadcasting\Channel;
@@ -42,6 +43,7 @@ class CreatedBackupTaskLog implements ShouldBroadcast
      *
      * @return array<int, Channel>
      */
+    #[Override]
     public function broadcastOn(): array
     {
         return [

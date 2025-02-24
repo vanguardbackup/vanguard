@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupDestinations;
 
+use Override;
 use App\Models\BackupDestination;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -73,6 +74,7 @@ class IndexItem extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

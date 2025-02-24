@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Override;
 use Carbon\Carbon;
 use Database\Factories\PersonalAccessTokenFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -79,6 +80,7 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

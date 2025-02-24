@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components;
 
+use Override;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -20,6 +21,7 @@ class AccountWrapper extends Component
      *
      * @return View The view instance for the account wrapper component
      */
+    #[Override]
     public function render(): View
     {
         return view('account.partials.account-wrapper');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Override;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
@@ -20,6 +21,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      *
      * Configures notification routes for Horizon (currently commented out).
      */
+    #[Override]
     public function boot(): void
     {
         parent::boot();
@@ -34,6 +36,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      *
      * Allows access via a bearer token or for authenticated admin users.
      */
+    #[Override]
     protected function gate(): void
     {
         Gate::define('viewHorizon', function (): bool {

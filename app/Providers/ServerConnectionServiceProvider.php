@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Override;
 use App\Facades\ServerConnection;
 use App\Support\ServerConnection\ServerConnectionManager;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +24,7 @@ class ServerConnectionServiceProvider extends ServiceProvider
      * This method binds the ServerConnectionManager to the service container
      * as a singleton instance.
      */
+    #[Override]
     public function register(): void
     {
         $this->app->singleton('server.connection', function (): ServerConnectionManager {

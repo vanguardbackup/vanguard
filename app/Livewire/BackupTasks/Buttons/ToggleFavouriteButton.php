@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
+use Override;
 use App\Models\BackupTask;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
@@ -65,6 +66,7 @@ class ToggleFavouriteButton extends Component
      *
      * @return array<string, string> The event listeners
      */
+    #[Override]
     protected function getListeners(): array
     {
         $taskId = $this->backupTask->getAttribute('id');

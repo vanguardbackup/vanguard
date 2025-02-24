@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupDestinations;
 
+use Override;
 use App\Models\BackupDestination;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -58,6 +59,7 @@ class CheckConnectionButton extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

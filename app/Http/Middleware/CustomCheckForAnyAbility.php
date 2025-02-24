@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use Override;
 use App\Exceptions\CustomMissingAbilityException;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
@@ -24,6 +25,7 @@ class CustomCheckForAnyAbility extends SanctumCheckForAnyAbility
      * @throws CustomMissingAbilityException
      * @throws InvalidArgumentException
      */
+    #[Override]
     public function handle($request, $next, ...$abilities): mixed
     {
         $this->validateArguments($request, $next);

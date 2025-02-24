@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Destinations;
 
+use Override;
 use App\Services\Backup\Contracts\SFTPInterface;
 use App\Services\Backup\Destinations\Contracts\BackupDestinationInterface;
 use App\Services\Backup\Traits\BackupHelpers;
@@ -39,6 +40,7 @@ class Local implements BackupDestinationInterface
      * @param  string  $pattern  The pattern to match files against
      * @return array<string> An array of file names or paths matching the pattern
      */
+    #[Override]
     public function listFiles(string $pattern): array
     {
         $files = $this->listDirectoryContents($this->storagePath);
@@ -51,6 +53,7 @@ class Local implements BackupDestinationInterface
      *
      * @param  string  $filePath  The path of the file to delete
      */
+    #[Override]
     public function deleteFile(string $filePath): void
     {
         $fullPath = $this->getFullPath($filePath);
@@ -74,6 +77,7 @@ class Local implements BackupDestinationInterface
      *
      * @throws Exception If an error occurs during the streaming process
      */
+    #[Override]
     public function streamFiles(
         SFTPInterface $sftp,
         string $remoteZipPath,

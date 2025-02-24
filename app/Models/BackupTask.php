@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Override;
 use App\Jobs\BackupTasks\SendDiscordNotificationJob;
 use App\Jobs\BackupTasks\SendPushoverNotificationJob;
 use App\Jobs\BackupTasks\SendSlackNotificationJob;
@@ -1138,6 +1139,7 @@ class BackupTask extends Model
      *
      * @return string[]
      */
+    #[Override]
     protected function casts(): array
     {
         return [

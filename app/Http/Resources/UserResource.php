@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use Override;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -35,6 +36,7 @@ class UserResource extends JsonResource
      * - related_entities: Object containing counts of related entities.
      * - timestamps: Object containing important account-related dates.
      */
+    #[Override]
     public function toArray(Request $request): array
     {
         return [

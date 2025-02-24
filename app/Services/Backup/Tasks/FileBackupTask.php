@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
+use Override;
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\SFTPConnectionException;
 use App\Services\Backup\BackupConstants;
@@ -35,6 +36,7 @@ class FileBackupTask extends AbstractBackupTask
      * @throws SFTPConnectionException If there's an error establishing the SFTP connection
      * @throws RuntimeException If there's a failure in the backup process, if the path doesn't exist, or if the directory size exceeds the limit
      */
+    #[Override]
     protected function performBackup(): void
     {
         $this->backupTask->getAttribute('remoteServer');

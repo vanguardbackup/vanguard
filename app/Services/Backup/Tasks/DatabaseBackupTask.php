@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
+use Override;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use RuntimeException;
@@ -33,6 +34,7 @@ class DatabaseBackupTask extends AbstractBackupTask
      * @throws SFTPConnectionException If there's an error establishing the SFTP connection
      * @throws RuntimeException If there's a failure in the backup process or if the database password is missing
      */
+    #[Override]
     protected function performBackup(): void
     {
         $remoteServer = $this->backupTask->getAttribute('remoteServer');

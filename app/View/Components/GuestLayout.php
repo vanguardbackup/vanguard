@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components;
 
+use Override;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -21,6 +22,7 @@ class GuestLayout extends Component
      *
      * @return View The view instance for the guest layout
      */
+    #[Override]
     public function render(): View
     {
         return view('layouts.guest');

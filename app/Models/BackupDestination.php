@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Override;
 use App\Jobs\CheckBackupDestinationsS3ConnectionJob;
 use Aws\S3\S3Client;
 use Database\Factories\BackupDestinationFactory;
@@ -223,6 +224,7 @@ class BackupDestination extends Model
      *
      * @return string[]
      */
+    #[Override]
     protected function casts(): array
     {
         return [

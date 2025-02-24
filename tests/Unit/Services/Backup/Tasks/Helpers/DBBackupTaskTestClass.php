@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Backup\Tasks\Helpers;
 
+use Override;
 use App\Models\BackupTask;
 use App\Services\Backup\Tasks\DatabaseBackupTask;
 
@@ -16,6 +17,7 @@ class DBBackupTaskTestClass extends DatabaseBackupTask
         $this->logOutput = '';
     }
 
+    #[Override]
     public function validateConfiguration(): void
     {
         // Do nothing

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components\Table;
 
+use Override;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -33,6 +34,7 @@ class TableRow extends Component
      *
      * @return View|Closure|string The view instance, a Closure that creates a view, or a string
      */
+    #[Override]
     public function render(): View|Closure|string
     {
         return view('components.table.table-row');

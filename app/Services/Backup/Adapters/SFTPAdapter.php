@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Adapters;
 
+use Override;
 use App\Services\Backup\Contracts\SFTPInterface;
 use phpseclib3\Net\SFTP;
 
@@ -36,6 +37,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  mixed  ...$args  Additional arguments for authentication (e.g., password, key)
      * @return bool True if login was successful, false otherwise
      */
+    #[Override]
     public function login(string $username, mixed ...$args): bool
     {
         return $this->sftp->login($username, ...$args);
@@ -46,6 +48,7 @@ class SFTPAdapter implements SFTPInterface
      *
      * @return string The last error message
      */
+    #[Override]
     public function getLastError(): string
     {
         return $this->sftp->getLastError();
@@ -57,6 +60,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  string  $command  The command to execute
      * @return bool|string The output of the command if successful, false otherwise
      */
+    #[Override]
     public function exec(string $command): bool|string
     {
         return $this->sftp->exec($command);
@@ -67,6 +71,7 @@ class SFTPAdapter implements SFTPInterface
      *
      * @return bool True if connected, false otherwise
      */
+    #[Override]
     public function isConnected(): bool
     {
         return $this->sftp->isConnected();
@@ -80,6 +85,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  int  $mode  The source mode (default: SFTP::SOURCE_STRING)
      * @return bool True if the upload was successful, false otherwise
      */
+    #[Override]
     public function put(string $remote_file, string $data, int $mode = SFTP::SOURCE_STRING): bool
     {
         return $this->sftp->put($remote_file, $data, $mode);
@@ -92,6 +98,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  string|false  $local_file  The path to save the file locally, or false to return the file contents
      * @return bool|string The file contents if $local_file is false, true if the file was successfully saved, or false on failure
      */
+    #[Override]
     public function get(string $remote_file, string|false $local_file = false): bool|string
     {
         return $this->sftp->get($remote_file, $local_file);
@@ -104,6 +111,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  bool  $recursive  Whether to delete directories recursively (default: true)
      * @return bool True if the deletion was successful, false otherwise
      */
+    #[Override]
     public function delete(string $path, bool $recursive = true): bool
     {
         return $this->sftp->delete($path, $recursive);
@@ -117,6 +125,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  bool  $recursive  Whether to create parent directories if they don't exist (default: false)
      * @return bool True if the directory was successfully created, false otherwise
      */
+    #[Override]
     public function mkdir(string $dir, int $mode = -1, bool $recursive = false): bool
     {
         return $this->sftp->mkdir($dir, $mode, $recursive);
@@ -130,6 +139,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  bool  $recursive  Whether to change permissions recursively for directories (default: false)
      * @return mixed The result of the chmod operation
      */
+    #[Override]
     public function chmod(int $mode, string $filename, bool $recursive = false): mixed
     {
         return $this->sftp->chmod($mode, $filename, $recursive);
@@ -141,6 +151,7 @@ class SFTPAdapter implements SFTPInterface
      * @param  string  $filename  The path to the file
      * @return array<string, mixed>|false An array of file information if successful, false otherwise
      */
+    #[Override]
     public function stat(string $filename): array|false
     {
         return $this->sftp->stat($filename);

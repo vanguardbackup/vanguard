@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
+use Override;
 use App\Models\BackupTask;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -60,6 +61,7 @@ class RunTaskButton extends Component
      *
      * @return array<string, string>
      */
+    #[Override]
     protected function getListeners(): array
     {
         return [

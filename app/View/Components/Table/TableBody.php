@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Components\Table;
 
+use Override;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -20,6 +21,7 @@ class TableBody extends Component
      *
      * @return View The view instance for the table body component
      */
+    #[Override]
     public function render(): View
     {
         return view('components.table.table-body');
