@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Override;
 use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\GreetingService;
@@ -26,6 +25,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 use LivewireUI\Spotlight\Spotlight;
+use Override;
 
 /**
  * Core application service provider.

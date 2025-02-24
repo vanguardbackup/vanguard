@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection\Fakes;
 
-use Override;
 use App\Support\ServerConnection\Connection;
+use Override;
 use phpseclib3\Net\SSH2;
 use RuntimeException;
 

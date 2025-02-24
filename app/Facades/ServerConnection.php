@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Facades;
 
-use Override;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Fakes\ServerConnectionFake;
 use App\Support\ServerConnection\PendingConnection;
 use App\Support\ServerConnection\ServerConnectionManager;
 use Illuminate\Support\Facades\Facade;
+use Override;
 
 /**
  * Facade for ServerConnectionManager.

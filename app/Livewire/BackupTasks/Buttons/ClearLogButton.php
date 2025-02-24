@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
-use Override;
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Override;
 
 /**
  * Manages the button for clearing backup task logs.

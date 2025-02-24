@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Tables;
 
-use Override;
 use App\Models\BackupTaskLog;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
@@ -12,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Override;
 
 class BackupTaskHistoryTable extends Component
 {

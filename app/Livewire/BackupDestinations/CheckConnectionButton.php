@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupDestinations;
 
-use Override;
 use App\Models\BackupDestination;
 use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Override;
 
 /**
  * Livewire component for checking the connection to a backup destination.

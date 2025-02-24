@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Tables;
 
-use Override;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
+use Override;
 
 /**
  * Manages individual backup task items in the index table.

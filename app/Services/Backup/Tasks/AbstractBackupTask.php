@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
-use Override;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
@@ -15,6 +14,7 @@ use App\Services\Backup\Contracts\SFTPInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use RuntimeException;
 use Throwable;
 

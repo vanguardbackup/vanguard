@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
-use Override;
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\SFTPConnectionException;
 use App\Services\Backup\BackupConstants;
+use Override;
 use RuntimeException;
 
 /**

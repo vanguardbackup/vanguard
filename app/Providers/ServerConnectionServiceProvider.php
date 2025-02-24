@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Override;
 use App\Facades\ServerConnection;
 use App\Support\ServerConnection\ServerConnectionManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 /**
  * Service Provider for Server Connection.

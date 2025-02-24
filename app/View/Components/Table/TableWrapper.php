@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\View\Components\Table;
 
-use Override;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\View\Component;
 use Illuminate\View\View;
+use Override;
 
 /**
  * TableWrapper Component

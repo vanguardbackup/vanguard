@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
-use Override;
 use App\Models\BackupTask;
 use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Override;
 
 /**
  * Manages the button for running a backup task.

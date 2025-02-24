@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Backup\Tasks\Helpers;
 
-use Override;
 use App\Models\BackupTask;
 use App\Services\Backup\Tasks\DatabaseBackupTask;
+use Override;
 
 class DBBackupTaskTestClass extends DatabaseBackupTask
 {

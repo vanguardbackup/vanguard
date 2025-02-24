@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Tasks;
 
-use Override;
 use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
+use Override;
 use RuntimeException;
 
 /**

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\RemoteServers;
 
-use Override;
 use App\Models\RemoteServer;
 use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Override;
 
 /**
  * Manages the connection check button for remote servers.

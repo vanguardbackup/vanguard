@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Override;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Volt\Volt;
+use Override;
 
 /**
  * Service provider for Livewire Volt configuration.

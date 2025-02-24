@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Support\ServerConnection\Fakes;
 
-use Override;
 use App\Models\RemoteServer;
 use App\Support\ServerConnection\Connection;
 use App\Support\ServerConnection\Exceptions\ConnectionException;
 use App\Support\ServerConnection\PendingConnection;
+use Override;
 use PHPUnit\Framework\Assert as PHPUnit;
 use PHPUnit\Framework\ExpectationFailedException;
 

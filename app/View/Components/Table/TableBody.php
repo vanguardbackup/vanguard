@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\View\Components\Table;
 
-use Override;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use Override;
 
 /**
  * TableBody Component

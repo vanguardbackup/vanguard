@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use Override;
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use Illuminate\Broadcasting\Channel;
@@ -14,6 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Override;
 
 /**
  * Event for streaming backup task log outputs.

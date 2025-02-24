@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Facades;
 
-use Override;
 use App\Services\GreetingService;
 use Illuminate\Support\Facades\Facade;
+use Override;
 
 /**
  * Facade for the GreetingService.

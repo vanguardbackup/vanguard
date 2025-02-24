@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Override;
 use App\Exceptions\CustomMissingAbilityException;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility as SanctumCheckForAnyAbility;
+use Override;
 
 class CustomCheckForAnyAbility extends SanctumCheckForAnyAbility
 {

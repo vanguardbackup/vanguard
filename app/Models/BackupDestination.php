@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Override;
 use App\Jobs\CheckBackupDestinationsS3ConnectionJob;
 use Aws\S3\S3Client;
 use Database\Factories\BackupDestinationFactory;
@@ -15,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
+use Override;
 use RuntimeException;
 
 /**

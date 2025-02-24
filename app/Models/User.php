@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Override;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use DateTimeInterface;
@@ -20,6 +19,7 @@ use Laravel\Pennant\Concerns\HasFeatures;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
+use Override;
 
 /**
  * Represents a user in the system.

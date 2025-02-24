@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Backup\Adapters;
 
-use Override;
 use App\Services\Backup\Contracts\SFTPInterface;
+use Override;
 use phpseclib3\Net\SFTP;
 
 /**

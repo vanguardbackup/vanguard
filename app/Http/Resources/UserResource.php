@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
-use Override;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Override;
 
 /**
  * Resource class for transforming User model data into a JSON response.

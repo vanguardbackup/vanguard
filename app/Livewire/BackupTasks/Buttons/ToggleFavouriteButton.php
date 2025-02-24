@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Livewire\BackupTasks\Buttons;
 
-use Override;
 use App\Models\BackupTask;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Illuminate\View\View;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
+use Override;
 
 /**
  * Manages the button for toggling the favourite state of a backup task.

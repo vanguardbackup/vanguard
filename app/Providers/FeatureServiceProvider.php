@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Override;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
+use Override;
 
 /**
  * Service provider for managing feature flags.

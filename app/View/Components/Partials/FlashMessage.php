@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\View\Components\Partials;
 
-use Override;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use Override;
 
 class FlashMessage extends Component
 {
