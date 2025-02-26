@@ -67,9 +67,14 @@ class FileBackupTask extends AbstractBackupTask
 
         if ($laravelProject) {
             $this->logMessage('Laravel project detected. Optimizing backup process for Laravel-specific structure.');
-        }
 
-        $excludeDirs = $laravelProject ? ['node_modules', 'vendor'] : [];
+            $excludeDirs = [
+                'node_modules',     // NPM dependencies
+                'vendor',           // Composer dependencies
+                'storage/framework', // Laravel framework cache/sessions/views
+                'bootstrap/cache',  // Cached bootstrap files
+            ];
+        }
 
         $zipFileName = $this->generateBackupFileName('zip');
         $remoteZipPath = '/tmp/' . $zipFileName;
