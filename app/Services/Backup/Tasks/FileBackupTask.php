@@ -7,6 +7,7 @@ namespace App\Services\Backup\Tasks;
 use App\Exceptions\BackupTaskZipException;
 use App\Exceptions\SFTPConnectionException;
 use App\Services\Backup\BackupConstants;
+use League\Flysystem\FilesystemException;
 use Override;
 use RuntimeException;
 
@@ -34,7 +35,7 @@ class FileBackupTask extends AbstractBackupTask
      *
      * @throws BackupTaskZipException If there's an error during the zip compression process
      * @throws SFTPConnectionException If there's an error establishing the SFTP connection
-     * @throws RuntimeException If there's a failure in the backup process, if the path doesn't exist, or if the directory size exceeds the limit
+     * @throws RuntimeException|FilesystemException If there's a failure in the backup process, if the path doesn't exist, or if the directory size exceeds the limit
      */
     #[Override]
     protected function performBackup(): void
@@ -64,16 +65,30 @@ class FileBackupTask extends AbstractBackupTask
         }
 
         $laravelProject = $this->isLaravelDirectory($sftp, $sourcePath);
+        $excludeDirs = [];
 
         if ($laravelProject) {
             $this->logMessage('Laravel project detected. Optimizing backup process for Laravel-specific structure.');
 
             $excludeDirs = [
-                'node_modules',     // NPM dependencies
-                'vendor',           // Composer dependencies
-                'storage/framework', // Laravel framework cache/sessions/views
-                'bootstrap/cache',  // Cached bootstrap files
+                'node_modules/*',      // NPM dependencies with all contents
+                'vendor/*',            // Composer dependencies with all contents
+                'storage/framework/*', // Laravel framework cache/sessions/views with all contents
+                '.git/*',              // Git repository with all contents
+                'bootstrap/cache/*',    // Cached bootstrap files with all contents
             ];
+
+            $findSymlinksCommand = 'find ' . escapeshellarg($sourcePath) . ' -type l -printf "%P\n"';
+            $symlinksOutput = $sftp->exec($findSymlinksCommand);
+
+            if (is_string($symlinksOutput) && ! empty($symlinksOutput)) {
+                $symlinks = array_filter(explode("\n", trim($symlinksOutput)));
+
+                foreach ($symlinks as $symlink) {
+                    $excludeDirs[] = $symlink;
+                    $this->logDebug('Excluding symlink from backup.', ['symlink' => $symlink]);
+                }
+            }
         }
 
         $zipFileName = $this->generateBackupFileName('zip');

@@ -372,7 +372,7 @@ abstract class Backup
         $excludeArgs = array_map(fn ($dir): string => '--exclude=' . escapeshellarg($sourcePath . '/' . $dir), $excludeDirs);
         $excludeArgsString = implode(' ', $excludeArgs);
 
-        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rv ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
+        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rvX ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
         $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
 
         $result = $this->retryCommand(fn (): bool|string => $sftp->exec($zipCommand), BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
@@ -434,19 +434,6 @@ abstract class Backup
         throw new DatabaseDumpException('No supported database found on the remote server.');
     }
 
-    /**
-     * Dump a remote database to a file.
-     *
-     * @param  SFTPInterface  $sftp  The SFTP interface
-     * @param  string  $databaseType  The type of the database (mysql or postgresql)
-     * @param  string  $remoteDumpPath  The path where the dump file will be created
-     * @param  string  $databasePassword  The database password
-     * @param  string  $databaseName  The name of the database
-     * @param  string|null  $databaseTablesToExcludeInTheBackup  Comma-separated list of tables to exclude
-     *
-     * @throws DatabaseDumpException If there's an error during the database dump
-     * @throws SFTPConnectionException If there's an error in the SFTP connection
-     */
     public function dumpRemoteDatabase(
         SFTPInterface $sftp,
         string $databaseType,
@@ -464,32 +451,36 @@ abstract class Backup
             $tablesToExclude = explode(',', $databaseTablesToExcludeInTheBackup);
             if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
                 foreach ($tablesToExclude as $tableToExclude) {
-                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . $tableToExclude);
+                    $excludeTablesOption .= ' --ignore-table=' . escapeshellarg($databaseName . '.' . trim($tableToExclude));
                 }
             } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
                 foreach ($tablesToExclude as $tableToExclude) {
-                    $excludeTablesOption .= ' -T ' . escapeshellarg($tableToExclude);
+                    $excludeTablesOption .= ' -T ' . escapeshellarg(trim($tableToExclude));
                 }
             }
 
             Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
         }
 
+        $tempErrorLogPath = $remoteDumpPath . '.error.log';
+
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
             $dumpCommand = sprintf(
-                'mysqldump %s %s --password=%s > %s 2>&1',
+                'mysqldump %s %s --password=%s > %s 2> %s',
                 escapeshellarg($databaseName),
                 $excludeTablesOption,
                 escapeshellarg($databasePassword),
-                escapeshellarg($remoteDumpPath)
+                escapeshellarg($remoteDumpPath),
+                escapeshellarg($tempErrorLogPath)
             );
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
             $dumpCommand = sprintf(
-                'PGPASSWORD=%s pg_dump %s %s > %s 2>&1',
+                'PGPASSWORD=%s pg_dump %s %s > %s 2> %s',
                 escapeshellarg($databasePassword),
                 escapeshellarg($databaseName),
                 $excludeTablesOption,
-                escapeshellarg($remoteDumpPath)
+                escapeshellarg($remoteDumpPath),
+                escapeshellarg($tempErrorLogPath)
             );
         } else {
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
@@ -501,27 +492,28 @@ abstract class Backup
         $output = $sftp->exec($dumpCommand);
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
-        if (is_string($output) && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
-            $this->logError('Failed to dump the database.', ['output' => $output]);
-            throw new DatabaseDumpException('Failed to dump the database: ' . $output);
+        $errorOutput = $sftp->exec('cat ' . escapeshellarg($tempErrorLogPath));
+        if (is_string($errorOutput) && ! empty(trim($errorOutput))) {
+            $this->logError('Error during database dump.', ['error' => $errorOutput]);
+            $sftp->exec('rm ' . escapeshellarg($tempErrorLogPath));
+            throw new DatabaseDumpException('Error during database dump: ' . $errorOutput);
         }
 
-        $checkFileCommand = sprintf('test -s %s && echo "exists" || echo "not exists"', escapeshellarg($remoteDumpPath));
+        $sftp->exec('rm ' . escapeshellarg($tempErrorLogPath));
 
-        $fileCheckOutput = $sftp->exec($checkFileCommand);
-        $fileCheckOutput = is_string($fileCheckOutput) ? trim($fileCheckOutput) : '';
+        $fileSizeCommand = sprintf('stat -c %%s %s || echo "0"', escapeshellarg($remoteDumpPath));
+        $fileSizeOutput = $sftp->exec($fileSizeCommand);
+        $fileSize = is_string($fileSizeOutput) ? (int) trim($fileSizeOutput) : 0;
 
-        if ($fileCheckOutput !== 'exists') {
+        if ($fileSize === 0) {
             $this->logError('Database dump file was not created or is empty.');
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
         }
 
-        $fileContent = $sftp->exec('cat ' . escapeshellarg($remoteDumpPath));
-        if (is_string($fileContent)) {
-            $this->logDebug('Database dump file content snippet.', ['content' => substr($fileContent, 0, 500)]);
-        }
-
-        $this->logInfo('Database dump completed successfully.', ['remote_dump_path' => $remoteDumpPath]);
+        $this->logInfo('Database dump completed successfully.', [
+            'remote_dump_path' => $remoteDumpPath,
+            'file_size' => $fileSize . ' bytes',
+        ]);
     }
 
     /**
