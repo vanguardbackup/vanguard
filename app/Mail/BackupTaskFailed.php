@@ -11,6 +11,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Str;
 
 /**
  * Mailable class for sending emails when a backup task fails.
@@ -48,7 +49,7 @@ class BackupTaskFailed extends Mailable implements ShouldQueue
             with: [
                 'user' => $this->user,
                 'taskName' => $this->taskName,
-                'errorMessage' => $this->errorMessage,
+                'errorMessage' => Str::limit($this->errorMessage, 50),
             ],
         );
     }
