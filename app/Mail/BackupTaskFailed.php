@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Str;
+use Illuminate\Support\Str;
 
 /**
  * Mailable class for sending emails when a backup task fails.
