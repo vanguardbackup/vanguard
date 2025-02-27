@@ -47,44 +47,136 @@
                     <x-hugeicons-archive-02 class="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 </x-slot>
 
-                <div class="mb-4">
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <div>
-                            <x-input-label for="search" :value="__('Search')" />
-                            <x-text-input
-                                id="search"
-                                name="search"
-                                type="text"
-                                class="mt-1 block w-full"
-                                wire:model.live="search"
-                                :placeholder="__('Search by label')"
-                            />
-                        </div>
-                        <div>
-                            <x-input-label for="status" :value="__('Status')" />
-                            <x-select id="status" class="mt-1 block w-full" wire:model.live="status" name="status">
-                                <option value="">{{ __('All') }}</option>
-                                @foreach ($statuses as $statusOption)
-                                    <option value="{{ $statusOption }}">{{ __(ucfirst($statusOption)) }}</option>
-                                @endforeach
-                            </x-select>
-                        </div>
-                        <div>
-                            <x-input-label for="tag" :value="__('Tag')" />
-                            <x-select id="tag" name="tag" class="mt-1 block w-full" wire:model.live="selectedTag">
-                                <option value="">{{ __('All Tags') }}</option>
-                                @foreach ($tags as $tag)
-                                    <option value="{{ $tag->id }}">{{ $tag->label }}</option>
-                                @endforeach
-                            </x-select>
-                        </div>
-                        <div class="flex items-end">
+                <div class="mb-6">
+                    <div
+                        class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div class="mb-4 flex items-center">
+                            <x-hugeicons-filter class="mr-2 h-5 w-5 text-primary-600 dark:text-primary-400" />
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ __('Filter Tasks') }}</h3>
                             @if ($selectedTag || $status || $search)
-                                <x-secondary-button wire:click="resetFilters" iconOnly title="{{ __('Clear filter') }}">
-                                    @svg('hugeicons-filter-remove')
-                                </x-secondary-button>
+                                <div class="ml-auto">
+                                    <x-secondary-button
+                                        wire:click="resetFilters"
+                                        class="flex items-center text-sm"
+                                        title="{{ __('Clear all filters') }}"
+                                    >
+                                        @svg('hugeicons-filter-remove', 'mr-1 h-4 w-4')
+                                        <span>{{ __('Clear Filters') }}</span>
+                                    </x-secondary-button>
+                                </div>
                             @endif
                         </div>
+
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                            <div>
+                                <x-input-label for="search" :value="__('Search')" class="mb-1 font-medium" />
+                                <x-text-input
+                                    id="search"
+                                    name="search"
+                                    type="text"
+                                    class="block w-full pl-10"
+                                    wire:model.live="search"
+                                    :placeholder="__('Search by label')"
+                                />
+                            </div>
+
+                            <div>
+                                <x-input-label for="status" :value="__('Status')" class="mb-1 font-medium" />
+                                <div class="relative">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        @svg('hugeicons-checkmark-circle-02', 'h-4 w-4 text-gray-500')
+                                    </div>
+                                    <x-select
+                                        id="status"
+                                        class="block w-full pl-10"
+                                        wire:model.live="status"
+                                        name="status"
+                                    >
+                                        <option value="">{{ __('All Statuses') }}</option>
+                                        @foreach ($statuses as $statusOption)
+                                            <option value="{{ $statusOption }}">
+                                                {{ __(ucfirst($statusOption)) }}
+                                            </option>
+                                        @endforeach
+                                    </x-select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <x-input-label for="tag" :value="__('Tag')" class="mb-1 font-medium" />
+                                <div class="relative">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        @svg('hugeicons-tag-01', 'h-4 w-4 text-gray-500')
+                                    </div>
+                                    <x-select
+                                        id="tag"
+                                        name="tag"
+                                        class="block w-full pl-10"
+                                        wire:model.live="selectedTag"
+                                    >
+                                        <option value="">{{ __('All Tags') }}</option>
+                                        @foreach ($tags as $tag)
+                                            <option value="{{ $tag->id }}">{{ $tag->label }}</option>
+                                        @endforeach
+                                    </x-select>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if ($selectedTag || $status || $search)
+                            <div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
+                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                    <span>{{ __('Active filters') }}:</span>
+
+                                    @if ($search)
+                                        <span
+                                            class="ml-2 flex items-center rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-700"
+                                        >
+                                            {{ __('Search') }}: "{{ $search }}"
+                                            <button
+                                                wire:click="$set('search', '')"
+                                                class="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            >
+                                                @svg('hugeicons-cancel-01', 'h-3 w-3')
+                                            </button>
+                                        </span>
+                                    @endif
+
+                                    @if ($status)
+                                        <span
+                                            class="ml-2 flex items-center rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-700"
+                                        >
+                                            {{ __('Status') }}: {{ __(ucfirst($status)) }}
+                                            <button
+                                                wire:click="$set('status', '')"
+                                                class="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            >
+                                                @svg('hugeicons-cancel-01', 'h-3 w-3')
+                                            </button>
+                                        </span>
+                                    @endif
+
+                                    @if ($selectedTag)
+                                        @php
+                                            $selectedTagLabel = $tags->firstWhere('id', $selectedTag)->label ?? '';
+                                        @endphp
+
+                                        <span
+                                            class="ml-2 flex items-center rounded-full bg-gray-100 px-3 py-1 dark:bg-gray-700"
+                                        >
+                                            {{ __('Tag') }}: {{ $selectedTagLabel }}
+                                            <button
+                                                wire:click="$set('selectedTag', '')"
+                                                class="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            >
+                                                @svg('hugeicons-cancel-01', 'h-3 w-3')
+                                            </button>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -130,6 +222,7 @@
         @endif
     </div>
 </div>
+
 <script>
     document.addEventListener('livewire:initialized', () => {
         Livewire.on('urlParametersUpdated', ({ queryParams }) => {
