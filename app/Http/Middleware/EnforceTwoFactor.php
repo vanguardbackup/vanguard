@@ -40,7 +40,6 @@ class EnforceTwoFactor
         ]);
 
         if ($this->isValidTwoFactorCookie($request, $user) && ! $this->isHighRiskScenario($request, $user)) {
-
             return $next($request);
         }
 
@@ -67,14 +66,11 @@ class EnforceTwoFactor
         }
 
         try {
-
             $decrypted = decrypt($cookie);
 
             return $user->getAttribute('two_factor_verified_token') !== null &&
                 Hash::check($decrypted, $user->getAttribute('two_factor_verified_token'));
-
         } catch (Exception $e) {
-
             Log::warning('Failed to decrypt two-factor cookie', [
                 'user_id' => $user->getAttribute('uuid'),
                 'error' => $e->getMessage(),
@@ -91,7 +87,6 @@ class EnforceTwoFactor
     {
         if ($request->ip() !== $user->getAttribute('last_two_factor_ip') &&
             $this->isSignificantlyDifferentIp($request->ip(), $user->getAttribute('last_two_factor_ip'))) {
-
             Log::debug('IP change detected', [
                 'current' => $request->ip(),
                 'previous' => $user->getAttribute('last_two_factor_ip'),
