@@ -48,7 +48,7 @@ class WebhookModal extends Component
     {
         $backupTask = BackupTask::findOrFail($this->backupTaskId);
         $backupTask->refreshWebhookToken();
-        Toaster::success('Webhook token regenerated.');
+        Toaster::success('The specified webhook token was regenerated.');
         $this->loadWebhookUrl();
     }
 

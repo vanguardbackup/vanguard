@@ -39,7 +39,7 @@
                 </button>
             </div>
             <x-input-explain>
-                {{ __('This URL can be used to trigger your backup task via a POST HTTP request.') }}
+                {{ __('This URL can be used to trigger a run of your backup task via a POST request.') }}
             </x-input-explain>
 
             <div class="mt-6 space-y-5">
@@ -80,10 +80,6 @@
                     </div>
                 </div>
 
-                <p class="text-xs text-gray-600 dark:text-gray-400">
-                    {{ __('This webhook accepts POST requests only and any other method will be rejected.') }}
-                </p>
-
                 <div class="mt-2 flex items-center text-xs text-blue-600 dark:text-blue-400">
                     <x-hugeicons-book-open-02 class="mr-1.5 h-4 w-4" />
                     <a
@@ -92,14 +88,14 @@
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        {{ __('Learn more about Backup Task webhooks in our docs') }}
+                        {{ __('Read more about this webhook in our docs') }}
                     </a>
                 </div>
             </div>
 
             <x-notice
                 type="warning"
-                :text="__('This token provides access to trigger your backup task. Please be careful with it!')"
+                :text="__('Please be careful with your webhook URL. It allows for the Backup Task to be ran when a successful request is made to it.')"
                 class="mt-6"
             />
         </div>
@@ -120,7 +116,7 @@
                 >
                     <span wire:loading.remove wire:target="refreshToken" class="flex items-center justify-center">
                         <x-hugeicons-arrow-reload-horizontal class="mr-2 h-4 w-4" />
-                        {{ __('Regenerate Token') }}
+                        {{ __('Regenerate') }}
                     </span>
                     <span wire:loading wire:target="refreshToken" class="flex items-center justify-center">
                         <x-spinner class="mr-2 h-4 w-4" />
