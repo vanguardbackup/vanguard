@@ -54,7 +54,7 @@ beforeEach(function (): void {
         ->andReturn('')
         ->byDefault();
     $this->sftpMock->shouldReceive('exec')
-        ->with(Mockery::pattern("/^test -f.*&& stat -c%s.*/"))
+        ->with(Mockery::pattern('/^test -f.*&& stat -c%s.*/'))
         ->andReturn('1024')
         ->byDefault();
 
