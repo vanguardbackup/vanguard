@@ -528,29 +528,51 @@ abstract class Backup
                 }
             }
 
-            Log::debug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
+            $this->logDebug('Excluding tables from the database dump.', ['tables' => $tablesToExclude]);
         }
 
         $tempErrorLogPath = $remoteDumpPath . '.error.log';
+        $tempOutputPath = $remoteDumpPath . '.tmp';
+
+        $envVarsCommand = '';
 
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+
+            // Create a temporary .my.cnf file for secure MySQL authentication
+            $myCnfPath = '/tmp/.my.cnf.' . uniqid('backup', true);
+            $createCnfCommand = sprintf(
+                'echo "[client]\npassword=\"%s\"\n" > %s && chmod 600 %s',
+                str_replace('"', '\"', $databasePassword),
+                escapeshellarg($myCnfPath),
+                escapeshellarg($myCnfPath)
+            );
+
+            $sftp->exec($createCnfCommand);
+
             $dumpCommand = sprintf(
-                'mysqldump %s %s --password=%s > %s 2> %s',
-                escapeshellarg($databaseName),
+                'mysqldump --defaults-file=%s --opt --add-drop-table --skip-lock-tables --single-transaction ' .
+                '--quick --set-charset --routines --triggers --events %s %s > %s 2> %s',
+                escapeshellarg($myCnfPath),
                 $excludeTablesOption,
-                escapeshellarg($databasePassword),
-                escapeshellarg($remoteDumpPath),
+                escapeshellarg($databaseName),
+                escapeshellarg($tempOutputPath),
                 escapeshellarg($tempErrorLogPath)
             );
+
+            $cleanupCommand = sprintf('rm -f %s', escapeshellarg($myCnfPath));
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
+            $envVarsCommand = sprintf('PGPASSWORD=%s ', escapeshellarg($databasePassword));
+
             $dumpCommand = sprintf(
-                'PGPASSWORD=%s pg_dump %s %s > %s 2> %s',
-                escapeshellarg($databasePassword),
-                escapeshellarg($databaseName),
+                '%spg_dump -c --if-exists -b -v -F c %s %s > %s 2> %s',
+                $envVarsCommand,
                 $excludeTablesOption,
-                escapeshellarg($remoteDumpPath),
+                escapeshellarg($databaseName),
+                escapeshellarg($tempOutputPath),
                 escapeshellarg($tempErrorLogPath)
             );
+
+            $cleanupCommand = '';
         } else {
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
             throw new DatabaseDumpException('Unsupported database type.');
@@ -562,13 +584,50 @@ abstract class Backup
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
         $errorOutput = $sftp->exec('cat ' . escapeshellarg($tempErrorLogPath));
-        if (is_string($errorOutput) && ! in_array(trim($errorOutput), ['', '0'], true)) {
+        if (is_string($errorOutput) && ! empty(trim($errorOutput)) &&
+            stripos($errorOutput, 'warning') === false) { // Allow warnings, but not errors
             $this->logError('Error during database dump.', ['error' => $errorOutput]);
-            $sftp->exec('rm ' . escapeshellarg($tempErrorLogPath));
+            // Clean up any temporary files
+            $sftp->exec('rm -f ' . escapeshellarg($tempOutputPath) . ' ' . escapeshellarg($tempErrorLogPath));
+            if (! empty($cleanupCommand)) {
+                $sftp->exec($cleanupCommand);
+            }
             throw new DatabaseDumpException('Error during database dump: ' . $errorOutput);
         }
 
-        $sftp->exec('rm ' . escapeshellarg($tempErrorLogPath));
+        if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+            // For MySQL, verify file contains SQL syntax
+            $verifyCommand = sprintf(
+                'head -n 20 %s | grep -E "CREATE|INSERT|DROP" > /dev/null && echo "1" || echo "0"',
+                escapeshellarg($tempOutputPath)
+            );
+        } else {
+
+            $verifyCommand = sprintf(
+                'head -c 10 %s | grep -q "PGDMP" && echo "1" || echo "0"',
+                escapeshellarg($tempOutputPath)
+            );
+        }
+
+        $verifyResult = trim($sftp->exec($verifyCommand));
+
+        if ($verifyResult !== '1') {
+            $this->logError('Database dump verification failed.', [
+                'database_type' => $databaseType,
+                'verify_result' => $verifyResult,
+            ]);
+
+            $sftp->exec('rm -f ' . escapeshellarg($tempOutputPath) . ' ' . escapeshellarg($tempErrorLogPath));
+            if (! empty($cleanupCommand)) {
+                $sftp->exec($cleanupCommand);
+            }
+            throw new DatabaseDumpException('Database dump verification failed. The dump file does not contain valid database content.');
+        }
+
+        // Move the temporary file to the final location
+        $moveCommand = sprintf('mv %s %s', escapeshellarg($tempOutputPath), escapeshellarg($remoteDumpPath));
+        $sftp->exec($moveCommand);
+
 
         $fileSizeCommand = sprintf('stat -c %%s %s || echo "0"', escapeshellarg($remoteDumpPath));
         $fileSizeOutput = $sftp->exec($fileSizeCommand);
@@ -576,7 +635,31 @@ abstract class Backup
 
         if ($fileSize === 0) {
             $this->logError('Database dump file was not created or is empty.');
+            $sftp->exec('rm -f ' . escapeshellarg($tempErrorLogPath));
+            if (! empty($cleanupCommand)) {
+                $sftp->exec($cleanupCommand);
+            }
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
+        }
+
+        $sftp->exec('rm -f ' . escapeshellarg($tempErrorLogPath));
+        if (! empty($cleanupCommand)) {
+            $sftp->exec($cleanupCommand);
+        }
+
+        // Additional integrity verification for MySQL dumps
+        if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
+            $integrityCommand = sprintf(
+                'tail -n 10 %s | grep -q "Dump completed" && echo "1" || echo "0"',
+                escapeshellarg($remoteDumpPath)
+            );
+            $integrityResult = trim($sftp->exec($integrityCommand));
+
+            if ($integrityResult !== '1') {
+                $this->logWarning('MySQL dump may be incomplete. Missing "Dump completed" footer.', [
+                    'remote_dump_path' => $remoteDumpPath,
+                ]);
+            }
         }
 
         $this->logInfo('Database dump completed successfully.', [
