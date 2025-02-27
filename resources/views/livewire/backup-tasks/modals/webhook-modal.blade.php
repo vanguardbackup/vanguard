@@ -27,7 +27,7 @@
                         copied = true
                         setTimeout(() => (copied = false), 2000)
                     "
-                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     title="{{ __('Copy to clipboard') }}"
                 >
                     <span x-show="!copied" aria-hidden="true">
@@ -39,13 +39,68 @@
                 </button>
             </div>
             <x-input-explain>
-                {{ __('This URL can be used to trigger your backup task via HTTP requests.') }}
+                {{ __('This URL can be used to trigger your backup task via a POST HTTP request.') }}
             </x-input-explain>
+
+            <div class="mt-6 space-y-5">
+                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ __('How to use this webhook') }}
+                </h3>
+
+                <div class="rounded-md bg-gray-100 p-4 dark:bg-gray-700/50">
+                    <h4 class="mb-3 text-xs font-medium text-gray-700 dark:text-gray-300">
+                        {{ __('Example cURL command') }}
+                    </h4>
+                    <div class="relative mt-1">
+                        <pre
+                            class="overflow-x-auto rounded bg-white p-2 text-xs dark:bg-gray-800 dark:text-gray-300"
+                        ><code>curl -X POST "{{ $webhookUrl }}" \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json"</code></pre>
+                        <button
+                            type="button"
+                            x-data="{ copied: false }"
+                            x-on:click="
+                                navigator.clipboard.writeText(
+                                    $el.closest('div').querySelector('code').innerText,
+                                )
+                                copied = true
+                                setTimeout(() => (copied = false), 2000)
+                            "
+                            class="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            title="{{ __('Copy to clipboard') }}"
+                        >
+                            <span x-show="!copied" aria-hidden="true">
+                                @svg('hugeicons-task-01', 'h-4 w-4')
+                            </span>
+                            <span x-show="copied" x-cloak aria-hidden="true">
+                                @svg('hugeicons-task-done-02', 'h-4 w-4')
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                    {{ __('This webhook accepts POST requests only and any other method will be rejected.') }}
+                </p>
+
+                <div class="mt-2 flex items-center text-xs text-blue-600 dark:text-blue-400">
+                    <x-hugeicons-book-open-02 class="mr-1.5 h-4 w-4" />
+                    <a
+                        href="https://docs.vanguardbackup.com/backup-tasks#automated-triggering-via-webhook"
+                        class="hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ __('Learn more about Backup Task webhooks in our docs') }}
+                    </a>
+                </div>
+            </div>
 
             <x-notice
                 type="warning"
-                :text="__('This token provides access to trigger your backup task. Treat it like a password and regenerate it if it becomes compromised.')"
-                class="mt-4"
+                :text="__('This token provides access to trigger your backup task. Please be careful with it!')"
+                class="mt-6"
             />
         </div>
 
