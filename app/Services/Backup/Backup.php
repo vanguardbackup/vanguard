@@ -566,7 +566,7 @@ abstract class Backup
             $envVarsCommand = sprintf('PGPASSWORD=%s ', escapeshellarg($databasePassword));
 
             $dumpCommand = sprintf(
-                '%spg_dump -c --if-exists -b -F c %s %s > %s 2> %s',
+                '%spg_dump -c --if-exists -b %s %s > %s 2> %s',
                 $envVarsCommand,
                 $excludeTablesOption,
                 escapeshellarg($databaseName),
@@ -615,7 +615,7 @@ abstract class Backup
             );
         } else {
             $verifyCommand = sprintf(
-                'head -c 10 %s | grep -q "PGDMP" && echo "1" || echo "0"',
+                'head -n 20 %s | grep -E "CREATE|ALTER|SET|COMMENT" > /dev/null && echo "1" || echo "0"',
                 escapeshellarg($tempOutputPath)
             );
         }
@@ -635,7 +635,6 @@ abstract class Backup
             throw new DatabaseDumpException('Database dump verification failed. The dump file does not contain valid database content.');
         }
 
-        // Move the temporary file to the final location
         $moveCommand = sprintf('mv %s %s', escapeshellarg($tempOutputPath), escapeshellarg($remoteDumpPath));
         $sftp->exec($moveCommand);
 
@@ -646,9 +645,11 @@ abstract class Backup
         if ($fileSize === 0) {
             $this->logError('Database dump file was not created or is empty.');
             $sftp->exec('rm -f ' . escapeshellarg($tempErrorLogPath));
+
             if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
                 $sftp->exec($cleanupCommand);
             }
+
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
         }
 
