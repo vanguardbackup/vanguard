@@ -1758,3 +1758,69 @@ it('returns false if an encryption password is not set', function (): void {
 
     $this->assertFalse($task->hasEncryptionPassword());
 });
+
+it('generates a webhook token on creation', function (): void {
+    $task = BackupTask::factory()->create();
+
+    expect($task->webhook_token)->not->toBeNull()
+        ->and(strlen($task->webhook_token))->toBe(64);
+});
+
+it('refreshes the webhook token', function (): void {
+    $task = BackupTask::factory()->create();
+    $originalToken = $task->webhook_token;
+
+    $newToken = $task->refreshWebhookToken();
+
+    expect($newToken)->not->toBe($originalToken)
+        ->and($task->webhook_token)->toBe($newToken)
+        ->and(strlen((string) $newToken))->toBe(64);
+});
+
+it('generates unique webhook tokens for multiple tasks', function (): void {
+    $tasks = BackupTask::factory()->count(5)->create();
+    $tokens = $tasks->pluck('webhook_token')->toArray();
+
+    expect(count($tokens))->toBe(5)
+        ->and(count(array_unique($tokens)))->toBe(5);
+});
+
+it('ensures webhook tokens are added to existing models', function (): void {
+    $task = BackupTask::factory()->make(['webhook_token' => null]);
+    $task->saveQuietly();
+
+    $retrievedTask = BackupTask::find($task->id);
+
+    expect($retrievedTask->webhook_token)->not->toBeNull()
+        ->and(strlen($retrievedTask->webhook_token))->toBe(64);
+});
+
+it('generates the correct webhook url', function (): void {
+    $task = BackupTask::factory()->create(['id' => 123]);
+    $token = $task->webhook_token;
+
+    $expectedUrl = url("/webhooks/backup-tasks/{$task->getKey()}/run?token={$token}");
+
+    expect($task->webhook_url)->toBe($expectedUrl);
+});
+
+it('generates a unique token when refreshing even if collision would occur', function (): void {
+    $task1 = BackupTask::factory()->create();
+    $task2 = BackupTask::factory()->create();
+
+    // Force a potential collision by setting both tasks to have the same token
+    $commonToken = 'same-token-for-both-tasks-' . Str::random(10);
+    $task1->webhook_token = $commonToken;
+    $task1->saveQuietly();
+    $task2->webhook_token = $commonToken;
+    $task2->saveQuietly();
+
+    // Verify they have the same token initially
+    expect($task1->webhook_token)->toBe($task2->webhook_token);
+
+    // Refresh task1's token
+    $newToken = $task1->refreshWebhookToken();
+
+    expect($newToken)->not->toBe($commonToken)
+        ->and($task1->webhook_token)->not->toBe($task2->webhook_token);
+});

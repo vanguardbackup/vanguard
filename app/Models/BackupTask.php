@@ -18,6 +18,7 @@ use Carbon\CarbonInterface;
 use Cron\CronExpression;
 use Database\Factories\BackupTaskFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Motomedialab\SimpleLaravelAudit\Traits\AuditableModel;
 use Number;
@@ -59,6 +62,10 @@ class BackupTask extends Model
     public const string TYPE_DATABASE = 'database';
 
     protected $guarded = [];
+
+    protected $hidden = [
+        'webhook_token',
+    ];
 
     /**
      * Define the model values that shouldn't be audited.
@@ -262,6 +269,45 @@ class BackupTask extends Model
                 ->map(fn ($duration): float => round($duration / 60, 2))
                 ->toArray(),
         ];
+    }
+
+    /**
+     * Boot the model.
+     */
+    #[Override]
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // Generate tokens for new models during creation
+        static::creating(function (BackupTask $backupTask): void {
+            if (empty($backupTask->getAttribute('webhook_token'))) {
+                $backupTask->setAttribute('webhook_token', static::generateUniqueToken());
+            }
+        });
+
+        // Ensure all retrieved models have webhook tokens
+        static::retrieved(function (BackupTask $backupTask): void {
+            if (empty($backupTask->getAttribute('webhook_token'))) {
+                $backupTask->setAttribute('webhook_token', static::generateUniqueToken());
+                $backupTask->save();
+            }
+        });
+    }
+
+    /**
+     * Generate a unique token that doesn't conflict with existing ones.
+     */
+    protected static function generateUniqueToken(): string
+    {
+        $token = Str::random(64);
+
+        while (self::where('webhook_token', $token)->exists()) {
+            // Generate a new token if there's a collision
+            $token = Str::random(64);
+        }
+
+        return $token;
     }
 
     /**
@@ -1135,6 +1181,17 @@ class BackupTask extends Model
     }
 
     /**
+     * Refresh the webhook token.
+     */
+    public function refreshWebhookToken(): string
+    {
+        $this->setAttribute('webhook_token', static::generateUniqueToken());
+        $this->save();
+
+        return $this->getAttribute('webhook_token');
+    }
+
+    /**
      * Get the casts array for the model's attributes.
      *
      * @return string[]
@@ -1147,6 +1204,31 @@ class BackupTask extends Model
             'last_scheduled_weekly_run_at' => 'datetime',
             'encryption_password' => 'encrypted',
         ];
+    }
+
+    /**
+     * Get the webhook URL for this backup task.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function webhookUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => $this->generateWebhookUrl(),
+        );
+    }
+
+    protected function generateWebhookUrl(): string
+    {
+        if (empty($this->getAttribute('webhook_token'))) {
+            $this->setAttribute('webhook_token', static::generateUniqueToken());
+            $this->save();
+        }
+
+        return route('webhooks.backup-tasks.run', [
+            'backupTask' => $this,
+            'token' => $this->getAttribute('webhook_token'),
+        ]);
     }
 
     /**
