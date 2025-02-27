@@ -299,6 +299,16 @@
                     <span class="sr-only">{{ __('View Log') }}</span>
                 </x-secondary-button>
 
+                <x-secondary-button
+                    x-data=""
+                    x-on:click.prevent="$dispatch('open-modal', 'webhook-modal-{{ $backupTask->id }}')"
+                    class="!p-2"
+                    :title="__('Click to view this webhook url')"
+                >
+                    @svg('hugeicons-link-03', 'h-4 w-4')
+                    <span class="sr-only">{{ __('View Webhook URL') }}</span>
+                </x-secondary-button>
+
                 <livewire:backup-tasks.buttons.toggle-pause-button
                     :backupTask="$backupTask"
                     :wire:key="'toggle-pause-button-large-' . $backupTask->id"
@@ -323,6 +333,9 @@
 
     <!-- Log Modal -->
     <livewire:backup-tasks.modals.log-modal :backupTask="$backupTask" :key="'show-log-modal-' . $backupTask->id" />
+
+    <!-- Webhook URL Modal -->
+    <livewire:backup-tasks.modals.webhook-modal :backupTask="$backupTask" :key="'show-webhook-modal-' . $backupTask->id" />
 
     <!-- Tags Modal -->
     <x-modal name="view-tags-{{ $backupTask->id }}" :key="'tags-modal-' . $backupTask->id" focusable>
