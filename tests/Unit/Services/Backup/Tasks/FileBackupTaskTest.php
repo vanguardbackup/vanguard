@@ -38,6 +38,26 @@ beforeEach(function (): void {
     $this->sftpMock->shouldReceive('isConnected')->andReturn(true);
     $this->sftpMock->shouldReceive('exec')->andReturn(''); // Default behavior
     $this->sftpMock->shouldReceive('delete')->andReturn(true)->byDefault();
+
+    // Add default mocks for Laravel directory check
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/artisan')->andReturn(false)->byDefault();
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/composer.json')->andReturn(false)->byDefault();
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/package.json')->andReturn(false)->byDefault();
+
+    // Add mocks for the new zip process
+    $this->sftpMock->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cat.*\.log.*|| echo \"\"/"))
+        ->andReturn('')
+        ->byDefault();
+    $this->sftpMock->shouldReceive('exec')
+        ->with(Mockery::pattern("/^rm -f.*\.log.*/"))
+        ->andReturn('')
+        ->byDefault();
+    $this->sftpMock->shouldReceive('exec')
+        ->with(Mockery::pattern("/^test -f.*&& stat -c%s.*/"))
+        ->andReturn('1024')
+        ->byDefault();
+
     $this->s3Mock = Mockery::mock(S3::class);
 
     $this->fileBackupTask = Mockery::mock(FileBackupTaskTestClass::class, [$this->backupTask->id])
@@ -57,7 +77,7 @@ afterEach(function (): void {
 });
 
 test('perform backup successfully', function (): void {
-    $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
+    $this->sftpMock->shouldReceive('stat')->with(Mockery::pattern('/^\/path\/to\/backup/'))->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
     $this->fileBackupTask->shouldReceive('isLaravelDirectory')->andReturn(false);
@@ -102,12 +122,17 @@ test('backup fails when directory size exceeds limit', function (): void {
 });
 
 test('backup excludes node_modules and vendor for Laravel directories', function (): void {
-    $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
+    // Setup Laravel directory detection
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/artisan')->andReturn(['type' => 1]);
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/composer.json')->andReturn(['type' => 1]);
+    $this->sftpMock->shouldReceive('stat')->with('/path/to/backup/package.json')->andReturn(['type' => 1]);
+
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
     $this->fileBackupTask->shouldReceive('isLaravelDirectory')->andReturn(true);
+    $this->fileBackupTask->shouldReceive('getExcludedDirectories')
+        ->andReturn(['node_modules/*', 'vendor/*']);
     $this->fileBackupTask->shouldReceive('zipRemoteDirectory')
-        ->with($this->sftpMock, Mockery::any(), Mockery::any(), ['node_modules', 'vendor'])
         ->once()
         ->andReturnNull();
     $this->fileBackupTask->shouldReceive('backupDestinationDriver')->andReturn(true);
@@ -137,7 +162,7 @@ test('backup fails when zipping throws an exception', function (): void {
 });
 
 test('backup fails when upload to destination fails', function (): void {
-    $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
+    $this->sftpMock->shouldReceive('stat')->with(Mockery::pattern('/^\/path\/to\/backup/'))->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
     $this->fileBackupTask->shouldReceive('isLaravelDirectory')->andReturn(false);
@@ -156,7 +181,7 @@ test('backup fails when upload to destination fails', function (): void {
 test('backup with rotation', function (): void {
     $this->backupTask->update(['maximum_backups_to_keep' => 5]);
 
-    $this->sftpMock->shouldReceive('stat')->andReturn(['size' => 1000]);
+    $this->sftpMock->shouldReceive('stat')->with(Mockery::pattern('/^\/path\/to\/backup/'))->andReturn(['size' => 1000]);
     $this->fileBackupTask->shouldReceive('checkPathExists')->andReturn(true);
     $this->fileBackupTask->shouldReceive('getRemoteDirectorySize')->andReturn(1000);
     $this->fileBackupTask->shouldReceive('isLaravelDirectory')->andReturn(false);
