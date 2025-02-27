@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Mail\User\TwoFactor\AdminDisabledTwoFactorMail;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class DisableTwoFactorAuth extends Command
 {
@@ -44,6 +46,8 @@ class DisableTwoFactorAuth extends Command
         }
 
         $user->disableTwoFactorAuth();
+
+        Mail::to($user)->queue(new AdminDisabledTwoFactorMail($user));
 
         $this->components->success("Disabled two-factor authentication for {$user->name}.");
 
