@@ -584,12 +584,12 @@ abstract class Backup
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
         $errorOutput = $sftp->exec('cat ' . escapeshellarg($tempErrorLogPath));
-        if (is_string($errorOutput) && ! empty(trim($errorOutput)) &&
+        if (is_string($errorOutput) && ! in_array(trim($errorOutput), ['', '0'], true) &&
             stripos($errorOutput, 'warning') === false) { // Allow warnings, but not errors
             $this->logError('Error during database dump.', ['error' => $errorOutput]);
             // Clean up any temporary files
             $sftp->exec('rm -f ' . escapeshellarg($tempOutputPath) . ' ' . escapeshellarg($tempErrorLogPath));
-            if (! empty($cleanupCommand)) {
+            if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
                 $sftp->exec($cleanupCommand);
             }
             throw new DatabaseDumpException('Error during database dump: ' . $errorOutput);
@@ -609,7 +609,7 @@ abstract class Backup
             );
         }
 
-        $verifyResult = trim($sftp->exec($verifyCommand));
+        $verifyResult = trim((string) $sftp->exec($verifyCommand));
 
         if ($verifyResult !== '1') {
             $this->logError('Database dump verification failed.', [
@@ -618,7 +618,7 @@ abstract class Backup
             ]);
 
             $sftp->exec('rm -f ' . escapeshellarg($tempOutputPath) . ' ' . escapeshellarg($tempErrorLogPath));
-            if (! empty($cleanupCommand)) {
+            if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
                 $sftp->exec($cleanupCommand);
             }
             throw new DatabaseDumpException('Database dump verification failed. The dump file does not contain valid database content.');
@@ -635,14 +635,14 @@ abstract class Backup
         if ($fileSize === 0) {
             $this->logError('Database dump file was not created or is empty.');
             $sftp->exec('rm -f ' . escapeshellarg($tempErrorLogPath));
-            if (! empty($cleanupCommand)) {
+            if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
                 $sftp->exec($cleanupCommand);
             }
             throw new DatabaseDumpException('Database dump file was not created or is empty.');
         }
 
         $sftp->exec('rm -f ' . escapeshellarg($tempErrorLogPath));
-        if (! empty($cleanupCommand)) {
+        if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
             $sftp->exec($cleanupCommand);
         }
 
@@ -652,7 +652,7 @@ abstract class Backup
                 'tail -n 10 %s | grep -q "Dump completed" && echo "1" || echo "0"',
                 escapeshellarg($remoteDumpPath)
             );
-            $integrityResult = trim($sftp->exec($integrityCommand));
+            $integrityResult = trim((string) $sftp->exec($integrityCommand));
 
             if ($integrityResult !== '1') {
                 $this->logWarning('MySQL dump may be incomplete. Missing "Dump completed" footer.', [
