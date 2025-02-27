@@ -590,7 +590,7 @@ abstract class Backup
 
         $hasError = false;
 
-        if (is_string($errorOutput) && !in_array(trim($errorOutput), ['', '0'], true)) {
+        if (is_string($errorOutput) && ! in_array(trim($errorOutput), ['', '0'], true)) {
             $hasError = $databaseType !== BackupConstants::DATABASE_TYPE_MYSQL ||
                 stripos($errorOutput, 'warning') === false;
         }
