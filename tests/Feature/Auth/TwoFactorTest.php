@@ -324,10 +324,10 @@ describe('EnforceTwoFactor Middleware', function (): void {
             ->and($response->getTargetUrl())->toBe(route('two-factor.challenge'));
     });
 
-    test('User with last two-factor authentication over 30 days ago is redirected', function (): void {
+    test('User with last two-factor authentication over 60 days ago is redirected', function (): void {
         $this->user->createTwoFactorAuth();
         $this->user->enableTwoFactorAuth();
-        $this->user->last_two_factor_at = now()->subDays(31);
+        $this->user->last_two_factor_at = now()->subDays(61);
         $this->user->last_two_factor_ip = '192.168.1.1';
         $this->user->two_factor_verified_token = Hash::make('valid_token');
         $this->user->save();
