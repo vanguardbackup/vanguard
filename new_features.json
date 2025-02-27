@@ -1,8 +1,8 @@
 [
     {
-        "title": "Pinned Backup Tasks!",
-        "description": "You can now pin your favourite backup tasks.",
-        "version": "1.10.0",
-        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.10.0"
+        "title": "Backup Task Webhooks!",
+        "description": "Easily trigger backup tasks remotely!",
+        "version": "1.11.0",
+        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.11.0"
     }
 ]
