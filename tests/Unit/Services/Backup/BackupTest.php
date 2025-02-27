@@ -300,12 +300,42 @@ it('gets database type', function (): void {
 
 it('dumps remote database', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
-    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^mysqldump/'))->andReturn('');
-    $this->mockSftp->shouldReceive('exec')->with("cat '/path/to/dump.sql.error.log'")->andReturn('');
-    $this->mockSftp->shouldReceive('exec')->with("rm '/path/to/dump.sql.error.log'")->andReturn('');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^echo "\[client\]\\npassword=.*> \/tmp\/\.my\.cnf\./'))
+        ->andReturn('');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^mysqldump --defaults-file=.*--opt --add-drop-table --skip-lock-tables --single-transaction/'))
+        ->andReturn('');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with("cat '/path/to/dump.sql.error.log'")
+        ->andReturn('');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^head -n 20.*grep -E "CREATE|INSERT|DROP"/'))
+        ->andReturn('1');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^mv.*\.tmp.*\.sql/'))
+        ->andReturn('');
+
     $this->mockSftp->shouldReceive('exec')
         ->with(Mockery::pattern("/stat -c %s '\/path\/to\/dump\.sql' || echo \"0\"/"))
         ->andReturn('1024');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^tail -n 10.*grep -q "Dump completed"/'))
+        ->andReturn('1');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^rm -f .*error\.log/'))
+        ->andReturn('');
+
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern('/^rm -f \/tmp\/\.my\.cnf\./'))
+        ->andReturn('');
 
     $this->backup->dumpRemoteDatabase(
         $this->mockSftp,
