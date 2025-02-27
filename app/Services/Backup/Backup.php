@@ -538,8 +538,8 @@ abstract class Backup
 
         if ($databaseType === BackupConstants::DATABASE_TYPE_MYSQL) {
 
-            // Create a temporary .my.cnf file for secure MySQL authentication
             $myCnfPath = '/tmp/.my.cnf.' . uniqid('backup', true);
+
             $createCnfCommand = sprintf(
                 'echo "[client]\npassword=\"%s\"\n" > %s && chmod 600 %s',
                 str_replace('"', '\"', $databasePassword),
@@ -560,11 +560,13 @@ abstract class Backup
             );
 
             $cleanupCommand = sprintf('rm -f %s', escapeshellarg($myCnfPath));
+
         } elseif ($databaseType === BackupConstants::DATABASE_TYPE_POSTGRESQL) {
+
             $envVarsCommand = sprintf('PGPASSWORD=%s ', escapeshellarg($databasePassword));
 
             $dumpCommand = sprintf(
-                '%spg_dump -c --if-exists -b -v -F c %s %s > %s 2> %s',
+                '%spg_dump -c --if-exists -b -F c %s %s > %s 2> %s',
                 $envVarsCommand,
                 $excludeTablesOption,
                 escapeshellarg($databaseName),
@@ -574,6 +576,7 @@ abstract class Backup
 
             $cleanupCommand = '';
         } else {
+
             $this->logError('Unsupported database type.', ['database_type' => $databaseType]);
             throw new DatabaseDumpException('Unsupported database type.');
         }
@@ -584,14 +587,23 @@ abstract class Backup
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
         $errorOutput = $sftp->exec('cat ' . escapeshellarg($tempErrorLogPath));
-        if (is_string($errorOutput) && ! in_array(trim($errorOutput), ['', '0'], true) &&
-            stripos($errorOutput, 'warning') === false) { // Allow warnings, but not errors
+
+        $hasError = false;
+
+        if (is_string($errorOutput) && !in_array(trim($errorOutput), ['', '0'], true)) {
+            $hasError = $databaseType !== BackupConstants::DATABASE_TYPE_MYSQL ||
+                stripos($errorOutput, 'warning') === false;
+        }
+
+        if ($hasError) {
             $this->logError('Error during database dump.', ['error' => $errorOutput]);
-            // Clean up any temporary files
+
             $sftp->exec('rm -f ' . escapeshellarg($tempOutputPath) . ' ' . escapeshellarg($tempErrorLogPath));
+
             if ($cleanupCommand !== '' && $cleanupCommand !== '0') {
                 $sftp->exec($cleanupCommand);
             }
+
             throw new DatabaseDumpException('Error during database dump: ' . $errorOutput);
         }
 
@@ -602,7 +614,6 @@ abstract class Backup
                 escapeshellarg($tempOutputPath)
             );
         } else {
-
             $verifyCommand = sprintf(
                 'head -c 10 %s | grep -q "PGDMP" && echo "1" || echo "0"',
                 escapeshellarg($tempOutputPath)
