@@ -628,7 +628,6 @@ abstract class Backup
         $moveCommand = sprintf('mv %s %s', escapeshellarg($tempOutputPath), escapeshellarg($remoteDumpPath));
         $sftp->exec($moveCommand);
 
-
         $fileSizeCommand = sprintf('stat -c %%s %s || echo "0"', escapeshellarg($remoteDumpPath));
         $fileSizeOutput = $sftp->exec($fileSizeCommand);
         $fileSize = is_string($fileSizeOutput) ? (int) trim($fileSizeOutput) : 0;
