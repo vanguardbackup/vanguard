@@ -44,6 +44,24 @@ abstract class Backup
     use BackupHelpers;
 
     /**
+     * Standard Laravel directories to always exclude from backups
+     *
+     * @var array<string>
+     */
+    protected array $laravelExclusions = [
+        'node_modules/*',      // NPM dependencies
+        'vendor/*',            // Composer dependencies
+        'storage/framework/*', // Laravel framework cache/sessions/views
+        'storage/logs/*',      // Laravel logs
+        '.git/*',              // Git repository
+        'bootstrap/cache/*',   // Cached bootstrap files
+        '.docker/*',           // Docker config files if present
+        '.github/*',           // GitHub workflows/config if present
+        '.idea/*',             // PhpStorm settings if present
+        '.vscode/*',           // VSCode settings if present
+    ];
+
+    /**
      * @var callable|Closure
      */
     private $sftpFactory;
@@ -342,6 +360,23 @@ abstract class Backup
 
         $this->validateSFTP($sftp);
 
+        $isLaravel = $this->isLaravelDirectory($sftp, $sourcePath);
+
+        if ($isLaravel) {
+            foreach ($this->laravelExclusions as $laravelExclusion) {
+                if (! in_array($laravelExclusion, $excludeDirs)) {
+                    $excludeDirs[] = $laravelExclusion;
+                }
+            }
+
+            $this->logDebug('Laravel project detected. Added standard Laravel exclusions.', ['exclusions' => $this->laravelExclusions]);
+        }
+
+        if ($excludeDirs !== []) {
+            $this->logDebug('The following directories will be excluded from the backup:', ['excluded_dirs' => $excludeDirs]);
+        }
+
+        // Check disk space
         $dirSizeCommand = 'du -sb ' . escapeshellarg($sourcePath) . ' | cut -f1';
         $dirSizeOutput = $sftp->exec($dirSizeCommand);
         $dirSize = is_string($dirSizeOutput) ? trim($dirSizeOutput) : '';
@@ -365,21 +400,48 @@ abstract class Backup
         $this->logInfo('Available disk space calculated.', ['remote_zip_path' => $remoteZipPath, 'available_space' => $availableSpace]);
 
         if ($availableSpace < $dirSize) {
-            $this->logError('Not enough disk space to create the zip file.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'required_space' => $dirSize, 'available_space' => $availableSpace]);
+            $this->logError('Not enough disk space to create the zip file.', [
+                'source_path' => $sourcePath,
+                'remote_zip_path' => $remoteZipPath,
+                'required_space' => $dirSize,
+                'available_space' => $availableSpace,
+            ]);
             throw new BackupTaskZipException('Not enough disk space to create the zip file.');
         }
 
-        $excludeArgs = array_map(fn ($dir): string => '--exclude=' . escapeshellarg($sourcePath . '/' . $dir), $excludeDirs);
+        $excludeArgs = array_map(fn ($dir): string => '--exclude=' . escapeshellarg($dir), $excludeDirs);
         $excludeArgsString = implode(' ', $excludeArgs);
 
-        $zipCommand = 'cd ' . escapeshellarg($sourcePath) . ' && zip -rvX ' . escapeshellarg($remoteZipPath) . ' . ' . $excludeArgsString;
-        $this->logDebug('Executing zip command.', ['zip_command' => $zipCommand]);
+        $logFile = $remoteZipPath . '.log';
 
-        $result = $this->retryCommand(fn (): bool|string => $sftp->exec($zipCommand), BackupConstants::ZIP_RETRY_MAX_ATTEMPTS, BackupConstants::ZIP_RETRY_DELAY_SECONDS);
+        $zipCommand = 'cd ' . escapeshellarg($sourcePath) .
+            ' && zip -rX ' . escapeshellarg($remoteZipPath) .
+            ' . ' . $excludeArgsString .
+            ' 2>&1 | grep -v "adding: " | grep -v "deflated" > ' . escapeshellarg($logFile);
 
-        if ($result === false || (is_string($result) && stripos($result, 'error') !== false)) {
-            $error = $result === false ? $sftp->getLastError() : $result;
-            $this->logError('Failed to execute zip command after retries.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'error' => $error]);
+        $this->logDebug('Executing zip command with filtered output.', ['zip_command' => $zipCommand]);
+
+        $result = $this->retryCommand(
+            fn (): bool|string => $sftp->exec($zipCommand),
+            BackupConstants::ZIP_RETRY_MAX_ATTEMPTS,
+            BackupConstants::ZIP_RETRY_DELAY_SECONDS
+        );
+
+        $logOutput = $sftp->exec('cat ' . escapeshellarg($logFile) . ' 2>/dev/null || echo ""');
+        $errorFound = is_string($logOutput) && (
+            stripos($logOutput, 'error') !== false ||
+            stripos($logOutput, 'failed') !== false
+        );
+
+        $sftp->exec('rm -f ' . escapeshellarg($logFile) . ' 2>/dev/null');
+
+        if ($result === false || $errorFound) {
+            $error = $result === false ? $sftp->getLastError() : $logOutput;
+            $this->logError('Failed to execute zip command after retries.', [
+                'source_path' => $sourcePath,
+                'remote_zip_path' => $remoteZipPath,
+                'error' => $error,
+            ]);
             throw new BackupTaskZipException('Failed to zip the directory after multiple attempts: ' . $error);
         }
 
@@ -398,7 +460,14 @@ abstract class Backup
             throw new BackupTaskZipException('Zip file does not exist or is empty after zipping.');
         }
 
-        $this->logInfo('Remote directory successfully zipped.', ['source_path' => $sourcePath, 'remote_zip_path' => $remoteZipPath, 'file_size' => $fileSize]);
+        $fileSizeMB = number_format((int) $fileSize / 1024 / 1024, 2);
+
+        $this->logInfo('Remote directory successfully zipped.', [
+            'source_path' => $sourcePath,
+            'remote_zip_path' => $remoteZipPath,
+            'file_size' => $fileSize,
+            'file_size_mb' => $fileSizeMB . ' MB',
+        ]);
     }
 
     /**
@@ -493,7 +562,7 @@ abstract class Backup
         $this->logDebug('Database dump command output.', ['output' => $output]);
 
         $errorOutput = $sftp->exec('cat ' . escapeshellarg($tempErrorLogPath));
-        if (is_string($errorOutput) && ! empty(trim($errorOutput))) {
+        if (is_string($errorOutput) && ! in_array(trim($errorOutput), ['', '0'], true)) {
             $this->logError('Error during database dump.', ['error' => $errorOutput]);
             $sftp->exec('rm ' . escapeshellarg($tempErrorLogPath));
             throw new DatabaseDumpException('Error during database dump: ' . $errorOutput);
@@ -624,6 +693,39 @@ abstract class Backup
             default:
                 throw new RuntimeException('Unsupported backup destination type: ' . $backupDestination->getAttribute('type'));
         }
+    }
+
+    /**
+     * Get the list of directories to exclude from the backup
+     *
+     * @param  SFTPInterface  $sftp  The SFTP interface
+     * @param  string  $sourcePath  The source path to check
+     * @return array<string> List of directories to exclude
+     */
+    public function getExcludedDirectories(SFTPInterface $sftp, string $sourcePath): array
+    {
+        $excludeDirs = [];
+
+        $isLaravel = $this->isLaravelDirectory($sftp, $sourcePath);
+
+        if ($isLaravel) {
+            $this->logInfo('Laravel project detected. Applying Laravel-specific exclusions.');
+            $excludeDirs = $this->laravelExclusions;
+
+            $findSymlinksCommand = 'find ' . escapeshellarg($sourcePath) . ' -type l -printf "%P\n"';
+            $symlinksOutput = $sftp->exec($findSymlinksCommand);
+
+            if (is_string($symlinksOutput) && ($symlinksOutput !== '' && $symlinksOutput !== '0')) {
+                $symlinks = array_filter(explode("\n", trim($symlinksOutput)));
+
+                foreach ($symlinks as $symlink) {
+                    $excludeDirs[] = $symlink;
+                    $this->logDebug('Excluding symlink from backup.', ['symlink' => $symlink]);
+                }
+            }
+        }
+
+        return $excludeDirs;
     }
 
     /**

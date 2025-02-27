@@ -55,6 +55,14 @@ class FileBackupTask extends AbstractBackupTask
 
         $this->backupTask->setScriptUpdateTime();
 
+        $excludeDirs = $this->getExcludedDirectories($sftp, $sourcePath);
+
+        $isLaravel = $this->isLaravelDirectory($sftp, $sourcePath);
+
+        if ($isLaravel) {
+            $this->logMessage('Laravel project detected. Standard Laravel folder exclusions will be applied.');
+        }
+
         $dirSize = $this->getRemoteDirectorySize($sftp, $sourcePath);
         $this->backupSize = $dirSize;
         $dirSizeInMB = number_format($dirSize / 1024 / 1024, 1);
@@ -62,33 +70,6 @@ class FileBackupTask extends AbstractBackupTask
 
         if ($dirSize > BackupConstants::FILE_SIZE_LIMIT) {
             throw new RuntimeException('Directory size exceeds the limit.');
-        }
-
-        $laravelProject = $this->isLaravelDirectory($sftp, $sourcePath);
-        $excludeDirs = [];
-
-        if ($laravelProject) {
-            $this->logMessage('Laravel project detected. Optimizing backup process for Laravel-specific structure.');
-
-            $excludeDirs = [
-                'node_modules/*',      // NPM dependencies with all contents
-                'vendor/*',            // Composer dependencies with all contents
-                'storage/framework/*', // Laravel framework cache/sessions/views with all contents
-                '.git/*',              // Git repository with all contents
-                'bootstrap/cache/*',    // Cached bootstrap files with all contents
-            ];
-
-            $findSymlinksCommand = 'find ' . escapeshellarg($sourcePath) . ' -type l -printf "%P\n"';
-            $symlinksOutput = $sftp->exec($findSymlinksCommand);
-
-            if (is_string($symlinksOutput) && ! empty($symlinksOutput)) {
-                $symlinks = array_filter(explode("\n", trim($symlinksOutput)));
-
-                foreach ($symlinks as $symlink) {
-                    $excludeDirs[] = $symlink;
-                    $this->logDebug('Excluding symlink from backup.', ['symlink' => $symlink]);
-                }
-            }
         }
 
         $zipFileName = $this->generateBackupFileName('zip');
