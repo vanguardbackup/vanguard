@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\InstanceDetailsController;
 use App\Http\Controllers\BackupDestinations;
 use App\Http\Controllers\BackupTasks;
+use App\Http\Controllers\BackupTasks\TriggerRunWebhookController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\RemoteServers;
 use App\Http\Controllers\Tags;
@@ -84,6 +85,17 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
     Route::get('profile/year-in-review', YearInReviewPage::class)->name('profile.year-in-review');
 
     Route::get('admin/instance-details', [InstanceDetailsController::class, '__invoke'])->name('admin.instance-details');
+});
+
+/**
+ * Webhooks
+ *
+ * These routes are publicly accessible with token validation.
+ * They are not protected by authentication middleware.
+ */
+Route::prefix('webhooks')->group(function () {
+    Route::post('backup-tasks/{backupTask}/run', TriggerRunWebhookController::class)
+        ->name('webhooks.backup-tasks.run');
 });
 
 require __DIR__ . '/auth.php';
