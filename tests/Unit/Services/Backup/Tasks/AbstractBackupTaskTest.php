@@ -92,9 +92,31 @@ it('zips remote directory', function (): void {
     $mock->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $mock->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
     $mock->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
-    $mock->shouldReceive('exec')->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
-        ->andReturn('adding: somefile (stored 0%)');
-    $mock->shouldReceive('exec')->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")->andReturn('512');
+
+    // Mock Laravel directory check (not a Laravel directory)
+    $mock->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(false);
+    $mock->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(false);
+    $mock->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(false);
+
+    // New approach uses a log file and filters zip output
+    $mock->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rX '\/tmp\/backup\.zip' \./"))
+        ->andReturn('');
+
+    // Cat the log file to check for errors
+    $mock->shouldReceive('exec')
+        ->with("cat '/tmp/backup.zip.log' 2>/dev/null || echo \"\"")
+        ->andReturn('');
+
+    // Remove log file
+    $mock->shouldReceive('exec')
+        ->with("rm -f '/tmp/backup.zip.log' 2>/dev/null")
+        ->andReturn('');
+
+    // Verify file exists and has non-zero size
+    $mock->shouldReceive('exec')
+        ->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")
+        ->andReturn('512');
 
     $method = $this->reflection->getMethod('zipRemoteDirectory');
 

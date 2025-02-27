@@ -137,44 +137,156 @@ it('zips remote directory successfully', function (): void {
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
     $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
-    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
-        ->andReturn('adding: somefile (stored 0%)');
-    $this->mockSftp->shouldReceive('exec')->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")->andReturn('512');
+
+    // Mock Laravel directory check (not a Laravel directory)
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(false);
+
+    // New approach uses a log file and filters zip output
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rX '\/tmp\/backup\.zip' \./"))
+        ->andReturn('');
+
+    // Test file existence and size check
+    $this->mockSftp->shouldReceive('exec')
+        ->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")
+        ->andReturn('512');
+
+    // Cat the log file to check for errors
+    $this->mockSftp->shouldReceive('exec')
+        ->with("cat '/tmp/backup.zip.log' 2>/dev/null || echo \"\"")
+        ->andReturn('');
+
+    // Remove log file
+    $this->mockSftp->shouldReceive('exec')
+        ->with("rm -f '/tmp/backup.zip.log' 2>/dev/null")
+        ->andReturn('');
 
     $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []);
 
     expect(true)->toBeTrue();
 });
 
-it('throws exception when zipping fails', function (): void {
+it('throws exception when zipping fails due to zero file size', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
     $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
-    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
-        ->andReturn('zip error: Command failed');
-    $this->mockSftp->shouldReceive('exec')->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")->andReturn('0');
+
+    // Mock Laravel directory check (not a Laravel directory)
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(false);
+
+    // Mock the zip command execution
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rX '\/tmp\/backup\.zip' \./"))
+        ->andReturn('');
+
+    // Mock the log file contents check - no errors in log
+    $this->mockSftp->shouldReceive('exec')
+        ->with("cat '/tmp/backup.zip.log' 2>/dev/null || echo \"\"")
+        ->andReturn('');
+
+    // Mock the log file removal
+    $this->mockSftp->shouldReceive('exec')
+        ->with("rm -f '/tmp/backup.zip.log' 2>/dev/null")
+        ->andReturn('');
+
+    // Mock file check - file doesn't exist or is empty
+    $this->mockSftp->shouldReceive('exec')
+        ->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")
+        ->andReturn('');  // This should trigger the exception (non-numeric value)
 
     expect(fn () => $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []))
         ->toThrow(BackupTaskZipException::class);
 });
 
-it('throws exception when zipping returns an error message', function (): void {
+it('throws exception when zipping reports an error in log file', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
     $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
 
-    $this->mockSftp->shouldReceive('exec')
-        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rv '\/tmp\/backup\.zip' \./"))
-        ->andReturn('zip error: Command failed');
+    // Mock Laravel directory check (not a Laravel directory)
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(false);
 
+    // Mock the zip command execution
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rX '\/tmp\/backup\.zip' \./"))
+        ->andReturn('');
+
+    // Mock the log file containing errors
+    $this->mockSftp->shouldReceive('exec')
+        ->with("cat '/tmp/backup.zip.log' 2>/dev/null || echo \"\"")
+        ->andReturn('error: could not create zip file');
+
+    // Mock the log file removal
+    $this->mockSftp->shouldReceive('exec')
+        ->with("rm -f '/tmp/backup.zip.log' 2>/dev/null")
+        ->andReturn('');
+
+    // The command to retry with retryCommand should be mocked to ensure it works
     $this->backup->shouldReceive('retryCommand')
         ->once()
-        ->andReturn('zip error: Command failed');
+        ->andReturn('error: could not create zip file');
 
     expect(fn () => $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []))
-        ->toThrow(BackupTaskZipException::class, 'Failed to zip the directory after multiple attempts: zip error: Command failed');
+        ->toThrow(BackupTaskZipException::class, 'Failed to zip the directory after multiple attempts: error: could not create zip file');
+});
+
+it('throws exception when not enough disk space for zip', function (): void {
+    $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
+    $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
+    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('5000000'); // 5MB source
+    $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('1000'); // Only 1MB available
+
+    // Mock Laravel directory check (not a Laravel directory)
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(false);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(false);
+
+    expect(fn () => $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []))
+        ->toThrow(BackupTaskZipException::class, 'Not enough disk space to create the zip file.');
+});
+
+it('detects Laravel directory and applies standard exclusions', function (): void {
+    $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
+    $this->mockSftp->shouldReceive('exec')->with('du --version')->andReturn('du (GNU coreutils) 8.32');
+    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^du -sb/'))->andReturn('1024');
+    $this->mockSftp->shouldReceive('exec')->with("df -P '/tmp' | tail -1 | awk '{print $4}'")->andReturn('5000000');
+
+    // Make it detect as Laravel directory
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/artisan')->andReturn(['type' => 1]);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/composer.json')->andReturn(['type' => 1]);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/source/package.json')->andReturn(['type' => 1]);
+
+    // Check that it uses exclusions in the command
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/^cd '\/path\/to\/source' && zip -rX '\/tmp\/backup\.zip' \. --exclude='node_modules\/\*'/"))
+        ->andReturn('');
+
+    // Cat the log file to check for errors
+    $this->mockSftp->shouldReceive('exec')
+        ->with("cat '/tmp/backup.zip.log' 2>/dev/null || echo \"\"")
+        ->andReturn('');
+
+    // Remove log file
+    $this->mockSftp->shouldReceive('exec')
+        ->with("rm -f '/tmp/backup.zip.log' 2>/dev/null")
+        ->andReturn('');
+
+    // Verify file exists and has non-zero size
+    $this->mockSftp->shouldReceive('exec')
+        ->with("test -f '/tmp/backup.zip' && stat -c%s '/tmp/backup.zip'")
+        ->andReturn('512');
+
+    $this->backup->zipRemoteDirectory($this->mockSftp, '/path/to/source', '/tmp/backup.zip', []);
+
+    expect(true)->toBeTrue();
 });
 
 it('gets database type', function (): void {
@@ -189,8 +301,11 @@ it('gets database type', function (): void {
 it('dumps remote database', function (): void {
     $this->mockSftp->shouldReceive('isConnected')->andReturn(true);
     $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^mysqldump/'))->andReturn('');
-    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^test -s/'))->andReturn('exists');
-    $this->mockSftp->shouldReceive('exec')->with(Mockery::pattern('/^cat/'))->andReturn('dump content');
+    $this->mockSftp->shouldReceive('exec')->with("cat '/path/to/dump.sql.error.log'")->andReturn('');
+    $this->mockSftp->shouldReceive('exec')->with("rm '/path/to/dump.sql.error.log'")->andReturn('');
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/stat -c %s '\/path\/to\/dump\.sql' || echo \"0\"/"))
+        ->andReturn('1024');
 
     $this->backup->dumpRemoteDatabase(
         $this->mockSftp,
@@ -236,4 +351,24 @@ it('creates backup destination instance', function (): void {
     $instance = $this->backup->createBackupDestinationInstance($mock);
 
     expect($instance)->toBeInstanceOf(BackupDestinationInterface::class);
+});
+
+it('gets excluded directories for Laravel project', function (): void {
+    // Simulate Laravel project detection
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/artisan')->andReturn(['type' => 1]);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/composer.json')->andReturn(['type' => 1]);
+    $this->mockSftp->shouldReceive('stat')->with('/path/to/laravel/package.json')->andReturn(['type' => 1]);
+
+    // Mock finding symlinks
+    $this->mockSftp->shouldReceive('exec')
+        ->with(Mockery::pattern("/find '\/path\/to\/laravel' -type l -printf/"))
+        ->andReturn("public/storage\nsome/other/link");
+
+    $excludedDirs = $this->backup->getExcludedDirectories($this->mockSftp, '/path/to/laravel');
+
+    // Should contain both Laravel standard exclusions and the symlinks
+    expect($excludedDirs)->toContain('node_modules/*')
+        ->toContain('vendor/*')
+        ->toContain('public/storage')
+        ->toContain('some/other/link');
 });
