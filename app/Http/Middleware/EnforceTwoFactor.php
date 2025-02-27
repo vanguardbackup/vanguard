@@ -85,11 +85,14 @@ class EnforceTwoFactor
      */
     private function isHighRiskScenario(Request $request, User $user): bool
     {
-        if ($request->ip() !== $user->getAttribute('last_two_factor_ip') &&
-            $this->isSignificantlyDifferentIp($request->ip(), $user->getAttribute('last_two_factor_ip'))) {
+        $lastTwoFactorIp = $user->getAttribute('last_two_factor_ip');
+        $currentIp = $request->ip();
+
+        if ($currentIp !== $lastTwoFactorIp &&
+            $this->isSignificantlyDifferentIp($currentIp, $lastTwoFactorIp)) {
             Log::debug('IP change detected', [
-                'current' => $request->ip(),
-                'previous' => $user->getAttribute('last_two_factor_ip'),
+                'current' => $currentIp,
+                'previous' => $lastTwoFactorIp,
             ]);
 
             return true;
@@ -121,8 +124,16 @@ class EnforceTwoFactor
         }
 
         // More lenient IP check - only first two octets for broader subnet matching
-        $currentIpPrefix = implode('.', array_slice(explode('.', $currentIp), 0, 2));
-        $lastIpPrefix = implode('.', array_slice(explode('.', $lastIp), 0, 2));
+        $currentParts = explode('.', $currentIp);
+        $lastParts = explode('.', $lastIp);
+
+        // Ensure we have valid IPv4 addresses with enough parts
+        if (count($currentParts) < 2 || count($lastParts) < 2) {
+            return true;
+        }
+
+        $currentIpPrefix = $currentParts[0] . '.' . $currentParts[1];
+        $lastIpPrefix = $lastParts[0] . '.' . $lastParts[1];
 
         return $currentIpPrefix !== $lastIpPrefix;
     }
