@@ -121,3 +121,11 @@ it('handles rate limiting', function (): void {
     $response->assertStatus(429)
         ->assertJson(['message' => 'Too many requests. Please try again later.']);
 });
+
+it('handles a non-existent backup task correctly', function () {
+
+    $response = $this->postJson(route('webhooks.backup-tasks.run', ['backupTask' => '123456789']));
+
+    $response->assertStatus(404)
+        ->assertJson(['message' => 'Record not found.']);
+});

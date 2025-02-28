@@ -5,10 +5,11 @@ use App\Http\Middleware\CustomCheckForAnyAbility;
 use App\Http\Middleware\EnforceTwoFactor;
 use App\Http\Middleware\UserLanguage;
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Sentry\Laravel\Integration;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Application configuration and bootstrapping.
@@ -37,6 +38,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'account-disabled' => CheckAccountState::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function ($exceptions) {
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            // Check if the request is for a webhook endpoint
+            if ($request->is('webhooks/*')) {
+                return response()->json([
+                    'message' => 'Record not found.',
+                ], 404);
+            }
+        });
+
+        // Custom exception handling logic
         Integration::handles($exceptions);
     })->create();
