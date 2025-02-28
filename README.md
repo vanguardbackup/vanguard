@@ -47,7 +47,6 @@ Explore our related projects:
 
 - [Marketing](https://github.com/vanguardbackup/marketing) - Our website at https://vanguardbackup.com
 - [Docs](https://github.com/vanguardbackup/docs) - Official documentation at https://docs.vanguardbackup.com
-- [Mobile](https://github.com/vanguardbackup/mobile) - Mobile application
 - [PHP SDK](https://github.com/vanguardbackup/vanguard-php-sdk) - PHP SDK for Vanguard's API
 - [Feedback API](https://github.com/vanguardbackup/feedback-api) - API for experimental features feedback
 - [Assets](https://github.com/vanguardbackup/assets) - Brand image assets
