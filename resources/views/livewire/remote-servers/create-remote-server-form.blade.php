@@ -200,73 +200,175 @@
                     </section>
                 </form>
             @elseif ($canConnectToRemoteServer)
-                <div class="space-y-2 text-center">
-                    @svg('hugeicons-checkmark-circle-02', 'my-3 inline h-12 w-12 text-green-500 sm:h-16 sm:w-16')
-                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                        {{ __('Connection Successful') }}
-                    </h1>
-                    <p class="text-base text-gray-700 sm:text-lg dark:text-gray-100">
-                        {{ __(':app has connected to your remote server!', ['app' => config('app.name')]) }}
-                    </p>
-                    <hr class="my-4"/>
-                    <a href="{{ route('backup-destinations.index') }}" wire:navigate>
-                        <x-primary-button type="button" class="mt-7 w-full sm:w-auto" centered>
-                            {{ __('Configure Backup Destination') }}
-                        </x-primary-button>
-                    </a>
-                </div>
-            @else
-                <div class="space-y-6 text-center">
-                    <div class="flex items-center justify-center space-x-3">
-                        @svg('hugeicons-cancel-circle', 'h-12 w-12 text-red-500 sm:h-12 sm:w-12')
-                        <h1 class="text-2xl font-bold text-gray-900 sm:text-2xl dark:text-white">
-                            {{ __('Connection Failed') }}
-                        </h1>
-                    </div>
-                    <p class="text-base text-gray-700 sm:text-lg dark:text-gray-100">
-                        {{ __('Unfortunately :app was not able to connect. Find the error message below.', ['app' => config('app.name')]) }}
-                    </p>
+                <div>
+                    <div class="flex flex-col items-center space-y-4">
 
-                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg dark:bg-red-900 dark:border-red-700 flex items-start space-x-4">
-                        @svg('hugeicons-alert-02', 'h-8 w-8 text-red-500 flex-shrink-0')
-                        <div>
-                            <h2 class="text-lg font-semibold text-red-700 dark:text-red-300">
-                                {{ __('Error Details') }}
-                            </h2>
-                            <p class="mt-3 text-base text-gray-800 dark:text-gray-100">
-                                {{ $connectionError }}
-                            </p>
+                        <div class="relative inline-flex items-center justify-center">
+                            <div class="absolute h-16 w-16 sm:h-20 sm:w-20 animate-ping rounded-full bg-green-100 opacity-50 dark:bg-green-900"></div>
+                            @svg('hugeicons-checkmark-circle-02', 'relative h-16 w-16 text-green-500 sm:h-20 sm:w-20')
+                        </div>
+
+                        <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+                            {{ __('Connection Successful!') }}
+                        </h1>
+
+                        <p class="text-center text-base text-gray-700 sm:text-lg dark:text-gray-200">
+                            {{ __(':app has successfully established a secure connection to your remote server.', ['app' => config('app.name')]) }}
+                        </p>
+
+                        <div class="mt-4 w-full max-w-md rounded-lg bg-gray-50 p-4 shadow dark:bg-gray-700">
+                            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300">
+                                {{ __('Connection Details') }}
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-600 dark:text-gray-300">{{ __('Server Label') }}:</span>
+                                    <span class="text-gray-800 dark:text-white">{{ $label }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-600 dark:text-gray-300">{{ __('Host') }}:</span>
+                                    <span class="text-gray-800 dark:text-white">{{ $host }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-600 dark:text-gray-300">{{ __('Port') }}:</span>
+                                    <span class="text-gray-800 dark:text-white">{{ $port }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 w-full max-w-md rounded-lg bg-blue-50 p-4 dark:bg-blue-900/30">
+                            <div class="flex items-start space-x-3">
+                                @svg('hugeicons-idea-01', 'h-6 w-6 flex-shrink-0 text-blue-500 dark:text-blue-400')
+                                <div>
+                                    <h3 class="font-medium text-blue-800 dark:text-blue-300">{{ __('Next Steps') }}</h3>
+                                    <p class="mt-1 text-sm text-blue-700 dark:text-blue-200">
+                                        {{ __('Configure your backup destination to start protecting your data. You can set up automated backups and customize your schedule.') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 w-full pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                <a href="{{ route('backup-destinations.index') }}" wire:navigate class="block">
+                                    <x-primary-button type="button" class="w-full sm:w-auto justify-center">
+                                        @svg('hugeicons-settings-02', 'mr-2 h-5 w-5 inline')
+                                        {{ __('Configure Backup Destination') }}
+                                    </x-primary-button>
+                                </a>
+                                <a href="{{ route('remote-servers.index') }}" wire:navigate class="block">
+                                    <x-secondary-button type="button" class="w-full sm:w-auto justify-center">
+                                        {{ __('View All Servers') }}
+                                    </x-secondary-button>
+                                </a>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg dark:bg-blue-900 dark:border-blue-700 mt-6 flex items-start space-x-4">
-                        @svg('hugeicons-idea-01', 'inline h-8 w-8 text-blue-500 flex-shrink-0')
-                        <div>
-                            <h2 class="text-lg font-semibold text-blue-800 dark:text-blue-200">
-                                {{ __('Troubleshooting Tips') }}
-                            </h2>
-                            <ul class="mt-3 space-y-2 list-disc pl-5 text-base text-gray-700 dark:text-gray-300">
+                </div>
+            @else
+                <div>
+                    <div class="mb-6 text-center">
+                        <div class="mb-4 inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/40">
+                            @svg('hugeicons-cancel-circle', 'h-10 w-10 text-red-500')
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ __('Connection Failed') }}
+                        </h1>
+                        <p class="mt-2 text-gray-600 dark:text-gray-300 max-w-lg mx-auto">
+                            {{ __('Unfortunately :app was not able to establish a connection to your server.', ['app' => config('app.name')]) }}
+                        </p>
+                    </div>
+                    <div class="mb-6 rounded-lg bg-white border border-red-200 shadow-sm dark:bg-gray-750 dark:border-red-800">
+                        <div class="border-b border-red-100 bg-red-50 px-4 py-3 dark:bg-red-900/20 dark:border-red-800 rounded-t-lg">
+                            <div class="flex items-center">
+                                @svg('hugeicons-alert-02', 'h-5 w-5 text-red-500 mr-2')
+                                <h2 class="font-semibold text-red-700 dark:text-red-300">
+                                    {{ __('Error Details') }}
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="rounded bg-gray-50 p-3 font-mono text-sm text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                {{ $connectionError }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6 rounded-lg bg-white border border-blue-200 shadow-sm dark:bg-gray-750 dark:border-blue-800">
+                        <div class="border-b border-blue-100 bg-blue-50 px-4 py-3 dark:bg-blue-900/20 dark:border-blue-800 rounded-t-lg">
+                            <div class="flex items-center">
+                                @svg('hugeicons-idea-01', 'h-5 w-5 text-blue-500 mr-2')
+                                <h2 class="font-semibold text-blue-700 dark:text-blue-300">
+                                    {{ __('Troubleshooting Tips') }}
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
                                 @if (str_contains($connectionError, 'timeout'))
-                                    <li>{{ __('Ensure the server is online and accessible from your network.') }}</li>
-                                    <li>{{ __('Verify the IP address and port are correct.') }}</li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Ensure the server is online and accessible from your network.') }}</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Verify the IP address and port are correct.') }}</span>
+                                    </li>
                                 @elseif (str_contains($connectionError, 'authentication'))
-                                    <li>{{ __('Check that your SSH username and public key are correctly configured.') }}</li>
-                                    <li>{{ __('Ensure the server allows SSH access for the provided user.') }}</li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Check that your SSH username and public key are correctly configured.') }}</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Ensure the server allows SSH access for the provided user.') }}</span>
+                                    </li>
                                 @else
-                                    <li>{{ __('Double-check all connection details, including the IP address, port, and credentials.') }}</li>
-                                    <li>{{ __('Ensure the server firewall allows SSH connections from this app.') }}</li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Double-check all connection details, including the IP address, port, and credentials.') }}</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2 text-blue-500">•</span>
+                                        <span>{{ __('Ensure the server firewall allows SSH connections.') }}</span>
+                                    </li>
                                 @endif
                             </ul>
                         </div>
                     </div>
-
-                    <hr class="my-6 border-t border-gray-300 dark:border-gray-600"/>
-
-                    <x-secondary-button type="button" class="mt-6 w-full sm:w-auto px-6 py-3 text-lg font-semibold" centered wire:click="returnToForm">
-                        {{ __('Edit Connection Details') }}
-                    </x-secondary-button>
+                    <div class="mb-6 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-gray-750 dark:border-gray-700">
+                        <div class="border-b border-gray-100 bg-gray-50 px-4 py-3 dark:bg-gray-700/20 dark:border-gray-700 rounded-t-lg">
+                            <div class="flex items-center">
+                                @svg('hugeicons-help-circle', 'h-5 w-5 text-gray-500 mr-2')
+                                <h2 class="font-semibold text-gray-700 dark:text-gray-300">
+                                    {{ __('Common Connection Issues') }}
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <dl class="space-y-4 text-sm">
+                                <div>
+                                    <dt class="font-medium text-gray-700 dark:text-gray-200">{{ __('SSH Key Not Added') }}</dt>
+                                    <dd class="mt-1 text-gray-600 dark:text-gray-400">{{ __('Make sure you have added the public SSH key to your server\'s authorized_keys file.') }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="font-medium text-gray-700 dark:text-gray-200">{{ __('Firewall Restrictions') }}</dt>
+                                    <dd class="mt-1 text-gray-600 dark:text-gray-400">{{ __('Check if your server\'s firewall is blocking SSH connections on the specified port.') }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center space-y-4 space-y-reverse sm:space-y-0 sm:space-x-4">
+                        <a href="{{ route('remote-servers.index') }}" wire:navigate class="rounded-md">
+                            <x-secondary-button type="button" class="w-full sm:w-auto justify-center">
+                                {{ __('Cancel') }}
+                            </x-secondary-button>
+                        </a>
+                        <x-primary-button type="button" class="w-full sm:w-auto justify-center" wire:click="returnToForm">
+                            @svg('hugeicons-edit-02', 'mr-2 h-4 w-4 inline')
+                            {{ __('Edit Connection Details') }}
+                        </x-primary-button>
+                    </div>
                 </div>
-
             @endif
         </x-form-wrapper>
     @endif
