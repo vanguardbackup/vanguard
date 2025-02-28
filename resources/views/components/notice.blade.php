@@ -10,25 +10,25 @@
 @php
     $colors = [
         "info" => [
-            "bg" => "bg-sky-50/70 dark:bg-sky-900/30",
+            "bg" => "bg-sky-100 dark:bg-sky-950/70",
             "text" => "text-sky-900 dark:text-sky-100",
             "icon" => "text-sky-500 dark:text-sky-400",
             "body" => "text-sky-800 dark:text-sky-200",
         ],
         "warning" => [
-            "bg" => "bg-amber-50/70 dark:bg-amber-900/30",
+            "bg" => "bg-amber-100 dark:bg-amber-950/70",
             "text" => "text-amber-900 dark:text-amber-100",
             "icon" => "text-amber-500 dark:text-amber-400",
             "body" => "text-amber-800 dark:text-amber-200",
         ],
         "success" => [
-            "bg" => "bg-emerald-50/70 dark:bg-emerald-900/30",
+            "bg" => "bg-emerald-100 dark:bg-emerald-950/70",
             "text" => "text-emerald-900 dark:text-emerald-100",
             "icon" => "text-emerald-500 dark:text-emerald-400",
             "body" => "text-emerald-800 dark:text-emerald-200",
         ],
         "error" => [
-            "bg" => "bg-rose-50/70 dark:bg-rose-900/30",
+            "bg" => "bg-rose-100 dark:bg-rose-950/70",
             "text" => "text-rose-900 dark:text-rose-100",
             "icon" => "text-rose-500 dark:text-rose-400",
             "body" => "text-rose-800 dark:text-rose-200",
@@ -56,7 +56,7 @@
         x-transition:enter-end="scale-100 transform opacity-100"
     @endif
     @class([
-        "rounded-[0.70rem] border-none p-4 ring-1 ring-black ring-opacity-5 backdrop-blur-sm",
+        "rounded-[0.70rem] border-none p-4 shadow-sm",
         $class,
     ])
 >
