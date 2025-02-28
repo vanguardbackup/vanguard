@@ -38,7 +38,7 @@ class BackupTaskHistoryItem extends Component
      */
     public function formattedDate(): string
     {
-        if (!$this->backupTaskLog->created_at) {
+        if (! $this->backupTaskLog->created_at) {
             return __('Never');
         }
 
@@ -54,7 +54,7 @@ class BackupTaskHistoryItem extends Component
      */
     public function detailedDate(): string
     {
-        if (!$this->backupTaskLog->created_at) {
+        if (! $this->backupTaskLog->created_at) {
             return __('Never');
         }
 
