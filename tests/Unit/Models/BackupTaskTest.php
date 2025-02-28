@@ -1824,3 +1824,16 @@ it('generates a unique token when refreshing even if collision would occur', fun
     expect($newToken)->not->toBe($commonToken)
         ->and($task1->webhook_token)->not->toBe($task2->webhook_token);
 });
+
+it('sets the time when the run webhook was last used', function () {
+
+    $task = BackupTask::factory()->create([
+        'run_webhook_last_used_at' => null,
+    ]);
+
+    $this->assertNull($task->getAttribute('run_webhook_last_used_at'));
+
+    $task->setRunWebhookTime();
+
+    $this->assertNotNull($task->getAttribute('run_webhook_last_used_at'));
+});
