@@ -1,36 +1,30 @@
 # Pull Request
 
 ## Description
+Brief summary of changes and motivation. Closes #(issue) if applicable.
 
-Please include a succinct summary of the change and which issue is fixed or which feature is introduced. 
+## Type of change (Please select one)
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Code refactoring
+- [ ] UI/UX improvement
+- [ ] Performance improvement
+- [ ] Language/translation changes
+- [ ] Package updates (Composer/npm)
+- [ ] Configuration changes
+- [ ] Database schema changes
+- [ ] Security fix
+- [ ] Breaking change
 
-Please also include relevant motivation and context if possible.
+## Testing (Check all that apply)
+- [ ] Added tests
+- [ ] Manually tested in local environment
 
-Closes # (issue) if applicable.
+## Checklist (Check all applicable items)
+- [ ] Self-reviewed code and added necessary tests
+- [ ] Used translation helpers where appropriate
+- [ ] Followed [project coding standards](https://docs.vanguardbackup.com/development-handbook#_4-code-quality-and-standards)
 
-## Type of change
+## Screenshots (if applicable)
 
-Please delete options that are not relevant to this PR.
-
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-
-## How Has This Been Tested?
-
-- [ ] Automated testing (Feature tests, Unit tests)
-- [ ] Manual testing
-
-## Checklist:
-
-- [ ] I have performed a self-review of my own code
-- [ ] My changes do not introduce any new warnings or errors
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing tests pass locally with my changes
-- [ ] I have used translation helpers and provided translations (where appropriate)
-
-## Screenshots (if applicable):
-
-## Additional context
-
-Add any other context or screenshots about the pull request here. Can remove this section if not necessary. 
+## Additional context (if needed)
