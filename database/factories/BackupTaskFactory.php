@@ -23,6 +23,7 @@ class BackupTaskFactory extends Factory
             'remote_server_id' => RemoteServer::factory()->create()->id,
             'type' => 'files',
             'maximum_backups_to_keep' => 5,
+            'run_webhook_last_used_at' => null,
         ];
     }
 

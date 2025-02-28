@@ -34,6 +34,7 @@ it('runs backup task with valid token', function (): void {
         'type' => 'files',
         'remote_server_id' => $remoteServer->id,
         'webhook_token' => Str::random(64),
+        'run_webhook_last_used_at' => null,
     ]);
 
     $response = $this->postJson(getWebhookUrl($backupTask, $backupTask->webhook_token));
@@ -42,6 +43,8 @@ it('runs backup task with valid token', function (): void {
         ->assertJson(['message' => 'Backup task initiated successfully.']);
 
     expect($backupTask->fresh()->isRunning())->toBeTrue();
+
+    $this->assertNotNull($backupTask->fresh()->run_webhook_last_used_at);
 
     Queue::assertPushed(RunFileBackupTaskJob::class, function (RunFileBackupTaskJob $runFileBackupTaskJob) use ($backupTask): bool {
         return $runFileBackupTaskJob->backupTaskId === $backupTask->id;
@@ -59,6 +62,7 @@ it('rejects invalid token', function (): void {
         ->assertJson(['message' => 'Invalid token']);
 
     expect($backupTask->fresh()->isRunning())->toBeFalse();
+    $this->assertNull($backupTask->fresh()->run_webhook_last_used_at);
 });
 
 it('rejects when task is paused', function (): void {
@@ -70,6 +74,8 @@ it('rejects when task is paused', function (): void {
         ->assertJson(['message' => 'The backup task is currently paused and cannot be executed.']);
 
     expect($backupTask->fresh()->isRunning())->toBeFalse();
+    $this->assertNull($backupTask->fresh()->run_webhook_last_used_at);
+
 });
 
 it('rejects when task is already running', function (): void {
@@ -104,6 +110,7 @@ it('rejects when another task is running on same server', function (): void {
         ->assertJson(['message' => 'Another task is currently running on the same remote server. Please try again later.']);
 
     expect($backupTask->fresh()->isRunning())->toBeFalse();
+    $this->assertNull($backupTask->fresh()->run_webhook_last_used_at);
 });
 
 it('handles rate limiting', function (): void {

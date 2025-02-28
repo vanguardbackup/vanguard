@@ -76,6 +76,8 @@ class BackupTask extends Model
         'status',
         'created_at',
         'updated_at',
+        'run_webhook_last_used_at',
+        'webhook_token',
     ];
 
     /**
@@ -1192,6 +1194,15 @@ class BackupTask extends Model
     }
 
     /**
+     * Updates the timestamp for when the 'run' webhook was last executed.
+     */
+    public function setRunWebhookTime(): void
+    {
+        $this->update(['run_webhook_last_used_at' => now()]);
+        $this->saveQuietly();
+    }
+
+    /**
      * Get the casts array for the model's attributes.
      *
      * @return string[]
@@ -1203,6 +1214,7 @@ class BackupTask extends Model
             'last_run_at' => 'datetime',
             'last_scheduled_weekly_run_at' => 'datetime',
             'encryption_password' => 'encrypted',
+            'run_webhook_last_used_at' => 'datetime',
         ];
     }
 

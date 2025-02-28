@@ -93,6 +93,27 @@
                 </div>
             </div>
 
+            <div class="mt-6 flex items-start p-3">
+                <x-hugeicons-clock-01 class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                <div class="flex flex-col">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ __('Webhook Usage') }}
+                    </span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                        @if ($backupTask?->getAttribute('run_webhook_last_used_at'))
+                            {{ __('Last triggered:') }}
+                            <time
+                                datetime="{{ $backupTask->getAttribute('run_webhook_last_used_at')->toIso8601String() }}"
+                            >
+                                {{ $backupTask->getAttribute('run_webhook_last_used_at')->timezone(Auth::user()->timezone)->format('M j, Y \a\t g:i a') }}
+                            </time>
+                        @else
+                            {{ __('This webhook has never been triggered.') }}
+                        @endif
+                    </span>
+                </div>
+            </div>
+
             <x-notice
                 type="warning"
                 :text="__('Please be careful with your webhook URL. It allows for the Backup Task to be ran when a successful request is made to it.')"

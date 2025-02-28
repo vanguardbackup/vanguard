@@ -61,6 +61,7 @@ class TriggerRunWebhookController extends Controller
 
         $backupTask->markAsRunning();
         $backupTask->run();
+        $backupTask->setRunWebhookTime();
 
         return Response::json(['message' => 'Backup task initiated successfully.'], 202);
     }
