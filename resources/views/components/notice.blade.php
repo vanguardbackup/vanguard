@@ -51,13 +51,12 @@
 <div
     @if ($showIf)
         x-show="{{ $showIf }}"
-    x-transition:enter="transition duration-300 ease-out"
-    x-transition:enter-start="scale-95 transform opacity-0"
-    x-transition:enter-end="scale-100 transform opacity-100"
+        x-transition:enter="transition duration-300 ease-out"
+        x-transition:enter-start="scale-95 transform opacity-0"
+        x-transition:enter-end="scale-100 transform opacity-100"
     @endif
     @class([
         "rounded-[0.70rem] border-none p-4 shadow-sm",
-        $selectedColors["bg"],
         $class,
     ])
 >
