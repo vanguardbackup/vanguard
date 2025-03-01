@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Dashboard;
 
+use App\Actions\LoadScheduledBackupTasksAction;
 use App\Models\BackupTask;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -16,63 +16,38 @@ use Livewire\Component;
  */
 class UpcomingBackupTasks extends Component
 {
-    /** @var Collection<int, object{task: BackupTask, next_run: ?Carbon, due_to_run: ?string, type: string}> */
+    /**
+     * The collection of scheduled backup tasks.
+     *
+     * @var Collection<int, object{task: BackupTask, next_run: ?Carbon, due_to_run: ?string, type: string}>
+     */
     public Collection $scheduledBackupTasks;
 
+    /**
+     * Mount the component.
+     */
     public function mount(): void
     {
         $this->scheduledBackupTasks = collect();
     }
 
+    /**
+     * Render the component.
+     */
     public function render(): View
     {
         $this->loadScheduledBackupTasks();
 
-        return view('livewire.dashboard.upcoming-backup-tasks', [
+        return view('livewire.dashboard.upcoming-backup-tasks')->with([
             'scheduledBackupTasks' => $this->scheduledBackupTasks,
         ]);
     }
 
+    /**
+     * Load the scheduled backup tasks.
+     */
     private function loadScheduledBackupTasks(): void
     {
-        $user = Auth::user();
-        if (! $user) {
-            return;
-        }
-
-        $locale = $user->language ?? config('app.locale');
-        $timezone = $user->timezone ?? config('app.timezone');
-
-        Carbon::setLocale($locale);
-
-        $this->scheduledBackupTasks = BackupTask::notPaused()
-            ->with('remoteServer')
-            ->get()
-            ->map(fn (BackupTask $backupTask): object => $this->formatBackupTask($backupTask, $timezone, $locale))
-            ->filter(fn (object $scheduledTask): bool => $scheduledTask->next_run !== null)
-            ->sortBy('next_run')
-            ->values()
-            ->take(20);
-    }
-
-    /**
-     * @return object{task: BackupTask, next_run: ?Carbon, due_to_run: ?string, type: string}
-     */
-    private function formatBackupTask(BackupTask $backupTask, string $timezone, string $locale): object
-    {
-        $nextRun = $backupTask->calculateNextRun();
-
-        $dueToRun = null;
-        if ($nextRun instanceof \Illuminate\Support\Carbon) {
-            $nextRunLocalized = $nextRun->timezone($timezone)->locale($locale);
-            $dueToRun = ucfirst($nextRunLocalized->isoFormat('dddd, D MMMM YYYY HH:mm'));
-        }
-
-        return (object) [
-            'task' => $backupTask,
-            'next_run' => $nextRun,
-            'due_to_run' => $dueToRun,
-            'type' => ucfirst(__($backupTask->getAttribute('type'))),
-        ];
+        $this->scheduledBackupTasks = app(LoadScheduledBackupTasksAction::class)->execute();
     }
 }

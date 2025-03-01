@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\BackupTaskStatusController;
 use App\Http\Controllers\Api\NotificationStreamController;
 use App\Http\Controllers\Api\RemoteServerController;
 use App\Http\Controllers\Api\RunBackupTaskController;
+use App\Http\Controllers\Api\ScheduledBackupTasksController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ViewPublicSSHKeyController;
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1,default', TrackAPIUsage::class
         /**
          * Backup Tasks
          */
+        Route::get('backup-tasks/upcoming', [ScheduledBackupTasksController::class, '__invoke'])->middleware('ability:view-backup-tasks');
         Route::get('backup-tasks', [BackupTaskController::class, 'index'])->middleware('ability:view-backup-tasks');
         Route::get('backup-tasks/{id}', [BackupTaskController::class, 'show'])->middleware('ability:view-backup-tasks');
         Route::get('backup-tasks/{id}/status', BackupTaskStatusController::class)
