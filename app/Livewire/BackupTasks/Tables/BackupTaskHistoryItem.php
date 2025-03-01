@@ -38,13 +38,13 @@ class BackupTaskHistoryItem extends Component
      */
     public function formattedDate(): string
     {
-        if (! $this->backupTaskLog->created_at) {
+        if (! $this->backupTaskLog->getAttribute('created_at')) {
             return __('Never');
         }
 
         $timezone = Auth::user()->timezone ?? Config::get('app.timezone');
 
-        return $this->backupTaskLog->created_at
+        return $this->backupTaskLog->getAttribute('created_at')
             ->timezone($timezone)
             ->format('d M Y H:i');
     }
@@ -54,13 +54,13 @@ class BackupTaskHistoryItem extends Component
      */
     public function detailedDate(): string
     {
-        if (! $this->backupTaskLog->created_at) {
+        if (! $this->backupTaskLog->getAttribute('created_at')) {
             return __('Never');
         }
 
         $timezone = Auth::user()->timezone ?? Config::get('app.timezone');
 
-        return $this->backupTaskLog->created_at
+        return $this->backupTaskLog->getAttribute('created_at')
             ->timezone($timezone)
             ->format('l, d F Y H:i');
     }
