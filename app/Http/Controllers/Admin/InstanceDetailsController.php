@@ -62,7 +62,7 @@ class InstanceDetailsController extends Controller
     {
         $result = Process::run('ps aux | grep "artisan horizon" | grep -v grep');
 
-        return $result->successful() && !empty($result->output());
+        return $result->successful() && ! empty($result->output());
     }
 
     /**
