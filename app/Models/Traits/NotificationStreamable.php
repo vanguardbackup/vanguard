@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // This class will contain all the Notification Stream triggers for the BackupTask model
 // We will refactor this further in the future but this should help greatly with maintainability
 // wasn't a fan of digging into a rather long model file for these!

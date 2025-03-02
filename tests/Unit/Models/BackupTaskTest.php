@@ -15,6 +15,7 @@ use App\Models\BackupTaskData;
 use App\Models\BackupTaskLog;
 use App\Models\NotificationStream;
 use App\Models\RemoteServer;
+use App\Models\Script;
 use App\Models\Tag;
 use App\Models\Traits\ComposesTelegramNotification;
 use App\Models\User;
@@ -1836,4 +1837,36 @@ it('sets the time when the run webhook was last used', function (): void {
     $task->setRunWebhookTime();
 
     $this->assertNotNull($task->getAttribute('run_webhook_last_used_at'));
+});
+
+it('returns true if the task has an associated prescript', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $task->scripts()->attach(Script::factory()->prescript()->create());
+
+    $this->assertTrue($task->hasPrescript());
+});
+
+it('returns false if the task does not have an associated prescript', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $this->assertFalse($task->hasPrescript());
+
+    $this->assertCount(0, $task->scripts);
+});
+
+it('returns true if the task does have an associated postscript', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $task->scripts()->attach(Script::factory()->postscript()->create());
+
+    $this->assertTrue($task->hasPostscript());
+});
+
+it('returns false if the task does not have an associated postscript', function (): void {
+    $task = BackupTask::factory()->create();
+
+    $this->assertFalse($task->hasPostscript());
+
+    $this->assertCount(0, $task->scripts);
 });

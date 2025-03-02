@@ -389,6 +389,16 @@ class BackupTask extends Model
     }
 
     /**
+     * Get the scripts associated with this backup task.
+     *
+     * @return BelongsToMany<Script, $this>
+     */
+    public function scripts(): BelongsToMany
+    {
+        return $this->belongsToMany(Script::class, 'backup_task_script');
+    }
+
+    /**
      * Update the last run timestamp for this task.
      */
     public function updateLastRanAt(): void
@@ -733,6 +743,22 @@ class BackupTask extends Model
     public function hasEncryptionPassword(): bool
     {
         return $this->getAttribute('encryption_password') !== null;
+    }
+
+    /**
+     * Check if the task has any pre-scripts configured.
+     */
+    public function hasPrescript(): bool
+    {
+        return $this->scripts()->where('type', Script::TYPE_PRESCRIPT)->exists();
+    }
+
+    /**
+     * Check if the task has any post-scripts configured.
+     */
+    public function hasPostscript(): bool
+    {
+        return $this->scripts()->where('type', Script::TYPE_POSTSCRIPT)->exists();
     }
 
     /**

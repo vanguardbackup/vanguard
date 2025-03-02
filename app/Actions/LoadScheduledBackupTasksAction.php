@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
 use App\Models\BackupTask;
@@ -46,12 +48,11 @@ class LoadScheduledBackupTasksAction
                         $dueToRun = ucfirst($nextRunLocalized->isoFormat('dddd, D MMMM YYYY HH:mm'));
                     }
 
-                    /** @var object{task: BackupTask, next_run: ?Carbon, due_to_run: ?string, type: string} */
                     return (object) [
                         'task' => $backupTask,
                         'next_run' => $nextRun,
                         'due_to_run' => $dueToRun,
-                        'type' => ucfirst($backupTask->getAttribute('type')),
+                        'type' => ucfirst((string) $backupTask->getAttribute('type')),
                     ];
                 } catch (Exception $e) {
                     Log::error('Failed to calculate next run for backup task', [
@@ -59,12 +60,11 @@ class LoadScheduledBackupTasksAction
                         'error' => $e->getMessage(),
                     ]);
 
-                    /** @var object{task: BackupTask, next_run: ?Carbon, due_to_run: ?string, type: string} */
                     return (object) [
                         'task' => $backupTask,
                         'next_run' => null,
                         'due_to_run' => null,
-                        'type' => ucfirst($backupTask->getAttribute('type')),
+                        'type' => ucfirst((string) $backupTask->getAttribute('type')),
                     ];
                 }
             })

@@ -8,9 +8,11 @@ use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
+use App\Models\Script;
 use App\Models\User;
 use App\Services\Backup\Backup;
 use App\Services\Backup\Contracts\SFTPInterface;
+use App\Services\ScriptExecutionService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -224,6 +226,78 @@ abstract class AbstractBackupTask extends Backup
         }
 
         $this->logMessage('Backup file encrypted successfully.');
+    }
+
+    /**
+     * Executes pre-backup scripts for the current backup task.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP connection to use for execution
+     * @return bool True if any scripts were executed, false otherwise
+     *
+     * @throws Exception If script execution fails
+     */
+    protected function performPreBackupScript(SFTPInterface $sftp): bool
+    {
+        $availableScripts = $this->backupTask->scripts()
+            ->where('type', Script::TYPE_PRESCRIPT)
+            ->get();
+
+        if ($availableScripts->count() === 0) {
+            return false;
+        }
+
+        $scriptExecutionService = app(ScriptExecutionService::class);
+
+        foreach ($availableScripts as $availableScript) {
+            try {
+                $output = $scriptExecutionService->executeScript($sftp, $availableScript);
+
+                if (! empty($output)) {
+                    $this->logMessage('Pre-backup script output: ' . $output);
+                }
+            } catch (Exception $e) {
+                $this->logMessage('Pre-backup script failed: ' . $e->getMessage());
+                throw new RuntimeException('Pre-backup script execution failed: ' . $e->getMessage(), 0, $e);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Executes post-backup scripts for the current backup task.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP connection to use for execution
+     * @return bool True if any scripts were executed, false otherwise
+     *
+     * @throws Exception If script execution fails
+     */
+    protected function performPostBackupScript(SFTPInterface $sftp): bool
+    {
+        $availableScripts = $this->backupTask->scripts()
+            ->where('type', Script::TYPE_POSTSCRIPT)
+            ->get();
+
+        if ($availableScripts->count() === 0) {
+            return false;
+        }
+
+        $scriptExecutionService = app(ScriptExecutionService::class);
+
+        foreach ($availableScripts as $availableScript) {
+            try {
+                $output = $scriptExecutionService->executeScript($sftp, $availableScript);
+
+                if (! empty($output)) {
+                    $this->logMessage('Post-backup script output: ' . $output);
+                }
+            } catch (Exception $e) {
+                $this->logMessage('Post-backup script failed: ' . $e->getMessage());
+                throw new RuntimeException('Post-backup script execution failed: ' . $e->getMessage(), 0, $e);
+            }
+        }
+
+        return true;
     }
 
     /**
