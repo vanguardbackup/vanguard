@@ -51,6 +51,14 @@ class DatabaseBackupTask extends AbstractBackupTask
         $sftp = $this->establishSFTPConnection($this->backupTask);
         $this->logMessage('Secure SSH connection established with the remote server.');
 
+        if ($this->backupTask->hasPrescript()) {
+            $preBackup = $this->performPreBackupScript($sftp);
+
+            if ($preBackup) {
+                $this->logMessage('Pre-backup script found for this backup task.');
+            }
+        }
+
         $databaseType = $this->getDatabaseType($sftp);
         $this->logMessage('Detected database type: ' . ucfirst($databaseType) . '.');
 
@@ -87,5 +95,13 @@ class DatabaseBackupTask extends AbstractBackupTask
 
         $sftp->delete($remoteDumpPath);
         $this->logMessage('Temporary server file removed after successful backup operation.');
+
+        if ($this->backupTask->hasPostScript()) {
+            $postBackup = $this->performPostBackupScript($sftp);
+
+            if ($postBackup) {
+                $this->logMessage('Post-backup script found for this backup task.');
+            }
+        }
     }
 }

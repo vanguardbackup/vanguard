@@ -109,6 +109,18 @@
             </h3>
         </li>
         <li>
+            <x-sidebar-nav-link
+                :href="route('scripts.index')"
+                :active="request()->routeIs('scripts.*')"
+                wire:navigate
+            >
+                <span class="flex items-center">
+                    @svg('hugeicons-computer', 'mr-2 h-5 w-5')
+                    <span>{{ __('Manage Scripts') }}</span>
+                </span>
+            </x-sidebar-nav-link>
+        </li>
+        <li>
             <x-sidebar-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.*')" wire:navigate>
                 <span class="flex items-center">
                     @svg('hugeicons-tags', 'mr-2 h-5 w-5')

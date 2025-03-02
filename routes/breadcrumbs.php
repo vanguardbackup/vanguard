@@ -78,6 +78,16 @@ Breadcrumbs::for('tags.edit', function (BreadcrumbTrail $trail, $tag) {
     $trail->push(__('Update Tag'), route('tags.edit', $tag));
 });
 
+Breadcrumbs::for('scripts.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('profile');
+    $trail->push(__('Manage Scripts'), route('scripts.index'));
+});
+
+Breadcrumbs::for('scripts.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('scripts.index');
+    $trail->push(__('Create Script'), route('scripts.create'));
+});
+
 Breadcrumbs::for('notification-streams.index', function (BreadcrumbTrail $trail) {
     $trail->parent('profile');
     $trail->push(__('Notification Streams'), route('notification-streams.index'));

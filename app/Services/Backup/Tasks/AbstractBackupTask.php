@@ -8,6 +8,7 @@ use App\Exceptions\DatabaseDumpException;
 use App\Exceptions\SFTPConnectionException;
 use App\Models\BackupTask as BackupTaskModel;
 use App\Models\BackupTaskLog;
+use App\Models\Script;
 use App\Models\User;
 use App\Services\Backup\Backup;
 use App\Services\Backup\Contracts\SFTPInterface;
@@ -224,6 +225,64 @@ abstract class AbstractBackupTask extends Backup
         }
 
         $this->logMessage('Backup file encrypted successfully.');
+    }
+
+    /**
+     * Executes pre-backup scripts for the current backup task.
+     *
+     * @param  SFTPInterface  $SFTP  The SFTP connection to use for execution
+     * @return bool True if any scripts were executed, false otherwise
+     *
+     * @throws Exception If script execution fails
+     */
+    protected function performPreBackupScript(SFTPInterface $SFTP): bool
+    {
+        $availableScripts = $this->backupTask->scripts()
+            ->where('type', Script::TYPE_PRESCRIPT)
+            ->get();
+
+        if ($availableScripts->count() > 0) {
+            foreach ($availableScripts as $availableScript) {
+                $result = $SFTP->exec($availableScript->getAttribute('script'));
+
+                if ($result) {
+                    $this->logMessage('Pre-backup script result: ' . $result);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Executes post-backup scripts for the current backup task.
+     *
+     * @param  SFTPInterface  $SFTP  The SFTP connection to use for execution
+     * @return bool True if any scripts were executed, false otherwise
+     *
+     * @throws Exception If script execution fails
+     */
+    protected function performPostBackupScript(SFTPInterface $SFTP): bool
+    {
+        $availableScripts = $this->backupTask->scripts()
+            ->where('type', Script::TYPE_POSTSCRIPT)
+            ->get();
+
+        if ($availableScripts->count() > 0) {
+            foreach ($availableScripts as $availableScript) {
+                $result = $SFTP->exec($availableScript->getAttribute('script'));
+
+                if ($result) {
+                    $this->logMessage('Post-backup script result: ' . $result);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -65,6 +65,11 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
             ->middleware('can:update,tag');
     });
 
+    Route::prefix('scripts')->group(function () {
+        Route::get('/', \App\Livewire\Scripts\Index::class)->name('scripts.index');
+        Route::get('create', \App\Livewire\Scripts\Create::class)->name('scripts.create');
+    });
+
     Route::prefix('notification-streams')->group(function () {
         Route::get('/', NotificationStreamIndex::class)->name('notification-streams.index');
         Route::get('create', CreateNotificationStream::class)->name('notification-streams.create');
