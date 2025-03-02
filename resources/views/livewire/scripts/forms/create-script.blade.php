@@ -1,3 +1,4 @@
+{{-- blade-formatter-disable --}}
 @php
     use App\Models\Script;
 @endphp
@@ -8,18 +9,9 @@
             {{ __('Create a Script') }}
         </x-slot>
         <x-slot name="description">
-            {{ __('Add a new script to your account.') }}
+            {{ __('Attach a new script to your account for use in your backup tasks!') }}
         </x-slot>
         <x-slot name="icon">hugeicons-computer</x-slot>
-
-        <x-notice type="warning" title="{{ __('Important: Script Execution Guidelines') }}">
-            <p class="mb-2">{{ __('Avoid long-running commands in these scripts as they may:') }}</p>
-            <ul class="mb-2 ml-5 list-disc">
-                <li>{{ __('Time out during execution') }}</li>
-                <li>{{ __('Block the backup process') }}</li>
-                <li>{{ __('Cause connection interruptions') }}</li>
-            </ul>
-        </x-notice>
 
         <form wire:submit="submit">
             <div class="mt-4">
@@ -47,20 +39,32 @@
                 <x-input-error :messages="$errors->get('type')" class="mt-2" />
             </div>
 
+            <!-- This would replace the script content section in your Livewire form -->
             <div class="mt-4">
                 <x-input-label for="script" :value="__('Script Content')" />
                 <x-textarea
                     id="script"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full font-mono"
                     wire:model="script"
                     name="script"
-                    rows="6"
-                    placeholder="#!/bin/bash"
+                    rows="10"
+                    placeholder="#!/bin/bash
+# Your script code here
+# Example:
+echo 'Backup starting...'"
                 />
-                <x-input-explain>
-                    {{ __('Enter your shell script. This will be executed on the remote server.') }}
-                </x-input-explain>
                 <x-input-error :messages="$errors->get('script')" class="mt-2" />
+            </div>
+
+            <div class="my-2">
+                <x-notice type="warning" title="{{ __('Important: Script Execution Guidelines') }}">
+                    <p class="mb-2">{{ __('Avoid long-running commands in these scripts as they may:') }}</p>
+                    <ul class="mb-2 ml-5 list-disc">
+                        <li>{{ __('Time out during execution') }}</li>
+                        <li>{{ __('Block the backup process') }}</li>
+                        <li>{{ __('Cause connection interruptions') }}</li>
+                    </ul>
+                </x-notice>
             </div>
 
             <div class="mt-4">
