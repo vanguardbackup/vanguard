@@ -7,12 +7,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BackupTask;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Process;
 use Illuminate\View\View;
 use PDO;
 
@@ -61,16 +60,9 @@ class InstanceDetailsController extends Controller
      */
     private function isHorizonRunning(): bool
     {
-        try {
-            // Capture the output of the horizon:status command
-            Artisan::call('horizon:status');
-            $output = Artisan::output();
+        $result = Process::run('ps aux | grep "artisan horizon" | grep -v grep');
 
-            // Check if the output contains the string "Horizon is running"
-            return str_contains($output, 'Horizon is running');
-        } catch (Exception) {
-            return false;
-        }
+        return $result->successful() && !empty($result->output());
     }
 
     /**
