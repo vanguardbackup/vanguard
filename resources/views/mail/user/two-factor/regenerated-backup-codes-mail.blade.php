@@ -26,6 +26,7 @@ If you did not regenerate these backup codes yourself, your account may be compr
 2. Review your recent account activity
 </x-mail::panel>
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

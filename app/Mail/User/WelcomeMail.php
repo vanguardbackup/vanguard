@@ -47,7 +47,6 @@ class WelcomeMail extends Mailable implements ShouldQueue
             markdown: 'mail.user.welcome-mail',
             with: [
                 'url' => route('remote-servers.create'),
-                'creator' => 'Lewis - Creator of ' . config('app.name'),
             ],
         );
     }

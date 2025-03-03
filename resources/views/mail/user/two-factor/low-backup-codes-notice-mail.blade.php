@@ -20,6 +20,7 @@ After generating new codes:
 2. Delete any previously used or potentially compromised codes.
 3. Consider setting up an additional two-factor authentication method for added security.
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

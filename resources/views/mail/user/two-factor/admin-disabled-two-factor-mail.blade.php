@@ -11,6 +11,7 @@ If you did not request this change, please contact your system administrator imm
 
 For security best practices, we recommend keeping two-factor authentication enabled on your account.
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

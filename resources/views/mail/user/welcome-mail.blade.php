@@ -15,6 +15,7 @@ To get started, click the button below to link your first remote server to {{ co
 {{ __('Add Remote Server') }}
 </x-mail::button>
 
-Thanks again,<br>
-{{ $creator }}
+Thanks,
+<br />
+{{ config('app.name') }}
 </x-mail::message>

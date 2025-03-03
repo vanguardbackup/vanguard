@@ -16,10 +16,10 @@ If you did not enable 2FA yourself, please take immediate action to secure your 
 1. Log in to your account (if possible)
 2. Change your password
 3. Review and update your security settings
-4. Contact our support team immediately for assistance
 
-Strengthening your account security is a great step. If you have any questions about using 2FA, please don't hesitate to reach out to our support team.
+Strengthening your account security is a great step. If you have any questions about using 2FA, please make an issue on our GitHub repository.
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

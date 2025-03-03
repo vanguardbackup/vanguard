@@ -44,6 +44,7 @@ View Overview
 
 Thank you for using {{ config('app.name') }} to keep your data safe and secure.
 
-Best regards,<br>
-The {{ config('app.name') }} Team
+Thanks,
+<br />
+{{ config('app.name') }}
 </x-mail::message>
