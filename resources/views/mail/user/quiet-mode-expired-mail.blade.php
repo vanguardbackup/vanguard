@@ -8,6 +8,7 @@ Your Quiet Mode period has ended. Here's what this means:
 
 Remember, you can always reactivate Quiet Mode if you need to pause notifications again.
 
-Best regards,<br>
-The {{ config('app.name') }} Team
+Thanks,
+<br />
+{{ config('app.name') }}
 </x-mail::message>

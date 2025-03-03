@@ -124,7 +124,7 @@ test('email contains correct app name', function (): void {
 
     expect($content)
         ->toContain('Thank you for using Vanguard to keep your data safe and secure.')
-        ->toContain('The Vanguard Team');
+        ->toContain('Thanks,');
 });
 
 test('mailable uses queue', function (): void {

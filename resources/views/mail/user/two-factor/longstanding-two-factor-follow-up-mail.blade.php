@@ -20,6 +20,7 @@ Generate New Backup Codes
 Remember, backup codes are crucial for account recovery if you lose access to your primary two-factor authentication method. Keeping them up-to-date and secure is an important part of maintaining your account's safety.
 
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

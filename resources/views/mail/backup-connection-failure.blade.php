@@ -15,8 +15,6 @@ Common reasons for this error include:
 
 Please double-check any API keys, passwords, or other credentials you have entered for this backup destination. If you are using an S3-compatible destination, please ensure that the bucket exists and that the credentials you have entered have the necessary permissions.
 
-If you are still encountering issues, please contact our support team at {{ config('mail.from.address') }}.
-
 <x-mail::button :url="$url">
 {{ __('Update Backup Destination') }}
 </x-mail::button>

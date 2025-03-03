@@ -21,6 +21,7 @@ After generating your new backup codes:
 1. Store them securely in a password manager or a safe physical location.
 2. Ensure they're accessible even if you lose your primary device.
 
-Prioritize Your Account Security,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

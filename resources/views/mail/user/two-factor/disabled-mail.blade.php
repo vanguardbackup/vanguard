@@ -13,6 +13,7 @@ Important: If you did not disable 2FA, your account may be compromised. Please t
 2. Change your password
 3. Re-enable two-factor authentication
 
-Stay secure,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

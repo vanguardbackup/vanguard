@@ -21,6 +21,7 @@ Your account security may be at risk. Please take immediate action:
 
 You can manage your backup codes and other security settings by visiting your <a href="{{ route('profile.mfa') }}">account security page</a>.
 
-Stay vigilant,<br>
+Thanks,
+<br />
 {{ config('app.name') }}
 </x-mail::message>

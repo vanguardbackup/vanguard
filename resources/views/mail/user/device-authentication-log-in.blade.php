@@ -13,8 +13,7 @@ To manage your API tokens and review any recent activity, please click the butto
 Review API Tokens
 </x-mail::button>
 
-If you have any questions or need assistance, please do not hesitate to contact our support team.
-
-Best regards,
-The {{ config('app.name') }} Team
+Thanks,
+<br />
+{{ config('app.name') }}
 </x-mail::message>
