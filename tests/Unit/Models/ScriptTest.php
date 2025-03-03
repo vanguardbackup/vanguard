@@ -50,3 +50,34 @@ it('can chain scopes with other query methods', function (): void {
         ->and($result->first()->label)->toBe('First prescript')
         ->and($result->first()->type)->toBe(Script::TYPE_PRESCRIPT);
 });
+
+it('marks a script as successful', function (): void {
+
+    $script = Script::factory()->prescript()->unsuccessful()->create();
+
+    $script->markAsSuccessful();
+
+    expect($script->wasSucessful())->toBeTrue();
+});
+
+it('marks a script as unsuccessful', function (): void {
+    $script = Script::factory()->prescript()->successful()->create();
+
+    $script->markAsUnsuccessful();
+
+    expect($script->wasSucessful())->toBeFalse();
+});
+
+it('returns true if the script is successful', function (): void {
+
+    $script = Script::factory()->prescript()->successful()->create();
+
+    expect($script->wasSucessful())->toBeTrue();
+});
+
+it('returns false if the script is failed', function (): void {
+
+    $script = Script::factory()->prescript()->unsuccessful()->create();
+
+    expect($script->wasSucessful())->toBeFalse();
+});
