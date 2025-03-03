@@ -136,6 +136,16 @@
                             {{ __('View Log') }}
                         </button>
 
+                        <!-- View Scripts -->
+                        <button
+                            x-data=""
+                            x-on:click.prevent="$dispatch('open-modal', 'view-scripts-{{ $backupTask->id }}'); open = false"
+                            class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+                        >
+                            @svg('hugeicons-computer', 'mr-2 h-4 w-4')
+                            {{ __('View Scripts') }}
+                        </button>
+
                         <!-- View Webhook URL -->
                         <button
                             x-data=""
@@ -292,6 +302,16 @@
                             {{ __('View Log') }}
                         </button>
 
+                        <!-- View Scripts -->
+                        <button
+                            x-data=""
+                            x-on:click.prevent="$dispatch('open-modal', 'view-scripts-{{ $backupTask->id }}'); open = false"
+                            class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+                        >
+                            @svg('hugeicons-computer', 'mr-2 h-4 w-4')
+                            {{ __('View Scripts') }}
+                        </button>
+
                         <!-- View Webhook URL -->
                         <button
                             x-data=""
@@ -322,6 +342,115 @@
 
     <!-- Webhook URL Modal -->
     <livewire:backup-tasks.modals.webhook-modal :backupTask="$backupTask" :key="'show-webhook-modal-' . $backupTask->id" />
+
+    <!-- Scripts Modal -->
+    <x-modal name="view-scripts-{{ $backupTask->id }}" :key="'scripts-modal-' . $backupTask->id" focusable>
+        <x-slot name="title">
+            {{ __('Scripts for :task', ['task' => $backupTask->label]) }}
+        </x-slot>
+        <x-slot name="description">
+            {{ __('View scripts associated with this backup task.') }}
+        </x-slot>
+        <x-slot name="icon">hugeicons-computer</x-slot>
+        <div class="max-h-96 space-y-4 overflow-y-auto">
+            @forelse ($backupTask->scripts as $script)
+                <div class="overflow-hidden rounded-lg bg-gray-100 shadow-sm dark:bg-gray-700">
+                    <div class="flex items-center justify-between px-4 py-3">
+                        <h3 class="flex items-center space-x-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <span>{{ $script->label }}</span>
+                        </h3>
+                        <div>
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $script->type === 'prescript' ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' }}">
+                                {{ $script->type === 'prescript' ? __('Pre-backup') : __('Post-backup') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 px-4 py-3 dark:border-gray-600">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Created') }}: {{ $script->created_at->timezone(Auth::user()->timezone)->locale(Auth::user()->language ?? Config::get('app.locale'))->isoFormat('MMMM D, YYYY') }}
+                            </span>
+                            @if ($script->wasSucessful())
+                                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-800 dark:text-green-100">
+                                    <div class="mr-1.5 h-2 w-2 rounded-full bg-green-500"></div>
+                                    {{ __('Success') }}
+                                </span>
+                            @elseif (empty($script->output))
+                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                    <div class="mr-1.5 h-2 w-2 rounded-full bg-gray-500"></div>
+                                    {{ __('Not Run') }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-800 dark:text-red-100">
+                                    <div class="mr-1.5 h-2 w-2 rounded-full bg-red-500"></div>
+                                    {{ __('Failed') }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="mt-2">
+                            <button
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'view-script-output-{{ $script->id }}')"
+                                class="inline-flex items-center rounded-md bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-600 dark:hover:bg-gray-700"
+                            >
+                                @svg('hugeicons-terminal', 'mr-1 h-3 w-3')
+                                {{ __('View Output') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Script Output Modal -->
+                <x-modal
+                    name="view-script-output-{{ $script->id }}"
+                    :key="'script-output-modal-' . $script->id"
+                    focusable
+                >
+                    <x-slot name="title">
+                        {{ __('Script Output: :label', ['label' => $script->label]) }}
+                    </x-slot>
+                    <x-slot name="description">
+                        {{ __('Output from the last execution of this script.') }}
+                    </x-slot>
+                    <x-slot name="icon">hugeicons-terminal</x-slot>
+                    <div class="max-h-96 overflow-y-auto">
+                        <div class="overflow-hidden bg-gray-900 shadow sm:rounded-lg">
+                            <div class="p-4">
+                                @if (empty($script->output))
+                                    <p class="text-sm text-gray-400">{{ __('No output available.') }}</p>
+                                @else
+                                    <pre class="overflow-x-auto whitespace-pre-wrap break-words text-sm font-mono text-gray-300">{{ $script->output }}</pre>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <div class="flex justify-between space-x-3">
+                            <x-secondary-button x-on:click="$dispatch('close')" class="w-full justify-center">
+                                {{ __('Close') }}
+                            </x-secondary-button>
+                        </div>
+                    </div>
+                </x-modal>
+            @empty
+                <div class="py-8 text-center text-gray-500 dark:text-gray-400">
+                    {{ __('No scripts attached to this backup task.') }}
+                </div>
+            @endforelse
+        </div>
+        <div class="mt-6">
+            <div class="flex justify-between space-x-3">
+                <x-secondary-button x-on:click="$dispatch('close')" class="w-full justify-center">
+                    {{ __('Close') }}
+                </x-secondary-button>
+
+                <a href="{{ route('scripts.create') }}" wire:navigate class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    @svg('hugeicons-plus-sign-circle', 'mr-2 h-4 w-4')
+                    {{ __('Create Script') }}
+                </a>
+            </div>
+        </div>
+    </x-modal>
 
     <!-- Tags Modal -->
     <x-modal name="view-tags-{{ $backupTask->id }}" :key="'tags-modal-' . $backupTask->id" focusable>
