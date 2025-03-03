@@ -71,6 +71,25 @@ class CreateForm extends Component
     }
 
     /**
+     * Sets a basic script template based on the selected type.
+     *
+     * @param  string  $templateType  The type of template to set
+     */
+    public function setScriptTemplate(string $templateType): void
+    {
+        $templates = [
+            'bash' => "#!/bin/bash\n\n# Your bash script here\n\nexit 0",
+            'php' => "#!/usr/bin/env php\n<?php\n\n// Your PHP code here\n\nexit(0);",
+            'python' => "#!/usr/bin/env python3\n\nimport sys\n\n# Your Python code here\n\nsys.exit(0)",
+            'node' => "#!/usr/bin/env node\n\n// Your Node.js code here\n\nprocess.exit(0);",
+        ];
+
+        if (isset($templates[$templateType])) {
+            $this->script = $templates[$templateType];
+        }
+    }
+
+    /**
      * Handle the form submission for creating a new script.
      *
      * Validates the input, creates a new Script, and redirects to the index page.

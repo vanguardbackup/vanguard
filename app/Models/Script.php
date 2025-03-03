@@ -64,6 +64,30 @@ class Script extends Model
     }
 
     /**
+     * Returns whether the last execution of the script was successful or not.
+     */
+    public function wasSucessful(): bool
+    {
+        return $this->getAttribute('successful_at') !== null;
+    }
+
+    /**
+     *  Marks the script as successful.
+     */
+    public function markAsSuccessful(): void
+    {
+        $this->update(['successful_at' => now()]);
+    }
+
+    /**
+     *  Marks the script as unsuccessful.
+     */
+    public function markAsUnsuccessful(): void
+    {
+        $this->update(['successful_at' => null]);
+    }
+
+    /**
      * The attributes that should be cast.
      *
      * @return array<string, string>

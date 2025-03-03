@@ -2,7 +2,7 @@
     <x-slot name="action">
         <a href="{{ route('scripts.create') }}" wire:navigate>
             <x-primary-button x-data="" centered>
-                {{ __('Make Scripts') }}
+                {{ __('Make Script') }}
             </x-primary-button>
         </a>
     </x-slot>
@@ -35,8 +35,8 @@
             </x-slot>
             <x-table.table-header>
                 <div class="col-span-3">{{ __('Label') }}</div>
+                <div class="col-span-3">{{ __('Status') }}</div>
                 <div class="col-span-3">{{ __('Type') }}</div>
-                <div class="col-span-3">{{ __('Created') }}</div>
                 <div class="col-span-3">{{ __('Actions') }}</div>
             </x-table.table-header>
             <x-table.table-body>

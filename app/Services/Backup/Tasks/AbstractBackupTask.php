@@ -252,10 +252,16 @@ abstract class AbstractBackupTask extends Backup
             try {
                 $output = $scriptExecutionService->executeScript($sftp, $availableScript);
 
+                $availableScript->update(['output' => $output]);
+                $availableScript->markAsSuccessful();
+
                 if (! empty($output)) {
                     $this->logMessage('Pre-backup script output: ' . $output);
                 }
             } catch (Exception $e) {
+                $availableScript->update(['output' => $e->getMessage()]);
+                $availableScript->markAsUnsuccessful();
+
                 $this->logMessage('Pre-backup script failed: ' . $e->getMessage());
                 throw new RuntimeException('Pre-backup script execution failed: ' . $e->getMessage(), 0, $e);
             }
@@ -288,10 +294,16 @@ abstract class AbstractBackupTask extends Backup
             try {
                 $output = $scriptExecutionService->executeScript($sftp, $availableScript);
 
+                $availableScript->update(['output' => $output]);
+                $availableScript->markAsSuccessful();
+
                 if (! empty($output)) {
                     $this->logMessage('Post-backup script output: ' . $output);
                 }
             } catch (Exception $e) {
+                $availableScript->update(['output' => $e->getMessage()]);
+                $availableScript->markAsUnsuccessful();
+
                 $this->logMessage('Post-backup script failed: ' . $e->getMessage());
                 throw new RuntimeException('Post-backup script execution failed: ' . $e->getMessage(), 0, $e);
             }

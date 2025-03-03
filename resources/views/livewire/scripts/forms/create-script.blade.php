@@ -39,7 +39,6 @@
                 <x-input-error :messages="$errors->get('type')" class="mt-2" />
             </div>
 
-            <!-- This would replace the script content section in your Livewire form -->
             <div class="mt-4">
                 <x-input-label for="script" :value="__('Script Content')" />
                 <x-textarea
@@ -53,6 +52,20 @@
 # Example:
 echo 'Backup starting...'"
                 />
+                <div class="mt-2 flex flex-wrap gap-2">
+                    <x-secondary-button type="button" wire:click="setScriptTemplate('bash')" class="text-xs">
+                        <span class="font-mono">Bash</span>
+                    </x-secondary-button>
+                    <x-secondary-button type="button" wire:click="setScriptTemplate('php')" class="text-xs">
+                        <span class="font-mono">PHP</span>
+                    </x-secondary-button>
+                    <x-secondary-button type="button" wire:click="setScriptTemplate('python')" class="text-xs">
+                        <span class="font-mono">Python</span>
+                    </x-secondary-button>
+                    <x-secondary-button type="button" wire:click="setScriptTemplate('node')" class="text-xs">
+                        <span class="font-mono">Node.js</span>
+                    </x-secondary-button>
+                </div>
                 <x-input-error :messages="$errors->get('script')" class="mt-2" />
             </div>
 

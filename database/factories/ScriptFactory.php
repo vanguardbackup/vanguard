@@ -62,4 +62,22 @@ class ScriptFactory extends Factory
             ];
         });
     }
+
+    public function successful(): self
+    {
+        return $this->state(function () {
+            return [
+                'successful_at' => now(),
+            ];
+        });
+    }
+
+    public function unsuccessful(): self
+    {
+        return $this->state(function () {
+            return [
+                'successful_at' => null,
+            ];
+        });
+    }
 }
