@@ -60,9 +60,9 @@ class InstanceDetailsController extends Controller
      */
     private function isHorizonRunning(): bool
     {
-        $processResult = Process::run('ps aux | grep "artisan horizon" | grep -v grep');
+        $result = Process::run('ps aux | grep "artisan horizon" | grep -v grep');
 
-        return $processResult->successful() && ! empty($processResult->output());
+        return $result->successful() && ! empty($result->output());
     }
 
     /**
