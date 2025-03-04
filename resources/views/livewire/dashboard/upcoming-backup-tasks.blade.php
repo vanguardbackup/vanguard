@@ -5,32 +5,32 @@
                 @svg('hugeicons-calendar-03', 'inline h-16 w-16 text-primary-900 dark:text-white')
             </x-slot>
             <x-slot name="title">
-                {{ __('No Upcoming Backup Tasks') }}
+                {{ __('No Upcoming Backups') }}
             </x-slot>
             <x-slot name="description">
-                {{ __('Uh Oh! There are no backup tasks scheduled.') }}
+                {{ __('You don\'t have any backups scheduled yet.') }}
             </x-slot>
             <x-slot name="action">
                 <a href="{{ route('backup-tasks.create') }}" wire:navigate>
                     <x-primary-button type="button" class="mt-4">
-                        {{ __('Add Backup Task') }}
+                        {{ __('Schedule a Backup') }}
                     </x-primary-button>
                 </a>
             </x-slot>
         </x-no-content>
     @else
         <x-table.table-wrapper
-            title="{{ __('Upcoming Backup Tasks') }}"
-            description="{{ __('Scheduled backup tasks that are set to run soon.') }}"
+            title="{{ __('Coming Up Next') }}"
+            description="{{ __('Your upcoming scheduled backups.') }}"
         >
             <x-slot name="icon">
                 <x-hugeicons-calendar-03 class="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </x-slot>
             <x-table.table-header>
-                <div class="col-span-3">{{ __('Task Label') }}</div>
-                <div class="col-span-3">{{ __('Remote Server') }}</div>
-                <div class="col-span-3">{{ __('Task Type') }}</div>
-                <div class="col-span-3">{{ __('Scheduled for') }}</div>
+                <div class="col-span-3">{{ __('Backup Name') }}</div>
+                <div class="col-span-3">{{ __('Server') }}</div>
+                <div class="col-span-3">{{ __('Type') }}</div>
+                <div class="col-span-3">{{ __('When') }}</div>
             </x-table.table-header>
             <x-table.table-body>
                 @foreach ($scheduledBackupTasks as $scheduledBackupTask)

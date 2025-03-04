@@ -3,7 +3,7 @@
 ])
 
 <div
-    class="overflow-hidden rounded-[0.70rem] border bg-white shadow-none sm:rounded-[0.70rem] dark:border-gray-800/30 dark:bg-gray-800/50"
+    class="overflow-hidden rounded-[0.70rem] border bg-white pb-4 shadow-none sm:rounded-[0.70rem] dark:border-gray-800/30 dark:bg-gray-800/50"
 >
     @if (isset($title))
         <div class="px-6 py-5">
@@ -30,7 +30,7 @@
     @endif
 
     <div
-        class="{{ isset($title) ? 'border-t border-gray-200 px-6 py-4 dark:border-gray-700' : 'p-6' }} text-sm leading-relaxed text-gray-700 sm:text-base dark:text-gray-300"
+        class="{{ isset($title) ? 'border-t border-gray-200 px-6 py-5 dark:border-gray-700' : 'p-6' }} text-sm leading-relaxed text-gray-700 sm:text-base dark:text-gray-300"
     >
         {{ $slot }}
     </div>
