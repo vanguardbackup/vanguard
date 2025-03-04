@@ -199,6 +199,28 @@ abstract class AbstractBackupTask extends Backup
     }
 
     /**
+     * Measures the size of a file on the remote server and updates the backupSize property.
+     *
+     * @param  SFTPInterface  $sftp  The SFTP connection
+     * @param  string  $remotePath  The path to the file on the remote server
+     * @return int The size of the file in bytes
+     *
+     * @throws Exception
+     */
+    protected function measureRemoteFileSize(SFTPInterface $sftp, string $remotePath): int
+    {
+        $fileSizeCommand = sprintf('stat -c %%s %s || echo "0"', escapeshellarg($remotePath));
+        $fileSizeOutput = $sftp->exec($fileSizeCommand);
+        $fileSize = is_string($fileSizeOutput) ? (int) trim($fileSizeOutput) : 0;
+
+        if ($fileSize > 0) {
+            $this->backupSize = $fileSize;
+        }
+
+        return $fileSize;
+    }
+
+    /**
      * Encrypts the backup file on the remote server using the specified password.
      *
      * @param  SFTPInterface  $sftp  The SFTP connection
@@ -226,6 +248,8 @@ abstract class AbstractBackupTask extends Backup
         }
 
         $this->logMessage('Backup file encrypted successfully.');
+
+        $this->measureRemoteFileSize($sftp, $remoteFilePath);
     }
 
     /**

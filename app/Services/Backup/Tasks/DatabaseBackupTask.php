@@ -24,11 +24,12 @@ class DatabaseBackupTask extends AbstractBackupTask
      * This method executes the following steps:
      * 1. Establishes an SFTP connection to the remote server.
      * 2. Detects the database type.
-     * 3. Determines the size of the database.
-     * 4. Dumps the remote database to a temporary file.
-     * 5. Uploads the dump file to the specified backup destination.
-     * 6. Optionally rotates old backups based on configuration.
-     * 7. Cleans up temporary files.
+     * 3. Dumps the remote database to a temporary file.
+     * 4. Measures the size of the resulting dump file.
+     * 5. Optionally encrypts the backup.
+     * 6. Uploads the dump file to the specified backup destination.
+     * 7. Optionally rotates old backups based on configuration.
+     * 8. Cleans up temporary files.
      *
      * @throws DatabaseDumpException If there's an error during the database dump process
      * @throws SFTPConnectionException If there's an error establishing the SFTP connection
@@ -67,10 +68,8 @@ class DatabaseBackupTask extends AbstractBackupTask
         $dumpFileName = $this->generateBackupFileName('sql');
         $remoteDumpPath = '/tmp/' . $dumpFileName;
 
-        $dirSize = $this->getRemoteDatabaseSize($sftp, $databaseType, $databaseName, $databasePassword);
-        $this->backupSize = $dirSize;
-
         $this->dumpRemoteDatabase($sftp, $databaseType, $remoteDumpPath, $databasePassword, $databaseName, $this->backupTask->getAttribute('excluded_database_tables'));
+        $this->measureRemoteFileSize($sftp, $remoteDumpPath);
 
         if ($this->backupTask->hasEncryptionPassword()) {
             $this->setFileEncryption($sftp, $remoteDumpPath);

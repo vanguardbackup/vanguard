@@ -29,9 +29,10 @@ class FileBackupTask extends AbstractBackupTask
      * 3. Calculates the size of the directory to be backed up.
      * 4. Detects if the source is a Laravel project and optimizes accordingly.
      * 5. Compresses the remote directory into a zip file.
-     * 6. Uploads the zip file to the specified backup destination.
-     * 7. Optionally rotates old backups based on configuration.
-     * 8. Cleans up temporary files.
+     * 6. Measures the size of the resulting zip file.
+     * 7. Uploads the zip file to the specified backup destination.
+     * 8. Optionally rotates old backups based on configuration.
+     * 9. Cleans up temporary files.
      *
      * @throws BackupTaskZipException If there's an error during the zip compression process
      * @throws SFTPConnectionException If there's an error establishing the SFTP connection
@@ -72,7 +73,6 @@ class FileBackupTask extends AbstractBackupTask
         }
 
         $dirSize = $this->getRemoteDirectorySize($sftp, $sourcePath);
-        $this->backupSize = $dirSize;
         $dirSizeInMB = number_format($dirSize / 1024 / 1024, 1);
         $this->logMessage(sprintf("Source directory '%s' size: %s MB.", $sourcePath, $dirSizeInMB));
 
@@ -85,6 +85,8 @@ class FileBackupTask extends AbstractBackupTask
 
         $this->zipRemoteDirectory($sftp, $sourcePath, $remoteZipPath, $excludeDirs);
         $this->logMessage(sprintf('Directory compression complete. Archive location: %s.', $remoteZipPath));
+
+        $this->measureRemoteFileSize($sftp, $remoteZipPath);
 
         if ($this->backupTask->hasEncryptionPassword()) {
             $this->setFileEncryption($sftp, $remoteZipPath);
