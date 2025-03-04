@@ -1870,3 +1870,45 @@ it('returns false if the task does not have an associated postscript', function 
 
     $this->assertCount(0, $task->scripts);
 });
+
+it('outputs the correct backup size data values for the chart', function (): void {
+    $user = User::factory()->create();
+
+    $backupTaskOne = BackupTask::factory()->create([
+        'user_id' => $user->getAttributeValue('id'),
+        'label' => 'Database Backup',
+        'type' => 'database'
+    ]);
+
+    $backupTaskOne->data()->create([
+        'size' => '143434',
+        'duration' => '120'
+    ]);
+
+    $backupTaskTwo = BackupTask::factory()->create([
+        'user_id' => $user->getAttributeValue('id'),
+        'label' => 'File Backup',
+        'type' => 'files'
+    ]);
+
+    $backupTaskTwo->data()->create([
+        'size' => '287868',
+        'duration' => '120'
+    ]);
+
+    $result = BackupTask::backupSizeByTypeData($user->getAttributeValue('id'), 2);
+
+    expect($result)->toBeArray()
+        ->toHaveKeys(['labels', 'datasets', 'formatted'])
+        ->and($result['labels'])->toBeArray()
+        ->toContain('Database Backup')
+        ->toContain('File Backup')
+        ->and($result['datasets'])->toBeArray()->toHaveCount(1)
+        ->and($result['datasets'][0]['label'])->toBe(__('Average Backup Size'))
+        ->and($result['datasets'][0]['data'])->toBeArray()->toHaveCount(2)
+        ->and($result['datasets'][0]['data'])->toContain(143434)
+        ->toContain(287868)
+        ->and($result['formatted'])->toBeArray()->toHaveCount(2)
+        ->and($result['formatted'])->toContain(Number::fileSize(143434))
+        ->toContain(Number::fileSize(287868));
+});
