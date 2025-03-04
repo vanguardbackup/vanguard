@@ -1877,23 +1877,23 @@ it('outputs the correct backup size data values for the chart', function (): voi
     $backupTaskOne = BackupTask::factory()->create([
         'user_id' => $user->getAttributeValue('id'),
         'label' => 'Database Backup',
-        'type' => 'database'
+        'type' => 'database',
     ]);
 
     $backupTaskOne->data()->create([
         'size' => '143434',
-        'duration' => '120'
+        'duration' => '120',
     ]);
 
     $backupTaskTwo = BackupTask::factory()->create([
         'user_id' => $user->getAttributeValue('id'),
         'label' => 'File Backup',
-        'type' => 'files'
+        'type' => 'files',
     ]);
 
     $backupTaskTwo->data()->create([
         'size' => '287868',
-        'duration' => '120'
+        'duration' => '120',
     ]);
 
     $result = BackupTask::backupSizeByTypeData($user->getAttributeValue('id'), 2);
