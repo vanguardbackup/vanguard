@@ -10,10 +10,14 @@
         </x-slot>
 
         <div class="mb-4">
-            <div class="flex flex-col items-center rounded-lg bg-white p-4 shadow-md sm:flex-row sm:justify-between dark:bg-gray-800/50">
+            <div
+                class="flex flex-col items-center rounded-lg bg-white p-4 shadow-md sm:flex-row sm:justify-between dark:bg-gray-800/50"
+            >
                 <div class="flex flex-col items-center sm:flex-row">
                     <div class="relative">
-                        <div class="h-12 w-12 overflow-hidden rounded-full border border-primary-300 shadow-sm dark:border-primary-600">
+                        <div
+                            class="h-12 w-12 overflow-hidden rounded-full border border-primary-300 shadow-sm dark:border-primary-600"
+                        >
                             <img
                                 class="h-full w-full object-cover"
                                 src="{{ Auth::user()->gravatar('100') }}"
@@ -34,18 +38,32 @@
                 </div>
 
                 <div class="mt-4 flex w-full justify-center space-x-2 sm:mt-0 sm:w-auto">
-                    <a href="{{ route('backup-tasks.create') }}" class="group flex flex-col items-center rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-600 transition-all duration-200 group-hover:bg-primary-200 dark:bg-primary-900/40 dark:text-primary-400 dark:group-hover:bg-primary-800/60">
+                    <a
+                        href="{{ route('backup-tasks.create') }}"
+                        class="group flex flex-col items-center rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-600 transition-all duration-200 group-hover:bg-primary-200 dark:bg-primary-900/40 dark:text-primary-400 dark:group-hover:bg-primary-800/60"
+                        >
                             @svg('hugeicons-plus-sign-circle', 'h-4 w-4')
                         </div>
-                        <span class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">{{ __('Add Task') }}</span>
+                        <span class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {{ __('Add Task') }}
+                        </span>
                     </a>
 
-                    <a href="{{ route('backup-tasks.index') }}" class="group flex flex-col items-center rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600 transition-all duration-200 group-hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:group-hover:bg-purple-800/60">
+                    <a
+                        href="{{ route('backup-tasks.index') }}"
+                        class="group flex flex-col items-center rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600 transition-all duration-200 group-hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:group-hover:bg-purple-800/60"
+                        >
                             @svg('hugeicons-archive-02', 'h-4 w-4')
                         </div>
-                        <span class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">{{ __('View Tasks') }}</span>
+                        <span class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {{ __('View Tasks') }}
+                        </span>
                     </a>
                 </div>
             </div>
@@ -74,11 +92,10 @@
         <div class="mt-6">
             @livewire('dashboard.upcoming-backup-tasks')
         </div>
-        </div>
         <script>
             document.addEventListener('livewire:navigated', function () {
                 // Initialize charts
-                const initializeCharts = function() {
+                const initializeCharts = function () {
                     const isDarkMode = document.documentElement.classList.contains('dark');
                     const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'; // dark:text-gray-200 : text-gray-900
                     const backgroundColor = isDarkMode ? 'rgba(229, 231, 235, 0.24)' : 'rgba(17, 24, 39, 0.24)';
@@ -131,9 +148,10 @@
                             Files: '{!! __('Files') !!}',
                             Database: '{!! __('Database') !!}',
                         };
-                        const labels = {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(
-                            (label) => translations[label] || label,
-                        ).map((label) => label.charAt(0).toUpperCase() + label.slice(1));
+                        const labels =
+                            {!! json_encode(array_keys($backupTasksCountByType), JSON_THROW_ON_ERROR) !!}.map(
+                                (label) => translations[label] || label,
+                            ).map((label) => label.charAt(0).toUpperCase() + label.slice(1));
 
                         window.typeChart = new Chart(ctx2.getContext('2d'), {
                             type: 'bar',
