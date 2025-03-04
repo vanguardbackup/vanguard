@@ -11,7 +11,7 @@
 
         <div class="mb-4">
             <div
-                class="flex flex-col items-center rounded-lg bg-white p-4 shadow-md sm:flex-row sm:justify-between dark:bg-gray-800/50"
+                class="flex flex-col items-center rounded-[0.70rem] border bg-white p-4 transition duration-300 ease-in-out hover:shadow-md sm:flex-row sm:justify-between dark:border-gray-800/30 dark:bg-gray-800/50"
             >
                 <div class="flex flex-col items-center sm:flex-row">
                     <div class="relative">
@@ -69,7 +69,18 @@
             </div>
         </div>
 
+        <!-- Top row: Success Rate and Monthly Activity -->
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <x-chart-card
+                title="{{ __('Backup Success Rate') }}"
+                description="{{ __('Monthly backup success percentage') }}."
+                icon="hugeicons-tick-01"
+            >
+                <div class="h-64">
+                    <canvas id="backupSuccessRate"></canvas>
+                </div>
+            </x-chart-card>
+
             <x-chart-card
                 title="{{ __('Monthly Activity') }}"
                 description="{{ __('How many backups you ran each month') }}."
@@ -79,6 +90,10 @@
                     <canvas id="totalBackupsPerMonth"></canvas>
                 </div>
             </x-chart-card>
+        </div>
+
+        <!-- Second row: Backup Types and Backup Sizes -->
+        <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
             <x-chart-card
                 title="{{ __('Backup Types') }}"
                 description="{{ __('Breakdown of your file and database backups') }}."
@@ -88,7 +103,18 @@
                     <canvas id="backupTasksByType"></canvas>
                 </div>
             </x-chart-card>
+
+            <x-chart-card
+                title="{{ __('Backup Sizes') }}"
+                description="{{ __('Average size of each backup task') }}."
+                icon="hugeicons-chart"
+            >
+                <div class="h-64">
+                    <canvas id="backupSizeByType"></canvas>
+                </div>
+            </x-chart-card>
         </div>
+
         <div class="mt-6">
             @livewire('dashboard.upcoming-backup-tasks')
         </div>
@@ -99,6 +125,65 @@
                     const isDarkMode = document.documentElement.classList.contains('dark');
                     const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'; // dark:text-gray-200 : text-gray-900
                     const backgroundColor = isDarkMode ? 'rgba(229, 231, 235, 0.24)' : 'rgba(17, 24, 39, 0.24)';
+
+                    // Backup Success Rate Chart (moved to top position)
+                    const ctx4 = document.getElementById('backupSuccessRate');
+
+                    if (ctx4) {
+                        const successData = {!! json_encode($successRateData, JSON_THROW_ON_ERROR) !!};
+
+                        window.successRateChart = new Chart(ctx4.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: successData.labels,
+                                datasets: [
+                                    {
+                                        label: '{!! __('Success Rate (%)') !!}',
+                                        data: successData.data,
+                                        borderColor: '#10b981', // Green color
+                                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                        borderWidth: 2,
+                                        tension: 0.2,
+                                        fill: true,
+                                        pointBackgroundColor: '#10b981',
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6,
+                                    },
+                                ],
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return `${context.dataset.label}: ${context.raw}%`;
+                                            },
+                                        },
+                                    },
+                                    legend: {
+                                        display: false,
+                                    },
+                                },
+                                scales: {
+                                    x: {
+                                        ticks: { color: textColor },
+                                    },
+                                    y: {
+                                        min: 0,
+                                        max: 100,
+                                        ticks: {
+                                            color: textColor,
+                                            callback: function (value) {
+                                                return value + '%';
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        });
+                    }
 
                     // Monthly Activity Chart
                     const label = '{!! __('Backup Tasks') !!}';
@@ -132,7 +217,12 @@
                                         ticks: { color: textColor },
                                     },
                                     y: {
-                                        ticks: { color: textColor },
+                                        ticks: {
+                                            color: textColor,
+                                            stepSize: 1,
+                                            precision: 0,
+                                        },
+                                        beginAtZero: true,
                                     },
                                 },
                             },
@@ -184,7 +274,70 @@
                                         ticks: { color: textColor },
                                     },
                                     y: {
-                                        ticks: { color: textColor },
+                                        ticks: {
+                                            color: textColor,
+                                            stepSize: 1,
+                                            precision: 0,
+                                        },
+                                        beginAtZero: true,
+                                    },
+                                },
+                            },
+                        });
+                    }
+
+                    // Backup Size Radar Chart
+                    const ctx3 = document.getElementById('backupSizeByType');
+
+                    if (ctx3) {
+                        const sizeData = {!! json_encode($backupSizeData, JSON_THROW_ON_ERROR) !!};
+                        const formattedSizes = sizeData.formatted;
+
+                        window.sizeChart = new Chart(ctx3.getContext('2d'), {
+                            type: 'radar',
+                            data: {
+                                labels: sizeData.labels,
+                                datasets: sizeData.datasets.map((dataset) => ({
+                                    ...dataset,
+                                    borderColor: textColor,
+                                    pointBackgroundColor: textColor,
+                                })),
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    r: {
+                                        angleLines: {
+                                            color: backgroundColor,
+                                        },
+                                        grid: {
+                                            color: backgroundColor,
+                                        },
+                                        pointLabels: {
+                                            color: textColor,
+                                            font: {
+                                                size: 10,
+                                            },
+                                        },
+                                        ticks: {
+                                            color: textColor,
+                                            backdropColor: isDarkMode ? 'rgb(17, 24, 39)' : 'rgb(255, 255, 255)',
+                                            showLabelBackdrop: false,
+                                            display: false,
+                                        },
+                                    },
+                                },
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return `${context.dataset.label}: ${formattedSizes[context.dataIndex]}`;
+                                            },
+                                        },
+                                    },
+                                    legend: {
+                                        display: false,
                                     },
                                 },
                             },
@@ -203,6 +356,12 @@
                     }
                     if (window.typeChart) {
                         window.typeChart.destroy();
+                    }
+                    if (window.sizeChart) {
+                        window.sizeChart.destroy();
+                    }
+                    if (window.successRateChart) {
+                        window.successRateChart.destroy();
                     }
 
                     // Recreate charts with updated theme colors

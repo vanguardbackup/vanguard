@@ -33,6 +33,8 @@ class OverviewController extends Controller
             'months' => json_encode(array_keys($logsCountPerMonthForLastSixMonths), JSON_THROW_ON_ERROR),
             'counts' => json_encode(array_values($logsCountPerMonthForLastSixMonths), JSON_THROW_ON_ERROR),
             'backupTasksCountByType' => BackupTask::backupTasksCountByType($user->getAttribute('id')),
+            'backupSizeData' => BackupTask::backupSizeByTypeData($user->getAttribute('id')),
+            'successRateData' => BackupTask::getBackupSuccessRateData(),
         ]);
     }
 }

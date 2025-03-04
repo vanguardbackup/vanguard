@@ -267,6 +267,86 @@ class BackupTask extends Model
     }
 
     /**
+     * Get backup tasks size data by task type for radar chart
+     *
+     * @param  int|null  $userId  The ID of the user, or null for all users
+     * @param  int  $limit  The number of latest backup tasks to consider
+     * @return array<string, mixed> An array containing labels and size data for radar chart
+     */
+    public static function backupSizeByTypeData(?int $userId = null, int $limit = 100): array
+    {
+        $builder = BackupTaskData::query()
+            ->select('backup_task_data.backup_task_id')
+            ->selectRaw('MAX(backup_task_data.created_at) as latest_date')
+            ->whereNotNull('backup_task_data.size')
+            ->where('backup_task_data.size', '>', 0)
+            ->groupBy('backup_task_data.backup_task_id');
+
+        if ($userId !== null) {
+            $builder->join('backup_tasks', 'backup_tasks.id', '=', 'backup_task_data.backup_task_id')
+                ->where('backup_tasks.user_id', $userId);
+        }
+
+        $latestBackups = $builder->orderBy('latest_date', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $backupTaskIds = $latestBackups->pluck('backup_task_id')->toArray();
+
+        if (empty($backupTaskIds)) {
+            return [
+                'labels' => [],
+                'datasets' => [
+                    [
+                        'label' => __('Average Backup Size'),
+                        'data' => [],
+                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                        'borderColor' => 'rgb(54, 162, 235)',
+                        'pointBackgroundColor' => 'rgb(54, 162, 235)',
+                    ],
+                ],
+                'formatted' => [],
+            ];
+        }
+
+        $sizeData = BackupTaskData::query()
+            ->join('backup_tasks', 'backup_tasks.id', '=', 'backup_task_data.backup_task_id')
+            ->whereIn('backup_task_data.backup_task_id', $backupTaskIds)
+            ->whereNotNull('backup_task_data.size')
+            ->where('backup_task_data.size', '>', 0)
+            ->select('backup_tasks.id', 'backup_tasks.label', 'backup_tasks.type')
+            ->selectRaw('AVG(backup_task_data.size) as average_size')
+            ->groupBy('backup_tasks.id', 'backup_tasks.label', 'backup_tasks.type')
+            ->get();
+
+        $result = [];
+        foreach ($sizeData as $data) {
+            $taskLabel = $data['label'];
+            $size = (int) $data['average_size'];
+
+            $result[$taskLabel] = [
+                'type' => $data['type'],
+                'average_size' => $size,
+                'formatted_size' => self::formatFileSize($size),
+            ];
+        }
+
+        return [
+            'labels' => array_keys($result),
+            'datasets' => [
+                [
+                    'label' => __('Average Backup Size'),
+                    'data' => array_values(array_map(fn ($item): int => $item['average_size'], $result)),
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                    'borderColor' => 'rgb(54, 162, 235)',
+                    'pointBackgroundColor' => 'rgb(54, 162, 235)',
+                ],
+            ],
+            'formatted' => array_values(array_map(fn ($item): string => $item['formatted_size'], $result)),
+        ];
+    }
+
+    /**
      * Boot the model.
      */
     #[Override]
