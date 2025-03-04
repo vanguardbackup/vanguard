@@ -139,7 +139,7 @@ Breadcrumbs::for('profile.connections', function (BreadcrumbTrail $trail) {
 
 Breadcrumbs::for('profile.help', function (BreadcrumbTrail $trail) {
     $trail->parent('profile');
-    $trail->push(__('Get Help'), route('profile.help'));
+    $trail->push(__('Help Centre'), route('profile.help'));
 });
 
 Breadcrumbs::for('profile.audit-logs', function (BreadcrumbTrail $trail) {

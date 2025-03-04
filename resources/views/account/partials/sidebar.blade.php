@@ -179,7 +179,7 @@
             >
                 <span class="flex items-center">
                     @svg('hugeicons-mentoring', 'mr-2 h-5 w-5')
-                    <span>{{ __('Get Help') }}</span>
+                    <span>{{ __('Help Centre') }}</span>
                 </span>
             </x-sidebar-nav-link>
         </li>

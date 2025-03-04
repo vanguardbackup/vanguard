@@ -1,19 +1,24 @@
 @php
-    $defaultClasses = 'text-gray-500 transition-all duration-200 hover:text-black dark:text-gray-400 dark:hover:text-white';
-    $activeClasses = 'font-medium text-gray-700 dark:text-gray-300';
-    $separatorClasses = 'mx-2 text-gray-400 dark:text-gray-500';
+    $defaultClasses =
+        'text-gray-500 transition-colors duration-200 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400';
+    $activeClasses = 'font-medium text-gray-800 dark:text-white';
+    $separatorClasses = 'mx-2 text-gray-300 dark:text-gray-600';
 @endphp
 
-<nav aria-label="Breadcrumb" class="bg-white py-4 dark:bg-gray-900">
-    <div class="mx-auto flex max-w-6xl justify-center px-4 sm:px-6 lg:px-8">
-        <ol class="flex flex-wrap items-center justify-center text-sm sm:text-base">
+<nav aria-label="Breadcrumb" class="py-3">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <ol class="flex flex-wrap items-center text-sm">
             @foreach ($breadcrumbs as $breadcrumb)
-                <li class="flex items-center">
+                <li class="{{ $loop->last ? '' : 'whitespace-nowrap' }} flex items-center">
                     @if (! is_null($breadcrumb->url) && ! $loop->last)
-                        <a href="{{ $breadcrumb->url }}" wire:navigate class="{{ $defaultClasses }} group">
+                        <a
+                            href="{{ $breadcrumb->url }}"
+                            wire:navigate
+                            class="{{ $defaultClasses }} group flex items-center"
+                        >
                             @if ($loop->first)
                                 <span class="sr-only">Home</span>
-                                @svg('hugeicons-home-05', 'h-5 w-5')
+                                @svg('hugeicons-home-05', 'h-4 w-4')
                             @else
                                 <span class="group-hover:underline">
                                     {{ $breadcrumb->title }}
@@ -21,14 +26,18 @@
                             @endif
                         </a>
                     @else
-                        <span class="{{ $activeClasses }}" aria-current="page">
+                        <span
+                            class="{{ $activeClasses }} truncate"
+                            aria-current="page"
+                            title="{{ $breadcrumb->title }}"
+                        >
                             {{ $breadcrumb->title }}
                         </span>
                     @endif
 
                     @if (! $loop->last)
                         <svg
-                            class="{{ $separatorClasses }} h-5 w-5"
+                            class="{{ $separatorClasses }} h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             width="24"
