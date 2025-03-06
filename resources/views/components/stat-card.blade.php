@@ -23,17 +23,6 @@
         </div>
     </div>
     <div class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-        <div x-data="{ loaded: false }" x-init="setTimeout(() => (loaded = true), 1500)">
-            <template x-if="!loaded">
-                <div class="space-y-2">
-                    <div class="h-4 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-4 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-4 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-                </div>
-            </template>
-            <template x-if="loaded">
-                {{ $slot }}
-            </template>
-        </div>
+        {{ $slot }}
     </div>
 </div>
