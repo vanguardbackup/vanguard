@@ -71,6 +71,8 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         'last_two_factor_at',
         'created_at',
         'updated_at',
+        'last_two_factor_ip',
+        'two_factor_verified_token',
     ];
 
     /**

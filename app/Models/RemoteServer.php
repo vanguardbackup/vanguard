@@ -50,6 +50,7 @@ class RemoteServer extends Model
         'connectivity_status',
         'created_at',
         'updated_at',
+        'marked_for_deletion_at',
     ];
 
     /**
