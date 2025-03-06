@@ -18,190 +18,232 @@
                     </x-slot>
                 </x-no-content>
             @else
-                <div
-                    x-data="{ loaded: false }"
-                    x-init="setTimeout(() => (loaded = true), 1000)"
-                    class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-                >
+                <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <x-stat-card
                         icon="hugeicons-cloud-server"
-                        title="{{ __('Backup Data Statistics') }}"
-                        description="{{ __('Data backed up over different periods.') }}"
+                        title="{{ __('Backup Volume Overview') }}"
+                        description="{{ __('See how much data you have secured over time.') }}"
+                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
                     >
-                        <div>
-                            <p class="mb-1 text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Last 7 days') }}:
-                                <span class="font-semibold">
-                                    {{ $dataBackedUpInThePastSevenDays }}
-                                </span>
-                            </p>
-                            <p class="mb-1 text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Last month') }}:
-                                <span class="font-semibold">
-                                    {{ $dataBackedUpInThePastMonth }}
-                                </span>
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Total') }}:
-                                <span class="font-semibold">
-                                    {{ $dataBackedUpInTotal }}
-                                </span>
-                            </p>
+                        <div class="space-y-4 mt-4">
+                            <div class="relative">
+                                <div class="flex justify-between items-baseline">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                        {{ __('Last 7 days') }}
+                                    </h4>
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                        {{ $dataBackedUpInThePastSevenDays }}
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
+                                    <div class="h-1 bg-gray-900/80 dark:bg-white/80 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <div class="relative">
+                                <div class="flex justify-between items-baseline">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                        {{ __('Last month') }}
+                                    </h4>
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                        {{ $dataBackedUpInThePastMonth }}
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
+                                    <div class="h-1 bg-gray-900/80 dark:bg-white/80 rounded-full opacity-90" style="width: 90%"></div>
+                                </div>
+                            </div>
+
+                            <div class="relative">
+                                <div class="flex justify-between items-baseline">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                        {{ __('Total') }}
+                                    </h4>
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                        {{ $dataBackedUpInTotal }}
+                                    </span>
+                                </div>
+                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
+                                    <div class="h-1 bg-blue-500/25 dark:bg-blue-400/25 rounded-full shadow-sm" style="width: 100%"></div>
+                                </div>
+                            </div>
                         </div>
                     </x-stat-card>
 
                     <x-stat-card
                         icon="hugeicons-wireless-cloud-access"
-                        title="{{ __('Linked Resources') }}"
-                        description="{{ __('Connected servers and destinations.') }}"
+                        title="{{ __('Connected Resources') }}"
+                        description="{{ __('Connected servers and destinations to Vanguard.') }}"
+                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
                     >
-                        <div>
-                            <p class="mb-1 text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Remote Servers') }}:
-                                <span class="font-semibold">
-                                    {{ $linkedServers }}
-                                </span>
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Backup Destinations') }}:
-                                <span class="font-semibold">
-                                    {{ $linkedBackupDestinations }}
-                                </span>
-                            </p>
+                        <div class="mt-4 space-y-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                        {{ __('Remote Servers') }}
+                                    </h4>
+                                    <div class="flex items-baseline">
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                            {{ $linkedServers }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ __('active connections') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                        {{ __('Backup Destinations') }}
+                                    </h4>
+                                    <div class="flex items-baseline">
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                            {{ $linkedBackupDestinations }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ __('storage locations') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </x-stat-card>
 
                     <x-stat-card
                         icon="hugeicons-task-01"
                         title="{{ __('Backup Tasks') }}"
-                        description="{{ __('Status of your backup tasks.') }}"
+                        description="{{ __('Status of the backup tasks you have made.') }}"
+                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
                     >
-                        <div>
-                            <p class="mb-1 text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Active') }}:
-                                <span class="font-semibold">
-                                    {{ $activeBackupTasks }}
-                                </span>
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">
-                                {{ __('Paused') }}:
-                                <span class="font-semibold">
-                                    {{ $pausedBackupTasks }}
-                                </span>
-                            </p>
+                        <div class="mt-4 space-y-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                        {{ __('Active') }}
+                                    </h4>
+                                    <div class="flex items-baseline">
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                            {{ $activeBackupTasks }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ __('running tasks') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                        {{ __('Paused') }}
+                                    </h4>
+                                    <div class="flex items-baseline">
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                            {{ $pausedBackupTasks }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ __('suspended tasks') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </x-stat-card>
                 </div>
 
-                <div
-                    x-data="{ loaded: false }"
-                    x-init="setTimeout(() => (loaded = true), 1500)"
-                    class="grid grid-cols-1 gap-8 md:grid-cols-2"
-                >
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                     <x-chart-card
                         title="{{ __('Backups over the past 90 days') }}"
                         description="{{ __('All backups over the past ninety days.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document
-                                        .getElementById('totalBackupTasksPast90Days')
-                                        .getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createBackupChart = function() {
+                                        const ctx = document
+                                            .getElementById('totalBackupTasksPast90Days')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'bar',
-                                        data: {
-                                            labels: {{ Js::from($backupDates) }},
-                                            datasets: [
-                                                {
-                                                    label: '{{ __('Files') }}',
-                                                    data: {{ Js::from($fileBackupCounts) }},
-                                                    backgroundColor: isDarkMode
-                                                        ? 'rgba(75, 85, 99, 0.8)'
-                                                        : 'rgba(250, 245, 255, 0.8)',
-                                                    borderColor: isDarkMode
-                                                        ? 'rgb(156, 163, 175)'
-                                                        : 'rgb(192, 180, 204)',
-                                                    borderWidth: 1,
-                                                },
-                                                {
-                                                    label: '{{ __('Database') }}',
-                                                    data: {{ Js::from($databaseBackupCounts) }},
-                                                    backgroundColor: isDarkMode
-                                                        ? 'rgba(55, 65, 81, 0.8)'
-                                                        : 'rgba(237, 254, 255, 0.8)',
-                                                    borderColor: isDarkMode
-                                                        ? 'rgb(107, 114, 128)'
-                                                        : 'rgb(189, 220, 223)',
-                                                    borderWidth: 1,
-                                                },
-                                            ],
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: {{ Js::from($backupDates) }},
+                                                datasets: [
+                                                    {
+                                                        label: '{{ __('Files') }}',
+                                                        data: {{ Js::from($fileBackupCounts) }},
+                                                        backgroundColor: isDarkMode
+                                                            ? 'rgba(75, 85, 99, 0.8)'
+                                                            : 'rgba(250, 245, 255, 0.8)',
+                                                        borderColor: isDarkMode
+                                                            ? 'rgb(156, 163, 175)'
+                                                            : 'rgb(192, 180, 204)',
+                                                        borderWidth: 1,
+                                                    },
+                                                    {
+                                                        label: '{{ __('Database') }}',
+                                                        data: {{ Js::from($databaseBackupCounts) }},
+                                                        backgroundColor: isDarkMode
+                                                            ? 'rgba(55, 65, 81, 0.8)'
+                                                            : 'rgba(237, 254, 255, 0.8)',
+                                                        borderColor: isDarkMode
+                                                            ? 'rgb(107, 114, 128)'
+                                                            : 'rgb(189, 220, 223)',
+                                                        borderWidth: 1,
+                                                    },
+                                                ],
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: '{{ __('Backup Tasks - Past 90 Days') }}',
                                                         color: textColor,
                                                     },
                                                 },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('Backup Tasks - Past 90 Days') }}',
-                                                    color: textColor,
+                                                scales: {
+                                                    x: {
+                                                        stacked: true,
+                                                        ticks: { color: textColor },
+                                                    },
+                                                    y: {
+                                                        stacked: true,
+                                                        ticks: { color: textColor, stepSize: 1, precision: 0 },
+                                                        beginAtZero: true,
+                                                    },
                                                 },
                                             },
-                                            scales: {
-                                                x: {
-                                                    stacked: true,
-                                                    ticks: { color: textColor },
-                                                },
-                                                y: {
-                                                    stacked: true,
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
-                                                },
-                                            },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createBackupChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createBackupChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="totalBackupTasksPast90Days"></canvas>
                             </div>
                         </div>
@@ -211,90 +253,76 @@
                         title="{{ __('Backup Success Rate') }}"
                         description="{{ __('Success rate of backups over the last 6 months.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document
-                                        .getElementById('backupSuccessRateChart')
-                                        .getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createSuccessRateChart = function() {
+                                        const ctx = document
+                                            .getElementById('backupSuccessRateChart')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'line',
-                                        data: {
-                                            labels: {{ Js::from($backupSuccessRateLabels) }},
-                                            datasets: [
-                                                {
-                                                    label: '{{ __('Success Rate (%)') }}',
-                                                    data: {{ Js::from($backupSuccessRateData) }},
-                                                    borderColor: 'rgb(75, 192, 192)',
-                                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                                                    tension: 0.1,
-                                                },
-                                            ],
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: {{ Js::from($backupSuccessRateLabels) }},
+                                                datasets: [
+                                                    {
+                                                        label: '{{ __('Success Rate (%)') }}',
+                                                        data: {{ Js::from($backupSuccessRateData) }},
+                                                        borderColor: 'rgb(75, 192, 192)',
+                                                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                                        tension: 0.1,
+                                                    },
+                                                ],
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: '{{ __('Backup Success Rate - Last 6 Months') }}',
                                                         color: textColor,
                                                     },
                                                 },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('Backup Success Rate - Last 6 Months') }}',
-                                                    color: textColor,
+                                                scales: {
+                                                    x: {
+                                                        ticks: { color: textColor },
+                                                    },
+                                                    y: {
+                                                        ticks: { color: textColor },
+                                                        beginAtZero: true,
+                                                        max: 100,
+                                                    },
                                                 },
                                             },
-                                            scales: {
-                                                x: {
-                                                    ticks: { color: textColor },
-                                                },
-                                                y: {
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
-                                                    max: 100,
-                                                },
-                                            },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createSuccessRateChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createSuccessRateChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="backupSuccessRateChart"></canvas>
                             </div>
                         </div>
@@ -304,106 +332,92 @@
                         title="{{ __('Average Backup Size by Type') }}"
                         description="{{ __('Average size of backups for each type.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document
-                                        .getElementById('averageBackupSizeChart')
-                                        .getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createSizeChart = function() {
+                                        const ctx = document
+                                            .getElementById('averageBackupSizeChart')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'bar',
-                                        data: {
-                                            labels: {{ Js::from($averageBackupSizeLabels) }},
-                                            datasets: [
-                                                {
-                                                    label: '{{ __('Average Size (MB)') }}',
-                                                    data: {{ Js::from($averageBackupSizeData) }},
-                                                    backgroundColor: [
-                                                        'rgba(255, 99, 132, 0.8)',
-                                                        'rgba(54, 162, 235, 0.8)',
-                                                        'rgba(255, 206, 86, 0.8)',
-                                                        'rgba(75, 192, 192, 0.8)',
-                                                        'rgba(153, 102, 255, 0.8)',
-                                                    ],
-                                                    borderColor: [
-                                                        'rgb(255, 99, 132)',
-                                                        'rgb(54, 162, 235)',
-                                                        'rgb(255, 206, 86)',
-                                                        'rgb(75, 192, 192)',
-                                                        'rgb(153, 102, 255)',
-                                                    ],
-                                                    borderWidth: 1,
-                                                },
-                                            ],
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
-                                                        color: textColor,
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: {{ Js::from($averageBackupSizeLabels) }},
+                                                datasets: [
+                                                    {
+                                                        label: '{{ __('Average Size (MB)') }}',
+                                                        data: {{ Js::from($averageBackupSizeData) }},
+                                                        backgroundColor: [
+                                                            'rgba(255, 99, 132, 0.8)',
+                                                            'rgba(54, 162, 235, 0.8)',
+                                                            'rgba(255, 206, 86, 0.8)',
+                                                            'rgba(75, 192, 192, 0.8)',
+                                                            'rgba(153, 102, 255, 0.8)',
+                                                        ],
+                                                        borderColor: [
+                                                            'rgb(255, 99, 132)',
+                                                            'rgb(54, 162, 235)',
+                                                            'rgb(255, 206, 86)',
+                                                            'rgb(75, 192, 192)',
+                                                            'rgb(153, 102, 255)',
+                                                        ],
+                                                        borderWidth: 1,
                                                     },
-                                                },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('Average Backup Size by Type') }}',
-                                                    color: textColor,
-                                                },
+                                                ],
                                             },
-                                            scales: {
-                                                x: {
-                                                    ticks: { color: textColor },
-                                                },
-                                                y: {
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
+                                                    },
                                                     title: {
                                                         display: true,
-                                                        text: 'Size (MB)',
+                                                        text: '{{ __('Average Backup Size by Type') }}',
                                                         color: textColor,
                                                     },
                                                 },
+                                                scales: {
+                                                    x: {
+                                                        ticks: { color: textColor },
+                                                    },
+                                                    y: {
+                                                        ticks: { color: textColor },
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Size (MB)',
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                },
                                             },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createSizeChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createSizeChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="averageBackupSizeChart"></canvas>
                             </div>
                         </div>
@@ -413,99 +427,85 @@
                         title="{{ __('Backup Task Completion Time Trend') }}"
                         description="{{ __('Average completion time of backup tasks over the last 3 months.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document
-                                        .getElementById('completionTimeChart')
-                                        .getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createCompletionTimeChart = function() {
+                                        const ctx = document
+                                            .getElementById('completionTimeChart')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'line',
-                                        data: {
-                                            labels: {{ Js::from($completionTimeLabels) }},
-                                            datasets: [
-                                                {
-                                                    label: '{{ __('Average Completion Time (minutes)') }}',
-                                                    data: {{ Js::from($completionTimeData) }},
-                                                    borderColor: 'rgb(75, 192, 192)',
-                                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                                                    tension: 0.1,
-                                                },
-                                            ],
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
-                                                        color: textColor,
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: {{ Js::from($completionTimeLabels) }},
+                                                datasets: [
+                                                    {
+                                                        label: '{{ __('Average Completion Time (minutes)') }}',
+                                                        data: {{ Js::from($completionTimeData) }},
+                                                        borderColor: 'rgb(75, 192, 192)',
+                                                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                                        tension: 0.1,
                                                     },
-                                                },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('Backup Task Completion Time Trend - Last 3 Months') }}',
-                                                    color: textColor,
-                                                },
+                                                ],
                                             },
-                                            scales: {
-                                                x: {
-                                                    ticks: { color: textColor },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
+                                                    },
                                                     title: {
                                                         display: true,
-                                                        text: 'Date',
+                                                        text: '{{ __('Backup Task Completion Time Trend - Last 3 Months') }}',
                                                         color: textColor,
                                                     },
                                                 },
-                                                y: {
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Time (minutes)',
-                                                        color: textColor,
+                                                scales: {
+                                                    x: {
+                                                        ticks: { color: textColor },
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Date',
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                    y: {
+                                                        ticks: { color: textColor },
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Time (minutes)',
+                                                            color: textColor,
+                                                        },
                                                     },
                                                 },
                                             },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createCompletionTimeChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createCompletionTimeChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="completionTimeChart"></canvas>
                             </div>
                         </div>
@@ -515,97 +515,85 @@
                         title="{{ __('API Usage Trend') }}"
                         description="{{ __('Daily API usage count over the last 30 days.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document.getElementById('apiUsageChart').getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createApiUsageChart = function() {
+                                        const ctx = document
+                                            .getElementById('apiUsageChart')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'bar',
-                                        data: {
-                                            labels: {{ Js::from($apiUsageLabels) }},
-                                            datasets: [
-                                                {
-                                                    label: '{{ __('API Calls') }}',
-                                                    data: {{ Js::from($apiUsageData) }},
-                                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                                                    borderColor: 'rgb(75, 192, 192)',
-                                                    borderWidth: 1,
-                                                },
-                                            ],
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
-                                                        color: textColor,
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: {{ Js::from($apiUsageLabels) }},
+                                                datasets: [
+                                                    {
+                                                        label: '{{ __('API Calls') }}',
+                                                        data: {{ Js::from($apiUsageData) }},
+                                                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                                        borderColor: 'rgb(75, 192, 192)',
+                                                        borderWidth: 1,
                                                     },
-                                                },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('API Usage Trend - Last 30 Days') }}',
-                                                    color: textColor,
-                                                },
+                                                ],
                                             },
-                                            scales: {
-                                                x: {
-                                                    ticks: { color: textColor },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
+                                                    },
                                                     title: {
                                                         display: true,
-                                                        text: 'Date',
+                                                        text: '{{ __('API Usage Trend - Last 30 Days') }}',
                                                         color: textColor,
                                                     },
                                                 },
-                                                y: {
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Number of API Calls',
-                                                        color: textColor,
+                                                scales: {
+                                                    x: {
+                                                        ticks: { color: textColor },
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Date',
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                    y: {
+                                                        ticks: { color: textColor },
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Number of API Calls',
+                                                            color: textColor,
+                                                        },
                                                     },
                                                 },
                                             },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createApiUsageChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createApiUsageChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="apiUsageChart"></canvas>
                             </div>
                         </div>
@@ -615,90 +603,76 @@
                         title="{{ __('API Usage by Method') }}"
                         description="{{ __('Daily API usage count by HTTP method over the last 30 days.') }}"
                     >
-                        <div
-                            x-data="{
-                                chart: null,
-                                loaded: false,
-                                init() {
-                                    this.createChart()
-                                    this.$watch('$store.darkMode', () => {
-                                        this.updateChart()
-                                    })
-                                },
-                                createChart() {
-                                    const ctx = document
-                                        .getElementById('apiUsageMethodChart')
-                                        .getContext('2d')
-                                    this.chart = new Chart(ctx, this.getChartConfig())
-                                    this.loaded = true
-                                },
-                                updateChart() {
-                                    if (this.chart) {
-                                        this.chart.destroy()
-                                    }
-                                    this.createChart()
-                                },
-                                getChartConfig() {
-                                    const isDarkMode = document.documentElement.classList.contains('dark')
-                                    const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                        <div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const createApiMethodChart = function() {
+                                        const ctx = document
+                                            .getElementById('apiUsageMethodChart')
+                                            .getContext('2d')
 
-                                    return {
-                                        type: 'bar',
-                                        data: {{ Js::from($apiUsageMethodData) }},
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: {
-                                                        color: textColor,
+                                        const isDarkMode = document.documentElement.classList.contains('dark')
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+
+                                        const chart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {{ Js::from($apiUsageMethodData) }},
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                        labels: {
+                                                            color: textColor,
+                                                        },
                                                     },
-                                                },
-                                                title: {
-                                                    display: true,
-                                                    text: '{{ __('API Usage by Method - Last 30 Days') }}',
-                                                    color: textColor,
-                                                },
-                                            },
-                                            scales: {
-                                                x: {
-                                                    stacked: true,
-                                                    ticks: { color: textColor },
                                                     title: {
                                                         display: true,
-                                                        text: 'Date',
+                                                        text: '{{ __('API Usage by Method - Last 30 Days') }}',
                                                         color: textColor,
                                                     },
                                                 },
-                                                y: {
-                                                    stacked: true,
-                                                    ticks: { color: textColor },
-                                                    beginAtZero: true,
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Number of API Calls',
-                                                        color: textColor,
+                                                scales: {
+                                                    x: {
+                                                        stacked: true,
+                                                        ticks: { color: textColor },
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Date',
+                                                            color: textColor,
+                                                        },
+                                                    },
+                                                    y: {
+                                                        stacked: true,
+                                                        ticks: { color: textColor },
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Number of API Calls',
+                                                            color: textColor,
+                                                        },
                                                     },
                                                 },
                                             },
-                                        },
+                                        })
+
+                                        // Handle dark mode toggle
+                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        if (darkModeToggle) {
+                                            darkModeToggle.addEventListener('click', function() {
+                                                setTimeout(function() {
+                                                    chart.destroy()
+                                                    createApiMethodChart()
+                                                }, 100)
+                                            })
+                                        }
                                     }
-                                },
-                            }"
-                            x-init="init()"
-                        >
-                            <div
-                                x-show="!loaded"
-                                class="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                            ></div>
-                            <div
-                                x-show="loaded"
-                                x-transition:enter="transition-opacity duration-300"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class="h-64"
-                            >
+
+                                    createApiMethodChart()
+                                })
+                            </script>
+                            <div class="h-64">
                                 <canvas id="apiUsageMethodChart"></canvas>
                             </div>
                         </div>
