@@ -71,6 +71,8 @@ class BackupTask extends Model
         'updated_at',
         'run_webhook_last_used_at',
         'webhook_token',
+        'favourited_at',
+        'paused_at',
     ];
 
     /**
