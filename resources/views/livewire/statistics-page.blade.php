@@ -23,48 +23,63 @@
                         icon="hugeicons-cloud-server"
                         title="{{ __('Backup Volume Overview') }}"
                         description="{{ __('See how much data you have secured over time.') }}"
-                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+                        class="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <div class="space-y-4 mt-4">
+                        <div class="mt-4 space-y-4">
                             <div class="relative">
-                                <div class="flex justify-between items-baseline">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                <div class="flex items-baseline justify-between">
+                                    <h4
+                                        class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Last 7 days') }}
                                     </h4>
                                     <span class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ $dataBackedUpInThePastSevenDays }}
                                     </span>
                                 </div>
-                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
-                                    <div class="h-1 bg-gray-900/80 dark:bg-white/80 rounded-full" style="width: 75%"></div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <div
+                                        class="h-1 rounded-full bg-gray-900/80 dark:bg-white/80"
+                                        style="width: 75%"
+                                    ></div>
                                 </div>
                             </div>
 
                             <div class="relative">
-                                <div class="flex justify-between items-baseline">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                <div class="flex items-baseline justify-between">
+                                    <h4
+                                        class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Last month') }}
                                     </h4>
                                     <span class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ $dataBackedUpInThePastMonth }}
                                     </span>
                                 </div>
-                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
-                                    <div class="h-1 bg-gray-900/80 dark:bg-white/80 rounded-full opacity-90" style="width: 90%"></div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <div
+                                        class="h-1 rounded-full bg-gray-900/80 opacity-90 dark:bg-white/80"
+                                        style="width: 90%"
+                                    ></div>
                                 </div>
                             </div>
 
                             <div class="relative">
-                                <div class="flex justify-between items-baseline">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">
+                                <div class="flex items-baseline justify-between">
+                                    <h4
+                                        class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Total') }}
                                     </h4>
                                     <span class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ $dataBackedUpInTotal }}
                                     </span>
                                 </div>
-                                <div class="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
-                                    <div class="h-1 bg-blue-500/25 dark:bg-blue-400/25 rounded-full shadow-sm" style="width: 100%"></div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <div
+                                        class="h-1 rounded-full bg-blue-500/25 shadow-sm dark:bg-blue-400/25"
+                                        style="width: 100%"
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -74,16 +89,18 @@
                         icon="hugeicons-wireless-cloud-access"
                         title="{{ __('Connected Resources') }}"
                         description="{{ __('Connected servers and destinations to Vanguard.') }}"
-                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+                        class="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800"
                     >
                         <div class="mt-4 space-y-5">
                             <div class="flex items-center">
                                 <div class="flex-1">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                    <h4
+                                        class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Remote Servers') }}
                                     </h4>
                                     <div class="flex items-baseline">
-                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                        <span class="mr-2 text-2xl font-bold text-gray-900 dark:text-white">
                                             {{ $linkedServers }}
                                         </span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -95,11 +112,13 @@
 
                             <div class="flex items-center">
                                 <div class="flex-1">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                    <h4
+                                        class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Backup Destinations') }}
                                     </h4>
                                     <div class="flex items-baseline">
-                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                        <span class="mr-2 text-2xl font-bold text-gray-900 dark:text-white">
                                             {{ $linkedBackupDestinations }}
                                         </span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -115,16 +134,18 @@
                         icon="hugeicons-task-01"
                         title="{{ __('Backup Tasks') }}"
                         description="{{ __('Status of the backup tasks you have made.') }}"
-                        class="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+                        class="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800"
                     >
                         <div class="mt-4 space-y-5">
                             <div class="flex items-center">
                                 <div class="flex-1">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                    <h4
+                                        class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Active') }}
                                     </h4>
                                     <div class="flex items-baseline">
-                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                        <span class="mr-2 text-2xl font-bold text-gray-900 dark:text-white">
                                             {{ $activeBackupTasks }}
                                         </span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -136,11 +157,13 @@
 
                             <div class="flex items-center">
                                 <div class="flex-1">
-                                    <h4 class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                    <h4
+                                        class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ __('Paused') }}
                                     </h4>
                                     <div class="flex items-baseline">
-                                        <span class="text-2xl font-bold text-gray-900 dark:text-white mr-2">
+                                        <span class="mr-2 text-2xl font-bold text-gray-900 dark:text-white">
                                             {{ $pausedBackupTasks }}
                                         </span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -160,14 +183,14 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createBackupChart = function() {
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createBackupChart = function () {
                                         const ctx = document
                                             .getElementById('totalBackupTasksPast90Days')
-                                            .getContext('2d')
+                                            .getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'bar',
@@ -226,22 +249,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createBackupChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createBackupChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createBackupChart()
-                                })
+                                    createBackupChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="totalBackupTasksPast90Days"></canvas>
@@ -255,14 +280,12 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createSuccessRateChart = function() {
-                                        const ctx = document
-                                            .getElementById('backupSuccessRateChart')
-                                            .getContext('2d')
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createSuccessRateChart = function () {
+                                        const ctx = document.getElementById('backupSuccessRateChart').getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'line',
@@ -305,22 +328,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createSuccessRateChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createSuccessRateChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createSuccessRateChart()
-                                })
+                                    createSuccessRateChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="backupSuccessRateChart"></canvas>
@@ -334,14 +359,12 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createSizeChart = function() {
-                                        const ctx = document
-                                            .getElementById('averageBackupSizeChart')
-                                            .getContext('2d')
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createSizeChart = function () {
+                                        const ctx = document.getElementById('averageBackupSizeChart').getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'bar',
@@ -400,22 +423,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createSizeChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createSizeChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createSizeChart()
-                                })
+                                    createSizeChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="averageBackupSizeChart"></canvas>
@@ -429,14 +454,12 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createCompletionTimeChart = function() {
-                                        const ctx = document
-                                            .getElementById('completionTimeChart')
-                                            .getContext('2d')
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createCompletionTimeChart = function () {
+                                        const ctx = document.getElementById('completionTimeChart').getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'line',
@@ -488,22 +511,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createCompletionTimeChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createCompletionTimeChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createCompletionTimeChart()
-                                })
+                                    createCompletionTimeChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="completionTimeChart"></canvas>
@@ -517,14 +542,12 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createApiUsageChart = function() {
-                                        const ctx = document
-                                            .getElementById('apiUsageChart')
-                                            .getContext('2d')
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createApiUsageChart = function () {
+                                        const ctx = document.getElementById('apiUsageChart').getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'bar',
@@ -576,22 +599,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createApiUsageChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createApiUsageChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createApiUsageChart()
-                                })
+                                    createApiUsageChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="apiUsageChart"></canvas>
@@ -605,14 +630,12 @@
                     >
                         <div>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const createApiMethodChart = function() {
-                                        const ctx = document
-                                            .getElementById('apiUsageMethodChart')
-                                            .getContext('2d')
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const createApiMethodChart = function () {
+                                        const ctx = document.getElementById('apiUsageMethodChart').getContext('2d');
 
-                                        const isDarkMode = document.documentElement.classList.contains('dark')
-                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                                        const isDarkMode = document.documentElement.classList.contains('dark');
+                                        const textColor = isDarkMode ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)';
 
                                         const chart = new Chart(ctx, {
                                             type: 'bar',
@@ -655,22 +678,24 @@
                                                     },
                                                 },
                                             },
-                                        })
+                                        });
 
                                         // Handle dark mode toggle
-                                        const darkModeToggle = document.querySelector('[x-on\\:click^="$store.darkMode.toggle"]')
+                                        const darkModeToggle = document.querySelector(
+                                            '[x-on\\:click^="$store.darkMode.toggle"]',
+                                        );
                                         if (darkModeToggle) {
-                                            darkModeToggle.addEventListener('click', function() {
-                                                setTimeout(function() {
-                                                    chart.destroy()
-                                                    createApiMethodChart()
-                                                }, 100)
-                                            })
+                                            darkModeToggle.addEventListener('click', function () {
+                                                setTimeout(function () {
+                                                    chart.destroy();
+                                                    createApiMethodChart();
+                                                }, 100);
+                                            });
                                         }
-                                    }
+                                    };
 
-                                    createApiMethodChart()
-                                })
+                                    createApiMethodChart();
+                                });
                             </script>
                             <div class="h-64">
                                 <canvas id="apiUsageMethodChart"></canvas>
