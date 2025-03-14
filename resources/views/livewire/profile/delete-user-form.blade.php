@@ -88,7 +88,7 @@ new class extends Component {
     {
         /** @var User $user */
         $user = Auth::user();
-        $this->hasPassword = !is_null($user->password);
+        $this->hasPassword = ! is_null($user->password);
     }
 
     /**
@@ -122,8 +122,7 @@ new class extends Component {
 
         $user = Auth::user();
 
-        Mail::to($user)
-            ->queue(new DeletionConfirmationMail($user));
+        Mail::to($user)->queue(new DeletionConfirmationMail($user));
 
         tap($user, $logout(...))->delete();
 
@@ -263,7 +262,7 @@ new class extends Component {
                         />
 
                         <div class="mt-4">
-                            <x-input-label for="password" :value="__('Confirm Your Password')"/>
+                            <x-input-label for="password" :value="__('Confirm Your Password')" />
                             <x-text-input
                                 name="password"
                                 wire:model="password"
@@ -273,7 +272,7 @@ new class extends Component {
                                 required
                                 autocomplete="current-password"
                             />
-                            <x-input-error :messages="$errors->get('password')" class="mt-2"/>
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
                     </div>
 
