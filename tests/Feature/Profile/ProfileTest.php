@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Mail\User\DeletionConfirmationMail;
 use App\Models\BackupDestination;
 use App\Models\BackupTask;
 use App\Models\RemoteServer;
@@ -100,6 +101,7 @@ test('email verification status is unchanged when the email address is unchanged
 });
 
 test('user can delete their account', function (): void {
+    Mail::fake();
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -113,11 +115,16 @@ test('user can delete their account', function (): void {
         ->assertHasNoErrors()
         ->assertRedirect('/');
 
+    Mail::assertQueued(DeletionConfirmationMail::class, function ($mail) use ($user) {
+        return $mail->hasTo($user->email);
+    });
+
     $this->assertGuest();
     $this->assertNull($user->fresh());
 });
 
 test('correct password must be provided to delete account', function (): void {
+    Mail::fake();
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -130,6 +137,8 @@ test('correct password must be provided to delete account', function (): void {
     $component
         ->assertHasErrors('password')
         ->assertNoRedirect();
+
+    Mail::assertNotQueued(DeletionConfirmationMail::class);
 
     $this->assertNotNull($user->fresh());
 });

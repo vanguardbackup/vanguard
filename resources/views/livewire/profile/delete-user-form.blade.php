@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Actions\Logout;
+use App\Mail\User\DeletionConfirmationMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
@@ -119,7 +120,11 @@ new class extends Component {
             'password' => ['required', 'string', 'current_password'],
         ]);
 
-        tap(Auth::user(), $logout(...))->delete();
+        $user = Auth::user();
+
+        Mail::to($user)->queue(new DeletionConfirmationMail($user));
+
+        tap($user, $logout(...))->delete();
 
         $this->redirect('/', navigate: true);
     }
