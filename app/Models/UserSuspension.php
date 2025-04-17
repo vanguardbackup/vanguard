@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Override;
 use Database\Factories\UserSuspensionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 class UserSuspension extends Model
 {
@@ -26,8 +26,9 @@ class UserSuspension extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     #[Override]
-    protected function casts() : array
+    protected function casts(): array
     {
         return [
             'suspended_at' => 'datetime',
