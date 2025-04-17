@@ -409,42 +409,6 @@ it('does not reset quiet mode if quiet mode not set', function (): void {
     $this->assertFalse($user->hasQuietMode());
 });
 
-it('returns false if the user account has been disabled', function (): void {
-
-    $user = User::factory()->create();
-
-    $this->assertFalse($user->hasDisabledAccount());
-});
-
-it('returns true if the user account has been disabled', function (): void {
-
-    $user = User::factory()->create(['account_disabled_at' => now()]);
-
-    $this->assertTrue($user->hasDisabledAccount());
-});
-
-it('returns false if the user account has already been disabled', function (): void {
-
-    $user = User::factory()->create(['account_disabled_at' => now()]);
-
-    $this->assertFalse($user->disableUserAccount());
-});
-
-it('returns false if the user account is an admin', function (): void {
-    Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    $user = User::factory()->create(['email' => 'admin@email.com', 'account_disabled_at' => null]);
-
-    $this->assertFalse($user->disableUserAccount());
-});
-
-it('returns true if the account has been disabled', function (): void {
-    $user = User::factory()->create(['account_disabled_at' => null]);
-
-    $this->assertTrue($user->disableUserAccount());
-    $this->assertTrue($user->hasDisabledAccount());
-});
-
 it('returns true if the user account has been suspended', function (): void {
 
     $suspension = UserSuspension::factory()->create();

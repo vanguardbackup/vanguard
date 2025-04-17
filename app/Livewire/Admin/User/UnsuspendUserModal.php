@@ -107,5 +107,6 @@ class UnsuspendUserModal extends Component
         }
 
         $this->dispatch('close-modal', 'unsuspend-user-modal-' . $user->getAttribute('id'));
+        $this->dispatch('refreshUserTable');
     }
 }

@@ -122,5 +122,6 @@ class SuspendUserModal extends Component
 
         Toaster::success('User has been suspended.');
         $this->dispatch('close-modal', 'suspend-user-modal-' . $user->id);
+        $this->dispatch('refreshUserTable');
     }
 }
