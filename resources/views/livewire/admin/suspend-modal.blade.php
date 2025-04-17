@@ -8,10 +8,7 @@
         </x-slot>
         <x-slot name="icon">hugeicons-user-block-01</x-slot>
 
-        <x-notice
-            type="warning"
-            :text="__('Users are not notified when a suspension is applied to them.')"
-        />
+        <x-notice type="warning" :text="__('Users are not notified when a suspension is applied to them.')" />
 
         <form wire:submit.prevent="suspendUser" x-data="{ permanentSuspend: @entangle('permanentlySuspend') }">
             <div class="mt-4">
@@ -46,7 +43,7 @@
                         name="permanentlySuspend"
                         x-model="permanentSuspend"
                     ></x-checkbox>
-                    <div class="flex-1 ml-2">
+                    <div class="ml-2 flex-1">
                         {{ __('Permanently suspend') }}
                     </div>
                 </div>
@@ -56,12 +53,12 @@
             <div
                 class="mt-4"
                 x-show="!permanentSuspend"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
+                x-transition:enter="transition duration-300 ease-out"
+                x-transition:enter-start="scale-95 transform opacity-0"
+                x-transition:enter-end="scale-100 transform opacity-100"
+                x-transition:leave="transition duration-200 ease-in"
+                x-transition:leave-start="scale-100 transform opacity-100"
+                x-transition:leave-end="scale-95 transform opacity-0"
             >
                 <x-input-label for="suspendUntil" :value="__('Suspend Until')" />
                 <x-text-input
@@ -79,8 +76,7 @@
 
             <div class="mt-4">
                 <x-input-label for="privateNote" :value="__('Private Note')" />
-                <x-textarea wire:model="privateNote">
-                </x-textarea>
+                <x-textarea wire:model="privateNote"></x-textarea>
                 <x-input-error :messages="$errors->get('privateNote')" class="mt-2" />
                 <x-input-explain>
                     {{ __('This private note is only shown to administrators.') }}
@@ -90,41 +86,29 @@
             <div
                 class="mt-4"
                 x-show="!permanentSuspend"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
+                x-transition:enter="transition duration-300 ease-out"
+                x-transition:enter-start="scale-95 transform opacity-0"
+                x-transition:enter-end="scale-100 transform opacity-100"
+                x-transition:leave="transition duration-200 ease-in"
+                x-transition:leave-start="scale-100 transform opacity-100"
+                x-transition:leave-end="scale-95 transform opacity-0"
             >
                 <x-input-label for="notifyUserWhenSuspensionHasBeenLifted" :value="__('Email Notify')" />
-                <x-toggle
-                    name="notifyUserWhenSuspensionHasBeenLifted"
-                    model="notifyUserWhenSuspensionHasBeenLifted"
-                />
+                <x-toggle name="notifyUserWhenSuspensionHasBeenLifted" model="notifyUserWhenSuspensionHasBeenLifted" />
                 <x-input-error :messages="$errors->get('notifyUserWhenSuspensionHasBeenLifted')" class="mt-2" />
                 <x-input-explain>
                     {{ __('Should the user be notified when the ban is lifted? (Only applicable for temporary suspensions)') }}
                 </x-input-explain>
             </div>
 
-            <div class="flex space-x-5 mt-6">
+            <div class="mt-6 flex space-x-5">
                 <div class="w-4/6">
-                    <x-danger-button
-                        type="submit"
-                        class="w-full"
-                        centered
-                    >
+                    <x-danger-button type="submit" class="w-full" centered>
                         {{ __('Suspend') }}
                     </x-danger-button>
                 </div>
                 <div class="ml-2 w-2/6">
-                    <x-secondary-button
-                        type="button"
-                        class="w-full"
-                        centered
-                        x-on:click="$dispatch('close')"
-                    >
+                    <x-secondary-button type="button" class="w-full" centered x-on:click="$dispatch('close')">
                         {{ __('Cancel') }}
                     </x-secondary-button>
                 </div>
