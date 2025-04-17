@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Database\Factories\UserSuspensionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,14 +56,14 @@ class UserSuspension extends Model
      * 2. It has not been lifted (lifted_at is null)
      * 3. The suspension end date (suspended_until) is either null (indefinite) or in the future
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<UserSuspension>  $builder
-     * @return \Illuminate\Database\Eloquent\Builder<UserSuspension>
+     * @param  Builder<UserSuspension>  $builder
+     * @return Builder<UserSuspension>
      */
-    public function scopeActive(\Illuminate\Database\Eloquent\Builder $builder): \Illuminate\Database\Eloquent\Builder
+    public function scopeActive(Builder $builder): Builder
     {
         return $builder->whereNotNull('suspended_at')
             ->whereNull('lifted_at')
-            ->where(function (\Illuminate\Database\Eloquent\Builder $builder): void {
+            ->where(function (Builder $builder): void {
                 $builder->whereNull('suspended_until')
                     ->orWhere('suspended_until', '>', Carbon::now());
             });

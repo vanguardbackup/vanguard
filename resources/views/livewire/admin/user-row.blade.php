@@ -2,7 +2,7 @@
     <x-table.table-row>
         <div class="col-span-3">
             <div class="flex items-center text-sm font-medium">
-                <div class="relative mr-3">
+                <div class="relative mr-3 flex-shrink-0">
                     <img
                         class="h-8 w-8 rounded-full object-cover"
                         src="{{ $user->gravatar() }}"
@@ -14,12 +14,12 @@
                         {{ $user->name }}
                     </span>
                     <p
-                        class="cursor-pointer truncate text-xs text-gray-700 dark:text-gray-400"
+                        class="cursor-pointer text-xs text-gray-700 dark:text-gray-400"
                         x-data="{ revealed: false }"
                         x-on:click="revealed = !revealed"
                     >
-                        <span x-show="!revealed" class="blur-sm">••••••@••••••</span>
-                        <span x-show="revealed">{{ $user->email }}</span>
+                        <span x-show="!revealed" x-transition.opacity>••••••@••••••</span>
+                        <span x-show="revealed" x-transition.opacity>{{ $user->email }}</span>
                         <span
                             class="ml-1 text-blue-500"
                             x-text="revealed ? '(Click to hide)' : '(Click to view)'"
