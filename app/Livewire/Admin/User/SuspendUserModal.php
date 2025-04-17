@@ -21,7 +21,7 @@ class SuspendUserModal extends Component
     /** @var string The categorized reason for the suspension */
     public string $suspensionReason = '';
 
-    /** @var array The possible reasons for a suspension */
+    /** @var array<string|int, string> The possible reasons for a suspension */
     public array $possibleSuspensionReasons = [];
 
     /** @var bool Determine if we notify the user when the ban is lifted */
@@ -108,8 +108,11 @@ class SuspendUserModal extends Component
             $notifyDate = $suspendUntil;
         }
 
+        /** @var User $user */
+        $authUser = Auth::user();
+
         $user->suspensions()->create([
-            'admin_user_id' => Auth::user()->id,
+            'admin_user_id' => $authUser?->id,
             'suspended_at' => Carbon::now(),
             'suspended_until' => $suspendUntil,
             'suspended_reason' => $this->suspensionReason,

@@ -47,6 +47,8 @@ class UnsuspendUserModal extends Component
 
     /**
      * Get past suspensions for the user
+     *
+     * @return Collection<int, UserSuspension>
      */
     public function getPastSuspensions(): Collection
     {
@@ -91,11 +93,14 @@ class UnsuspendUserModal extends Component
         // Get the active suspension record
         $activeSuspension = $this->getActiveSuspension();
 
+        /** @var User $user */
+        $authUser = Auth::user();
+
         if ($activeSuspension instanceof UserSuspension) {
             // Update the suspension record
             $activeSuspension->update([
                 'lifted_at' => Carbon::now(),
-                'lifted_by_admin_user_id' => Auth::user()->id,
+                'lifted_by_admin_user_id' => $authUser?->id,
                 'unsuspension_note' => $this->unsuspensionNote,
             ]);
 

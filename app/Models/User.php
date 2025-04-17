@@ -376,7 +376,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     /**
      * Get the active suspension if one exists.
      */
-    public function getActiveSuspension()
+    public function getActiveSuspension(): ?\App\Models\UserSuspension
     {
         return $this->suspensions()
             ->whereNull('lifted_at')

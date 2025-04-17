@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Mail\SuspensionLiftedMail;
+use App\Models\User;
 use App\Models\UserSuspension;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -39,8 +40,9 @@ class LiftSuspensionsOnUserJob implements ShouldQueue
         $shouldNotify = $suspension->notify_user_upon_suspension_being_lifted_at;
 
         if ($shouldNotify) {
+            /** @var User $user */
             $user = $suspension->user;
-            Mail::to($user->email)->send(new SuspensionLiftedMail($user, $suspension));
+            Mail::to($user->getAttributeValue('email'))->send(new SuspensionLiftedMail($user, $suspension));
         }
 
         $suspension->forceFill(['lifted_at' => now()]);

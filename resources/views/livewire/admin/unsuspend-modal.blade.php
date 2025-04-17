@@ -15,7 +15,6 @@
                     <p>
                         {{ __('You are about to unsuspend') }}
                         <strong>{{ $user->name }}</strong>
-                        .
                     </p>
 
                     @if ($user->hasSuspendedAccount())
@@ -33,7 +32,7 @@
 
                                         @if ($activeSuspension->suspended_until)
                                             <p>
-                                                {{ __('Scheduled until:') }}
+                                                {{ __('Suspended until:') }}
                                                 {{ $activeSuspension->suspended_until->format('M d, Y') }}
                                             </p>
                                         @else

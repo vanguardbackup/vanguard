@@ -111,7 +111,7 @@
                                         @if ($suspension->suspended_until)
                                             <div>
                                                 <span class="text-sm text-gray-700 dark:text-gray-300">
-                                                    {{ __('Scheduled until:') }}
+                                                    {{ __('Suspended until:') }}
                                                 </span>
                                                 <p class="font-medium">
                                                     {{ $suspension->suspended_until->format('M d, Y') }}
@@ -120,7 +120,7 @@
                                         @else
                                             <div>
                                                 <span class="text-sm text-gray-700 dark:text-gray-300">
-                                                    {{ __('Duration:') }}
+                                                    {{ __('Length:') }}
                                                 </span>
                                                 <p class="font-medium">{{ __('Permanent') }}</p>
                                             </div>

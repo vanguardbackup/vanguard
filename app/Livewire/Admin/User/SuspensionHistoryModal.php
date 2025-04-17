@@ -40,6 +40,8 @@ class SuspensionHistoryModal extends Component
 
     /**
      * Get all suspensions for the user
+     *
+     * @return Collection<int, UserSuspension>
      */
     public function getAllSuspensions(): Collection
     {

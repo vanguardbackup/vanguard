@@ -26,7 +26,6 @@ class UserTable extends Component
      */
     public function refreshData(): void
     {
-        $this->resetPage();
         $this->dispatch('$refresh');
     }
 
