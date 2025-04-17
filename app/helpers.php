@@ -154,7 +154,7 @@ function purge_user_sessions(User $user): void
         'database' => clearDatabaseSessions($user),
         'redis' => clearRedisSessions($user),
         'file' => clearFileSessions($user),
-        default => warn("Session clearing not implemented for driver: {$sessionDriver}"),
+        default => Log::error('Could not purge sessions for ' . $sessionDriver),
     };
 }
 

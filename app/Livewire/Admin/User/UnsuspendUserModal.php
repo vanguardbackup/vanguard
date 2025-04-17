@@ -85,7 +85,7 @@ class UnsuspendUserModal extends Component
         }
 
         $this->validate([
-            'unsuspensionNote' => ['nullable', 'string', 'max:500'],
+            'unsuspensionNote' => ['nullable', 'string'],
         ]);
 
         // Get the active suspension record

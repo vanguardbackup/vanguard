@@ -59,9 +59,21 @@
                     </x-secondary-button>
                 @endif
             @endif
+
+                <x-secondary-button
+                    iconOnly
+                    x-on:click="$dispatch('open-modal', 'suspension-history-modal-{{ $user->id }}')"
+                    title="{{ __('Suspension History') }}"
+                >
+                <span class="sr-only">
+                    {{ __('Suspension History') }}
+                </span>
+                    <x-hugeicons-work-history class="h-4 w-4" />
+                </x-secondary-button>
         </div>
     </x-table.table-row>
 
     <livewire:admin.user.suspend-user-modal :user="$user" :key="'suspend-user-modal-' . $user->id" />
     <livewire:admin.user.unsuspend-user-modal :user="$user" :key="'unsuspend-user-modal-' . $user->id" />
+    <livewire:admin.user.suspension-history-modal :user="$user" :key="'suspension-history-modal-' . $user->id" />
 </div>
