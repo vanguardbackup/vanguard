@@ -18,6 +18,7 @@ class UserSuspension extends Model
 
     /**
      *  The user relating to the suspension instance.
+     *
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo

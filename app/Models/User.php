@@ -360,6 +360,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
 
     /**
      * Retrieves the suspension history for this user.
+     *
      * @return HasMany<UserSuspension, $this>
      */
     public function suspensions(): HasMany
