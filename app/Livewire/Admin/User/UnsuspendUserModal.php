@@ -79,7 +79,7 @@ class UnsuspendUserModal extends Component
         if (! $user->hasSuspendedAccount()) {
             Log::info('[UNSUSPENSION] Unable to unsuspend user - not currently suspended.');
             Toaster::error('Unable to unsuspend user - not currently suspended.');
-            $this->dispatch('close-modal', 'unsuspend-user-modal-' . $user->id);
+            $this->dispatch('close-modal', 'unsuspend-user-modal-' . $user->getAttribute('id'));
 
             return;
         }
@@ -91,7 +91,7 @@ class UnsuspendUserModal extends Component
         // Get the active suspension record
         $activeSuspension = $this->getActiveSuspension();
 
-        if ($activeSuspension) {
+        if ($activeSuspension instanceof UserSuspension) {
             // Update the suspension record
             $activeSuspension->update([
                 'lifted_at' => Carbon::now(),
@@ -99,13 +99,13 @@ class UnsuspendUserModal extends Component
                 'unsuspension_note' => $this->unsuspensionNote,
             ]);
 
-            Log::info('[UNSUSPENSION] User unsuspended successfully.', ['user_id' => $user->id]);
+            Log::info('[UNSUSPENSION] User unsuspended successfully.', ['user_id' => $user->getAttribute('id')]);
             Toaster::success('User has been unsuspended successfully.');
         } else {
-            Log::info('[UNSUSPENSION] No active suspension found for user.', ['user_id' => $user->id]);
+            Log::info('[UNSUSPENSION] No active suspension found for user.', ['user_id' => $user->getAttribute('id')]);
             Toaster::error('No active suspension found for this user.');
         }
 
-        $this->dispatch('close-modal', 'unsuspend-user-modal-' . $user->id);
+        $this->dispatch('close-modal', 'unsuspend-user-modal-' . $user->getAttribute('id'));
     }
 }

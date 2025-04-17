@@ -8,6 +8,7 @@ use App\Console\Commands\ResetInoperativeBackupTasksCommand;
 use App\Console\Commands\ResetQuietModeStatus;
 use App\Console\Commands\SendPersonalAccessTokenExpiringSoon;
 use App\Console\Commands\SendSummaryBackupTaskEmails;
+use App\Console\Commands\UnsuspendUsersCommand;
 use App\Console\Commands\VerifyConnectionToRemoteServersCommand;
 use Laravel\Sanctum\Console\Commands\PruneExpired;
 
@@ -40,3 +41,6 @@ Schedule::command(NotifyUsersAboutOldBackupCodes::class)
 
 Schedule::command(ResetQuietModeStatus::class)
     ->dailyAt('00:00');
+
+Schedule::command(UnsuspendUsersCommand::class)
+    ->dailyAt('03:00');

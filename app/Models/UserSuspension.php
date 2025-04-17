@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Override;
 use Database\Factories\UserSuspensionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +17,6 @@ class UserSuspension extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'suspended_at' => 'datetime',
-        'suspended_until' => 'datetime',
-        'lifted_at' => 'datetime',
-    ];
-
     /**
      *  The user relating to the suspension instance.
      *
@@ -30,5 +25,14 @@ class UserSuspension extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    #[Override]
+    protected function casts() : array
+    {
+        return [
+            'suspended_at' => 'datetime',
+            'suspended_until' => 'datetime',
+            'lifted_at' => 'datetime',
+        ];
     }
 }

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Admin\User\UnsuspendUserModal;
 use App\Models\User;
 use App\Models\UserSuspension;
 
-test('A suspended user can be unsuspended', function () {
+test('A suspended user can be unsuspended', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
@@ -25,7 +27,7 @@ test('A suspended user can be unsuspended', function () {
     ]);
 });
 
-test('A user that is not suspended cannot be unsuspended', function () {
+test('A user that is not suspended cannot be unsuspended', function (): void {
     Toaster::fake();
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);

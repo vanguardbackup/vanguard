@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Admin\User\SuspendUserModal;
 use App\Models\User;
 use App\Models\UserSuspension;
 use Carbon\Carbon;
 
-test('A user can be suspended temporarily', function () {
+test('A user can be suspended temporarily', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
@@ -28,7 +30,7 @@ test('A user can be suspended temporarily', function () {
     $this->assertEquals('Blah blah!', $suspension->private_note);
 });
 
-test('A user can be suspended permanently', function () {
+test('A user can be suspended permanently', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
@@ -51,7 +53,7 @@ test('A user can be suspended permanently', function () {
     ]);
 });
 
-test('An admin cannot be suspended', function () {
+test('An admin cannot be suspended', function (): void {
     Toaster::fake();
     Config::set('auth.admin_email_addresses', ['admin@email.com', 'admin2@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
@@ -72,7 +74,7 @@ test('An admin cannot be suspended', function () {
     ]);
 });
 
-test('A user with an active suspension cannot be resuspended', function () {
+test('A user with an active suspension cannot be resuspended', function (): void {
     Toaster::fake();
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
@@ -95,7 +97,7 @@ test('A user with an active suspension cannot be resuspended', function () {
     ]);
 });
 
-test('validation fails when no suspension reason is provided', function () {
+test('validation fails when no suspension reason is provided', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
@@ -111,7 +113,7 @@ test('validation fails when no suspension reason is provided', function () {
     ]);
 });
 
-test('validation fails when suspension date is not provided for temporary suspension', function () {
+test('validation fails when suspension date is not provided for temporary suspension', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
@@ -128,7 +130,7 @@ test('validation fails when suspension date is not provided for temporary suspen
     ]);
 });
 
-test('validation fails when suspension date is in the past', function () {
+test('validation fails when suspension date is in the past', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
@@ -145,7 +147,7 @@ test('validation fails when suspension date is in the past', function () {
     ]);
 });
 
-test('validation fails when suspension reason is invalid', function () {
+test('validation fails when suspension reason is invalid', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     Config::set('suspensions.reasons', ['Spam', 'Harassment']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
@@ -163,7 +165,7 @@ test('validation fails when suspension reason is invalid', function () {
     ]);
 });
 
-test('toaster shows success message after successful suspension', function () {
+test('toaster shows success message after successful suspension', function (): void {
     Toaster::fake();
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
@@ -178,7 +180,7 @@ test('toaster shows success message after successful suspension', function () {
     Toaster::assertDispatched('User has been suspended.');
 });
 
-test('modal closes after successful suspension', function () {
+test('modal closes after successful suspension', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
@@ -192,7 +194,7 @@ test('modal closes after successful suspension', function () {
     $component->assertDispatched('close-modal', 'suspend-user-modal-' . $userToSuspend->id);
 });
 
-test('temporary suspension without notification', function () {
+test('temporary suspension without notification', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
@@ -211,7 +213,7 @@ test('temporary suspension without notification', function () {
     ]);
 });
 
-test('updatedPermanentlySuspend sets suspendUntil to tomorrow when toggling from permanent to temporary', function () {
+test('updatedPermanentlySuspend sets suspendUntil to tomorrow when toggling from permanent to temporary', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
     $userToSuspend = User::factory()->create();
