@@ -26,9 +26,9 @@
             </div>
         </div>
         <div class="col-span-3">
-          <p class="text-gray-900 dark:text-gray-100">
-              {{ $user->hasSuspendedAccount() ? __('Suspended') : __('No Suspension') }}
-          </p>
+            <p class="{{ $user->hasSuspendedAccount() ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100' }}">
+                {{ $user->hasSuspendedAccount() ? __('Suspended') : __('No Suspension') }}
+            </p>
         </div>
         <div class="text-gray-900 dark:text-gray-100">
             {{ $user->isAdmin() ? __('Admin') : __('Standard') }}
@@ -39,10 +39,10 @@
                     <x-secondary-button
                         iconOnly
                         x-on:click="$dispatch('open-modal', 'unsuspend-user-modal-{{ $user->id }}')"
-                        title="{{ __('Unsuspend User') }}"
+                        title="{{ __('Manage Suspension') }}"
                     >
                 <span class="sr-only">
-                    {{ __('Unsuspend User') }}
+                    {{ __('Manage Suspension') }}
                 </span>
                         <x-hugeicons-user-check-01 class="h-4 w-4" />
                     </x-secondary-button>
@@ -63,4 +63,5 @@
     </x-table.table-row>
 
     <livewire:admin.user.suspend-user-modal :user="$user" :key="'suspend-user-modal-' . $user->id" />
+    <livewire:admin.user.unsuspend-user-modal :user="$user" :key="'unsuspend-user-modal-' . $user->id" />
 </div>

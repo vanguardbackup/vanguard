@@ -189,6 +189,12 @@ new class extends Component {
 
                             @if (Auth::user()->isAdmin())
                                 <div class="my-1 border-t border-gray-200 dark:border-gray-600"></div>
+                                <x-dropdown-link href="{{ url('/admin/users') }}">
+                                    <x-hugeicons-user-multiple-02
+                                        class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"
+                                    />
+                                    {{ __('Users') }}
+                                </x-dropdown-link>
                                 <x-dropdown-link href="{{ url('/admin/instance-details') }}">
                                     <x-hugeicons-database-locked
                                         class="mr-2 inline h-5 w-5 text-primary-800 dark:text-white"

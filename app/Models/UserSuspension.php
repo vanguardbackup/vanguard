@@ -16,6 +16,12 @@ class UserSuspension extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'suspended_at' => 'datetime',
+        'suspended_until' => 'datetime',
+        'lifted_at' => 'datetime',
+    ];
+
     /**
      *  The user relating to the suspension instance.
      *
