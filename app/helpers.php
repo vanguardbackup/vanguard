@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -143,4 +144,57 @@ function year_in_review_active(): bool
     }
 
     return now()->between((string) $startDate, (string) $endDate);
+}
+
+function purge_user_sessions(User $user): void
+{
+    $sessionDriver = Config::get('session.driver');
+
+    match ($sessionDriver) {
+        'database' => clearDatabaseSessions($user),
+        'redis' => clearRedisSessions($user),
+        'file' => clearFileSessions($user),
+        default => warn("Session clearing not implemented for driver: {$sessionDriver}"),
+    };
+}
+
+function clearDatabaseSessions(User $user): void
+{
+    DB::table(Config::get('session.table', 'sessions'))
+        ->where('user_id', $user->getAttribute('id'))
+        ->delete();
+}
+
+function clearRedisSessions(User $user): void
+{
+    $prefix = Config::get('session.prefix', '');
+    $pattern = "{$prefix}:*";
+
+    $connection = Redis::connection(Config::get('session.connection'));
+    $keys = $connection->keys($pattern);
+
+    if (is_array($keys)) {
+        foreach ($keys as $key) {
+            $session = $connection->get($key);
+            if (is_string($session) && str_contains($session, "\"user_id\";i:{$user->getAttribute('id')};")) {
+                $connection->del($key);
+            }
+        }
+    }
+}
+
+function clearFileSessions(User $user): void
+{
+    $directory = Config::get('session.files');
+    $pattern = "{$directory}/sess_*";
+
+    $files = glob($pattern);
+    if (is_array($files)) {
+        foreach ($files as $file) {
+            $content = file_get_contents($file);
+            if (is_string($content) && str_contains($content, "\"user_id\";i:{$user->getAttribute('id')};")) {
+                unlink($file);
+            }
+        }
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\BackupTask;
 use App\Models\BackupTaskLog;
 use App\Models\User;
+use App\Models\UserSuspension;
 use Carbon\Carbon;
 
 it('generates a gravatar URL using the primary email with default size', function (): void {
@@ -442,4 +443,49 @@ it('returns true if the account has been disabled', function (): void {
 
     $this->assertTrue($user->disableUserAccount());
     $this->assertTrue($user->hasDisabledAccount());
+});
+
+it('returns true if the user account has been suspended', function (): void {
+
+    $suspension = UserSuspension::factory()->create();
+
+    $user = $suspension->user;
+
+    $this->assertTrue($user->hasSuspendedAccount());
+});
+
+it('returns false if the user account has not been suspended', function (): void {
+
+    $user = User::factory()->create();
+
+    $this->assertFalse($user->hasSuspendedAccount());
+});
+
+it('returns false if the suspension has expired', function (): void {
+
+    $suspension = UserSuspension::factory()->expired()->create();
+
+    $user = $suspension->user;
+
+    $this->assertFalse($user->hasSuspendedAccount());
+});
+
+it('returns true if the user has a previous suspension', function (): void {
+
+    $suspension = UserSuspension::factory()->expired()->create();
+
+    $user = $suspension->user;
+
+    $this->assertTrue($user->hasPreviousSuspension());
+});
+
+it('returns false if the user has no previous suspensions', function (): void {
+
+    $user = User::factory()->create();
+
+    $this->assertFalse($user->hasPreviousSuspension());
+
+    $this->assertDatabaseMissing('user_suspensions', [
+        'user_id' => $user->id,
+    ]);
 });
