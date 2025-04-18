@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Admin\IPChecker;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -118,30 +120,35 @@ class IPCheckerPage extends Component
 
     /**
      * Apply IP address filters to query based on selected search type
+     *
+     * @param Builder<User> $builder
      */
-    private function applySearchFilters($query): void
+    private function applySearchFilters(Builder $builder): void
     {
         if ($this->searchType === 'registration') {
-            $query->where('registration_ip', $this->ipAddress);
+            $builder->where('registration_ip', $this->ipAddress);
 
             return;
         }
 
         if ($this->searchType === 'login') {
-            $query->where('most_recent_login_ip', $this->ipAddress);
+            $builder->where('most_recent_login_ip', $this->ipAddress);
 
             return;
         }
 
         // Default case: search both
-        $query->where('registration_ip', $this->ipAddress)
+        $builder->where('registration_ip', $this->ipAddress)
             ->orWhere('most_recent_login_ip', $this->ipAddress);
     }
 
     /**
      * Format user data for display in results
+     *
+     * @param  Collection<int, User>  $matchedUsers
+     * @return array<int, array<string, mixed>>
      */
-    private function formatResults($matchedUsers): array
+    private function formatResults(Collection $matchedUsers): array
     {
         return $matchedUsers->map(function ($user): array {
             return [
