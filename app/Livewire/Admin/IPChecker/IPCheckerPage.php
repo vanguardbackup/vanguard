@@ -28,6 +28,7 @@ class IPCheckerPage extends Component
 
     /**
      * Collection of users matching the search criteria
+     *
      * @var array<int|string, mixed>
      */
     public array $results = [];
@@ -49,7 +50,7 @@ class IPCheckerPage extends Component
     {
         $this->ipAddress = $ipAddress;
 
-        if (!$this->ipAddress) {
+        if (! $this->ipAddress) {
             return;
         }
 
@@ -63,7 +64,7 @@ class IPCheckerPage extends Component
     {
         $user = request()->user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (! $user || ! $user->isAdmin()) {
             abort(404);
         }
 
@@ -93,17 +94,42 @@ class IPCheckerPage extends Component
     }
 
     /**
+     * Update the search type and maintain current state
+     */
+    public function updateSearchType(string $type): void
+    {
+        $this->searchType = $type;
+    }
+
+    /**
+     * Reset all search parameters and clear results
+     */
+    public function clear(): void
+    {
+        $this->ipAddress = null;
+        $this->checked = false;
+        $this->results = [];
+        $this->totalMatches = 0;
+        $this->searchType = 'both';
+        $this->resetValidation();
+
+        $this->updateUrlParameter();
+    }
+
+    /**
      * Apply IP address filters to query based on selected search type
      */
     private function applySearchFilters($query): void
     {
         if ($this->searchType === 'registration') {
             $query->where('registration_ip', $this->ipAddress);
+
             return;
         }
 
         if ($this->searchType === 'login') {
             $query->where('most_recent_login_ip', $this->ipAddress);
+
             return;
         }
 
@@ -131,29 +157,6 @@ class IPCheckerPage extends Component
                     : 'Never',
             ];
         })->toArray();
-    }
-
-    /**
-     * Update the search type and maintain current state
-     */
-    public function updateSearchType(string $type): void
-    {
-        $this->searchType = $type;
-    }
-
-    /**
-     * Reset all search parameters and clear results
-     */
-    public function clear(): void
-    {
-        $this->ipAddress = null;
-        $this->checked = false;
-        $this->results = [];
-        $this->totalMatches = 0;
-        $this->searchType = 'both';
-        $this->resetValidation();
-
-        $this->updateUrlParameter();
     }
 
     /**
