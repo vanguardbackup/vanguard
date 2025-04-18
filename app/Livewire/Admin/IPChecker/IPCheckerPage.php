@@ -121,7 +121,7 @@ class IPCheckerPage extends Component
     /**
      * Apply IP address filters to query based on selected search type
      *
-     * @param Builder<User> $builder
+     * @param  Builder<User>  $builder
      */
     private function applySearchFilters(Builder $builder): void
     {
