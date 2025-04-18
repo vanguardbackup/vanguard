@@ -56,6 +56,11 @@ abstract class ConnectionsController extends Controller
         if ($user instanceof User) {
             Auth::login($user);
 
+            $user->forceFill([
+                'most_recent_login_ip' => request()->ip(),
+                'last_login_at' => now(),
+            ]);
+
             return redirect()->route('overview');
         }
 
@@ -73,6 +78,12 @@ abstract class ConnectionsController extends Controller
 
         if ($user instanceof User) {
             $this->createConnection($user, $provider, $socialiteUser);
+
+            $user->forceFill([
+                'most_recent_login_ip' => request()->ip(),
+                'last_login_at' => now(),
+            ]);
+
             Auth::login($user);
             Toaster::success(ucfirst($provider) . ' account successfully linked and authenticated.');
 
@@ -82,10 +93,17 @@ abstract class ConnectionsController extends Controller
         $user = User::create([
             'name' => $socialiteUser->getName(),
             'email' => $socialiteUser->getEmail(),
+            'registration_ip' => request()->ip(),
+            'most_recent_login_ip' => request()->ip(),
+            'last_login_at' => now(),
         ]);
 
         $this->createConnection($user, $provider, $socialiteUser);
         Auth::login($user);
+
+        $user->forceFill([
+            'most_recent_login_ip' => request()->ip(),
+        ]);
 
         Toaster::success('Account created and authenticated via ' . ucfirst($provider) . '.');
 

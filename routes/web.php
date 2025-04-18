@@ -8,6 +8,7 @@ use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\RemoteServers;
 use App\Http\Controllers\Tags;
 use App\Http\Middleware\UserLanguage;
+use App\Livewire\Admin\IPChecker\IPCheckerPage;
 use App\Livewire\Admin\User\UserPage;
 use App\Livewire\BackupTasks\Forms\CreateBackupTaskForm;
 use App\Livewire\BackupTasks\Index;
@@ -92,6 +93,7 @@ Route::middleware([UserLanguage::class, 'auth', 'two-factor', 'account-disabled'
 
     Route::get('admin/instance-details', [InstanceDetailsController::class, '__invoke'])->name('admin.instance-details');
     Route::get('admin/users', UserPage::class)->name('admin.users');
+    Route::get('admin/ip-checker/{ipAddress?}', IPCheckerPage::class)->name('admin.ip-checker');
 });
 
 /**

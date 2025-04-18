@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Mail\SuspensionLiftedMail;
 use App\Models\UserSuspension;
 
-it('has the correct contents!', function () {
+it('has the correct contents!', function (): void {
     $suspension = UserSuspension::factory()->create();
     $user = $suspension->user;
 

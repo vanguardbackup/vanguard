@@ -159,3 +159,7 @@ Breadcrumbs::for('admin.instance-details', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('admin.users', function (BreadcrumbTrail $trail) {
     $trail->push(__('Users'), route('admin.users'));
 });
+
+Breadcrumbs::for('admin.ip-checker', function (BreadcrumbTrail $trail) {
+    $trail->push(__('IP Checker'), route('admin.ip-checker'));
+});
