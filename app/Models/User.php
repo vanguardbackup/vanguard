@@ -55,7 +55,8 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
         'last_two_factor_ip',
         'two_factor_verified_token',
         'registration_ip',
-        'most_recent_login_ip'
+        'most_recent_login_ip',
+        'last_login_at',
     ];
 
     protected $hidden = [
@@ -404,6 +405,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'weekly_summary_opt_in_at' => 'datetime',
             'last_two_factor_at' => 'datetime',
             'quiet_until' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
 

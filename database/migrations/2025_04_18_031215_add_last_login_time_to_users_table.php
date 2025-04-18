@@ -9,15 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->ipAddress('registration_ip')->nullable()->after('remember_token');
-            $table->ipAddress('most_recent_login_ip')->nullable()->after('remember_token');
+            $table->dateTime('last_login_at')->nullable();
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('last_login_at');
         });
     }
 };
