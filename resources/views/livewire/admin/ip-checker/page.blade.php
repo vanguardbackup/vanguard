@@ -4,7 +4,7 @@
         {{ __('IP Checker') }}
     </x-slot>
 
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <x-form-wrapper>
             <x-slot name="title">{{ __('IP Checker') }}</x-slot>
             <x-slot name="description">
@@ -31,21 +31,21 @@
                         <button
                             type="button"
                             wire:click="updateSearchType('both')"
-                            class="px-4 py-2 rounded-md text-sm {{ $searchType === 'both' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}"
+                            class="{{ $searchType === 'both' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }} rounded-md px-4 py-2 text-sm"
                         >
                             {{ __('Both') }}
                         </button>
                         <button
                             type="button"
                             wire:click="updateSearchType('registration')"
-                            class="px-4 py-2 rounded-md text-sm {{ $searchType === 'registration' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}"
+                            class="{{ $searchType === 'registration' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }} rounded-md px-4 py-2 text-sm"
                         >
                             {{ __('Registration IP') }}
                         </button>
                         <button
                             type="button"
                             wire:click="updateSearchType('login')"
-                            class="px-4 py-2 rounded-md text-sm {{ $searchType === 'login' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}"
+                            class="{{ $searchType === 'login' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }} rounded-md px-4 py-2 text-sm"
                         >
                             {{ __('Login IP') }}
                         </button>
@@ -69,13 +69,25 @@
         </x-form-wrapper>
 
         @if ($checked)
-            <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow sm:rounded-lg">
+            <div class="mt-8 overflow-hidden bg-white shadow sm:rounded-lg dark:bg-gray-800">
                 <div class="p-6">
-                    <div class="flex items-center mb-4">
+                    <div class="mb-4 flex items-center">
                         @if ($totalMatches > 0)
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                                <svg class="h-6 w-6 text-green-600 dark:text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            <div
+                                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900"
+                            >
+                                <svg
+                                    class="h-6 w-6 text-green-600 dark:text-green-300"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                             </div>
                             <div class="ml-4">
@@ -87,9 +99,21 @@
                                 </p>
                             </div>
                         @else
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                                <svg class="h-6 w-6 text-red-600 dark:text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <div
+                                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900"
+                            >
+                                <svg
+                                    class="h-6 w-6 text-red-600 dark:text-red-300"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </div>
                             <div class="ml-4">
@@ -108,61 +132,94 @@
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                     <thead class="bg-gray-50 dark:bg-gray-700">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            {{ __('User') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            {{ __('Registration') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            {{ __('Login') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            {{ __('Created') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            {{ __('Last Login') }}
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @foreach ($results as $user)
                                         <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $user['name'] }}</div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user['email'] }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ($user['registration_match'])
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                            {{ __('Match') }}
-                                                        </span>
-                                                @else
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                                            {{ __('No Match') }}
-                                                        </span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ($user['login_match'])
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                            {{ __('Match') }}
-                                                        </span>
-                                                @else
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                                            {{ __('No Match') }}
-                                                        </span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $user['created_at'] }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $user['last_login'] }}
-                                            </td>
+                                            <th
+                                                scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                            >
+                                                {{ __('User') }}
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                            >
+                                                {{ __('Registration') }}
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                            >
+                                                {{ __('Login') }}
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                            >
+                                                {{ __('Created') }}
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                            >
+                                                {{ __('Last Login') }}
+                                            </th>
                                         </tr>
-                                    @endforeach
+                                    </thead>
+                                    <tbody
+                                        class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                                    >
+                                        @foreach ($results as $user)
+                                            <tr>
+                                                <td class="whitespace-nowrap px-6 py-4">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                        {{ $user['name'] }}
+                                                    </div>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                        {{ $user['email'] }}
+                                                    </div>
+                                                </td>
+                                                <td class="whitespace-nowrap px-6 py-4">
+                                                    @if ($user['registration_match'])
+                                                        <span
+                                                            class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                        >
+                                                            {{ __('Match') }}
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                                        >
+                                                            {{ __('No Match') }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="whitespace-nowrap px-6 py-4">
+                                                    @if ($user['login_match'])
+                                                        <span
+                                                            class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                        >
+                                                            {{ __('Match') }}
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                                        >
+                                                            {{ __('No Match') }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td
+                                                    class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    {{ $user['created_at'] }}
+                                                </td>
+                                                <td
+                                                    class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    {{ $user['last_login'] }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

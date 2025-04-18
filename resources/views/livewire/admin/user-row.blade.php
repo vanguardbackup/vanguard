@@ -76,17 +76,14 @@
                 <x-hugeicons-work-history class="h-4 w-4" />
             </x-secondary-button>
 
-
-                <a  href="mailto:{{ $user->email }}">
-                <x-secondary-button
-                    iconOnly
-                    title="{{ __('Contact User') }}">
+            <a href="mailto:{{ $user->email }}">
+                <x-secondary-button iconOnly title="{{ __('Contact User') }}">
                     <span class="sr-only">
                         {{ __('Contact User') }}
                     </span>
                     <x-hugeicons-mail-01 class="h-4 w-4" />
                 </x-secondary-button>
-                </a>
+            </a>
         </div>
     </x-table.table-row>
 

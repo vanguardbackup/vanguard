@@ -12,6 +12,7 @@ class IPCheckerPage extends Component
 {
     public ?string $ipAddress;
     public bool $checked = false;
+    /** @var array<int|string, mixed> $results */
     public array $results = [];
     public int $totalMatches = 0;
     public string $searchType = 'both'; // 'registration', 'login', or 'both'
@@ -64,13 +65,13 @@ class IPCheckerPage extends Component
         // Format results for display
         $this->results = $matchedUsers->map(function ($user): array {
             return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'registration_match' => $user->registration_ip === $this->ipAddress,
-                'login_match' => $user->most_recent_login_ip === $this->ipAddress,
-                'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                'last_login' => $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
+                'id' => $user->getAttribute('id'),
+                'name' => $user->getAttribute('name'),
+                'email' => $user->getAttribute('email'),
+                'registration_match' => $user->getAttribute('registration_ip') === $this->ipAddress,
+                'login_match' => $user->getAttribute('most_recent_login_ip') === $this->ipAddress,
+                'created_at' => $user->getAttribute('created_at')->format('Y-m-d H:i:s'),
+                'last_login' => $user->getAttribute('last_login_at') ? $user->getAttribute('last_login_at')->format('Y-m-d H:i:s') : 'Never',
             ];
         })->toArray();
 
