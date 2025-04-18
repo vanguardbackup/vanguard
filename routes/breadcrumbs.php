@@ -155,3 +155,7 @@ Breadcrumbs::for('profile.year-in-review', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('admin.instance-details', function (BreadcrumbTrail $trail) {
     $trail->push(__('Instance Details'), route('admin.instance-details'));
 });
+
+Breadcrumbs::for('admin.users', function (BreadcrumbTrail $trail) {
+    $trail->push(__('Users'), route('admin.users'));
+});

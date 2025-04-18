@@ -335,27 +335,57 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
     }
 
     /**
-     *  Returns whether the user's account has been disabled.
+     * Retrieves the suspension history for this user.
+     *
+     * @return HasMany<UserSuspension, $this>
      */
-    public function hasDisabledAccount(): bool
+    public function suspensions(): HasMany
     {
-        return $this->account_disabled_at !== null;
+        return $this->hasMany(UserSuspension::class);
     }
 
     /**
-     *  It disables the user's account.
+     * Determines if the user has a presently suspended account.
      */
-    public function disableUserAccount(): bool
+    public function hasSuspendedAccount(): bool
     {
-        if ($this->hasDisabledAccount()) {
-            return false;
-        }
+        return $this->suspensions()
+            ->whereNull('lifted_at')
+            ->where(function (\Illuminate\Contracts\Database\Query\Builder $builder): void {
+                $builder->where('suspended_until', '>', now())
+                    ->orWhereNull('suspended_until');
+            })
+            ->exists();
+    }
 
-        if ($this->isAdmin()) {
-            return false;
-        }
+    /**
+     * Check if the user has any previous suspensions in their history.
+     */
+    public function hasPreviousSuspension(): bool
+    {
+        return $this->suspensions()
+            ->where(function (\Illuminate\Contracts\Database\Query\Builder $builder): void {
+                // Include suspensions that have been lifted
+                $builder->whereNotNull('lifted_at')
+                    // Or suspensions that expired naturally (suspended_until is in the past)
+                    ->orWhere('suspended_until', '<=', now());
+            })
+            ->exists();
+    }
 
-        return $this->forceFill(['account_disabled_at' => now()])->save();
+    /**
+     * Get the active suspension if one exists.
+     */
+    public function getActiveSuspension(): ?UserSuspension
+    {
+        return $this->suspensions()
+            ->whereNull('lifted_at')
+            ->where(function (\Illuminate\Contracts\Database\Query\Builder $builder): void {
+                $builder->where('suspended_until', '>', now())
+                    ->orWhereNull('suspended_until');
+            })
+            ->latest('suspended_at')
+            ->first();
     }
 
     /**
@@ -372,7 +402,6 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
             'weekly_summary_opt_in_at' => 'datetime',
             'last_two_factor_at' => 'datetime',
             'quiet_until' => 'datetime',
-            'account_disabled_at' => 'datetime',
         ];
     }
 

@@ -27,7 +27,7 @@ class CheckAccountState
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()?->hasDisabledAccount()) {
+        if (Auth::check() && Auth::user()?->hasSuspendedAccount()) {
             // Clear the user's session
             Auth::logout();
             Session::flush();
@@ -36,7 +36,7 @@ class CheckAccountState
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('loginError', 'Your account has been disabled.');
+            return redirect()->route('login')->with('loginError', 'Your account has been suspended.');
         }
 
         return $next($request);
