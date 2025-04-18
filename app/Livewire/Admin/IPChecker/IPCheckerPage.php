@@ -12,7 +12,7 @@ class IPCheckerPage extends Component
 {
     public ?string $ipAddress;
     public bool $checked = false;
-    /** @var array<int|string, mixed> $results */
+    /** @var array<int|string, mixed> */
     public array $results = [];
     public int $totalMatches = 0;
     public string $searchType = 'both'; // 'registration', 'login', or 'both'
