@@ -28,6 +28,12 @@ new #[Layout('layouts.guest')] class extends Component {
 
         event(new Registered(($user = User::create($validated))));
 
+        $user->forceFill([
+            'registration_ip' => request()->ip()
+        ]);
+
+        $user->save();
+
         Mail::to($user->email)->queue(new WelcomeMail($user));
 
         Auth::login($user);

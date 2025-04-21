@@ -31,6 +31,13 @@ class LoginForm extends Form
             ]);
         }
 
+        $user = Auth::user();
+        $user?->forceFill([
+            'most_recent_login_ip' => request()->ip(),
+            'last_login_at' => now(),
+        ]);
+        $user?->save();
+
         RateLimiter::clear($this->throttleKey());
     }
 
