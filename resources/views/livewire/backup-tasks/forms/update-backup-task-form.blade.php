@@ -292,13 +292,19 @@
                 <div class="mt-4">
                     <x-input-label for="tags" :value="__('Tags')" />
                     @foreach ($availableTags as $tag)
-                        <x-checkbox
-                            id="tag-{{ $tag->id }}"
-                            wire:model="selectedTags"
-                            value="{{ $tag->id }}"
-                            name="tags[]"
-                            label="{{ $tag->label }}"
-                        ></x-checkbox>
+                        <div class="flex items-center">
+                            <div
+                                class="mr-2 h-4 w-4 shrink-0 rounded"
+                                style="background-color: {{ $tag->colour }}"
+                            ></div>
+                            <x-checkbox
+                                id="tag-{{ $tag->id }}"
+                                wire:model="selectedTags"
+                                value="{{ $tag->id }}"
+                                name="tags[]"
+                                label="{{ $tag->label }}"
+                            ></x-checkbox>
+                        </div>
                     @endforeach
 
                     <x-input-error :messages="$errors->get('selectedTags')" class="mt-2" />

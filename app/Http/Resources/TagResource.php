@@ -23,6 +23,7 @@ class TagResource extends JsonResource
             'user_id' => $this->resource->user_id,
             'label' => $this->resource->label,
             'description' => $this->resource->description,
+            'colour' => $this->resource->colour,
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];

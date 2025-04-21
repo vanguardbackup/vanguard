@@ -1,6 +1,7 @@
 <div>
     <x-table.table-row>
         <div class="col-span-12 flex flex-col sm:col-span-3 sm:flex-row sm:items-center">
+            <div class="mr-2 h-4 w-4 shrink-0 rounded" style="background-color: {{ $tag->colour }}"></div>
             <p class="font-medium text-gray-900 dark:text-gray-100">
                 {{ $tag->label }}
             </p>

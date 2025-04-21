@@ -464,7 +464,10 @@
         <div class="max-h-96 space-y-4 overflow-y-auto">
             @forelse ($backupTask->tags as $tag)
                 <div class="flex items-center justify-between rounded-lg bg-gray-100 p-3 dark:bg-gray-700">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $tag->label }}</span>
+                    <div class="flex items-center">
+                        <div class="h-4 w-4 rounded mr-2 shrink-0" style="background-color: {{ $tag->colour }};"></div>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $tag->label }}</span>
+                    </div>
                 </div>
             @empty
                 <div class="py-8 text-center text-gray-500 dark:text-gray-400">
