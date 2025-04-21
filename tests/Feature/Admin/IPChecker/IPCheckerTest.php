@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Admin\IPChecker\IPCheckerPage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -8,11 +10,8 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-it('requires admin privileges to access', function () {
-    // Create a regular non-admin user
+it('requires admin privileges to access', function (): void {
     $regularUser = User::factory()->create(['email' => 'regular@email.com']);
-
-    // Ensure this email is not in admin list
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
 
     $this->actingAs($regularUser)
@@ -20,11 +19,8 @@ it('requires admin privileges to access', function () {
         ->assertStatus(404);
 });
 
-it('allows admin users to access', function () {
-    // Set admin email in config
+it('allows admin users to access', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser)
@@ -32,11 +28,8 @@ it('allows admin users to access', function () {
         ->assertStatus(200);
 });
 
-it('validates IP address input', function () {
-    // Set admin email in config
+it('validates IP address input', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
@@ -47,27 +40,23 @@ it('validates IP address input', function () {
         ->assertHasErrors(['ipAddress' => 'ipv4']);
 });
 
-it('finds users by registration IP', function () {
-    // Set admin email in config
+it('finds users by registration IP', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
 
-    // Create users with specific IPs
-    $user1 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.1',
         'most_recent_login_ip' => '10.0.0.1',
     ]);
 
-    $user2 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.1',
         'most_recent_login_ip' => '10.0.0.2',
     ]);
 
-    $user3 = User::factory()->create([
+     User::factory()->create([
         'registration_ip' => '10.0.0.3',
         'most_recent_login_ip' => '10.0.0.3',
     ]);
@@ -81,27 +70,23 @@ it('finds users by registration IP', function () {
         ->assertCount('results', 2);
 });
 
-it('finds users by login IP', function () {
-    // Set admin email in config
+it('finds users by login IP', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
 
-    // Create users with specific IPs
-    $user1 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.1',
         'most_recent_login_ip' => '10.0.0.1',
     ]);
 
-    $user2 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.2',
         'most_recent_login_ip' => '10.0.0.1',
     ]);
 
-    $user3 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '10.0.0.3',
         'most_recent_login_ip' => '10.0.0.3',
     ]);
@@ -115,27 +100,24 @@ it('finds users by login IP', function () {
         ->assertCount('results', 2);
 });
 
-it('finds users by either registration or login IP when using both search type', function () {
-    // Set admin email in config
+it('finds users by either registration or login IP when using both search type', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
 
     // Create users with specific IPs
-    $user1 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.1',
         'most_recent_login_ip' => '10.0.0.1',
     ]);
 
-    $user2 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '192.168.1.1',
         'most_recent_login_ip' => '10.0.0.2',
     ]);
 
-    $user3 = User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '10.0.0.3',
         'most_recent_login_ip' => '192.168.1.1',
     ]);
@@ -149,11 +131,8 @@ it('finds users by either registration or login IP when using both search type',
         ->assertCount('results', 3);
 });
 
-it('formats results correctly', function () {
-    // Set admin email in config
+it('formats results correctly', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
@@ -186,18 +165,15 @@ it('formats results correctly', function () {
     $this->assertIsString($firstResult['last_login']);
 });
 
-it('clears search results', function () {
-    // Set admin email in config
+it('clears search results', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
 
     $testIp = '192.168.1.5';
 
-    $user = User::factory()->create([
+     User::factory()->create([
         'registration_ip' => $testIp,
         'most_recent_login_ip' => $testIp,
     ]);
@@ -217,11 +193,8 @@ it('clears search results', function () {
         ->assertSet('searchType', 'both');
 });
 
-it('updates search type correctly', function () {
-    // Set admin email in config
+it('updates search type correctly', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
@@ -236,11 +209,8 @@ it('updates search type correctly', function () {
         ->assertSet('searchType', 'both');
 });
 
-it('initializes search from URL parameter', function () {
-    // Set admin email in config
+it('initializes search from URL parameter', function (): void {
     Config::set('auth.admin_email_addresses', ['admin@email.com']);
-
-    // Create an admin user
     $adminUser = User::factory()->create(['email' => 'admin@email.com']);
 
     $this->actingAs($adminUser);
