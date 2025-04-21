@@ -56,7 +56,7 @@ it('finds users by registration IP', function (): void {
         'most_recent_login_ip' => '10.0.0.2',
     ]);
 
-     User::factory()->create([
+    User::factory()->create([
         'registration_ip' => '10.0.0.3',
         'most_recent_login_ip' => '10.0.0.3',
     ]);
@@ -173,7 +173,7 @@ it('clears search results', function (): void {
 
     $testIp = '192.168.1.5';
 
-     User::factory()->create([
+    User::factory()->create([
         'registration_ip' => $testIp,
         'most_recent_login_ip' => $testIp,
     ]);
