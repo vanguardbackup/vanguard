@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use App\Models\User;
+use App\Rules\ValidHexColour;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -157,6 +158,7 @@ class TagController extends Controller
         $rules = [
             'label' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'colour' => ['nullable', 'string', new ValidHexColour],
         ];
 
         if ($isUpdate) {

@@ -41,6 +41,7 @@ test('user can create a new tag', function (): void {
 
     $tagData = [
         'label' => 'New Tag',
+        'colour' => '#d37445',
         'description' => 'This is a new tag',
     ];
 
@@ -56,6 +57,7 @@ test('user cannot create a tag without proper permission', function (): void {
     $response = $this->postJson('/api/tags', [
         'label' => 'New Tag',
         'description' => 'This is a new tag',
+        'colour' => '#d37445',
     ]);
 
     $response->assertStatus(403);
@@ -73,6 +75,7 @@ test('user can view a specific tag', function (): void {
             'id' => $tag->id,
             'label' => $tag->label,
             'description' => $tag->description,
+            'colour' => $tag->colour,
         ]);
 });
 
@@ -94,6 +97,7 @@ test('user can update their tag', function (): void {
     $updatedData = [
         'label' => 'Updated Tag',
         'description' => 'This is an updated tag',
+        'colour' => '#d37445',
     ];
 
     $response = $this->putJson("/api/tags/{$tag->id}", $updatedData);

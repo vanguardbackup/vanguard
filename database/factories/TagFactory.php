@@ -12,6 +12,7 @@ class TagFactory extends Factory
         return [
             'label' => fake()->unique()->word(),
             'description' => fake()->sentence(),
+            'colour' => fake()->hexColor(),
             'user_id' => User::factory()->create()->id,
         ];
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Tags;
 
 use App\Models\Tag;
+use App\Rules\ValidHexColour;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -26,6 +27,9 @@ class CreateForm extends Component
     /** @var string|null The optional description for the new tag. */
     public ?string $description = null;
 
+    /** @var string|null The optional colour identifier for the tag. */
+    public ?string $colour = null;
+
     /**
      * Handle the form submission for creating a new tag.
      *
@@ -36,6 +40,7 @@ class CreateForm extends Component
         $this->validate([
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string'],
+            'colour' => ['nullable', 'string', new ValidHexColour],
         ], [
             'label.required' => __('Please enter a label.'),
         ]);
@@ -44,6 +49,7 @@ class CreateForm extends Component
             'user_id' => Auth::id(),
             'label' => $this->label,
             'description' => $this->description ?? null,
+            'colour' => $this->colour,
         ]);
 
         Toaster::success('The tag :label has been added.', ['label' => $tag->label]);

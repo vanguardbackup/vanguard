@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Tags;
 
 use App\Models\Tag;
+use App\Rules\ValidHexColour;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -25,6 +26,9 @@ class UpdateForm extends Component
     /** @var string|null The updated description for the tag. */
     public ?string $description = null;
 
+    /** @var string|null An optional updated colour identifier. */
+    public ?string $colour = null;
+
     /** @var Tag The tag instance being updated. */
     public Tag $tag;
 
@@ -38,6 +42,7 @@ class UpdateForm extends Component
         $this->tag = $tag;
         $this->label = $tag->getAttribute('label');
         $this->description = $tag->getAttribute('description') ?? null;
+        $this->colour = $tag->getAttribute('colour');
     }
 
     /**
@@ -52,6 +57,7 @@ class UpdateForm extends Component
         $this->validate([
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string'],
+            'colour' => ['nullable', 'string', new ValidHexColour],
         ], [
             'label.required' => __('Please enter a label.'),
         ]);
@@ -59,6 +65,7 @@ class UpdateForm extends Component
         $this->tag->update([
             'label' => $this->label,
             'description' => $this->description ?? null,
+            'colour' => $this->colour ?? null,
         ]);
 
         $this->tag->save();
