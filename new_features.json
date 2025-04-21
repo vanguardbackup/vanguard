@@ -1,8 +1,8 @@
 [
     {
-        "title": "Now with Scripts!",
-        "description": "Setup a script to run before/after a backup task!",
-        "version": "1.12.0",
-        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.12.0"
+        "title": "Now with colour!",
+        "description": "You can now set the colour of tags!",
+        "version": "1.13.0",
+        "github_url": "https://github.com/vanguardbackup/vanguard/releases/tag/1.13.0"
     }
 ]
