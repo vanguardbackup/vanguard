@@ -32,15 +32,11 @@
             </div>
             <div class="mt-4">
                 <x-input-label for="colour" :value="__('Colour')" />
-                <x-text-input
-                    id="colour"
-                    class="mt-1 block w-full"
-                    type="color"
-                    wire:model="colour"
-                    name="colour"
-                />
+                <x-text-input id="colour" class="mt-1 block w-full" type="color" wire:model="colour" name="colour" />
                 <x-input-error :messages="$errors->get('colour')" class="mt-2" />
-                <x-input-explain>{{ __('Optionally choose a colour to easily identify your tag.') }}</x-input-explain>
+                <x-input-explain>
+                    {{ __('Optionally choose a colour to easily identify your tag.') }}
+                </x-input-explain>
             </div>
             <div class="mx-auto mt-6 max-w-3xl">
                 <div class="flex flex-col space-y-4 sm:flex-row sm:space-x-5 sm:space-y-0">
