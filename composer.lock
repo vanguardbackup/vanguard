@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c53686342026e0c3bffc2e172b0e48b",
+    "content-hash": "efd22e6ab5e9373db41fddaf296e511a",
     "packages": [
         {
             "name": "afatmustafa/blade-hugeicons",
@@ -2619,20 +2619,21 @@
         },
         {
             "name": "laravel/nightwatch",
-            "version": "v1.1.2",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/nightwatch.git",
-                "reference": "ca22fbad2d90cfb4599dc447b10574cd09a116a0"
+                "reference": "82a05a1c8dce12e64877e92e559f6c5ba54373ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/nightwatch/zipball/ca22fbad2d90cfb4599dc447b10574cd09a116a0",
-                "reference": "ca22fbad2d90cfb4599dc447b10574cd09a116a0",
+                "url": "https://api.github.com/repos/laravel/nightwatch/zipball/82a05a1c8dce12e64877e92e559f6c5ba54373ab",
+                "reference": "82a05a1c8dce12e64877e92e559f6c5ba54373ab",
                 "shasum": ""
             },
             "require": {
                 "ext-zlib": "*",
+                "guzzlehttp/promises": "^2.0",
                 "laravel/framework": "^10.0|^11.0|^12.0",
                 "monolog/monolog": "^3.0",
                 "nesbot/carbon": "^2.0|^3.0",
@@ -2644,19 +2645,15 @@
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.0",
-                "guzzlehttp/promises": "^2.0",
                 "guzzlehttp/psr7": "^2.0",
                 "laravel/horizon": "^5.4",
                 "laravel/pint": "1.21.0",
                 "mockery/mockery": "^1.0",
                 "mongodb/laravel-mongodb": "^5.0",
-                "orchestra/pest-plugin-testbench": "^2.0|^3.0",
                 "orchestra/testbench": "^8.0|^9.0|^10.0",
                 "orchestra/testbench-core": "^8.0|^9.0|^10.0",
-                "pestphp/pest": "^2.0|^3.0",
-                "pestphp/pest-plugin-arch": "^2.0|^3.0",
-                "pestphp/pest-plugin-laravel": "^2.0|^3.0",
                 "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^10.0|^11.0",
                 "ramsey/uuid": "^4.0",
                 "spatie/laravel-ignition": "^2.0",
                 "symfony/mailer": "^6.0|^7.0",
@@ -2678,7 +2675,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "AGPL-3.0-or-later"
+                "MIT"
             ],
             "authors": [
                 {
@@ -2698,7 +2695,7 @@
                 "issues": "https://github.com/laravel/nightwatch/issues",
                 "source": "https://github.com/laravel/nightwatch"
             },
-            "time": "2025-03-31T06:20:22+00:00"
+            "time": "2025-06-16T07:07:26+00:00"
         },
         {
             "name": "laravel/pennant",
@@ -14488,6 +14485,6 @@
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
