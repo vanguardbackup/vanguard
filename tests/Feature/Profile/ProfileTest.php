@@ -52,7 +52,7 @@ test('profile information can be updated', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('gravatar_email', 'gravatar@example.com')
@@ -63,7 +63,7 @@ test('profile information can be updated', function (): void {
         ->set('pagination_count', 50)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
@@ -87,13 +87,13 @@ test('email verification status is unchanged when the email address is unchanged
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', $user->email)
         ->set('pagination_count', 50)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
@@ -106,12 +106,12 @@ test('user can delete their account', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.delete-user-form')
+    $testable = Volt::test('profile.delete-user-form')
         ->set('currentView', 'final-confirmation')
         ->set('password', 'password')
         ->call('deleteUser');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertRedirect('/');
 
@@ -129,12 +129,12 @@ test('correct password must be provided to delete account', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.delete-user-form')
+    $testable = Volt::test('profile.delete-user-form')
         ->set('currentView', 'final-confirmation')
         ->set('password', 'wrong-password')
         ->call('deleteUser');
 
-    $component
+    $testable
         ->assertHasErrors('password')
         ->assertNoRedirect();
 
@@ -158,11 +158,11 @@ test('user can proceed to eligibility check if they have a password', function (
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.delete-user-form')
+    $testable = Volt::test('profile.delete-user-form')
         ->call('proceedToEligibilityCheck');
 
-    $this->assertTrue($component->get('hasPassword'));
-    $this->assertEquals('eligibility', $component->get('currentView'));
+    $this->assertTrue($testable->get('hasPassword'));
+    $this->assertEquals('eligibility', $testable->get('currentView'));
 });
 
 test('user can proceed to final confirmation if eligible', function (): void {
@@ -170,11 +170,11 @@ test('user can proceed to final confirmation if eligible', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.delete-user-form')
+    $testable = Volt::test('profile.delete-user-form')
         ->set('isEligible', true)
         ->call('proceedToFinalConfirmation');
 
-    $this->assertEquals('final-confirmation', $component->get('currentView'));
+    $this->assertEquals('final-confirmation', $testable->get('currentView'));
 });
 
 test('user cannot proceed to final confirmation if not eligible', function (): void {
@@ -182,11 +182,11 @@ test('user cannot proceed to final confirmation if not eligible', function (): v
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.delete-user-form')
+    $testable = Volt::test('profile.delete-user-form')
         ->set('isEligible', false)
         ->call('proceedToFinalConfirmation');
 
-    $this->assertNotEquals('final-confirmation', $component->get('currentView'));
+    $this->assertNotEquals('final-confirmation', $testable->get('currentView'));
 });
 
 test('account summary is generated correctly', function (): void {
@@ -220,14 +220,14 @@ test('the timezone must be valid', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('timezone', 'Invalid/Timezone')
         ->set('pagination_count', 50)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors('timezone')
         ->assertNoRedirect();
 });
@@ -238,14 +238,14 @@ test('the preferred backup destination can be nullable - not set', function (): 
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('pagination_count', 50)
         ->set('timezone', 'America/New_York')
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
@@ -260,7 +260,7 @@ test('the preferred backup destination must exist', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('timezone', 'America/New_York')
@@ -268,7 +268,7 @@ test('the preferred backup destination must exist', function (): void {
         ->set('preferred_backup_destination_id', 999)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors('preferred_backup_destination_id')
         ->assertNoRedirect();
 
@@ -285,7 +285,7 @@ test('the preferred backup destination must belong to the user', function (): vo
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('timezone', 'America/New_York')
@@ -293,7 +293,7 @@ test('the preferred backup destination must belong to the user', function (): vo
         ->set('preferred_backup_destination_id', $backupDestination->id)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors('preferred_backup_destination_id')
         ->assertNoRedirect();
 
@@ -315,7 +315,7 @@ test('the language must exist', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('timezone', 'America/New_York')
@@ -324,7 +324,7 @@ test('the language must exist', function (): void {
         ->set('language', 'invalid_language') // Set an invalid language code
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors(['language' => 'in'])
         ->assertNoRedirect();
 
@@ -339,7 +339,7 @@ test('the gravatar email must be an email address', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('gravatar_email', 'not-an-email')
@@ -347,7 +347,7 @@ test('the gravatar email must be an email address', function (): void {
         ->set('timezone', 'America/New_York')
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors('gravatar_email')
         ->assertNoRedirect();
 
@@ -359,13 +359,13 @@ test('pagination count can be updated', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', $user->name)
         ->set('email', $user->email)
         ->set('pagination_count', 30)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
@@ -379,13 +379,13 @@ test('pagination count must be one of the allowed values', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', $user->name)
         ->set('email', $user->email)
         ->set('pagination_count', 25) // Not in [15, 30, 50, 100]
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors(['pagination_count' => 'in'])
         ->assertNoRedirect();
 });
@@ -395,13 +395,13 @@ test('pagination count cannot be less than 1', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', $user->name)
         ->set('email', $user->email)
         ->set('pagination_count', 0)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors(['pagination_count' => 'min'])
         ->assertNoRedirect();
 });
@@ -411,13 +411,13 @@ test('pagination count cannot exceed 100', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('name', $user->name)
         ->set('email', $user->email)
         ->set('pagination_count', 150)
         ->call('updateProfileInformation');
 
-    $component
+    $testable
         ->assertHasErrors(['pagination_count' => 'max'])
         ->assertNoRedirect();
 });
@@ -484,12 +484,12 @@ test('weekly summary email can be opted out', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-profile-information-form')
+    $testable = Volt::test('profile.update-profile-information-form')
         ->set('receiving_weekly_summary_email', false)
         ->set('pagination_count', 15)
         ->call('updateProfileInformation');
 
-    $component->assertHasNoErrors();
+    $testable->assertHasNoErrors();
 
     $user->refresh();
 

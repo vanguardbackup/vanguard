@@ -22,12 +22,12 @@ test('password can be confirmed', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('pages.auth.confirm-password')
+    $testable = Volt::test('pages.auth.confirm-password')
         ->set('password', 'password');
 
-    $component->call('confirmPassword');
+    $testable->call('confirmPassword');
 
-    $component
+    $testable
         ->assertRedirect('/overview')
         ->assertHasNoErrors();
 });
@@ -37,12 +37,12 @@ test('password is not confirmed with invalid password', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('pages.auth.confirm-password')
+    $testable = Volt::test('pages.auth.confirm-password')
         ->set('password', 'wrong-password');
 
-    $component->call('confirmPassword');
+    $testable->call('confirmPassword');
 
-    $component
+    $testable
         ->assertNoRedirect()
         ->assertHasErrors('password');
 });

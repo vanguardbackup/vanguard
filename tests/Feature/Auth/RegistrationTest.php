@@ -19,15 +19,15 @@ test('registration screen can be rendered', function (): void {
 test('new users can register', function (): void {
     Mail::fake();
 
-    $component = Volt::test('pages.auth.register')
+    $testable = Volt::test('pages.auth.register')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('password', 'password')
         ->set('password_confirmation', 'password');
 
-    $component->call('register');
+    $testable->call('register');
 
-    $component->assertRedirect(route('overview', absolute: false));
+    $testable->assertRedirect(route('overview', absolute: false));
 
     $this->assertAuthenticated();
 

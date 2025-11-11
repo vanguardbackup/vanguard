@@ -99,7 +99,7 @@ test('abilities are reset after token creation', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.api-token-manager')
+    $testable = Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', [
             'view-backup-destinations' => true,
@@ -107,7 +107,7 @@ test('abilities are reset after token creation', function (): void {
         ])
         ->call('createApiToken');
 
-    $component->assertSet('abilities', array_fill_keys(array_keys($component->get('abilities')), false));
+    $testable->assertSet('abilities', array_fill_keys(array_keys($testable->get('abilities')), false));
 });
 
 test('token value is displayed after creation', function (): void {
@@ -115,12 +115,12 @@ test('token value is displayed after creation', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.api-token-manager')
+    $testable = Volt::test('profile.api-token-manager')
         ->set('name', 'API Token')
         ->set('abilities', ['view-backup-destinations' => true])
         ->call('createApiToken');
 
-    $component
+    $testable
         ->assertDispatched('close-modal', 'create-api-token')
         ->assertDispatched('open-modal', 'api-token-value')
         ->assertSet('plainTextToken', function ($plainTextToken): bool {
@@ -162,10 +162,10 @@ test('select all abilities works', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.api-token-manager')
+    $testable = Volt::test('profile.api-token-manager')
         ->call('selectAllAbilities');
 
-    $abilities = $component->get('abilities');
+    $abilities = $testable->get('abilities');
     foreach ($abilities as $ability) {
         expect($ability)->toBeTrue();
     }
@@ -176,7 +176,7 @@ test('deselect all abilities works', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.api-token-manager')
+    $testable = Volt::test('profile.api-token-manager')
         ->set('abilities', [
             'view-backup-destinations' => true,
             'create-backup-tasks' => true,
@@ -184,7 +184,7 @@ test('deselect all abilities works', function (): void {
         ])
         ->call('deselectAllAbilities');
 
-    $abilities = $component->get('abilities');
+    $abilities = $testable->get('abilities');
     foreach ($abilities as $ability) {
         expect($ability)->toBeFalse();
     }

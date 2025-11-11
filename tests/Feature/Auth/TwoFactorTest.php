@@ -62,13 +62,13 @@ describe('Two-Factor Authentication Setup', function (): void {
 
 describe('Two-Factor Authentication Login Flow', function (): void {
     test('A user without two-factor enabled does not get asked to validate', function (): void {
-        $component = Volt::test('pages.auth.login')
+        $testable = Volt::test('pages.auth.login')
             ->set('form.email', $this->user->email)
             ->set('form.password', 'password');
 
-        $component->call('login');
+        $testable->call('login');
 
-        $component
+        $testable
             ->assertHasNoErrors()
             ->assertRedirect(route('overview', absolute: false));
 
@@ -84,13 +84,13 @@ describe('Two-Factor Authentication Login Flow', function (): void {
             ->middleware(['auth', EnforceTwoFactor::class])
             ->name('test.login');
 
-        $component = Volt::test('pages.auth.login')
+        $testable = Volt::test('pages.auth.login')
             ->set('form.email', $this->user->email)
             ->set('form.password', 'password');
 
         expect($this->user->fresh()->hasTwoFactorEnabled())->toBeTrue();
 
-        $component->call('login');
+        $testable->call('login');
 
         expect($this->isAuthenticated())->toBeTrue();
 
@@ -119,11 +119,11 @@ describe('Two-Factor Challenge', function (): void {
     test('user cannot submit invalid two-factor authentication code', function (): void {
         $invalidCode = '000000';
 
-        $component = Volt::test('pages.auth.two-factor-challenge')
+        $testable = Volt::test('pages.auth.two-factor-challenge')
             ->set('code', $invalidCode)
             ->call('submit');
 
-        expect($component->error)->not->toBeNull();
+        expect($testable->error)->not->toBeNull();
 
         $this->user->refresh();
         expect($this->user->two_factor_verified_token)->toBeNull();
@@ -144,12 +144,12 @@ describe('Two-Factor Challenge', function (): void {
         $recoveryCodes = $this->user->generateRecoveryCodes();
         $validRecoveryCode = (string) $recoveryCodes[0]['code'];
 
-        $component = Volt::test('pages.auth.two-factor-challenge')
+        $testable = Volt::test('pages.auth.two-factor-challenge')
             ->set('isRecoveryCode', true)
             ->set('code', $validRecoveryCode)
             ->call('submit');
 
-        expect($component->error)->toBeNull();
+        expect($testable->error)->toBeNull();
 
         $this->user->refresh();
         expect($this->user->two_factor_verified_token)->not->toBeNull();
@@ -159,12 +159,12 @@ describe('Two-Factor Challenge', function (): void {
     test('user cannot submit invalid recovery code', function (): void {
         $invalidRecoveryCode = 'invalid-recovery-code';
 
-        $component = Volt::test('pages.auth.two-factor-challenge')
+        $testable = Volt::test('pages.auth.two-factor-challenge')
             ->set('isRecoveryCode', true)
             ->set('code', $invalidRecoveryCode)
             ->call('submit');
 
-        expect($component->error)->not->toBeNull();
+        expect($testable->error)->not->toBeNull();
 
         $this->user->refresh();
         expect($this->user->two_factor_verified_token)->toBeNull();
@@ -177,11 +177,11 @@ describe('Two-Factor Challenge', function (): void {
                 ->call('submit');
         }
 
-        $component = Volt::test('pages.auth.two-factor-challenge')
+        $testable = Volt::test('pages.auth.two-factor-challenge')
             ->set('code', '000000')
             ->call('submit');
 
-        expect($component->error)->toContain('Too many attempts');
+        expect($testable->error)->toContain('Too many attempts');
     });
 
     test('auth code input automatically submits when 6 digits are entered', function (): void {
@@ -200,16 +200,16 @@ describe('Two-Factor Challenge', function (): void {
     });
 
     test('error is cleared when toggling between auth code and recovery code', function (): void {
-        $component = Volt::test('pages.auth.two-factor-challenge')
+        $testable = Volt::test('pages.auth.two-factor-challenge')
             ->set('code', '000000')
             ->call('submit');
 
-        expect($component->error)->not->toBeNull();
+        expect($testable->error)->not->toBeNull();
 
-        $component->call('toggleCodeType');
+        $testable->call('toggleCodeType');
 
-        expect($component->error)->toBeNull()
-            ->and($component->code)->toBe('');
+        expect($testable->error)->toBeNull()
+            ->and($testable->code)->toBe('');
     });
 });
 

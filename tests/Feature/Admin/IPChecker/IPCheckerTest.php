@@ -148,11 +148,11 @@ it('formats results correctly', function (): void {
         'last_login_at' => now()->subHours(2),
     ]);
 
-    $livewire = Livewire::test(IPCheckerPage::class)
+    $testable = Livewire::test(IPCheckerPage::class)
         ->set('ipAddress', $testIp)
         ->call('check');
 
-    $results = $livewire->get('results');
+    $results = $testable->get('results');
     $this->assertArrayHasKey(0, $results);
 
     $firstResult = $results[0];

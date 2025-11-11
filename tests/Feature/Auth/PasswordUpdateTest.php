@@ -13,13 +13,13 @@ test('password can be updated', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-password-form')
+    $testable = Volt::test('profile.update-password-form')
         ->set('current_password', 'password')
         ->set('password', 'new-password')
         ->set('password_confirmation', 'new-password')
         ->call('updatePassword');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertNoRedirect();
 
@@ -31,13 +31,13 @@ test('correct password must be provided to update password', function (): void {
 
     $this->actingAs($user);
 
-    $component = Volt::test('profile.update-password-form')
+    $testable = Volt::test('profile.update-password-form')
         ->set('current_password', 'wrong-password')
         ->set('password', 'new-password')
         ->set('password_confirmation', 'new-password')
         ->call('updatePassword');
 
-    $component
+    $testable
         ->assertHasErrors(['current_password'])
         ->assertNoRedirect();
 });

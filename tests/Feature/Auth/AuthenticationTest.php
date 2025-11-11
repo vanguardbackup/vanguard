@@ -16,13 +16,13 @@ test('login screen can be rendered', function (): void {
 test('users can authenticate using the login screen', function (): void {
     $user = User::factory()->create();
 
-    $component = Volt::test('pages.auth.login')
+    $testable = Volt::test('pages.auth.login')
         ->set('form.email', $user->email)
         ->set('form.password', 'password');
 
-    $component->call('login');
+    $testable->call('login');
 
-    $component
+    $testable
         ->assertHasNoErrors()
         ->assertRedirect(route('overview', absolute: false));
 
@@ -32,13 +32,13 @@ test('users can authenticate using the login screen', function (): void {
 test('users can not authenticate with invalid password', function (): void {
     $user = User::factory()->create();
 
-    $component = Volt::test('pages.auth.login')
+    $testable = Volt::test('pages.auth.login')
         ->set('form.email', $user->email)
         ->set('form.password', 'wrong-password');
 
-    $component->call('login');
+    $testable->call('login');
 
-    $component
+    $testable
         ->assertHasErrors()
         ->assertNoRedirect();
 
